@@ -1,0 +1,28 @@
+name: PyTorch Vulkan / Lavapipe
+on:
+  push:
+  pull_request:
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Vulkan toolchain (Lavapipe software ICD)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libvulkan-dev libvulkan1 mesa-vulkan-drivers glslang-tools vulkan-tools cmake g++
+      - name: Install PyTorch 2.14.1 CPU
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.14.1'
+          python -m pip install setuptools wheel pytest numpy
+      - name: Build shaders and backend
+        run: |
+          bash csrc/shaders/compile.sh
+          python -m pip install -e . --no-build-isolation --no-deps
+      - name: Test on software Vulkan
+        env:
+          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.json
+        run: python -m pytest -q tests
