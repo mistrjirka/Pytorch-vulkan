@@ -2,6 +2,7 @@
 #include <ATen/ops/from_blob.h>
 #include <ATen/NativeFunctions.h>
 #include <ATen/InferSize.h>
+#include <ATen/ExpandUtils.h>
 #include <ATen/TensorUtils.h>
 #include <ATen/native/Resize.h>
 #include "../vulkan_allocator.h"
@@ -273,34 +274,35 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   return output;
 }
 
-// aten::add.Tensor — elementwise add with alpha scaling (with broadcast)
-at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other, const at::Scalar& alpha) {
-  auto self_c = contiguous_for_kernel(self);
-  auto other_c = contiguous_for_kernel(other);
-  // Broadcast scalar-like tensors
-  if (other_c.numel() == 1 && self_c.numel() > 1) {
-    other_c = contiguous_for_kernel(other_c.expand_as(self_c));
-  } else if (self_c.numel() == 1 && other_c.numel() > 1) {
-    self_c = contiguous_for_kernel(self_c.expand_as(other_c));
-  }
-  uint32_t n = static_cast<uint32_t>(self_c.numel());
-  float alpha_f = alpha.toFloat();
-  uint32_t alpha_bits;
-  std::memcpy(&alpha_bits, &alpha_f, sizeof(uint32_t));
-  return elementwise_binary(self_c, other_c, "add", {n, alpha_bits});
+// Expand broadcast dimensions using PyTorch's standard NumPy-style rules.
+// Currently strided expanded views are materialized via the host mirror before
+// compute; this preserves correctness but is slower than a stride-aware shader.
+static std::pair<at::Tensor, at::Tensor> broadcast_binary_operands(
+    const at::Tensor& a, const at::Tensor& b) {
+  const auto shape = at::infer_size(a.sizes(), b.sizes());
+  const auto ea = a.sizes().equals(shape) ? a : a.expand(shape);
+  const auto eb = b.sizes().equals(shape) ? b : b.expand(shape);
+  return {contiguous_for_kernel(ea), contiguous_for_kernel(eb)};
 }
 
-// aten::mul.Tensor — elementwise multiply (with broadcast for scalars)
+// aten::add.Tensor — alpha scaling with arbitrary compatible broadcasting.
+at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
+                      const at::Scalar& alpha) {
+  auto [a, b] = broadcast_binary_operands(self, other);
+  TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan add: tensor too large");
+  const uint32_t n = static_cast<uint32_t>(a.numel());
+  float alpha_f = alpha.toFloat();
+  uint32_t alpha_bits;
+  std::memcpy(&alpha_bits, &alpha_f, sizeof(alpha_bits));
+  return elementwise_binary(a, b, "add", {n, alpha_bits});
+}
+
+// aten::mul.Tensor — elementwise multiplication with arbitrary broadcasting.
 at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
-  // Handle scalar-as-tensor (0-dim or 1-element)
-  if (other.numel() == 1) {
-    return mul_scalar(self, other.item());
-  }
-  if (self.numel() == 1) {
-    return mul_scalar(other, self.item());
-  }
-  uint32_t n = static_cast<uint32_t>(self.numel());
-  return elementwise_binary(self, other, "mul", {n});
+  auto [a, b] = broadcast_binary_operands(self, other);
+  TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan mul: tensor too large");
+  const uint32_t n = static_cast<uint32_t>(a.numel());
+  return elementwise_binary(a, b, "mul", {n});
 }
 
 // aten::relu — rectified linear
@@ -678,90 +680,10 @@ at::Tensor div_tensor(const at::Tensor& self, const at::Tensor& other) {
   TORCH_CHECK(false, "div.Tensor: only scalar-like divisor supported for now");
 }
 
-// Fused scaled dot-product attention via attention.spv
-// Phase 4: cached algorithm per (head_dim, seq_len) combo
-at::Tensor vulkan_scaled_dot_product_attention(
-    const at::Tensor& query,
-    const at::Tensor& key,
-    const at::Tensor& value,
-    const std::optional<at::Tensor>& attn_mask,
-    double dropout_p,
-    bool is_causal,
-    std::optional<double> scale,
-    bool enable_gqa) {
-
-  // Handle shapes: [B, H, S, D] or [S, D]
-  auto q = contiguous_for_kernel(query);
-  auto k = contiguous_for_kernel(key);
-  auto v = contiguous_for_kernel(value);
-
-  int64_t seq_len, head_dim;
-  bool batched = q.dim() == 4;
-  int64_t batch = 1, heads = 1;
-
-  if (batched) {
-    batch = q.size(0);
-    heads = q.size(1);
-    seq_len = q.size(2);
-    head_dim = q.size(3);
-  } else if (q.dim() == 3) {
-    batch = q.size(0);
-    seq_len = q.size(1);
-    head_dim = q.size(2);
-  } else {
-    seq_len = q.size(0);
-    head_dim = q.size(1);
-  }
-
-  auto& ctx = VulkanContext::instance();
-  auto& mgr = ctx.manager();
-  auto spirv = ctx.load_shader("attention");
-
-  // Allocate output same shape as query
-  auto output = at::empty(q.sizes(), q.options());
-
-  int64_t head_elements = seq_len * head_dim;
-
-  // Iterate over batch and heads (shader handles single [S, D] attention)
-  for (int64_t b = 0; b < batch; b++) {
-    for (int64_t h = 0; h < heads; h++) {
-      int64_t offset = (b * heads + h) * head_elements;
-      const float* q_ptr = q.data_ptr<float>() + offset;
-      const float* k_ptr = k.data_ptr<float>() + offset;
-      const float* v_ptr = v.data_ptr<float>() + offset;
-      float* o_ptr = output.data_ptr<float>() + offset;
-
-      std::vector<float> q_data(q_ptr, q_ptr + head_elements);
-      std::vector<float> k_data(k_ptr, k_ptr + head_elements);
-      std::vector<float> v_data(v_ptr, v_ptr + head_elements);
-      std::vector<float> o_data(head_elements, 0.0f);
-
-      auto tq = mgr.tensor(q_data);
-      auto tk = mgr.tensor(k_data);
-      auto tv = mgr.tensor(v_data);
-      auto to = mgr.tensor(o_data);
-
-      uint32_t sl = static_cast<uint32_t>(seq_len);
-      uint32_t hd = static_cast<uint32_t>(head_dim);
-
-      auto algorithm = ctx.get_or_create_algorithm(
-          "attention",
-          {tq, tk, tv, to},
-          kp::Workgroup({sl, 1, 1}),
-          std::vector<uint32_t>{sl, hd});
-
-      auto seq = mgr.sequence();
-      seq->record<kp::OpTensorSyncDevice>({tq, tk, tv});
-      seq->record<kp::OpAlgoDispatch>(algorithm);
-      seq->record<kp::OpTensorSyncLocal>({to});
-      seq->eval();
-
-      std::memcpy(o_ptr, to->data(), head_elements * sizeof(float));
-    }
-  }
-
-  return output;
-}
+// The old fused scaled-dot-product-attention code was removed because it
+// disagreed with PyTorch for common head layouts and had no backward rule.
+// Use PyTorch's CPU fallback until a fully tested Vulkan forward+backward
+// implementation is ready.
 
 // Proper storage-sharing views, adapted from MIT-licensed pytorch-XDNA2.
 // CPU fallback cannot implement view ops without breaking aliasing and autograd.
@@ -787,6 +709,13 @@ static at::Tensor vulkan_as_strided(const at::Tensor& tensor,
                             storage_offset.value_or(tensor.sym_storage_offset()));
 }
 
+static at::Tensor vulkan_reshape_alias(const at::Tensor& tensor,
+                                     c10::SymIntArrayRef sizes,
+                                     c10::SymIntArrayRef strides) {
+  return alias_with_strides(tensor, sizes, strides,
+                            tensor.sym_storage_offset());
+}
+
 static at::Tensor vulkan_view(const at::Tensor& tensor,
                               c10::SymIntArrayRef requested) {
   auto shape = at::infer_size_dv(requested, tensor.sym_numel());
@@ -798,30 +727,6 @@ static at::Tensor vulkan_view(const at::Tensor& tensor,
   return alias_with_strides(tensor, c10::SymIntArrayRef(shape),
                             c10::SymIntArrayRef(*strides),
                             tensor.sym_storage_offset());
-}
-
-// aten::reshape / view — metadata reshape, copy if non-contiguous
-at::Tensor vulkan_reshape(const at::Tensor& self, at::IntArrayRef shape) {
-  auto self_c = contiguous_for_kernel(self);
-  // Compute actual shape (resolve -1)
-  int64_t total = self_c.numel();
-  std::vector<int64_t> new_shape(shape.begin(), shape.end());
-  int64_t neg_idx = -1;
-  int64_t known = 1;
-  for (int64_t i = 0; i < (int64_t)new_shape.size(); i++) {
-    if (new_shape[i] == -1) {
-      neg_idx = i;
-    } else {
-      known *= new_shape[i];
-    }
-  }
-  if (neg_idx >= 0) {
-    new_shape[neg_idx] = total / known;
-  }
-
-  auto output = at::empty(new_shape, self.options());
-  std::memcpy(output.data_ptr(), self_c.data_ptr(), total * self_c.element_size());
-  return output;
 }
 
 // aten::t — matrix transpose (2D only)
@@ -931,11 +836,15 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("addmm", &vulkan_addmm);
   m.impl("mul.Scalar", &mul_scalar);
   m.impl("div.Tensor", &div_tensor);
-  m.impl("scaled_dot_product_attention", &vulkan_scaled_dot_product_attention);
-  m.impl("reshape", &vulkan_reshape);
+  // The old custom SDPA shader is not accurate for all head layouts and has
+  // no Autograd implementation. Do not register it: dispatch through the
+  // correctness-first CPU fallback until a tested forward+backward exists.
+  // Let PyTorch's composite reshape preserve autograd and call native view.
+  // The prior custom memcpy reshape bypassed the required autograd rule.
   m.impl("t", &vulkan_t);
   m.impl("view", &vulkan_view);
   m.impl("as_strided", &vulkan_as_strided);
+  m.impl("_reshape_alias", &vulkan_reshape_alias);
 }
 
 TORCH_LIBRARY_IMPL(_, PrivateUse1, m) {

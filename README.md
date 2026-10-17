@@ -81,6 +81,16 @@ stride/padding/dilation/group variants. Other operations can fall back to CPU.
 The simple SGD example at `examples/linear_train.py` reduces MSE from
 4.6667 to 0.7864 in five steps.
 
+### Real GPU performance versus CUDA
+
+See **[Vulkan vs CUDA vs CPU benchmarks](benchmarks/GPU_COMPARISON.md)**
+for eight XDNA2 model-zoo architectures and per-stage optimizer profiling.
+Native CUDA is currently far faster on the RTX 2080 Ti, particularly for
+complete AdamW training (CPU fallbacks and staging dominate). The larger-image
+StyleNet 36×36 inference took 97.2 ms on Vulkan versus 1.53 ms on CUDA.
+CUDA 13 / PyTorch 2.14.1 cannot execute on V100 (SM70); both physical GPUs
+are still tested for Vulkan correctness.
+
 ### Real GPU testing against the latest XDNA2 model zoo
 
 We import model definitions from

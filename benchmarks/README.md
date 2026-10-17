@@ -1,4 +1,7 @@
-# External XDNA2 model-zoo smoke tests
+# Benchmarking and model-zoo smoke tests
+
+**[GPU comparison report: Vulkan vs CUDA vs CPU](GPU_COMPARISON.md)** includes 8 architectures, measured FP32 inference and full AdamW training, medium-resolution image inputs, and optimizer-stage profiling.
+
 
 This project intentionally **imports the actual model definitions** from
 [mistrjirka/pytorch-XDNA2](https://github.com/mistrjirka/pytorch-XDNA2);

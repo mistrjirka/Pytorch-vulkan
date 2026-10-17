@@ -213,3 +213,38 @@ def test_gelu_forward_backward_matches_exact_cpu_reference():
     assert torch._C._dispatch_has_kernel_for_dispatch_key(
         'aten::gelu_backward', 'PrivateUse1'
     )
+
+
+def test_broadcast_add_mul_matches_cpu_with_autograd():
+    torch.manual_seed(700)
+    x_cpu = torch.randn(2, 3, 5, requires_grad=True)
+    y_cpu = torch.randn(1, 3, 1, requires_grad=True)
+    x = x_cpu.detach().to('vulkan').requires_grad_()
+    y = y_cpu.detach().to('vulkan').requires_grad_()
+    for operator in ('add', 'mul'):
+        if operator == 'add':
+            ref = x_cpu + 2.0 * y_cpu
+            actual = torch.add(x, y, alpha=2)
+        else:
+            ref = x_cpu * y_cpu
+            actual = x * y
+        check_close(actual, ref.detach(), tol=2e-5)
+        grad = torch.randn_like(ref)
+        wanted = torch.autograd.grad(ref, (x_cpu, y_cpu), grad, retain_graph=True)
+        got = torch.autograd.grad(actual, (x, y), grad.to('vulkan'), retain_graph=True)
+        for calc, expected in zip(got, wanted):
+            check_close(calc, expected, tol=3e-5)
+
+
+def test_reshape_alias_backprop_matches_cpu():
+    torch.manual_seed(717)
+    cpu = torch.randn(2, 3, 4, requires_grad=True)
+    vk = cpu.detach().to('vulkan').requires_grad_()
+    # Permuted tensor has nontrivial strides. Some reshapes can be views.
+    ref = cpu.transpose(1, 2).reshape(2, 4, 3)
+    actual = vk.transpose(1, 2).reshape(2, 4, 3)
+    check_close(actual, ref, tol=1e-6)
+    grad = torch.randn_like(ref)
+    ref_grad = torch.autograd.grad(ref, cpu, grad)[0]
+    got_grad = torch.autograd.grad(actual, vk, grad.to('vulkan'))[0]
+    check_close(got_grad, ref_grad, tol=1e-6)

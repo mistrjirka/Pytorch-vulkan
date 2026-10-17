@@ -1,0 +1,64 @@
+{
+  "backend": "cpu",
+  "device_name": "CPU",
+  "torch_version": "2.14.1+cu130",
+  "cuda_version": "13.0",
+  "model": "resnet18",
+  "scale": "small",
+  "input_shape": [
+    2,
+    3,
+    48,
+    48
+  ],
+  "parameters": 11227812,
+  "dtype": "float32",
+  "warmup": 3,
+  "repeats": 5,
+  "threads": 8,
+  "modes": {
+    "inference": {
+      "median_ms": 7.368,
+      "min_ms": 7.324,
+      "max_ms": 7.64,
+      "samples_ms": [
+        7.64,
+        7.368,
+        7.349,
+        7.419,
+        7.324
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          2,
+          100
+        ],
+        "mean": -0.06973525881767273,
+        "rms": 0.5230163335800171
+      }
+    },
+    "training": {
+      "median_ms": 50.216,
+      "min_ms": 47.788,
+      "max_ms": 54.108,
+      "samples_ms": [
+        54.108,
+        53.401,
+        50.216,
+        47.788,
+        48.451
+      ],
+      "first_loss": 4.726622581481934,
+      "first_output": {
+        "shape": [
+          2,
+          100
+        ],
+        "mean": -0.06912500411272049,
+        "rms": 0.49859264492988586
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

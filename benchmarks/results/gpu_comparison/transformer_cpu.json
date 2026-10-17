@@ -1,0 +1,62 @@
+{
+  "backend": "cpu",
+  "device_name": "CPU",
+  "torch_version": "2.14.1+cu130",
+  "cuda_version": "13.0",
+  "model": "transformer",
+  "scale": "small",
+  "input_shape": [
+    2,
+    128
+  ],
+  "parameters": 5293056,
+  "dtype": "float32",
+  "warmup": 3,
+  "repeats": 5,
+  "threads": 8,
+  "modes": {
+    "inference": {
+      "median_ms": 9.044,
+      "min_ms": 8.5,
+      "max_ms": 9.392,
+      "samples_ms": [
+        9.044,
+        9.135,
+        8.858,
+        8.5,
+        9.392
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          256,
+          4096
+        ],
+        "mean": -0.0007024251390248537,
+        "rms": 0.7528101205825806
+      }
+    },
+    "training": {
+      "median_ms": 48.109,
+      "min_ms": 45.811,
+      "max_ms": 48.795,
+      "samples_ms": [
+        48.792,
+        48.109,
+        48.795,
+        46.166,
+        45.811
+      ],
+      "first_loss": 8.653519630432129,
+      "first_output": {
+        "shape": [
+          256,
+          4096
+        ],
+        "mean": -0.0007024253136478364,
+        "rms": 0.7528101205825806
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

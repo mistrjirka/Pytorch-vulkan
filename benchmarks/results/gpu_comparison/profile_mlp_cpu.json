@@ -1,0 +1,15 @@
+{
+  "backend": "cpu",
+  "device": "AMD EPYC CPU",
+  "torch": "2.14.1+cu130",
+  "batch": 128,
+  "dtype": "float32",
+  "phases_ms": {
+    "zero_grad": 0.976,
+    "forward": 2.391,
+    "loss": 0.039,
+    "backward": 4.179,
+    "adamw": 3.405,
+    "total": 10.638
+  }
+}

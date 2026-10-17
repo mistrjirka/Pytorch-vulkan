@@ -1,0 +1,15 @@
+{
+  "backend": "cuda",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cu130",
+  "batch": 128,
+  "dtype": "float32",
+  "phases_ms": {
+    "zero_grad": 0.059,
+    "forward": 0.226,
+    "loss": 0.056,
+    "backward": 0.912,
+    "adamw": 1.015,
+    "total": 2.269
+  }
+}
