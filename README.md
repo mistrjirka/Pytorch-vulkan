@@ -1,68 +1,143 @@
 # PyTorch Vulkan (experimental)
 
-A first-class PyTorch `PrivateUse1` Vulkan device for GPU inference and, eventually,
-training. **Currently an experimental bring-up, not a production backend.**
+A real Vulkan compute backend for **PyTorch 2.14.1** using `PrivateUse1`
+dispatch. It supports a growing subset of **FP32 training and inference**
+without requiring a PyTorch fork, CUDA, or ROCm.
 
-This work begins from [Peter Clemente III's MIT-licensed torch-vulkan](https://github.com/Peterc3-dev/torch-vulkan)
-inference backend; see [third-party notices](THIRD_PARTY_NOTICES.md).
-It is being modernized for **PyTorch 2.14.1** and expanded toward training.
+The project originated from [Peter Clemente III's MIT-licensed
+torch-vulkan](https://github.com/Peterc3-dev/torch-vulkan). See
+[third-party notices](THIRD_PARTY_NOTICES.md). This is still an experimental
+backend, **not a drop-in replacement for CUDA or ROCm**.
 
-## Setup (Linux)
+## Installation (Linux)
 
-Requires Python 3.12+, a working Vulkan ICD, Vulkan SDK (`libvulkan-dev`),
-CMake 3.18+, a C++20 compiler, and `glslangValidator` (package `glslang-tools`).
-The build currently uses [Kompute](https://github.com/KomputeProject/kompute),
-which CMake fetches if not installed.
+Requires Python 3.12+, a C++20 compiler, CMake 3.18+, Vulkan SDK headers,
+an actual Vulkan ICD, and `glslangValidator`.
 
 ```sh
+# Ubuntu 24.04; adapt package names on Arch.
+sudo apt-get install cmake g++ libvulkan-dev libvulkan1 glslang-tools \
+    vulkan-tools libegl1 libgl1 libxext6
+
 python3 -m venv .venv
 . .venv/bin/activate
-pip install 'torch==2.14.1' --index-url https://download.pytorch.org/whl/cpu
-pip install -U setuptools wheel pytest
+python -m pip install --index-url https://download.pytorch.org/whl/cpu 'torch==2.14.1'
+python -m pip install setuptools wheel pytest numpy
 bash csrc/shaders/compile.sh
-pip install -e . --no-build-isolation
-pytest -q tests/
-python examples/linear_train.py
+python -m pip install -e . --no-build-isolation --no-deps
+python -m pytest -q tests
 ```
 
 ```python
 import torch
 import torch_vulkan
-assert torch_vulkan.is_available()
-a = torch.randn(32, 16).to('vulkan')
-b = torch.randn(16, 8).to('vulkan')
-print((a @ b).cpu())
+
+print(torch_vulkan.device_name())
+assert torch_vulkan.is_hardware_accelerated()  # Excludes software Lavapipe.
+x = torch.randn(32, 16).to("vulkan")
+w = torch.randn(16, 8).to("vulkan").requires_grad_()
+y = x @ w
+y.sum().backward()
+print(y.cpu(), w.grad.cpu())
 ```
 
-## Verified functionality (2026-10-17)
+The Python wheel can be **CPU-only PyTorch**: the custom backend dispatches
+SPIR-V through the Vulkan driver. `torch.cuda.is_available()` does not
+indicate Vulkan support.
 
-PyTorch **2.14.1+cpu**, on Linux / Lavapipe (software Vulkan):
+### Selecting a physical GPU
 
-- 23 tests passing: transfers, FP32 add/multiply, GEMM, ReLU backward,
-  autograd gradients through multiply/GEMM, and miscellaneous inference ops.
-- Simple SGD training loop runs: MSE decreased from **4.6667 to 0.7864** in
-  five steps on the test problem. Unsupported loss/reduction/optimizer ops
-  currently execute through CPU fallback.
-- Backend reports physical driver name and `is_hardware_accelerated()`.
-  The development sandbox currently selects llvmpipe; no physical-GPU
-  correctness or performance claims can be made yet.
-- PyTorch includes a separate legacy `tensor.is_vulkan` property that does **not**
-  reflect the custom device. Use `tensor.device.type == "vulkan"` instead.
+The backend currently exposes **one logical** `vulkan:0` device per process.
+Choose which physical device backs it **before importing the module**:
 
-## Important limitations
+```sh
+vulkaninfo --summary
+VK_ICD_FILENAMES=/etc/vulkan/icd.d/nvidia_icd.json \
+TORCH_VULKAN_PHYSICAL_DEVICE_INDEX=1 python examples/linear_train.py
+```
 
-- Float32 inference-focused kernels, incomplete operator, dtype, and layout coverage.
-- Not yet a generally supported `torch.nn.Module` training device: backward kernels
-  and shape/stride semantics are being implemented and verified.
-- Current executor performs frequent host/device synchronization. Benchmarks against
-  CUDA/ROCm would be misleading until asynchronous scheduling and memory residency
-  are fixed.
-- A `vulkan` tensor is not necessarily GPU-resident: check the selected driver
-  (Lavapipe is a software Vulkan device).
+In the development Sandbox, Vulkan device 0 is the **NVIDIA RTX 2080 Ti**;
+device 1 is the **Tesla V100**. The names and indices depend on your driver.
+`torch_vulkan.device_name()` reports the actual device. Minimal NVIDIA
+containers can require `libegl1`, `libgl1`, and `libxext6` for the ICD
+to load.
 
-## Implementation
+## Verified functionality (October 17, 2026)
 
-`torch_vulkan` is a C++ PyTorch extension with `PrivateUse1` dispatch,
-Kompute-managed Vulkan buffers and GLSL/SPIR-V compute shaders in `csrc/shaders/`.
-No PyTorch fork is necessary. The tested subset is validated on PyTorch 2.14.1;
-broader operator coverage and hardware-driver correctness remain unverified.
+On **PyTorch 2.14.1+cpu**:
+
+| Driver | Test results |
+|---|---:|
+| RTX 2080 Ti (NVIDIA 580.178.04) | 37/37 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 37/37 passed |
+| Lavapipe software Vulkan | 36 passed, hardware-only test skipped |
+
+Supported, tested operations include FP32 GEMM (including transposed inputs),
+elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
+correct saved statistics, storage-sharing `view`/`as_strided`,
+and **native Vulkan Conv2D forward, dInput, dWeight, dBias** with
+stride/padding/dilation/group variants. Other operations can fall back to CPU.
+
+The simple SGD example at `examples/linear_train.py` reduces MSE from
+4.6667 to 0.7864 in five steps.
+
+### Real GPU testing against the latest XDNA2 model zoo
+
+We import model definitions from
+[mistrjirka/pytorch-XDNA2](https://github.com/mistrjirka/pytorch-XDNA2)
+(commit `c7c063101ec5209caf8022f5b4ea6948d1a8d6ed`), using
+**smaller FP32 synthetic batches** because the upstream benchmark runs BF16.
+These are functional probes, **not the original full-size benchmark**.
+All four models complete forward, backward, and an AdamW parameter update.
+
+| Model | Test input | RTX 2080 Ti forward + backward | Max output error vs CPU |
+|---|---|---:|---:|
+| MLP | 32×784 | 34 ms | 2.2e-6 |
+| U-Net | 1×3×16×16 | 109 ms | 3.9e-6 |
+| Embedding | 16×64 token IDs | 280 ms | 3.0e-8 |
+| StyleNet (all five residual blocks) | 1×3×8×8 | 284 ms | 1.1e-5 |
+
+Times are illustrative warm-run medians (RTX, PyTorch FP32). CPU and GPU
+are not benchmarked under tightly controlled conditions; GPU performance is
+**currently slower than CPU** for these small cases. See
+[measurements](benchmarks/results/rtx2080ti_model_zoo_fp32.json) and
+[reproduction instructions](benchmarks/README.md).
+
+The previously dominant `aten::t` host-side transpose caused a 1.27 s
+forward+backward time for a 32-sample MLP; metadata-only transpose plus
+stride-aware GEMM reduced it to around **31–38 ms**. Native GELU backward and
+a closer-to-exact GELU further improved correctness.
+
+## Limitations
+
+- **FP32 only for compute kernels.** BF16 and FP16 training are not supported.
+- Direct convolution uses a **correctness-first** scalar implementation,
+  not an optimized tensor-core or implicit-GEMM kernel. It will be slow for
+  large channel counts.
+- Many activations, losses, reductions, batchnorm backward, AdamW parts, and
+  other ops use CPU fallback, with staging and synchronization overhead.
+  The backend is **not fully GPU-resident**.
+- LSTM fails because the fused LSTM cell implementation is missing.
+  `ConvTranspose2d` is also not supported. A reduced-size ResNet18
+  training comparison exhibited numerical divergence near small spatial
+  BatchNorm layers; it is **not validated**.
+- Only the two NVIDIA GPUs and software Lavapipe have been tested;
+  AMD/Intel portability still needs verification.
+- `torch.Tensor.is_vulkan` refers to legacy PyTorch Vulkan support and
+  is **not** this `PrivateUse1` backend; use
+  `tensor.device.type == "vulkan"`.
+- CPU fallback for MSE loss emits an output-resize deprecation warning.
+- Avoid nonzero storage offsets or arbitrary strides in custom kernels unless
+  the kernel explicitly handles them; the implemented copies and GEMM support
+  the validated layouts.
+
+## Structure
+
+`torch_vulkan`: device registration/runtime hooks.
+`csrc/ops/`: PyTorch operator registration and execution.
+`csrc/shaders/`: Vulkan GLSL and compiled SPIR-V.
+`benchmarks/`: tests against external model definitions.
+`tests/`: PyTorch numerical and gradient regression tests.
+The Vulkan buffer runtime currently uses
+[Kompute](https://github.com/KomputeProject/kompute) (Apache 2.0).
+Set `TORCH_VULKAN_TRACE_FALLBACK=1` to print CPU-fallback calls and latency.

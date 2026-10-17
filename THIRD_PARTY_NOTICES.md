@@ -12,3 +12,7 @@ The third-party dependency [Kompute](https://github.com/KomputeProject/kompute)
 **Apache 2.0**. Its upstream copyright and NOTICE obligations apply separately. Other dependencies include PyTorch (BSD-style),
 Vulkan headers/loader (Apache 2.0 / MIT-style licenses), and their own dependencies.
 Do not assume this notice is an exhaustive inventory of dependencies.
+
+The storage-sharing `view`/`as_strided` helpers were adapted from
+[pytorch-XDNA2](https://github.com/mistrjirka/pytorch-XDNA2), MIT licensed,
+Copyright (c) 2026 pytorch-XDNA2 contributors.

@@ -1,0 +1,36 @@
+#version 450
+layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) readonly buffer Input { float input_data[]; };
+layout(set = 0, binding = 1) readonly buffer GradOut { float grad_out[]; };
+layout(set = 0, binding = 2) writeonly buffer GradWeight { float grad_weight[]; };
+layout(push_constant) uniform Params {
+    uint n, cin, cout, h, w, kh, kw, oh, ow;
+    uint sh, sw, ph, pw, dh, dw, groups;
+} p;
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    uint cin_group = p.cin / p.groups;
+    uint count = p.cout * cin_group * p.kh * p.kw;
+    if (idx >= count) return;
+    uint kw = idx % p.kw;
+    uint kh = (idx / p.kw) % p.kh;
+    uint c = (idx / (p.kw * p.kh)) % cin_group;
+    uint oc = idx / (p.kw * p.kh * cin_group);
+    uint cout_group = p.cout / p.groups;
+    uint ic = (oc / cout_group) * cin_group + c;
+    float sum = 0.0;
+    for (uint batch = 0; batch < p.n; ++batch) {
+        for (uint oh = 0; oh < p.oh; ++oh) {
+            int ih = int(oh * p.sh) - int(p.ph) + int(kh * p.dh);
+            if (ih < 0 || ih >= int(p.h)) continue;
+            for (uint ow = 0; ow < p.ow; ++ow) {
+                int iw = int(ow * p.sw) - int(p.pw) + int(kw * p.dw);
+                if (iw < 0 || iw >= int(p.w)) continue;
+                uint off_x = ((batch * p.cin + ic) * p.h + uint(ih)) * p.w + uint(iw);
+                uint off_go = ((batch * p.cout + oc) * p.oh + oh) * p.ow + ow;
+                sum += input_data[off_x] * grad_out[off_go];
+            }
+        }
+    }
+    grad_weight[idx] = sum;
+}

@@ -94,8 +94,27 @@ def clear_algorithm_cache():
     _C._clear_algorithm_cache()
 
 
-# Register as torch.vulkan so .to("vulkan") works
-# PyTorch's PrivateUse1 dispatch does "import torch.<backend_name>"
+# PyTorch optimizers and torch.accelerator require a registered device module.
+# Registering only sys.modules["torch.vulkan"] is insufficient in PyTorch 2.14.
 import sys
 
-sys.modules['torch.vulkan'] = sys.modules[__name__]
+
+def device_count() -> int:
+    return 1 if is_available() else 0
+
+
+def current_device() -> int:
+    return 0
+
+
+def _is_in_bad_fork() -> bool:
+    return False
+
+
+def manual_seed_all(seed: int) -> None:
+    # Random factory ops currently run on CPU through PyTorch's fallback.
+    # torch.manual_seed has already seeded the CPU generator.
+    pass
+
+
+torch._register_device_module("vulkan", sys.modules[__name__])

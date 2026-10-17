@@ -95,3 +95,121 @@ def test_reject_incompatible_dtype_in_arithmetic():
     x = torch.tensor([1, 2], dtype=torch.int32).to("vulkan")
     with pytest.raises(RuntimeError, match="float32 inputs required"):
         _ = x + x
+
+
+def test_layer_norm_forward_saved_statistics_and_backward():
+    for shape, normalized in [((4, 7), (7,)), ((2, 3, 5), (5,)),
+                               ((2, 3, 5), (3, 5))]:
+        torch.manual_seed(19)
+        cpu_x = torch.randn(*shape, requires_grad=True)
+        cpu_w = torch.randn(*normalized, requires_grad=True)
+        cpu_b = torch.randn(*normalized, requires_grad=True)
+        grads = torch.randn(*shape)
+        eps = 0.003
+        out, mean, rstd = torch.ops.aten.native_layer_norm(
+            cpu_x, normalized, cpu_w, cpu_b, eps
+        )
+        x = cpu_x.detach().to("vulkan").requires_grad_()
+        w = cpu_w.detach().to("vulkan").requires_grad_()
+        b = cpu_b.detach().to("vulkan").requires_grad_()
+        vkout, vkmean, vkrstd = torch.ops.aten.native_layer_norm(
+            x, normalized, w, b, eps
+        )
+        check_close(vkout, out, tol=1e-4)
+        assert vkmean.shape == mean.shape
+        assert vkrstd.shape == rstd.shape
+        check_close(vkmean, mean, tol=1e-5)
+        check_close(vkrstd, rstd, tol=1e-5)
+        ref = torch.autograd.grad(out, (cpu_x, cpu_w, cpu_b), grad_outputs=grads)
+        got = torch.autograd.grad(vkout, (x, w, b), grad_outputs=grads.to('vulkan'))
+        for actual, expected in zip(got, ref):
+            check_close(actual, expected, tol=2e-4)
+
+
+def test_real_gpu_dispatch_or_explicit_skip():
+    # Hardware CI/benchmark test: Lavapipe must not masquerade as a GPU.
+    import pytest
+    if not torch_vulkan.is_hardware_accelerated():
+        pytest.skip("Only software Vulkan found")
+    assert "llvmpipe" not in torch_vulkan.device_name().lower()
+    a = torch.arange(1024, dtype=torch.float32).view(32, 32)
+    x = a.to("vulkan")
+    y = (x @ x).cpu()
+    torch.testing.assert_close(y, a @ a, rtol=1e-4, atol=1e-4)
+
+
+def test_view_storage_alias_and_backward():
+    cpu = torch.randn(2, 3, 4, requires_grad=True)
+    gpu = cpu.detach().to("vulkan").requires_grad_()
+    view = gpu.view(6, 4)
+    assert view.untyped_storage().data_ptr() == gpu.untyped_storage().data_ptr()
+    check_close(view, cpu.detach().view(6, 4))
+    grad = torch.randn(6, 4)
+    expected = torch.autograd.grad(cpu.view(6, 4), cpu, grad_outputs=grad)[0]
+    actual = torch.autograd.grad(view, gpu, grad_outputs=grad.to("vulkan"))[0]
+    check_close(actual, expected)
+
+
+def test_as_strided_noncontiguous():
+    cpu = torch.arange(20, dtype=torch.float32).view(4, 5)
+    gpu = cpu.to("vulkan")
+    view = torch.as_strided(gpu, size=(3, 3), stride=(5, 1), storage_offset=1)
+    assert view.stride() == (5, 1)
+    torch.testing.assert_close(view.cpu(),
+        torch.as_strided(cpu, size=(3, 3), stride=(5, 1), storage_offset=1))
+
+
+def test_as_strided_gradient_is_strided_and_correct():
+    cpu = torch.randn(4, 5, requires_grad=True)
+    gpu = cpu.detach().to("vulkan").requires_grad_()
+    def view(x):
+        return torch.as_strided(x, (3, 3), (5, 1), storage_offset=1)
+    grad = torch.randn(3, 3)
+    expected = torch.autograd.grad(view(cpu), cpu, grad_outputs=grad)[0]
+    actual = torch.autograd.grad(view(gpu), gpu, grad_outputs=grad.to('vulkan'))[0]
+    check_close(actual, expected)
+
+
+def test_broadcast_requires_compatible_shape():
+    import pytest
+    a = torch.arange(6).float().reshape(2, 3).to('vulkan')
+    b = torch.arange(6).float().reshape(3, 2).to('vulkan')
+    with pytest.raises(RuntimeError):
+        _ = a + b
+
+
+def test_transpose_is_view_and_matmul_uses_its_strides():
+    torch.manual_seed(23)
+    for m, k, n in [(4, 3, 7), (13, 33, 29), (32, 128, 64)]:
+        cpu_a = torch.randn(m, k, requires_grad=True)
+        cpu_b = torch.randn(n, k, requires_grad=True)
+        a = cpu_a.detach().to('vulkan').requires_grad_()
+        b = cpu_b.detach().to('vulkan').requires_grad_()
+        bt = b.t()
+        assert bt.stride() == (1, k)
+        assert bt.untyped_storage().data_ptr() == b.untyped_storage().data_ptr()
+        check_close(bt, cpu_b.detach().t())
+        ref = cpu_a @ cpu_b.t()
+        got = a @ bt
+        check_close(got, ref, tol=6e-4)
+        grad = torch.randn_like(ref)
+        cpu_grad = torch.autograd.grad(ref, (cpu_a, cpu_b), grad_outputs=grad)
+        vk_grad = torch.autograd.grad(got, (a, b), grad_outputs=grad.to('vulkan'))
+        for actual, expected in zip(vk_grad, cpu_grad):
+            check_close(actual, expected, tol=8e-4)
+
+
+def test_gelu_forward_backward_matches_exact_cpu_reference():
+    torch.manual_seed(251)
+    x_cpu = torch.cat((torch.linspace(-8, 8, steps=327), torch.randn(1000))).requires_grad_()
+    x_gpu = x_cpu.detach().to('vulkan').requires_grad_()
+    grad = torch.randn_like(x_cpu)
+    ref = torch.nn.functional.gelu(x_cpu)
+    got = torch.nn.functional.gelu(x_gpu)
+    check_close(got, ref, tol=3e-6)
+    ref_grad = torch.autograd.grad(ref, x_cpu, grad_outputs=grad)[0]
+    got_grad = torch.autograd.grad(got, x_gpu, grad_outputs=grad.to('vulkan'))[0]
+    check_close(got_grad, ref_grad, tol=4e-6)
+    assert torch._C._dispatch_has_kernel_for_dispatch_key(
+        'aten::gelu_backward', 'PrivateUse1'
+    )

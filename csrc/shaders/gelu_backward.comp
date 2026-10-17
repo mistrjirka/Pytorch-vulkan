@@ -1,0 +1,24 @@
+#version 450
+layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) readonly buffer Input { float input_data[]; };
+layout(set = 0, binding = 1) readonly buffer GradOutput { float grad_out[]; };
+layout(set = 0, binding = 2) writeonly buffer GradInput { float grad_in[]; };
+layout(push_constant) uniform Params { uint count; } p;
+
+float erf_approx(float x) {
+    float ax = abs(x);
+    float t = 1.0 / (1.0 + 0.3275911 * ax);
+    float poly = (((((1.061405429 * t - 1.453152027) * t)
+        + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t;
+    float y = 1.0 - poly * exp(-ax * ax);
+    return x < 0.0 ? -y : y;
+}
+
+void main() {
+    uint i = gl_GlobalInvocationID.x;
+    if (i >= p.count) return;
+    float x = input_data[i];
+    float derivative = 0.5 * (1.0 + erf_approx(x * 0.7071067811865475))
+        + 0.3989422804014327 * x * exp(-0.5 * x * x);
+    grad_in[i] = grad_out[i] * derivative;
+}

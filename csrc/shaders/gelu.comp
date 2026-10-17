@@ -1,20 +1,24 @@
 #version 450
 layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) readonly buffer BufIn { float in_data[]; };
+layout(set = 0, binding = 1) writeonly buffer BufOut { float out_data[]; };
+layout(push_constant) uniform Params { uint count; } p;
 
-layout(set = 0, binding = 0) buffer BufIn { float in_data[]; };
-layout(set = 0, binding = 1) buffer BufOut { float out_data[]; };
-
-layout(push_constant) uniform PushConstants {
-    uint num_elements;
-} params;
+// Abramowitz/Stegun erf approximation (max absolute error ~1.5e-7).
+// This matches PyTorch's default exact GELU much more closely than the
+// popular tanh approximation. float32 rounding still differs by platform.
+float erf_approx(float x) {
+    float ax = abs(x);
+    float t = 1.0 / (1.0 + 0.3275911 * ax);
+    float poly = (((((1.061405429 * t - 1.453152027) * t)
+        + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t;
+    float y = 1.0 - poly * exp(-ax * ax);
+    return x < 0.0 ? -y : y;
+}
 
 void main() {
-    uint gid = gl_GlobalInvocationID.x;
-    if (gid >= params.num_elements) return;
-
-    float x = in_data[gid];
-    // GELU approximation: x * 0.5 * (1 + tanh(sqrt(2/pi) * (x + 0.044715 * x^3)))
-    float c = 0.7978845608; // sqrt(2/pi)
-    float inner = c * (x + 0.044715 * x * x * x);
-    out_data[gid] = x * 0.5 * (1.0 + tanh(inner));
+    uint i = gl_GlobalInvocationID.x;
+    if (i >= p.count) return;
+    float x = in_data[i];
+    out_data[i] = 0.5 * x * (1.0 + erf_approx(x * 0.7071067811865475));
 }

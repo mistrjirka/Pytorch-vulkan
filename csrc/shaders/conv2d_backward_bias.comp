@@ -1,0 +1,22 @@
+#version 450
+layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) readonly buffer GradOut { float grad_out[]; };
+layout(set = 0, binding = 1) writeonly buffer GradBias { float grad_bias[]; };
+layout(push_constant) uniform Params {
+    uint n, cin, cout, h, w, kh, kw, oh, ow;
+    uint sh, sw, ph, pw, dh, dw, groups;
+} p;
+void main() {
+    uint oc = gl_GlobalInvocationID.x;
+    if (oc >= p.cout) return;
+    float sum = 0.0;
+    for (uint batch = 0; batch < p.n; ++batch) {
+        for (uint oh = 0; oh < p.oh; ++oh) {
+            for (uint ow = 0; ow < p.ow; ++ow) {
+                uint idx = ((batch * p.cout + oc) * p.oh + oh) * p.ow + ow;
+                sum += grad_out[idx];
+            }
+        }
+    }
+    grad_bias[oc] = sum;
+}

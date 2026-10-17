@@ -1,0 +1,38 @@
+#version 450
+layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) readonly buffer Input { float input_data[]; };
+layout(set = 0, binding = 1) readonly buffer Weight { float weight_data[]; };
+layout(set = 0, binding = 2) readonly buffer Bias { float bias_data[]; };
+layout(set = 0, binding = 3) writeonly buffer Output { float output_data[]; };
+layout(push_constant) uniform Params {
+    uint n, cin, cout, h, w, kh, kw, oh, ow;
+    uint sh, sw, ph, pw, dh, dw, groups;
+} p;
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    uint hw = p.oh * p.ow;
+    if (idx >= p.n * p.cout * hw) return;
+    uint ow = idx % p.ow;
+    uint oh = (idx / p.ow) % p.oh;
+    uint oc = (idx / hw) % p.cout;
+    uint batch = idx / (p.cout * hw);
+    uint cin_group = p.cin / p.groups;
+    uint cout_group = p.cout / p.groups;
+    uint first_in = (oc / cout_group) * cin_group;
+    float sum = bias_data[oc];
+    for (uint c = 0; c < cin_group; ++c) {
+        uint ic = first_in + c;
+        for (uint kh = 0; kh < p.kh; ++kh) {
+            int ih = int(oh * p.sh) - int(p.ph) + int(kh * p.dh);
+            if (ih < 0 || ih >= int(p.h)) continue;
+            for (uint kw = 0; kw < p.kw; ++kw) {
+                int iw = int(ow * p.sw) - int(p.pw) + int(kw * p.dw);
+                if (iw < 0 || iw >= int(p.w)) continue;
+                uint off_x = ((batch * p.cin + ic) * p.h + uint(ih)) * p.w + uint(iw);
+                uint off_w = ((oc * cin_group + c) * p.kh + kh) * p.kw + kw;
+                sum += input_data[off_x] * weight_data[off_w];
+            }
+        }
+    }
+    output_data[idx] = sum;
+}

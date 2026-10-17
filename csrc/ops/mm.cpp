@@ -1,5 +1,9 @@
 #include <ATen/Functions.h>
+#include <ATen/ops/from_blob.h>
 #include <ATen/NativeFunctions.h>
+#include <ATen/InferSize.h>
+#include <ATen/TensorUtils.h>
+#include <ATen/native/Resize.h>
 #include "../vulkan_allocator.h"
 #include "../vulkan_engine.h"
 #include "../vulkan_context.h"
@@ -7,11 +11,39 @@
 #include <ATen/native/CPUFallback.h>
 #include <torch/library.h>
 #include <cstring>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 
 namespace torch_vulkan {
 void resize_vulkan_storage(c10::StorageImpl* storage, size_t bytes);
 namespace ops {
 
+
+// Host mirror of a Vulkan tensor's storage. All current Kompute dispatches
+// synchronize their outputs back to the host, so views can be copied with
+// CPU's stride-aware kernels without reading stale data. The alias borrows the
+// original storage; it must never escape the call that holds `src` alive.
+static at::Tensor host_mirror(const at::Tensor& src) {
+  if (src.device().type() != c10::DeviceType::PrivateUse1) return src;
+  if (src.numel() == 0)
+    return at::empty(src.sizes(), src.options().device(at::kCPU));
+  TORCH_CHECK(src.const_data_ptr() != nullptr, "vulkan: unmapped host mirror");
+  return at::from_blob(const_cast<void*>(src.const_data_ptr()),
+      src.sizes(), src.strides(), [](void*) {},
+      at::TensorOptions().dtype(src.scalar_type()).device(at::kCPU));
+}
+
+static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
+  // A view with nonzero offset is NOT the base Kompute allocation, and a
+  // strided view must not be consumed as a flat SPIR-V buffer. Materialize
+  // through the host mirror until native strided kernels exist.
+  if (src.device().type() != c10::DeviceType::PrivateUse1)
+    return src.contiguous();
+  if (src.is_contiguous() && src.storage_offset() == 0)
+    return src;
+  return host_mirror(src).contiguous().to(src.device());
+}
 
 // Helper: get existing Kompute tensor from a Vulkan PyTorch tensor (no copy!)
 static std::shared_ptr<kp::TensorT<float>> get_kp_tensor(const at::Tensor& t) {
@@ -48,10 +80,11 @@ static at::Tensor elementwise_binary(
 
   TORCH_CHECK(self.scalar_type() == at::kFloat && other.scalar_type() == at::kFloat,
               shader_name, ": float32 inputs required");
-  auto self_c = self.contiguous();
-  auto other_c = other.contiguous();
+  auto self_c = contiguous_for_kernel(self);
+  auto other_c = contiguous_for_kernel(other);
   int64_t n = self_c.numel();
-  TORCH_CHECK(n == other_c.numel(), shader_name, ": size mismatch");
+  TORCH_CHECK(self_c.sizes() == other_c.sizes(), shader_name,
+              ": broadcasting requires matching shapes or an explicit expanded operand");
 
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
@@ -96,7 +129,7 @@ static at::Tensor elementwise_unary(
 
   TORCH_CHECK(self.scalar_type() == at::kFloat,
               shader_name, ": float32 input required");
-  auto self_c = self.contiguous();
+  auto self_c = contiguous_for_kernel(self);
   int64_t n = self_c.numel();
 
   auto& ctx = VulkanContext::instance();
@@ -139,8 +172,8 @@ static at::Tensor mm_raw(const at::Tensor& self, const at::Tensor& mat2) {
   auto& engine = VulkanEngine::instance();
   auto& pipeline = engine.getOrCreatePipeline("matmul_tiled", 3, 3 * sizeof(uint32_t));
 
-  auto self_c = self.contiguous();
-  auto mat2_c = mat2.contiguous();
+  auto self_c = contiguous_for_kernel(self);
+  auto mat2_c = contiguous_for_kernel(mat2);
 
   VkDeviceSize a_size = M * K * sizeof(float);
   VkDeviceSize b_size = K * N * sizeof(float);
@@ -184,11 +217,21 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   TORCH_CHECK(self.dtype() == at::kFloat, "mm: only float32 for now");
 
   int64_t M = self.size(0), K = self.size(1), N = mat2.size(1);
+  TORCH_CHECK(M >= 0 && K >= 0 && N >= 0 && M <= UINT32_MAX &&
+              K <= UINT32_MAX && N <= UINT32_MAX,
+              "mm: unsupported matrix dimensions");
 
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
-  auto self_c = self.contiguous();
-  auto mat2_c = mat2.contiguous();
+  // A stride-only transpose shares its original Vulkan allocation. Matrix
+  // multiplication consumes that layout directly rather than first copying
+  // an entire weight matrix on the host.
+  auto self_c = self.device().type() == c10::DeviceType::PrivateUse1 &&
+                  self.storage_offset() == 0
+                    ? self : contiguous_for_kernel(self);
+  auto mat2_c = mat2.device().type() == c10::DeviceType::PrivateUse1 &&
+                  mat2.storage_offset() == 0
+                    ? mat2 : contiguous_for_kernel(mat2);
 
   // Get or create Kompute tensors
   bool a_on_vk = self_c.device().type() == c10::DeviceType::PrivateUse1;
@@ -212,10 +255,14 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   // (same data pointer). The activation tensor_a may vary, but if the model
   // reuses the same buffer size, the allocator returns the same pointer.
   auto algorithm = ctx.get_or_create_algorithm(
-      "matmul_tiled",
+      "matmul_strided",
       {tensor_a, tensor_b, tensor_c},
       kp::Workgroup({wg_x, wg_y, 1}),
-      std::vector<uint32_t>{m_val, k_val, n_val});
+      std::vector<uint32_t>{m_val, k_val, n_val,
+                            static_cast<uint32_t>(self_c.stride(0)),
+                            static_cast<uint32_t>(self_c.stride(1)),
+                            static_cast<uint32_t>(mat2_c.stride(0)),
+                            static_cast<uint32_t>(mat2_c.stride(1))});
 
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b});
@@ -228,13 +275,13 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
 
 // aten::add.Tensor — elementwise add with alpha scaling (with broadcast)
 at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other, const at::Scalar& alpha) {
-  auto self_c = self.contiguous();
-  auto other_c = other.contiguous();
+  auto self_c = contiguous_for_kernel(self);
+  auto other_c = contiguous_for_kernel(other);
   // Broadcast scalar-like tensors
   if (other_c.numel() == 1 && self_c.numel() > 1) {
-    other_c = other_c.expand_as(self_c).contiguous();
+    other_c = contiguous_for_kernel(other_c.expand_as(self_c));
   } else if (self_c.numel() == 1 && other_c.numel() > 1) {
-    self_c = self_c.expand_as(other_c).contiguous();
+    self_c = contiguous_for_kernel(self_c.expand_as(other_c));
   }
   uint32_t n = static_cast<uint32_t>(self_c.numel());
   float alpha_f = alpha.toFloat();
@@ -292,8 +339,7 @@ at::Tensor vulkan_to_copy(
   auto target_dtype = dtype.value_or(self.scalar_type());
 
   if (target_device.type() == c10::DeviceType::PrivateUse1) {
-    auto self_cpu = self.device().type() == c10::DeviceType::CPU
-        ? self.contiguous() : self.to(at::kCPU).contiguous();
+    auto self_cpu = host_mirror(self).contiguous();
     auto self_cast = self_cpu.to(target_dtype).contiguous();
     auto result = at::empty(self_cast.sizes(),
         self_cast.options().device(c10::Device(c10::DeviceType::PrivateUse1, 0)));
@@ -303,7 +349,7 @@ at::Tensor vulkan_to_copy(
   } else if (target_device.type() == c10::DeviceType::CPU) {
     // First copy the *source* dtype. Copying FP32 bytes into an FP64 allocation
     // without conversion used to return uninitialized/wrong data.
-    auto src = self.contiguous();
+    auto src = host_mirror(self).contiguous();
     auto result = at::empty(src.sizes(),
         at::TensorOptions().dtype(src.scalar_type()).device(at::kCPU));
     std::memcpy(result.data_ptr(), src.data_ptr(),
@@ -315,13 +361,10 @@ at::Tensor vulkan_to_copy(
 
 // copy_ — in-place copy
 at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_blocking) {
-  TORCH_CHECK(self.numel() == src.numel(), "vulkan copy_: element count mismatch");
-  TORCH_CHECK(self.scalar_type() == src.scalar_type(),
-              "vulkan copy_: dtype conversion is not implemented");
-  TORCH_CHECK(self.is_contiguous(), "vulkan copy_: destination must be contiguous");
-  auto src_c = src.contiguous();
-  size_t bytes = src_c.numel() * src_c.element_size();
-  std::memcpy(self.data_ptr(), src_c.data_ptr(), bytes);
+  // A Vulkan allocation is represented by a mapped host mirror. CPU's
+  // stride-aware copy correctly handles offsets, permutations and casting.
+  // Inputs are synchronized to the GPU by the next shader submission.
+  host_mirror(self).copy_(host_mirror(src));
   return self;
 }
 
@@ -329,8 +372,6 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
 at::Tensor vulkan_copy_from_and_resize(const at::Tensor& src, const at::Tensor& dst) {
   TORCH_CHECK(src.scalar_type() == dst.scalar_type(),
       "vulkan _copy_from_and_resize: dtype conversion is not implemented");
-  TORCH_CHECK(src.is_contiguous(),
-      "vulkan _copy_from_and_resize: source must be contiguous");
   if (dst.device().type() == c10::DeviceType::PrivateUse1) {
     // The CPU fallback uses an initially empty destination; copying without
     // resizing is incorrect and could overflow. Grow the underlying storage
@@ -382,7 +423,7 @@ at::Tensor empty_memory_format(
 // Phase 4: cached algorithm for repeated softmax on same-sized buffers
 at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_float) {
   TORCH_CHECK(self.dtype() == at::kFloat, "softmax: only float32");
-  auto self_c = self.contiguous();
+  auto self_c = contiguous_for_kernel(self);
 
   // Flatten to 2D: [batch, row_size]
   int64_t row_size = self_c.size(dim);
@@ -431,64 +472,84 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     double eps) {
 
   TORCH_CHECK(input.dtype() == at::kFloat, "layer_norm: only float32");
-  auto input_c = input.contiguous();
-
+  TORCH_CHECK(eps >= 0.0, "layer_norm: epsilon must be nonnegative");
+  TORCH_CHECK(!normalized_shape.empty() &&
+              normalized_shape.size() <= static_cast<size_t>(input.dim()),
+              "layer_norm: invalid normalized_shape");
+  auto input_c = contiguous_for_kernel(input);
   int64_t row_size = 1;
-  for (auto s : normalized_shape) row_size *= s;
-  int64_t num_rows = input_c.numel() / row_size;
+  const auto leading = input.dim() - static_cast<int64_t>(normalized_shape.size());
+  std::vector<int64_t> stat_shape(input.sizes().begin(), input.sizes().end());
+  for (int64_t k = 0; k < static_cast<int64_t>(normalized_shape.size()); ++k) {
+    TORCH_CHECK(input.size(leading + k) == normalized_shape[k],
+                "layer_norm: normalized_shape does not match input");
+    row_size *= normalized_shape[k];
+    stat_shape[leading + k] = 1;
+  }
+  TORCH_CHECK(row_size > 0 && input_c.numel() % row_size == 0,
+              "layer_norm: invalid input row dimensions");
+  auto num_rows = input_c.numel() / row_size;
+  TORCH_CHECK(num_rows <= UINT32_MAX && row_size <= UINT32_MAX,
+              "layer_norm: tensor too large for Vulkan dispatch");
 
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
+  const auto n = input_c.numel();
+  auto output = at::empty(input.sizes(), input.options());
+  auto mean = at::empty(stat_shape, input.options());
+  auto rstd = at::empty(stat_shape, input.options());
 
-  int64_t n = input_c.numel();
-  std::vector<float> in_data(input_c.data_ptr<float>(), input_c.data_ptr<float>() + n);
-  std::vector<float> out_data(n, 0.0f);
-
-  // Weight and bias (default to 1.0 and 0.0)
-  std::vector<float> w_data(row_size, 1.0f);
-  std::vector<float> b_data(row_size, 0.0f);
+  // The input can reuse its existing Vulkan allocation; temporary scalar
+  // parameters are uploaded through the same Kompute submission.
+  auto in_tensor = get_kp_tensor(input_c);
+  auto out_tensor = get_kp_tensor(output);
+  auto mean_tensor = get_kp_tensor(mean);
+  auto rstd_tensor = get_kp_tensor(rstd);
+  std::vector<float> weights(row_size, 1.0f), biases(row_size, 0.0f);
   if (weight_opt.has_value() && weight_opt->defined()) {
     auto w = weight_opt->contiguous();
-    std::memcpy(w_data.data(), w.data_ptr<float>(), row_size * sizeof(float));
+    TORCH_CHECK(w.dtype() == at::kFloat && w.numel() == row_size,
+                "layer_norm: invalid weight");
+    std::memcpy(weights.data(), w.data_ptr<float>(), row_size * sizeof(float));
   }
   if (bias_opt.has_value() && bias_opt->defined()) {
     auto b = bias_opt->contiguous();
-    std::memcpy(b_data.data(), b.data_ptr<float>(), row_size * sizeof(float));
+    TORCH_CHECK(b.dtype() == at::kFloat && b.numel() == row_size,
+                "layer_norm: invalid bias");
+    std::memcpy(biases.data(), b.data_ptr<float>(), row_size * sizeof(float));
   }
-
-  auto tensor_in = mgr.tensor(in_data);
-  auto tensor_w = mgr.tensor(w_data);
-  auto tensor_b = mgr.tensor(b_data);
-  auto tensor_out = mgr.tensor(out_data);
-
-  uint32_t nr = static_cast<uint32_t>(num_rows);
-  uint32_t rs = static_cast<uint32_t>(row_size);
-
+  auto w_tensor = mgr.tensor(weights);
+  auto b_tensor = mgr.tensor(biases);
+  const auto nr = static_cast<uint32_t>(num_rows);
+  const auto rs = static_cast<uint32_t>(row_size);
+  float eps_f = static_cast<float>(eps);
+  uint32_t eps_bits;
+  std::memcpy(&eps_bits, &eps_f, sizeof(eps_bits));
   auto algorithm = ctx.get_or_create_algorithm(
-      "layer_norm",
-      {tensor_in, tensor_w, tensor_b, tensor_out},
-      kp::Workgroup({nr, 1, 1}),
-      std::vector<uint32_t>{nr, rs});
-
+      "layer_norm", {in_tensor, w_tensor, b_tensor, out_tensor, mean_tensor, rstd_tensor},
+      kp::Workgroup({nr, 1, 1}), std::vector<uint32_t>{nr, rs, eps_bits});
   auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_in, tensor_w, tensor_b});
+  seq->record<kp::OpTensorSyncDevice>({in_tensor, w_tensor, b_tensor});
   seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_out});
+  seq->record<kp::OpTensorSyncLocal>({out_tensor, mean_tensor, rstd_tensor});
   seq->eval();
-
-  auto output = at::empty(input.sizes(), input.options());
-  std::memcpy(output.data_ptr(), tensor_out->data(), n * sizeof(float));
-
-  // Mean and rstd (not computed on GPU, return empty for now)
-  auto mean = at::empty({num_rows}, input.options());
-  auto rstd = at::empty({num_rows}, input.options());
   return std::make_tuple(output, mean, rstd);
 }
 
 // aten::gelu — Gaussian Error Linear Unit via gelu.spv
 at::Tensor vulkan_gelu(const at::Tensor& self, c10::string_view approximate) {
+  TORCH_CHECK(approximate == "none", "Vulkan GELU only supports approximate='none'");
   uint32_t n = static_cast<uint32_t>(self.numel());
   return elementwise_unary(self, "gelu", {n});
+}
+
+at::Tensor vulkan_gelu_backward(const at::Tensor& grad,
+                                 const at::Tensor& input,
+                                 c10::string_view approximate) {
+  TORCH_CHECK(approximate == "none", "Vulkan GELU backward only supports approximate='none'");
+  uint32_t n = static_cast<uint32_t>(input.numel());
+  TORCH_CHECK(grad.sizes() == input.sizes(), "Vulkan GELU backward shape mismatch");
+  return elementwise_binary(input, grad, "gelu_backward", {n});
 }
 
 // aten::embedding — lookup table via embedding.spv
@@ -501,8 +562,8 @@ at::Tensor vulkan_embedding(
     bool sparse) {
 
   TORCH_CHECK(weight.dtype() == at::kFloat, "embedding: only float32 weight");
-  auto weight_c = weight.contiguous();
-  auto indices_c = indices.contiguous().to(at::kFloat);  // pass as float buffer
+  auto weight_c = contiguous_for_kernel(weight);
+  auto indices_c = contiguous_for_kernel(indices).to(at::kFloat);  // pass as float buffer
 
   int64_t num_indices = indices_c.numel();
   int64_t embedding_dim = weight.size(1);
@@ -556,12 +617,12 @@ at::Tensor vulkan_addmm(
 
   if (alpha.toFloat() != 1.0f) {
     auto alpha_t = at::full({1}, alpha.toFloat(), product.options());
-    product = mul_tensor(product, alpha_t.expand_as(product).contiguous());
+    product = mul_tensor(product, contiguous_for_kernel(alpha_t.expand_as(product)));
   }
 
   auto bias = self;
   if (self.dim() == 1) {
-    bias = self.unsqueeze(0).expand_as(product).contiguous();
+    bias = contiguous_for_kernel(self.unsqueeze(0).expand_as(product));
   }
 
   return add_tensor(bias, product, beta);
@@ -571,7 +632,7 @@ at::Tensor vulkan_addmm(
 // aten::mul.Scalar — elementwise scalar multiply via scalar_mul.spv
 // Phase 4: cached algorithm
 at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
-  auto self_c = self.contiguous();
+  auto self_c = contiguous_for_kernel(self);
   int64_t n = self_c.numel();
   float scalar = other.toFloat();
 
@@ -630,9 +691,9 @@ at::Tensor vulkan_scaled_dot_product_attention(
     bool enable_gqa) {
 
   // Handle shapes: [B, H, S, D] or [S, D]
-  auto q = query.contiguous();
-  auto k = key.contiguous();
-  auto v = value.contiguous();
+  auto q = contiguous_for_kernel(query);
+  auto k = contiguous_for_kernel(key);
+  auto v = contiguous_for_kernel(value);
 
   int64_t seq_len, head_dim;
   bool batched = q.dim() == 4;
@@ -702,9 +763,46 @@ at::Tensor vulkan_scaled_dot_product_attention(
   return output;
 }
 
+// Proper storage-sharing views, adapted from MIT-licensed pytorch-XDNA2.
+// CPU fallback cannot implement view ops without breaking aliasing and autograd.
+// This maps PyTorch view metadata onto the same Vulkan-backed Storage.
+static at::Tensor alias_with_strides(const at::Tensor& tensor,
+                                     c10::SymIntArrayRef sizes,
+                                     c10::SymIntArrayRef strides,
+                                     c10::SymInt storage_offset) {
+  auto impl = c10::make_intrusive<c10::TensorImpl>(
+      c10::TensorImpl::VIEW,
+      c10::Storage(tensor.storage()),
+      tensor.key_set(), tensor.dtype());
+  at::Tensor alias(std::move(impl));
+  at::native::setStrided(alias, sizes, strides, std::move(storage_offset));
+  return alias;
+}
+
+static at::Tensor vulkan_as_strided(const at::Tensor& tensor,
+                                    c10::SymIntArrayRef sizes,
+                                    c10::SymIntArrayRef strides,
+                                    std::optional<c10::SymInt> storage_offset) {
+  return alias_with_strides(tensor, sizes, strides,
+                            storage_offset.value_or(tensor.sym_storage_offset()));
+}
+
+static at::Tensor vulkan_view(const at::Tensor& tensor,
+                              c10::SymIntArrayRef requested) {
+  auto shape = at::infer_size_dv(requested, tensor.sym_numel());
+  auto strides = at::detail::computeStride(
+      tensor.sym_sizes(), tensor.sym_strides(), c10::SymIntArrayRef(shape));
+  TORCH_CHECK(strides.has_value(),
+              "view size is incompatible with the input tensor's size/stride. "
+              "Use .reshape(...) to copy non-contiguous tensors.");
+  return alias_with_strides(tensor, c10::SymIntArrayRef(shape),
+                            c10::SymIntArrayRef(*strides),
+                            tensor.sym_storage_offset());
+}
+
 // aten::reshape / view — metadata reshape, copy if non-contiguous
 at::Tensor vulkan_reshape(const at::Tensor& self, at::IntArrayRef shape) {
-  auto self_c = self.contiguous();
+  auto self_c = contiguous_for_kernel(self);
   // Compute actual shape (resolve -1)
   int64_t total = self_c.numel();
   std::vector<int64_t> new_shape(shape.begin(), shape.end());
@@ -729,24 +827,18 @@ at::Tensor vulkan_reshape(const at::Tensor& self, at::IntArrayRef shape) {
 // aten::t — matrix transpose (2D only)
 at::Tensor vulkan_t(const at::Tensor& self) {
   TORCH_CHECK(self.dim() == 2, "t: only 2D tensors");
-  auto self_c = self.contiguous();
-  int64_t rows = self_c.size(0), cols = self_c.size(1);
-  auto output = at::empty({cols, rows}, self.options());
-  const float* src = self_c.data_ptr<float>();
-  float* dst = output.data_ptr<float>();
-  for (int64_t i = 0; i < rows; i++)
-    for (int64_t j = 0; j < cols; j++)
-      dst[j * rows + i] = src[i * cols + j];
-  return output;
+  // This is a true PyTorch view; no CPU memory traversal or GPU transfer.
+  const std::vector<c10::SymInt> shape = {self.sym_size(1), self.sym_size(0)};
+  const std::vector<c10::SymInt> stride = {self.sym_stride(1), self.sym_stride(0)};
+  return alias_with_strides(self, shape, stride, self.sym_storage_offset());
 }
-
 
 // Q4 quantized matmul: A (float32) @ B_packed (Q4) with scales
 // B_packed: uint8 array, 2 values per byte, stored as uint32 words
 // B_scales: float32 [K/32, N], one scale per block of 32
 static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed,
                          const at::Tensor& weight_scales) {
-  auto input_c = input.contiguous();
+  auto input_c = contiguous_for_kernel(input);
   int64_t M = input_c.size(0);
   int64_t K = input_c.size(1);
   int64_t N = weight_scales.size(1);
@@ -760,7 +852,7 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
       : mgr.tensor(std::vector<float>(input_c.data_ptr<float>(), input_c.data_ptr<float>() + M * K));
 
   // Weight packed: uint32 words (K*N/8 uint32s)
-  auto wp_c = weight_packed.contiguous();
+  auto wp_c = contiguous_for_kernel(weight_packed);
   bool wp_on_vk = wp_c.device().type() == c10::DeviceType::PrivateUse1;
   std::shared_ptr<kp::TensorT<float>> tensor_b;
   if (wp_on_vk) {
@@ -774,7 +866,7 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
   }
 
   // Scales: float32 [K/32, N]
-  auto sc_c = weight_scales.contiguous();
+  auto sc_c = contiguous_for_kernel(weight_scales);
   bool sc_on_vk = sc_c.device().type() == c10::DeviceType::PrivateUse1;
   auto tensor_scales = sc_on_vk ? get_kp_tensor(sc_c)
       : mgr.tensor(std::vector<float>(sc_c.data_ptr<float>(), sc_c.data_ptr<float>() + sc_c.numel()));
@@ -804,8 +896,20 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
   return output;
 }
 
+// Optional diagnostics for unsupported operations and implicit host copies.
+// Usage: TORCH_VULKAN_TRACE_FALLBACK=1 python examples/linear_train.py
 void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
+  const bool trace = std::getenv("TORCH_VULKAN_TRACE_FALLBACK") != nullptr;
+  if (!trace) {
+    at::native::cpu_fallback(op, stack);
+    return;
+  }
+  auto start = std::chrono::steady_clock::now();
   at::native::cpu_fallback(op, stack);
+  double elapsed_ms = std::chrono::duration<double, std::milli>(
+      std::chrono::steady_clock::now() - start).count();
+  std::fprintf(stderr, "PV_FALLBACK %s %.3f ms\n",
+               op.schema().name().c_str(), elapsed_ms);
 }
 
 TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
@@ -822,6 +926,7 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("_copy_from_and_resize", &vulkan_copy_from_and_resize);
   m.impl("_copy_from", &vulkan_copy_from);
   m.impl("gelu", &vulkan_gelu);
+  m.impl("gelu_backward", &vulkan_gelu_backward);
   m.impl("embedding", &vulkan_embedding);
   m.impl("addmm", &vulkan_addmm);
   m.impl("mul.Scalar", &mul_scalar);
@@ -829,6 +934,8 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("scaled_dot_product_attention", &vulkan_scaled_dot_product_attention);
   m.impl("reshape", &vulkan_reshape);
   m.impl("t", &vulkan_t);
+  m.impl("view", &vulkan_view);
+  m.impl("as_strided", &vulkan_as_strided);
 }
 
 TORCH_LIBRARY_IMPL(_, PrivateUse1, m) {

@@ -1,5 +1,9 @@
 #include "vulkan_context.h"
 #include <fstream>
+#include <cstdlib>
+#include <cerrno>
+#include <limits>
+#include <c10/util/Exception.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -12,9 +16,21 @@ VulkanContext& VulkanContext::instance() {
 }
 
 VulkanContext::VulkanContext() {
-  // Kompute manages Vulkan instance + device selection automatically.
-  // Device 0 = first Vulkan-capable GPU found.
-  mgr_ = std::make_unique<kp::Manager>(0);
+  // Kompute enumerates physical Vulkan devices. This process exposes a single
+  // PyTorch logical device, but may select which physical GPU backs it.
+  // Important on multi-GPU systems (e.g. RTX 2080 Ti + Tesla V100).
+  uint32_t physical_index = 0;
+  const char* selected = std::getenv("TORCH_VULKAN_PHYSICAL_DEVICE_INDEX");
+  if (selected && *selected) {
+    errno = 0;
+    char* end = nullptr;
+    unsigned long parsed = std::strtoul(selected, &end, 10);
+    TORCH_CHECK(errno == 0 && end != selected && *end == '\0' &&
+                parsed <= std::numeric_limits<uint32_t>::max(),
+                "Invalid TORCH_VULKAN_PHYSICAL_DEVICE_INDEX=", selected);
+    physical_index = static_cast<uint32_t>(parsed);
+  }
+  mgr_ = std::make_unique<kp::Manager>(physical_index);
 
   // Default shader directory: alongside the shared library
   shader_dir_ = "";

@@ -33,3 +33,17 @@ def test_mse_sgd_decreases_loss():
         assert w.grad is not None and w.grad.device.type == "vulkan"
         optimizer.step()
     assert losses[-1] < losses[0] * 0.2
+
+
+def test_adamw_registration_and_parameter_update_matches_cpu():
+    # PyTorch 2.14 optimizers require torch.vulkan to be a registered module.
+    assert torch.vulkan is torch_vulkan
+    cpu = torch.nn.Parameter(torch.tensor([1., 2., 3.]))
+    gpu = torch.nn.Parameter(cpu.detach().to("vulkan"))
+    cpu_opt = torch.optim.AdamW([cpu], lr=0.0001)
+    gpu_opt = torch.optim.AdamW([gpu], lr=0.0001)
+    (cpu * cpu).sum().backward()
+    (gpu * gpu).sum().backward()
+    cpu_opt.step()
+    gpu_opt.step()
+    torch.testing.assert_close(gpu.cpu(), cpu, atol=1e-6, rtol=1e-6)

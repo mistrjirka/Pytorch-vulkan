@@ -1,0 +1,78 @@
+{
+  "torch": "2.14.1+cpu",
+  "vulkan_device": "NVIDIA GeForce RTX 2080 Ti",
+  "physical_gpu": true,
+  "note": "FP32 reduced-size smoke probes, NOT the original BF16 zoo benchmark",
+  "cases": {
+    "mlp": {
+      "parameters": 1867786,
+      "cpu_first_ms": 6.601,
+      "vulkan_first_ms": 71.625,
+      "vulkan_steady_ms": 33.739,
+      "loss_cpu": 2.552579402923584,
+      "loss_vulkan": 2.552579402923584,
+      "max_output_abs_error": 2.1457672119140625e-06,
+      "max_grad_abs_error": 3.2782554626464844e-07,
+      "max_adamw_weight_abs_error": 1.877150498330593e-05,
+      "input_shape": [
+        32,
+        784
+      ],
+      "dtype": "torch.float32"
+    },
+    "unet": {
+      "parameters": 472833,
+      "cpu_first_ms": 9.152,
+      "vulkan_first_ms": 176.836,
+      "vulkan_steady_ms": 108.847,
+      "loss_cpu": 0.7183274626731873,
+      "loss_vulkan": 0.7183274626731873,
+      "max_output_abs_error": 3.91155481338501e-06,
+      "max_grad_abs_error": 1.0558869689702988e-07,
+      "max_adamw_weight_abs_error": 4.924088716506958e-05,
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "dtype": "torch.float32"
+    },
+    "embedding": {
+      "parameters": 6438164,
+      "cpu_first_ms": 2.123,
+      "vulkan_first_ms": 283.887,
+      "vulkan_steady_ms": 279.826,
+      "loss_cpu": 2.981318712234497,
+      "loss_vulkan": 2.981318712234497,
+      "max_output_abs_error": 2.9802322387695312e-08,
+      "max_grad_abs_error": 7.450580596923828e-09,
+      "max_adamw_weight_abs_error": 1.1920928955078125e-07,
+      "input_shape": [
+        16,
+        64
+      ],
+      "dtype": "torch.int64"
+    },
+    "style_net": {
+      "parameters": 2403651,
+      "cpu_first_ms": 15.06,
+      "vulkan_first_ms": 461.156,
+      "vulkan_steady_ms": 284.202,
+      "loss_cpu": 0.5608107447624207,
+      "loss_vulkan": 0.5608106851577759,
+      "max_output_abs_error": 1.0699033737182617e-05,
+      "max_grad_abs_error": 2.7924776077270508e-05,
+      "max_adamw_weight_abs_error": 0.00018751993775367737,
+      "input_shape": [
+        1,
+        3,
+        8,
+        8
+      ],
+      "dtype": "torch.float32"
+    }
+  },
+  "zoo_repo": "https://github.com/mistrjirka/pytorch-XDNA2",
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

@@ -5,10 +5,13 @@ layout(set = 0, binding = 0) buffer BufIn { float in_data[]; };
 layout(set = 0, binding = 1) buffer BufWeight { float weight[]; };
 layout(set = 0, binding = 2) buffer BufBias { float bias[]; };
 layout(set = 0, binding = 3) buffer BufOut { float out_data[]; };
+layout(set = 0, binding = 4) buffer BufMean { float mean_data[]; };
+layout(set = 0, binding = 5) buffer BufRstd { float rstd_data[]; };
 
 layout(push_constant) uniform PushConstants {
     uint num_rows;
     uint row_size;
+    float epsilon;
 } params;
 
 shared float shared_sum[256];
@@ -21,7 +24,7 @@ void main() {
     if (row >= params.num_rows) return;
 
     uint base = row * params.row_size;
-    float eps = 1e-5;
+
 
     // Step 1: compute mean
     float local_sum = 0.0;
@@ -52,7 +55,11 @@ void main() {
         barrier();
     }
     float variance = shared_sq_sum[0] / float(params.row_size);
-    float inv_std = inversesqrt(variance + eps);
+    float inv_std = inversesqrt(variance + params.epsilon);
+    if (tid == 0) {
+        mean_data[row] = mean;
+        rstd_data[row] = inv_std;
+    }
     barrier();
 
     // Step 3: normalize, scale, shift
