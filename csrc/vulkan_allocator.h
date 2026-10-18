@@ -27,6 +27,16 @@ public:
   void copy_data(void* dest, const void* src, std::size_t count) const override;
 
   std::shared_ptr<kp::TensorT<float>> get_kompute_tensor(void* ptr);
+  // Experimental dirty-bit tracking for device-local buffers. The host-mapped
+  // pointer is staging memory, not necessarily the current GPU result.
+  enum class Residency { HostDirty, GpuDirty, Clean };
+  bool needs_upload(const std::shared_ptr<kp::Tensor>& tensor);
+  bool needs_download(const std::shared_ptr<kp::Tensor>& tensor);
+  bool gpu_dirty(const std::shared_ptr<kp::Tensor>& tensor);
+  void mark_gpu_dirty(const std::shared_ptr<kp::Tensor>& tensor);
+  void mark_clean(const std::shared_ptr<kp::Tensor>& tensor);
+  void mark_host_dirty(void* raw_storage_ptr);
+
   // Prevent reuse of storage still referenced by a queued GPU command.
   void defer_reuse(bool enabled);
 
@@ -41,6 +51,7 @@ private:
 
   // Active allocations: data_ptr -> Kompute tensor
   std::unordered_map<void*, std::shared_ptr<kp::TensorT<float>>> tensor_map_;
+  std::unordered_map<void*, Residency> residency_;
 
   // Free list: size_in_floats -> list of reusable Kompute tensors
   // When a tensor is freed, it moves here instead of being destroyed.

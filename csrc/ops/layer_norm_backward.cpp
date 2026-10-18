@@ -39,11 +39,7 @@ static void dispatch(const std::string& shader,
   // Ensure host mirrors of other operations have coherent data. Future
   // persistent GPU scheduling will retain these dependencies on the device.
   ctx.synchronize();
-  auto seq=mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>(inputs);
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>(outputs);
-  seq->eval();
+  ctx.run_compute(algorithm,shader,inputs,outputs);
 }
 static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
     const at::Tensor& grad_out,

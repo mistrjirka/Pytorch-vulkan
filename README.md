@@ -62,20 +62,22 @@ device 1 is the **Tesla V100**. The names and indices depend on your driver.
 containers can require `libegl1`, `libgl1`, and `libxext6` for the ICD
 to load.
 
-## Verified functionality (October 17, 2026)
+## Verified functionality (October 18, 2026)
 
 On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 37/37 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 37/37 passed |
-| Lavapipe software Vulkan | 36 passed, hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 83/83 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 83/83 passed |
+| Lavapipe software Vulkan | 82 passed, one hardware-only test skipped |
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
 correct saved statistics, storage-sharing `view`/`as_strided`,
-and **native Vulkan Conv2D forward, dInput, dWeight, dBias** with
+native single-axis FP32 sum, larger-logit log-softmax forward/backward,
+fused GEMM+bias for Linear layers, and **native Vulkan Conv2D forward,
+dInput, dWeight, dBias** with
 stride/padding/dilation/group variants. Other operations can fall back to CPU.
 
 The simple SGD example at `examples/linear_train.py` reduces MSE from
@@ -92,6 +94,24 @@ The opt-in `torch_vulkan.optim.AdamW` fuses optimizer state updates
 on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
 `torch.optim.AdamW`. Deferred command submission and mapped host memory are
 additional *experimental* environment-configured modes, disabled by default.
+
+### Current optimized FP32 training (experimental)
+
+For the 1.87M-parameter XDNA2 MLP, batch 128 on the RTX 2080 Ti,
+optimized Vulkan now takes 4.614 ms inference and 17.166 ms for a
+complete forward + loss + backward + AdamW training step, against native CUDA
+0.172 ms and 2.218 ms respectively. This requires GPU residency and the
+opt-in fused AdamW implementation, and is still substantially slower than CUDA.
+
+Set `TORCH_VULKAN_GPU_RESIDENT=1` before importing the backend, then use
+`from torch_vulkan.optim import AdamW` rather than
+`torch.optim.AdamW` to use the fused optimizer. The experimental residency
+mode requires more validation for arbitrary PyTorch workloads and is not
+enabled by default.
+
+Full methodology, GPU kernel timestamps, fallback profiling, results
+on both NVIDIA GPUs, and outstanding bottlenecks are documented in the
+**[latest CUDA/Vulkan bottleneck analysis](docs/cuda-vulkan-bottleneck-analysis.md)**.
 
 ### Real GPU performance versus CUDA
 
@@ -136,9 +156,9 @@ a closer-to-exact GELU further improved correctness.
 - Direct convolution uses a **correctness-first** scalar implementation,
   not an optimized tensor-core or implicit-GEMM kernel. It will be slow for
   large channel counts.
-- Many activations, losses, reductions, batchnorm backward, AdamW parts, and
-  other ops use CPU fallback, with staging and synchronization overhead.
-  The backend is **not fully GPU-resident**.
+- Several loss operators, attention, some reductions, batchnorm backward,
+  and other unsupported ops still use CPU fallback. Device residency is
+  experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.
   `ConvTranspose2d` is also not supported. A reduced-size ResNet18
   training comparison exhibited numerical divergence near small spatial

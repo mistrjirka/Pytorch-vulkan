@@ -165,6 +165,20 @@ py::dict queue_stats() {
   return d;
 }
 
+py::dict gpu_timing_stats() {
+  py::dict res;
+  for (const auto& [name,v] : VulkanContext::instance().gpu_timing_stats()) {
+    py::dict stats;
+    stats["samples"]=v.samples;
+    stats["upload_ms"]=v.upload_ms;
+    stats["shader_ms"]=v.shader_ms;
+    stats["download_ms"]=v.download_ms;
+    stats["host_eval_ms"]=v.host_eval_ms;
+    res[py::str(name)]=std::move(stats);
+  }
+  return res;
+}
+
 PYBIND11_MODULE(_C, m) {
   m.def("_set_shader_dir", &set_shader_dir);
   m.def("_device_name", &device_name);
@@ -172,6 +186,7 @@ PYBIND11_MODULE(_C, m) {
   m.def("_is_hardware_accelerated", &is_hardware_accelerated);
   m.def("_synchronize", &synchronize);
   m.def("_queue_stats", &queue_stats);
+  m.def("_gpu_timing_stats", &gpu_timing_stats);
   m.def("_cache_stats", &cache_stats,
         "Return algorithm cache hit/miss statistics (Phase 4)");
   m.def("_clear_algorithm_cache", &clear_algorithm_cache,

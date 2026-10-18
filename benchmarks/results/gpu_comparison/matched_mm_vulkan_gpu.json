@@ -1,0 +1,77 @@
+{
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "backend": "vulkan",
+  "shapes": [
+    {
+      "m": 128,
+      "k": 784,
+      "n": 1024,
+      "wall_ms": 1.217,
+      "upload_ms": 0.27923,
+      "shader_ms": 0.17139,
+      "download_ms": 0.16434,
+      "host_eval_ms": 1.14438
+    },
+    {
+      "m": 128,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 1.3639,
+      "upload_ms": 0.36291,
+      "shader_ms": 0.22565,
+      "download_ms": 0.16479,
+      "host_eval_ms": 1.32628
+    },
+    {
+      "m": 128,
+      "k": 1024,
+      "n": 10,
+      "wall_ms": 0.6332,
+      "upload_ms": 0.04894,
+      "shader_ms": 0.05779,
+      "download_ms": 0.00393,
+      "host_eval_ms": 0.59402
+    },
+    {
+      "m": 1024,
+      "k": 128,
+      "n": 1024,
+      "wall_ms": 2.4824,
+      "upload_ms": 0.08454,
+      "shader_ms": 0.20508,
+      "download_ms": 1.28111,
+      "host_eval_ms": 2.30296
+    },
+    {
+      "m": 32,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 1.0255,
+      "upload_ms": 0.33602,
+      "shader_ms": 0.07703,
+      "download_ms": 0.02832,
+      "host_eval_ms": 0.97906
+    },
+    {
+      "m": 256,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 1.7936,
+      "upload_ms": 0.40309,
+      "shader_ms": 0.4255,
+      "download_ms": 0.32784,
+      "host_eval_ms": 1.6989
+    },
+    {
+      "m": 1024,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 4.4237,
+      "upload_ms": 0.64192,
+      "shader_ms": 1.58592,
+      "download_ms": 1.2882,
+      "host_eval_ms": 4.16454
+    }
+  ]
+}

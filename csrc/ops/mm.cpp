@@ -28,6 +28,7 @@ namespace ops {
 static at::Tensor host_mirror(const at::Tensor& src) {
   if (src.device().type() != c10::DeviceType::PrivateUse1) return src;
   VulkanContext::instance().synchronize();
+  VulkanContext::instance().ensure_host_read(src.storage().data_ptr().get());
   if (src.numel() == 0)
     return at::empty(src.sizes(), src.options().device(at::kCPU));
   TORCH_CHECK(src.const_data_ptr() != nullptr, "vulkan: unmapped host mirror");
@@ -119,12 +120,8 @@ static at::Tensor elementwise_binary(
     ctx.enqueue_compute(algorithm, {tensor_a,tensor_b,tensor_c}, {tensor_c});
     return output;
   }
-  ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_c});
-  seq->eval();
+  ctx.run_compute(algorithm, shader_name,
+      {tensor_a,tensor_b},{tensor_c});
 
   return output;
 }
@@ -164,12 +161,7 @@ static at::Tensor elementwise_unary(
     ctx.enqueue_compute(algorithm, {tensor_in,tensor_out}, {tensor_out});
     return output;
   }
-  ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_in});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_out});
-  seq->eval();
+  ctx.run_compute(algorithm, shader_name,{tensor_in},{tensor_out});
 
   return output;
 }
@@ -262,14 +254,24 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   uint32_t m_val = static_cast<uint32_t>(M);
   uint32_t k_val = static_cast<uint32_t>(K);
   uint32_t n_val = static_cast<uint32_t>(N);
-  uint32_t wg_x = (N + 15) / 16, wg_y = (M + 15) / 16;
+  // Prefer 64x64 register-tiling for large output tiles; 16x16 is faster
+  // for narrow classifiers and small batches. Tuned on RTX 2080 Ti + V100.
+  // Force a kernel for reproducible A/B profiling by setting the env var.
+  const auto* kernel = std::getenv("TORCH_VULKAN_MM_KERNEL");
+  const bool forced_register = kernel && std::strcmp(kernel,"register")==0;
+  const bool forced_tiled = kernel && std::strcmp(kernel,"tiled")==0;
+  const bool use_register_kernel = forced_register ||
+      (!forced_tiled && M>=256 && N>=256 && K>=64);
+  const uint32_t tile_size = use_register_kernel ? 64 : 16;
+  uint32_t wg_x = (N + tile_size - 1) / tile_size;
+  uint32_t wg_y = (M + tile_size - 1) / tile_size;
 
   // Phase 4: cached algorithm.
   // For transformer inference, the weight tensor_b is the same every call
   // (same data pointer). The activation tensor_a may vary, but if the model
   // reuses the same buffer size, the allocator returns the same pointer.
   auto algorithm = ctx.get_or_create_algorithm(
-      "matmul_strided",
+      use_register_kernel ? "matmul_strided_reg" : "matmul_strided",
       {tensor_a, tensor_b, tensor_c},
       kp::Workgroup({wg_x, wg_y, 1}),
       std::vector<uint32_t>{m_val, k_val, n_val,
@@ -282,12 +284,9 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
     ctx.enqueue_compute(algorithm, {tensor_a,tensor_b,tensor_c}, {tensor_c});
     return output;
   }
-  ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_c});
-  seq->eval();
+  ctx.run_compute(algorithm,
+      use_register_kernel ? "mm_register" : "mm",
+      {tensor_a,tensor_b},{tensor_c});
 
   return output;
 }
@@ -385,6 +384,7 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
   // stride-aware copy correctly handles offsets, permutations and casting.
   // Inputs are synchronized to the GPU by the next shader submission.
   host_mirror(self).copy_(host_mirror(src));
+  VulkanAllocator::instance().mark_host_dirty(self.storage().data_ptr().get());
   return self;
 }
 
@@ -470,11 +470,7 @@ at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_floa
       std::vector<uint32_t>{nr, rs});
 
   ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_in});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_out});
-  seq->eval();
+  ctx.run_compute(algorithm, "softmax", {tensor_in}, {tensor_out});
 
   return output;
 }
@@ -551,11 +547,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
       "layer_norm", {in_tensor, w_tensor, b_tensor, out_tensor, mean_tensor, rstd_tensor},
       kp::Workgroup({nr, 1, 1}), std::vector<uint32_t>{nr, rs, eps_bits});
   ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({in_tensor, w_tensor, b_tensor});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({out_tensor, mean_tensor, rstd_tensor});
-  seq->eval();
+  ctx.run_compute(algorithm, "layer_norm", {in_tensor,w_tensor,b_tensor}, {out_tensor,mean_tensor,rstd_tensor});
   return std::make_tuple(output, mean, rstd);
 }
 
@@ -614,13 +606,58 @@ at::Tensor vulkan_embedding(
       std::vector<uint32_t>{ni, ed});
 
   ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_w, tensor_idx});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_out});
-  seq->eval();
+  ctx.run_compute(algorithm, "embedding", {tensor_w,tensor_idx}, {tensor_out});
 
   return output;
+}
+
+
+// Single-launch matmul+bias for torch.nn.Linear. A vector bias has no
+// costly host materialization or separate Vulkan addition dispatch.
+static at::Tensor addmm_bias_vulkan(
+    const at::Tensor& bias, const at::Tensor& lhs, const at::Tensor& rhs,
+    float beta, float alpha) {
+  TORCH_CHECK(lhs.dim()==2 && rhs.dim()==2 && lhs.size(1)==rhs.size(0) &&
+              bias.dim()==1 && bias.numel()==rhs.size(1),
+              "fused addmm: invalid dimensions");
+  TORCH_CHECK(lhs.scalar_type()==at::kFloat &&
+              rhs.scalar_type()==at::kFloat &&
+              bias.scalar_type()==at::kFloat,
+              "fused addmm: FP32 only");
+  const int64_t M=lhs.size(0),K=lhs.size(1),N=rhs.size(1);
+  TORCH_CHECK(M<=UINT32_MAX && K<=UINT32_MAX && N<=UINT32_MAX,
+              "fused addmm: matrix too large");
+  const auto a=lhs.storage_offset()==0 ? lhs : contiguous_for_kernel(lhs);
+  const auto b=rhs.storage_offset()==0 ? rhs : contiguous_for_kernel(rhs);
+  const auto bv=contiguous_for_kernel(bias);
+  const auto* choice=std::getenv("TORCH_VULKAN_MM_KERNEL");
+  const bool use_reg=(choice && std::strcmp(choice,"register")==0) ||
+      ((!choice || std::strcmp(choice,"tiled")!=0) &&
+       M>=256 && N>=256 && K>=64);
+  const uint32_t tile=use_reg ? 64 : 16;
+  auto out=at::empty({M,N},lhs.options());
+  auto ta=get_kp_tensor(a),tb=get_kp_tensor(b);
+  auto td=get_kp_tensor(bv),tc=get_kp_tensor(out);
+  uint32_t alpha_bits,beta_bits;
+  std::memcpy(&alpha_bits,&alpha,sizeof(alpha));
+  std::memcpy(&beta_bits,&beta,sizeof(beta));
+  const std::string shader=use_reg ?
+      "matmul_strided_reg_bias" : "matmul_strided_bias";
+  auto& ctx=VulkanContext::instance();
+  auto algo=ctx.get_or_create_algorithm(shader,{ta,tb,td,tc},
+      kp::Workgroup({static_cast<uint32_t>((N+tile-1)/tile),
+                     static_cast<uint32_t>((M+tile-1)/tile),1}),
+      {static_cast<uint32_t>(M),static_cast<uint32_t>(K),
+       static_cast<uint32_t>(N),
+       static_cast<uint32_t>(a.stride(0)),static_cast<uint32_t>(a.stride(1)),
+       static_cast<uint32_t>(b.stride(0)),static_cast<uint32_t>(b.stride(1)),
+       alpha_bits,beta_bits});
+  if (ctx.can_enqueue({ta,tb,td,tc}))
+    ctx.enqueue_compute(algo,{ta,tb,td,tc},{tc});
+  else
+    ctx.run_compute(algo,use_reg ? "addmm_register" : "addmm",
+                    {ta,tb,td},{tc});
+  return out;
 }
 
 // aten::addmm — fused bias + matmul: out = beta*self + alpha*(mat1 @ mat2)
@@ -630,6 +667,18 @@ at::Tensor vulkan_addmm(
     const at::Tensor& mat2,
     const at::Scalar& beta,
     const at::Scalar& alpha) {
+
+  // Set TORCH_VULKAN_FUSE_ADDMM=0 for controlled A/B comparisons.
+  const auto* fuse_flag=std::getenv("TORCH_VULKAN_FUSE_ADDMM");
+  const bool fuse_bias=!(fuse_flag && std::strcmp(fuse_flag,"0")==0);
+  if (fuse_bias && self.dim()==1 && mat1.dim()==2 && mat2.dim()==2 &&
+      self.numel()==mat2.size(1) &&
+      self.scalar_type()==at::kFloat &&
+      mat1.scalar_type()==at::kFloat && mat2.scalar_type()==at::kFloat &&
+      self.device().type()==c10::DeviceType::PrivateUse1 &&
+      mat1.device().type()==c10::DeviceType::PrivateUse1 &&
+      mat2.device().type()==c10::DeviceType::PrivateUse1)
+    return addmm_bias_vulkan(self,mat1,mat2,beta.toFloat(),alpha.toFloat());
 
   auto product = torch_vulkan::ops::mm(mat1, mat2);
 
@@ -783,11 +832,7 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
       std::vector<uint32_t>{m_val, k_val, n_val});
 
   ctx.synchronize();
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b, tensor_scales});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_c});
-  seq->eval();
+  ctx.run_compute(algorithm, "matmul_q4", {tensor_a,tensor_b,tensor_scales}, {tensor_c});
 
   return output;
 }

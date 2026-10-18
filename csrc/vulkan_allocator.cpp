@@ -65,6 +65,7 @@ c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     tensor_map_[ptr] = tensor;
+    residency_[ptr] = Residency::HostDirty;
   }
 
   return c10::DataPtr(
@@ -97,6 +98,7 @@ void VulkanAllocator::deleter(void* ptr) {
   else
     alloc.free_list_[num_floats].push_back(std::move(tensor));
   alloc.tensor_map_.erase(it);
+  alloc.residency_.erase(ptr);
 }
 
 void VulkanAllocator::defer_reuse(bool enabled) {
@@ -108,6 +110,43 @@ void VulkanAllocator::defer_reuse(bool enabled) {
     }
     deferred_.clear();
   }
+}
+
+bool VulkanAllocator::needs_upload(const std::shared_ptr<kp::Tensor>& t) {
+  if (t->tensorType() != kp::Tensor::TensorTypes::eDevice) return false;
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it=residency_.find(t->rawData());
+  // Temporary Kompute buffers that did not come through our allocator
+  // are initialized from CPU and always need the upload.
+  return it==residency_.end() || it->second==Residency::HostDirty;
+}
+
+bool VulkanAllocator::gpu_dirty(const std::shared_ptr<kp::Tensor>& t) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it=residency_.find(t->rawData());
+  return it!=residency_.end() && it->second==Residency::GpuDirty;
+}
+
+bool VulkanAllocator::needs_download(const std::shared_ptr<kp::Tensor>& t) {
+  return t->tensorType()==kp::Tensor::TensorTypes::eDevice && gpu_dirty(t);
+}
+
+void VulkanAllocator::mark_gpu_dirty(const std::shared_ptr<kp::Tensor>& t) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it=residency_.find(t->rawData());
+  if (it!=residency_.end()) it->second=Residency::GpuDirty;
+}
+
+void VulkanAllocator::mark_clean(const std::shared_ptr<kp::Tensor>& t) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it=residency_.find(t->rawData());
+  if (it!=residency_.end()) it->second=Residency::Clean;
+}
+
+void VulkanAllocator::mark_host_dirty(void* ptr) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it=residency_.find(ptr);
+  if (it!=residency_.end()) it->second=Residency::HostDirty;
 }
 
 void VulkanAllocator::copy_data(void* dest, const void* src, std::size_t count) const {

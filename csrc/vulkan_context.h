@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <sstream>
+#include <map>
 
 namespace torch_vulkan {
 
@@ -27,6 +28,25 @@ public:
 
   std::string device_name() const;
 
+  // Experimental eager, GPU-resident execution. Device-local intermediates
+  // remain on the GPU until a real CPU read/fallback requires the host mirror.
+  bool gpu_resident_enabled() const;
+  void ensure_host_read(void* raw_storage_ptr);
+  void run_compute(const std::shared_ptr<kp::Algorithm>& algorithm,
+                   const std::string& shader,
+                   const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+                   const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
+
+  void enqueue_resident_compute(
+      const std::shared_ptr<kp::Algorithm>& algorithm,
+      const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+      const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
+
+  void run_compute_batch(
+      const std::vector<std::shared_ptr<kp::Algorithm>>& algorithms,
+      const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& inputs,
+      const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& outputs);
+
   // Experimental synchronous-to-deferred execution prototype. Only supported
   // on Kompute eHost (coherent mapped) tensors, so no staging copies are used.
   bool deferred_enabled() const;
@@ -39,6 +59,20 @@ public:
     uint64_t submissions=0, recorded_ops=0, largest_batch=0;
   };
   QueueStats queue_stats() const;
+
+  // Optional GPU timestamp instrumentation for one-off comparative profiling.
+  // Every synchronous sequence timestamps H2D, dispatch and D2H. Disabled
+  // by default because query pools add instrumentation overhead.
+  bool gpu_timing_enabled() const;
+  std::shared_ptr<kp::Sequence> timed_sequence();
+  void eval_timed_sequence(const std::shared_ptr<kp::Sequence>& sequence,
+                           const std::string& name);
+  struct GpuTiming {
+    uint64_t samples = 0;
+    double upload_ms = 0, shader_ms = 0, download_ms = 0;
+    double host_eval_ms = 0;
+  };
+  std::map<std::string,GpuTiming> gpu_timing_stats() const;
 
   // ---- Algorithm Cache (Phase 4) ----
   // Get a cached algorithm or create a new one. The cache key is built from
@@ -102,6 +136,7 @@ private:
 
   mutable CacheStats stats_;
   mutable std::mutex mutex_;
+  std::map<std::string,GpuTiming> gpu_timing_;
 };
 
 } // namespace torch_vulkan

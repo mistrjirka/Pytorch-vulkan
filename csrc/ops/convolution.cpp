@@ -101,11 +101,7 @@ static void run(const std::string& shader,
     context.enqueue_compute(algo, bindings, {output});
     return;
   }
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>(inputs);
-  seq->record<kp::OpAlgoDispatch>(algo);
-  seq->record<kp::OpTensorSyncLocal>(std::vector<TensorBuffer>{output});
-  seq->eval();
+  context.run_compute(algo, shader, inputs,{output});
 }
 
 static at::Tensor convolution_overrideable(

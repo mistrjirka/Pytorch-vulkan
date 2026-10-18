@@ -1,0 +1,77 @@
+{
+  "device": "Tesla V100-SXM2-32GB",
+  "torch": "2.14.1+cpu",
+  "backend": "vulkan",
+  "shapes": [
+    {
+      "m": 128,
+      "k": 784,
+      "n": 1024,
+      "wall_ms": 0.7819,
+      "upload_ms": 0.28096,
+      "shader_ms": 0.15091,
+      "download_ms": 0.12945,
+      "host_eval_ms": 0.7118
+    },
+    {
+      "m": 128,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 0.9173,
+      "upload_ms": 0.36506,
+      "shader_ms": 0.20134,
+      "download_ms": 0.13227,
+      "host_eval_ms": 0.84504
+    },
+    {
+      "m": 128,
+      "k": 1024,
+      "n": 10,
+      "wall_ms": 0.3938,
+      "upload_ms": 0.04958,
+      "shader_ms": 0.1482,
+      "download_ms": 0.00448,
+      "host_eval_ms": 0.35241
+    },
+    {
+      "m": 1024,
+      "k": 128,
+      "n": 1024,
+      "wall_ms": 1.6038,
+      "upload_ms": 0.08486,
+      "shader_ms": 0.05114,
+      "download_ms": 1.05115,
+      "host_eval_ms": 1.3534
+    },
+    {
+      "m": 32,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 0.7518,
+      "upload_ms": 0.33786,
+      "shader_ms": 0.19341,
+      "download_ms": 0.02141,
+      "host_eval_ms": 0.70276
+    },
+    {
+      "m": 256,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 1.1364,
+      "upload_ms": 0.40474,
+      "shader_ms": 0.20595,
+      "download_ms": 0.26479,
+      "host_eval_ms": 1.03491
+    },
+    {
+      "m": 1024,
+      "k": 1024,
+      "n": 1024,
+      "wall_ms": 2.4139,
+      "upload_ms": 0.64499,
+      "shader_ms": 0.2871,
+      "download_ms": 1.05483,
+      "host_eval_ms": 2.16063
+    }
+  ]
+}

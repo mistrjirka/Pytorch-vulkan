@@ -1,0 +1,24 @@
+#version 450
+// One output thread reduces a single contiguous axis. GPU device-resident
+// storage avoids the expensive CPU fallback for bias gradients.
+layout(local_size_x=256) in;
+layout(set=0,binding=0) readonly buffer Source { float input_data[]; };
+layout(set=0,binding=1) writeonly buffer Destination { float output_data[]; };
+layout(push_constant) uniform Shape {
+    uint outer;
+    uint reduced;
+    uint inner;
+    uint output_count;
+} p;
+
+void main() {
+    uint idx=gl_GlobalInvocationID.x;
+    if (idx >= p.output_count) return;
+    uint outer_idx = idx / p.inner;
+    uint inner_idx = idx % p.inner;
+    uint base = outer_idx * p.reduced * p.inner + inner_idx;
+    float acc=0.0;
+    for (uint k=0; k<p.reduced; ++k)
+        acc += input_data[base + k * p.inner];
+    output_data[idx]=acc;
+}

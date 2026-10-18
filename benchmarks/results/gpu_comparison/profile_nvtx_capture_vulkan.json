@@ -1,0 +1,23 @@
+{
+  "torch_version": "2.14.1+cpu",
+  "backend": "vulkan",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "optimizer": "vulkan_fused",
+  "samples": [
+    {
+      "zero_grad": 0.14561900025000796,
+      "forward": 13.699150000320515,
+      "loss": 0.2614029999676859,
+      "backward": 19.59590599835792,
+      "optimizer": 10.783423000248149
+    }
+  ],
+  "median_stage_ms": {
+    "zero_grad": 0.1456,
+    "forward": 13.6992,
+    "loss": 0.2614,
+    "backward": 19.5959,
+    "optimizer": 10.7834
+  },
+  "total_median_ms": 44.4855
+}

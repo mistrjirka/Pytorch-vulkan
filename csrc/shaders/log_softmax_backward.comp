@@ -1,0 +1,29 @@
+#version 450
+// d(log_softmax) = grad_output - exp(log_prob) * sum(grad_output)
+layout(local_size_x=256) in;
+layout(set=0,binding=0) readonly buffer Grad { float grad_output[]; };
+layout(set=0,binding=1) readonly buffer Prob { float log_probs[]; };
+layout(set=0,binding=2) writeonly buffer Result { float grad_input[]; };
+layout(push_constant) uniform Shape { uint rows; uint cols; } p;
+shared float grad_sum[256];
+
+void main() {
+    uint row=gl_WorkGroupID.x;
+    uint tid=gl_LocalInvocationID.x;
+    if (row>=p.rows) return;
+    uint base=row*p.cols;
+    float local_sum=0.0;
+    for(uint c=tid;c<p.cols;c+=256)
+        local_sum+=grad_output[base+c];
+    grad_sum[tid]=local_sum;
+    barrier();
+    for(uint step=128;step>0;step>>=1) {
+        if (tid<step) grad_sum[tid]+=grad_sum[tid+step];
+        barrier();
+    }
+    float sum=grad_sum[0];
+    for(uint c=tid;c<p.cols;c+=256) {
+        uint idx=base+c;
+        grad_input[idx]=grad_output[idx]-exp(log_probs[idx])*sum;
+    }
+}

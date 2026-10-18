@@ -61,11 +61,7 @@ static void fused_adamw_step_(
       "adamw_fused", {p,g,m,v},
       kp::Workgroup({static_cast<uint32_t>((param.numel()+255)/256),1,1}),
       constants);
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>(std::vector<std::shared_ptr<kp::Tensor>>{p,g,m,v});
-  seq->record<kp::OpAlgoDispatch>(algo);
-  seq->record<kp::OpTensorSyncLocal>(std::vector<std::shared_ptr<kp::Tensor>>{p,m,v});
-  seq->eval();
+  ctx.run_compute(algo,"adamw_fused",{p,g,m,v},{p,m,v});
 }
 
 // Batch independent parameter updates into a single Vulkan command buffer.
@@ -88,7 +84,6 @@ static void fused_adamw_step_batch_(
   auto& ctx = VulkanContext::instance();
   ctx.synchronize();
   auto& mgr = ctx.manager();
-  auto seq = mgr.sequence();
   // Shared_ptr holders remain alive for the whole command buffer evaluation.
   std::vector<std::vector<std::shared_ptr<kp::Tensor>>> inputs;
   std::vector<std::vector<std::shared_ptr<kp::Tensor>>> outputs;
@@ -127,10 +122,7 @@ static void fused_adamw_step_batch_(
       kp::Workgroup({static_cast<uint32_t>((p.numel()+255)/256),1,1}),constants));
   }
   if (algorithms.empty()) return;
-  for (const auto& in : inputs) seq->record<kp::OpTensorSyncDevice>(in);
-  for (const auto& alg : algorithms) seq->record<kp::OpAlgoDispatch>(alg);
-  for (const auto& out : outputs) seq->record<kp::OpTensorSyncLocal>(out);
-  seq->eval();
+  ctx.run_compute_batch(algorithms,inputs,outputs);
 }
 
 TORCH_LIBRARY(torch_vulkan, m) {

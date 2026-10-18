@@ -6,6 +6,7 @@
 #include "vulkan_allocator.h"
 #include <cstring>
 #include <algorithm>
+#include <chrono>
 #include <c10/util/Exception.h>
 #include <iostream>
 #include <sstream>
@@ -37,6 +38,183 @@ VulkanContext::VulkanContext() {
 
   // Default shader directory: alongside the shared library
   shader_dir_ = "";
+}
+
+bool VulkanContext::gpu_resident_enabled() const {
+  static const bool enabled=[](){
+    const auto* flag=std::getenv("TORCH_VULKAN_GPU_RESIDENT");
+    return flag && std::strcmp(flag,"1")==0;
+  }();
+  return enabled;
+}
+
+void VulkanContext::ensure_host_read(void* raw_storage_ptr) {
+  if (!gpu_resident_enabled() || !raw_storage_ptr) return;
+  // This is a CPU-read boundary; any deferred shader must finish first.
+  synchronize();
+  auto tensor=VulkanAllocator::instance().get_kompute_tensor(raw_storage_ptr);
+  auto& alloc=VulkanAllocator::instance();
+  if (!alloc.needs_download(tensor)) return;
+  auto seq=mgr_->sequence();
+  seq->record<kp::OpTensorSyncLocal>(
+      std::vector<std::shared_ptr<kp::Tensor>>{tensor});
+  seq->eval();
+  alloc.mark_clean(tensor);
+}
+
+void VulkanContext::run_compute(
+    const std::shared_ptr<kp::Algorithm>& algo,
+    const std::string& shader,
+    const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+    const std::vector<std::shared_ptr<kp::Tensor>>& outputs) {
+  auto& alloc=VulkanAllocator::instance();
+  if (!gpu_resident_enabled()) {
+    // Flush older deferred eHost commands before a legacy eager operation.
+    synchronize();
+    auto seq=(shader=="mm" || shader=="mm_register" || shader=="addmm" || shader=="addmm_register") ? timed_sequence() : mgr_->sequence();
+    seq->record<kp::OpTensorSyncDevice>(inputs);
+    seq->record<kp::OpAlgoDispatch>(algo);
+    seq->record<kp::OpTensorSyncLocal>(outputs);
+    if (shader=="mm" || shader=="mm_register" || shader=="addmm" || shader=="addmm_register") eval_timed_sequence(seq,shader);
+    else seq->eval();
+    return;
+  }
+  if (deferred_enabled()) {
+    enqueue_resident_compute(algo,inputs,outputs);
+    return;
+  }
+  synchronize();
+  std::vector<std::shared_ptr<kp::Tensor>> upload, gpu_deps;
+  upload.reserve(inputs.size());gpu_deps.reserve(inputs.size());
+  for (const auto& t:inputs) {
+    if (alloc.needs_upload(t)) upload.push_back(t);
+    else if (alloc.gpu_dirty(t)) gpu_deps.push_back(t);
+  }
+  auto seq=mgr_->sequence();
+  if (!upload.empty()) seq->record<kp::OpTensorSyncDevice>(upload);
+  if (!gpu_deps.empty()) seq->record<kp::OpMemoryBarrier>(
+    gpu_deps,
+    vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead,
+    vk::PipelineStageFlagBits::eComputeShader,
+    vk::PipelineStageFlagBits::eComputeShader);
+  seq->record<kp::OpAlgoDispatch>(algo);
+  seq->eval();
+  for (auto& t:upload) alloc.mark_clean(t);
+  for (auto& t:outputs) alloc.mark_gpu_dirty(t);
+}
+
+void VulkanContext::enqueue_resident_compute(
+    const std::shared_ptr<kp::Algorithm>& algo,
+    const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+    const std::vector<std::shared_ptr<kp::Tensor>>& outputs) {
+  TORCH_CHECK(gpu_resident_enabled() && deferred_enabled(),
+              "enqueue_resident_compute requires GPU residence and deferral");
+  auto& alloc=VulkanAllocator::instance();
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  if (!deferred_) {
+    deferred_=mgr_->sequence();
+    alloc.defer_reuse(true);
+  }
+  std::vector<std::shared_ptr<kp::Tensor>> upload,deps;
+  for (const auto& t:inputs) {
+    if (alloc.needs_upload(t)) upload.push_back(t);
+    else if (alloc.gpu_dirty(t)) deps.push_back(t);
+  }
+  if (!upload.empty())deferred_->record<kp::OpTensorSyncDevice>(upload);
+  if (!deps.empty())deferred_->record<kp::OpMemoryBarrier>(
+      deps,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eComputeShader);
+  deferred_->record<kp::OpAlgoDispatch>(algo);
+  deferred_->record<kp::OpMemoryBarrier>(
+      outputs,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eComputeShader);
+  pending_outputs_.insert(pending_outputs_.end(),outputs.begin(),outputs.end());
+  // GPU writes are logically newer immediately. Actual completion is enforced
+  // by synchronize() before host reads or unsupported CPU fallbacks.
+  for (const auto& t:upload)alloc.mark_clean(t);
+  for (const auto& t:outputs)alloc.mark_gpu_dirty(t);
+  ++queue_stats_.recorded_ops;
+}
+
+void VulkanContext::run_compute_batch(
+    const std::vector<std::shared_ptr<kp::Algorithm>>& algorithms,
+    const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& inputs,
+    const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& outputs) {
+  TORCH_CHECK(algorithms.size()==inputs.size() && algorithms.size()==outputs.size(),
+              "Vulkan batch: size mismatch");
+  if (algorithms.empty()) return;
+  if (!gpu_resident_enabled()) {
+    auto seq=mgr_->sequence();
+    for (const auto& v:inputs) seq->record<kp::OpTensorSyncDevice>(v);
+    for (const auto& a:algorithms) seq->record<kp::OpAlgoDispatch>(a);
+    for (const auto& v:outputs) seq->record<kp::OpTensorSyncLocal>(v);
+    seq->eval();
+    return;
+  }
+  if (deferred_enabled()) {
+    for (size_t i=0;i<algorithms.size();++i)
+      enqueue_resident_compute(algorithms[i],inputs[i],outputs[i]);
+    return;
+  }
+  auto& alloc=VulkanAllocator::instance();
+  std::vector<std::shared_ptr<kp::Tensor>> upload,deps;
+  for (const auto& vs:inputs) {
+    for (const auto& t:vs) {
+      if (alloc.needs_upload(t)) upload.push_back(t);
+      else if (alloc.gpu_dirty(t)) deps.push_back(t);
+    }
+  }
+  auto seq=mgr_->sequence();
+  if (!upload.empty())seq->record<kp::OpTensorSyncDevice>(upload);
+  if (!deps.empty())seq->record<kp::OpMemoryBarrier>(
+      deps,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eComputeShader);
+  for (const auto& a:algorithms)seq->record<kp::OpAlgoDispatch>(a);
+  seq->eval();
+  for (const auto& t:upload)alloc.mark_clean(t);
+  for (const auto& vs:outputs)
+    for (const auto& t:vs)alloc.mark_gpu_dirty(t);
+}
+
+bool VulkanContext::gpu_timing_enabled() const {
+  static bool enabled=[](){
+    const auto* value=std::getenv("TORCH_VULKAN_PROFILE_TIMESTAMPS");
+    return value && std::strcmp(value,"1") == 0;
+  }();
+  return enabled;
+}
+
+std::shared_ptr<kp::Sequence> VulkanContext::timed_sequence() {
+  return gpu_timing_enabled() ? mgr_->sequence(0, 3) : mgr_->sequence();
+}
+
+void VulkanContext::eval_timed_sequence(
+    const std::shared_ptr<kp::Sequence>& seq, const std::string& name) {
+  auto start=std::chrono::steady_clock::now();
+  seq->eval();
+  auto elapsed=std::chrono::duration<double,std::milli>(
+      std::chrono::steady_clock::now()-start).count();
+  if (!gpu_timing_enabled()) return;
+  const auto ts=seq->getTimestamps();
+  TORCH_CHECK(ts.size()==4,"Vulkan profiler expects three record operations");
+  const double ms_per_tick=mgr_->getDeviceProperties().limits.timestampPeriod/1e6;
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto& v=gpu_timing_[name];
+  ++v.samples;
+  v.host_eval_ms+=elapsed;
+  if (ts[1]>=ts[0] && ts[2]>=ts[1] && ts[3]>=ts[2]) {
+    v.upload_ms+=(ts[1]-ts[0])*ms_per_tick;
+    v.shader_ms+=(ts[2]-ts[1])*ms_per_tick;
+    v.download_ms+=(ts[3]-ts[2])*ms_per_tick;
+  }
+}
+
+std::map<std::string,VulkanContext::GpuTiming> VulkanContext::gpu_timing_stats() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return gpu_timing_;
 }
 
 VulkanContext::~VulkanContext() {
@@ -91,12 +269,15 @@ void VulkanContext::synchronize() {
   if (!deferred_enabled()) return;
   std::lock_guard<std::mutex> lock(deferred_mutex_);
   if (!deferred_) return;
-  // The final coherent-host visibility barrier is essential on mapped eHost.
-  deferred_->record<kp::OpMemoryBarrier>(
-      pending_outputs_, vk::AccessFlagBits::eShaderWrite,
-      vk::AccessFlagBits::eHostRead,
-      vk::PipelineStageFlagBits::eComputeShader,
-      vk::PipelineStageFlagBits::eHost);
+  // Mapped eHost needs compute->host visibility; eDevice stays in VRAM and
+  // a subsequent explicit readback will provide the transfer barrier.
+  if (!gpu_resident_enabled()) {
+    deferred_->record<kp::OpMemoryBarrier>(
+        pending_outputs_, vk::AccessFlagBits::eShaderWrite,
+        vk::AccessFlagBits::eHostRead,
+        vk::PipelineStageFlagBits::eComputeShader,
+        vk::PipelineStageFlagBits::eHost);
+  }
   const auto count = pending_outputs_.size();
   deferred_->eval();
   deferred_.reset();

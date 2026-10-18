@@ -1,5 +1,9 @@
 # Benchmarking and model-zoo smoke tests
 
+**[Latest matched CUDA/Vulkan optimization analysis](../docs/cuda-vulkan-bottleneck-analysis.md)**
+documents kernel timestamps, profiler evidence, GPU-resident training and
+direct before/after comparisons on the same RTX 2080 Ti.
+
 **[GPU comparison report: Vulkan vs CUDA vs CPU](GPU_COMPARISON.md)** includes 8 architectures, measured FP32 inference and full AdamW training, medium-resolution image inputs, and optimizer-stage profiling.
 
 

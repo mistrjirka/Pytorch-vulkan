@@ -54,6 +54,8 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/convolution.cpp
   csrc/ops/adamw.cpp
   csrc/ops/layer_norm_backward.cpp
+  csrc/ops/reduce.cpp
+  csrc/ops/log_softmax.cpp
   csrc/vulkan_engine.cpp
 )
 

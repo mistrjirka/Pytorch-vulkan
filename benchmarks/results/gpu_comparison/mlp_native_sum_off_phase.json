@@ -1,0 +1,16 @@
+{
+  "backend": "vulkan",
+  "optimizer": "vulkan_fused",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "batch": 128,
+  "dtype": "float32",
+  "phases_ms": {
+    "zero_grad": 0.072,
+    "forward": 5.808,
+    "loss": 0.864,
+    "backward": 17.184,
+    "adamw": 1.158,
+    "total": 25.189
+  }
+}

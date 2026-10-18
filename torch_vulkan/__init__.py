@@ -68,6 +68,11 @@ def synchronize() -> None:
     _C._synchronize()
 
 
+def gpu_timing_stats() -> dict:
+    """Read opt-in kernel GPU timestamps (TORCH_VULKAN_PROFILE_TIMESTAMPS=1)."""
+    return _C._gpu_timing_stats()
+
+
 def queue_stats() -> dict:
     """Inspect experimental deferred dispatch/submission counts."""
     return _C._queue_stats()
