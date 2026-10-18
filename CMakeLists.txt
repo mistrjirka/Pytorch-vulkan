@@ -86,6 +86,7 @@ add_library(torch_vulkan_C SHARED
   csrc/vulkan_context.cpp
   csrc/vulkan_allocator.cpp
   csrc/ops/mm.cpp
+  csrc/ops/scalar_add.cpp
   csrc/ops/cat.cpp
   csrc/ops/pooling.cpp
   csrc/ops/upsample.cpp

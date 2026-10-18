@@ -1,8 +1,9 @@
 # Benchmarking and model-zoo smoke tests
 
 [Native pooling, layouts and fence reuse](../docs/pooling-layouts-and-fences.md)
-contains the latest U-Net A/B, matched CUDA operator profiles, and submission
-API measurements.
+contains the pooling U-Net A/B, matched CUDA operator profiles, and submission
+API measurements. The [allocation and scalar-update follow-up](../docs/runtime-allocation-and-scalar-updates.md)
+adds interleaved A/B runs, one-change ablations, and synchronized stage comparisons.
 
 **[Latest matched CUDA/Vulkan optimization analysis](../docs/cuda-vulkan-bottleneck-analysis.md)**
 documents kernel timestamps, profiler evidence, GPU-resident training and

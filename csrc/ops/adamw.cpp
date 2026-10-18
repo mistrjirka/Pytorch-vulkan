@@ -55,7 +55,12 @@ static void fused_adamw_step_(
   }
 
   auto& ctx = VulkanContext::instance();
-  ctx.synchronize();
+  // A deferred resident graph already orders gradient writes before updates.
+  // Flushing here charges backward GPU execution to the optimizer and inserts
+  // an unnecessary CPU wait. Eager paths retain their existing boundary.
+  const char* force=std::getenv("TORCH_VULKAN_ADAMW_FORCE_SYNC");
+  if(!ctx.gpu_resident_enabled() || !ctx.deferred_enabled() ||
+      (force && std::strcmp(force,"1")==0))ctx.synchronize();
   auto& mgr = ctx.manager();
   auto algo = ctx.get_or_create_algorithm(
       "adamw_fused", {p,g,m,v},
@@ -82,7 +87,12 @@ static void fused_adamw_step_batch_(
   if (!count) return;
 
   auto& ctx = VulkanContext::instance();
-  ctx.synchronize();
+  // A deferred resident graph already orders gradient writes before updates.
+  // Flushing here charges backward GPU execution to the optimizer and inserts
+  // an unnecessary CPU wait. Eager paths retain their existing boundary.
+  const char* force=std::getenv("TORCH_VULKAN_ADAMW_FORCE_SYNC");
+  if(!ctx.gpu_resident_enabled() || !ctx.deferred_enabled() ||
+      (force && std::strcmp(force,"1")==0))ctx.synchronize();
   auto& mgr = ctx.manager();
   // Shared_ptr holders remain alive for the whole command buffer evaluation.
   std::vector<std::vector<std::shared_ptr<kp::Tensor>>> inputs;

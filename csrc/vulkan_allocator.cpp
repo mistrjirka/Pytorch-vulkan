@@ -30,8 +30,14 @@ c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
     if (it != free_list_.end() && !it->second.empty()) {
       tensor = std::move(it->second.back());
       it->second.pop_back();
-      // Zero out the reused buffer for safety
-      std::memset(tensor->data(), 0, num_floats * sizeof(float));
+      // empty() has no initialization guarantee. Kernels/CPU copies that own
+      // this allocation initialize their outputs; clearing staging memory here
+      // needlessly touches every byte on every reuse. Keep a diagnostic A/B flag.
+      static const bool clear_reused = []() {
+        const char* flag=std::getenv("TORCH_VULKAN_ZERO_REUSED_BUFFERS");
+        return flag && std::strcmp(flag,"1")==0;
+      }();
+      if(clear_reused)std::memset(tensor->data(),0,num_floats*sizeof(float));
     }
   }
 

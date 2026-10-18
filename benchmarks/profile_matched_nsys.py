@@ -1,4 +1,4 @@
-"""Nsight Systems comparison: identical XDNA2 MLP step, CUDA vs Vulkan.
+"""Nsight Systems comparison: identical XDNA2 model step, CUDA vs Vulkan.
 
 Capture NVTX stages and GPU kernel/workload activity. GPU execution is synchronized
 at every marked stage boundary to make time attribution unambiguous.
@@ -14,12 +14,15 @@ from pathlib import Path
 
 import nvtx
 import torch
+from compare_cuda_vulkan import CONFIG, data_for_case
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--backend", choices=["cuda", "vulkan"], required=True)
     p.add_argument("--zoo", type=Path, required=True)
+    p.add_argument("--model", choices=CONFIG, default="mlp")
+    p.add_argument("--scale", choices=["tiny","small","medium","reference"], default="small")
     p.add_argument("--samples", type=int, default=5)
     p.add_argument("--warmup", type=int, default=4)
     p.add_argument("--optimizer", choices=["standard", "vulkan_fused"], default="vulkan_fused")
@@ -39,11 +42,12 @@ def main():
     torch.manual_seed(42)
     sys.path.insert(0, str((args.zoo / "benchmarks").resolve()))
     import model_zoo
-    model, _, loss = model_zoo.MODELS["mlp"]()
+    model, _, loss = model_zoo.MODELS[args.model]()
     model.to(args.backend).train()
     gen = torch.Generator().manual_seed(123)
-    x = torch.randn(128, 784, generator=gen).to(args.backend)
-    y = torch.randint(10, (128,), generator=gen).to(args.backend)
+    shape=CONFIG[args.model][args.scale]
+    x,y=data_for_case(args.model,shape,gen)
+    x,y=x.to(args.backend),y.to(args.backend)
 
     if args.backend == "vulkan" and args.optimizer == "vulkan_fused":
         from torch_vulkan.optim import AdamW
@@ -84,7 +88,8 @@ def main():
         step(i, False)
     times = [step(i, True) for i in range(args.samples)]
     stats = {"torch_version": torch.__version__, "backend": args.backend,
-             "device": name, "optimizer": args.optimizer,
+             "device": name, "model": args.model, "shape": shape, "warmup": args.warmup,
+             "optimizer": args.optimizer,
              "samples": times, "median_stage_ms": {
                  stage: round(statistics.median(row[stage] for row in times), 4)
                  for stage in times[0]},

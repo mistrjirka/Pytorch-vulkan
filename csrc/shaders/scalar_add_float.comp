@@ -1,0 +1,16 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {
+  uint count,offset,inplace,reserved;
+  uint sizes[8];uint strides[8];uint value,alpha;
+} p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint rest=i,at=p.offset;
+  for(int d=7;d>=0;--d){at+=(rest%p.sizes[d])*p.strides[d];rest/=p.sizes[d];}
+  uint out_at=p.inplace!=0?at:i;
+  y[out_at]=x[at]+uintBitsToFloat(p.alpha)*uintBitsToFloat(p.value);
+}

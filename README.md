@@ -68,9 +68,9 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 324/324 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 324/324 passed |
-| Lavapipe software Vulkan | 323 passed, one hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 361/361 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 361/361 passed |
+| Lavapipe software Vulkan | 360 passed, one hardware-only test skipped |
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -88,7 +88,11 @@ layouts. Completed-fence reuse removes repeated driver allocation overhead.
 The [pooling, layout and fence report](docs/pooling-layouts-and-fences.md) records
 U-Net inference improving from 39.20 to 3.32 ms and full training from 86.38 to
 17.20 ms, compared with CUDA at 1.08/9.48 ms on the same RTX 2080 Ti. Those
-measurements use opt-in residency, deferred submission and fused AdamW. Other operations
+measurements use opt-in residency, deferred submission and fused AdamW. The
+[next runtime iteration](docs/runtime-allocation-and-scalar-updates.md) removes
+reused-buffer clearing and CPU scalar-counter updates, and defers AdamW with
+the rest of the graph. Fresh interleaved runs reduce inference 3.28→2.51 ms
+and training 19.16→14.96 ms (CUDA 1.09/9.56 ms). Other operations
 can fall back to CPU. See the [convolution backward and layout report](docs/convolution-backward-and-layouts.md)
 for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 

@@ -56,3 +56,19 @@ def test_fused_adamw_trains_real_mlp():
         assert abs(float(a.detach())-float(b.detach().cpu())) < 1.e-3
     for pa,pb in zip(ref.parameters(),vk.parameters()):
         torch.testing.assert_close(pb.detach().cpu(),pa.detach(),atol=1e-3,rtol=1e-3)
+
+
+def test_adamw_queued_gradients_updates_and_parameter_reads():
+    """Several optimizer steps may remain queued without stale gradients/state."""
+    torch.manual_seed(719)
+    a=torch.nn.Parameter(torch.randn(7,13));b=torch.nn.Parameter(a.detach().to('vulkan'))
+    oa=torch.optim.AdamW([a],lr=.001,foreach=False);ob=VulkanAdamW([b],lr=.001)
+    for _ in range(6):
+        oa.zero_grad(set_to_none=True);ob.zero_grad(set_to_none=True)
+        # Native multiply backward generates new GPU gradients, then the next
+        # iteration immediately reads the asynchronously updated parameter.
+        (a*a).sum().backward();(b*b).sum().backward()
+        oa.step();ob.step()
+    torch.testing.assert_close(b.detach().cpu(),a.detach(),atol=2e-5,rtol=2e-5)
+    for key in ['exp_avg','exp_avg_sq']:
+        torch.testing.assert_close(ob.state[b][key].cpu(),oa.state[a][key],atol=2e-5,rtol=2e-5)
