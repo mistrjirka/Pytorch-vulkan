@@ -1,0 +1,46 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Weight { float w[]; };
+layout(set=0,binding=2) readonly buffer Bias { float b[]; };
+layout(set=0,binding=3) buffer RunningMean { float rm[]; };
+layout(set=0,binding=4) buffer RunningVar { float rv[]; };
+layout(set=0,binding=5) writeonly buffer Output { float y[]; };
+layout(set=0,binding=6) writeonly buffer SaveMean { float sm[]; };
+layout(set=0,binding=7) writeonly buffer SaveInv { float si[]; };
+layout(push_constant) uniform Params {
+  uint n,c,s,training,flags,rmoff,rmstride,rvoff,rvstride;
+  float eps,momentum;
+} p;
+shared float scratch[128];
+uint address(uint r,uint c) { return (r/p.s*p.c+c)*p.s+r%p.s; }
+void main() {
+  uint c=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(c>=p.c)return;
+  uint tid=gl_LocalInvocationID.x,m=p.n*p.s;
+  float mean,inv;
+  if(p.training!=0) {
+    // Shift before summation, then use a centered second pass. This avoids
+    // catastrophic cancellation of E[x*x]-E[x]^2 for large-offset data.
+    float origin=x[c*p.s],sum=0.0;
+    for(uint r=tid;r<m;r+=128)sum+=x[address(r,c)]-origin;
+    scratch[tid]=sum;barrier();
+    for(uint d=64;d>0;d>>=1){if(tid<d)scratch[tid]+=scratch[tid+d];barrier();}
+    mean=origin+scratch[0]/float(m);barrier();
+    sum=0.0;
+    for(uint r=tid;r<m;r+=128){float v=x[address(r,c)]-mean;sum+=v*v;}
+    scratch[tid]=sum;barrier();
+    for(uint d=64;d>0;d>>=1){if(tid<d)scratch[tid]+=scratch[tid+d];barrier();}
+    float variance=scratch[0]/float(m);
+    inv=(variance==0.0 && p.eps==0.0)?0.0:inversesqrt(variance+p.eps);
+    if(tid==0) {
+      sm[c]=mean;si[c]=inv;
+      if((p.flags&4)!=0)rm[p.rmoff+c*p.rmstride]=(1.0-p.momentum)*rm[p.rmoff+c*p.rmstride]+p.momentum*mean;
+      if((p.flags&8)!=0)rv[p.rvoff+c*p.rvstride]=(1.0-p.momentum)*rv[p.rvoff+c*p.rvstride]+p.momentum*(scratch[0]/float(m-1));
+    }
+  } else {
+    mean=rm[p.rmoff+c*p.rmstride];inv=inversesqrt(rv[p.rvoff+c*p.rvstride]+p.eps);
+  }
+  float gamma=(p.flags&1)!=0?w[c]:1.0,beta=(p.flags&2)!=0?b[c]:0.0;
+  for(uint r=tid;r<m;r+=128){uint i=address(r,c);y[i]=((x[i]-mean)*inv)*gamma+beta;}
+}

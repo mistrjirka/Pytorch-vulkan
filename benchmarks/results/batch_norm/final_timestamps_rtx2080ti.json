@@ -1,0 +1,1066 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {
+    "TORCH_VULKAN_PROFILE_TIMESTAMPS": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "results": [
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5638209986500442,
+      "range_ms": [
+        0.5589419961324893,
+        0.5719260007026605
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.6637276666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.006983999999999933,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.004285866666666667,
+          "shader_ms": 0.01018453333333333,
+          "download_ms": 0.0063295999999999995,
+          "host_eval_ms": 0.5063282666666669
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.4156103134155273e-07,
+        1.1920928955078125e-07,
+        1.430511474609375e-06,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5702120033674873,
+      "range_ms": [
+        0.559713997063227,
+        0.5753730001742952
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.564252,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0041140000000000135,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.0053077333333333325,
+          "shader_ms": 0.009026133333333334,
+          "download_ms": 0.006129066666666666,
+          "host_eval_ms": 0.5089023333333332
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.4156103134155273e-07,
+        1.1920928955078125e-07,
+        1.430511474609375e-06,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5276540032355115,
+      "range_ms": [
+        0.5221239989623427,
+        0.5377929992391728
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5267319999999999,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003603666666666797,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.004390400000000002,
+          "shader_ms": 0.006978133333333332,
+          "download_ms": 0.007466666666666666,
+          "host_eval_ms": 0.4736764000000001
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        1.430511474609375e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5351180006982759,
+      "range_ms": [
+        0.5314709997037426,
+        0.5453870035125874
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5251100000000001,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004135333333333259,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.005322666666666668,
+          "shader_ms": 0.009073066666666659,
+          "download_ms": 0.005326933333333331,
+          "host_eval_ms": 0.47576366666666703
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        1.430511474609375e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5278950047795661,
+      "range_ms": [
+        0.5247079971013591,
+        0.5419100052677095
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5242843333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0035733333333333663,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.0034666666666666643,
+          "shader_ms": 0.009939200000000004,
+          "download_ms": 0.005045333333333331,
+          "host_eval_ms": 0.47334506666666676
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.0244548320770264e-07,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.527714000781998,
+      "range_ms": [
+        0.5237669975031167,
+        0.5397260028985329
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5224876666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003672666666666662,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.004230400000000005,
+          "shader_ms": 0.008223999999999999,
+          "download_ms": 0.00478720000000001,
+          "host_eval_ms": 0.4703831333333331
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.0244548320770264e-07,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5283059945213608,
+      "range_ms": [
+        0.5244479980319738,
+        0.5405980045907199
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5293163333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003230000000000075,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.003552000000000011,
+          "shader_ms": 0.006615466666666666,
+          "download_ms": 0.006961066666666653,
+          "host_eval_ms": 0.47487206666666615
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5322319993865676,
+      "range_ms": [
+        0.5267219967208803,
+        0.5472600023495033
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5263553333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.00371999999999998,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.0040896000000000005,
+          "shader_ms": 0.00829226666666667,
+          "download_ms": 0.00478933333333333,
+          "host_eval_ms": 0.473911733333334
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.772675994085148,
+      "range_ms": [
+        0.7621969998581335,
+        0.7806509966030717
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.7428523333333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.03081299999999998,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.045512533333333306,
+          "shader_ms": 0.02118826666666668,
+          "download_ms": 0.16632746666666665,
+          "host_eval_ms": 0.685526933333333
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        8.195638656616211e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        5.91278076171875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.8146740001393482,
+      "range_ms": [
+        0.808201999461744,
+        0.8273070052382536
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.7839216666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.030930333333333258,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.08581973333333334,
+          "shader_ms": 0.017747200000000008,
+          "download_ms": 0.1663146666666666,
+          "host_eval_ms": 0.7247064666666664
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        8.195638656616211e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        5.91278076171875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.7560459998785518,
+      "range_ms": [
+        0.7471790013369173,
+        0.773397994635161
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.7303846666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.030373000000000056,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.045636266666666626,
+          "shader_ms": 0.013868799999999985,
+          "download_ms": 0.16227413333333338,
+          "host_eval_ms": 0.6712646000000007
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        7.43865966796875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.8064689973252825,
+      "range_ms": [
+        0.8008379954844713,
+        0.8273670027847402
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.7731373333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.030836999999999927,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.08586026666666677,
+          "shader_ms": 0.017700266666666666,
+          "download_ms": 0.1628928000000001,
+          "host_eval_ms": 0.7187770000000019
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        7.43865966796875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 1.5222700021695346,
+      "range_ms": [
+        1.5124619967537,
+        1.5361659970949404
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 1.4102299999999997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.113139,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.1654997333333333,
+          "shader_ms": 0.03407359999999999,
+          "download_ms": 0.6402730666666666,
+          "host_eval_ms": 1.3519204666666675
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        1.210719347000122e-07,
+        1.1920928955078125e-07,
+        1.9073486328125e-06,
+        0.00019073486328125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 1.7009100047289394,
+      "range_ms": [
+        1.6802919999463484,
+        1.7162290023406968
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 1.5791540000000002,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11298866666666654,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.32509440000000006,
+          "shader_ms": 0.04240853333333341,
+          "download_ms": 0.6422591999999998,
+          "host_eval_ms": 1.5240850000000004
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        1.210719347000122e-07,
+        1.1920928955078125e-07,
+        1.9073486328125e-06,
+        0.00019073486328125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 1.519214994914364,
+      "range_ms": [
+        1.509126006567385,
+        1.5359349999926053
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 1.4013969999999996,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.1154800000000003,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.16552106666666652,
+          "shader_ms": 0.02168533333333338,
+          "download_ms": 0.6515413333333335,
+          "host_eval_ms": 1.3489029999999995
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        0.000152587890625,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 1.6978140047285706,
+      "range_ms": [
+        1.6808529981062748,
+        1.7868089998955838
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 1.6571849999999997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11485633333333332,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.32461013333333344,
+          "shader_ms": 0.0370304,
+          "download_ms": 0.646062933333333,
+          "host_eval_ms": 1.5244328000000043
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        0.000152587890625,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5197389982640743,
+      "range_ms": [
+        0.5180160005693324,
+        0.5350770006771199
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5177103333333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003930333333333465,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.0035114666666667444,
+          "shader_ms": 0.010839466666666641,
+          "download_ms": 0.005107200000000016,
+          "host_eval_ms": 0.46315166666666985
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        4.76837158203125e-07,
+        5.7220458984375e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5225950008025393,
+      "range_ms": [
+        0.5186179987504147,
+        0.5336350004654378
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5187646666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003963666666666654,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.003972266666666257,
+          "shader_ms": 0.009301333333333458,
+          "download_ms": 0.004774399999999919,
+          "host_eval_ms": 0.46448746666666996
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        4.76837158203125e-07,
+        5.7220458984375e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5206419955356978,
+      "range_ms": [
+        0.513848994160071,
+        0.5298780015436932
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5179716666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003622999999999995,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        },
+        "batch_norm_forward": {
+          "samples": 1.0,
+          "upload_ms": 0.003549866666666664,
+          "shader_ms": 0.0068096000000001196,
+          "download_ms": 0.006568533333332501,
+          "host_eval_ms": 0.4636452000000001
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5219230006332509,
+      "range_ms": [
+        0.5189680014154874,
+        0.5322419965523295
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.5132493333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004017666666666666,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {
+        "batch_norm_backward": {
+          "samples": 1.0,
+          "upload_ms": 0.003788799999999289,
+          "shader_ms": 0.009147733333333363,
+          "download_ms": 0.004834133333332602,
+          "host_eval_ms": 0.46441653333333005
+        },
+        "batch_norm_forward": {
+          "samples": 0.0,
+          "upload_ms": 0.0,
+          "shader_ms": 0.0,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.0
+        }
+      },
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        3.337860107421875e-06
+      ]
+    }
+  ]
+}

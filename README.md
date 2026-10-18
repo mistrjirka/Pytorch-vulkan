@@ -68,9 +68,9 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 117/117 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 117/117 passed |
-| Lavapipe software Vulkan | 116 passed, one hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 214/214 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 214/214 passed |
+| Lavapipe software Vulkan | 213 passed, one hardware-only test skipped |
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -79,7 +79,10 @@ native single-axis FP32 sum, larger-logit log-softmax forward/backward,
 fused GEMM+bias for Linear layers, and **native Vulkan Conv2D forward,
 dInput, dWeight, dBias** with
 stride/padding/dilation/group variants. Conv2D also accepts FP32 channels-last,
-transposed, sliced, offset and broadcast views via GPU packing. Other operations
+transposed, sliced, offset and broadcast views via GPU packing. Native FP32
+BatchNorm training/evaluation and nearest-neighbor 2D resize include backward
+and strided-view support. See the [BatchNorm and resize report](docs/batch-norm-and-nearest-resize.md)
+for semantics, matched A/B timings and remaining CUDA gaps. Other operations
 can fall back to CPU. See the [convolution backward and layout report](docs/convolution-backward-and-layouts.md)
 for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 
@@ -160,13 +163,14 @@ a closer-to-exact GELU further improved correctness.
   It still lacks cuDNN's broader algorithm selection (such as Winograd), and
   layout packing adds work. Conv2D supports 2D, nonempty FP32 configurations;
   this does not imply layout/dtype coverage for every PyTorch operator.
-- Several loss operators, attention, some reductions, batchnorm backward,
+- Several loss operators, attention, some reductions, pooling,
   and other unsupported ops still use CPU fallback. Device residency is
   experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.
   `ConvTranspose2d` is also not supported. A reduced-size ResNet18
-  training comparison exhibited numerical divergence near small spatial
-  BatchNorm layers; it is **not validated**.
+  training comparison before the native BatchNorm implementation exhibited
+  numerical divergence near small spatial layers; ResNet18 convergence has
+  **not been revalidated** by this change.
 - Only the two NVIDIA GPUs and software Lavapipe have been tested;
   AMD/Intel portability still needs verification.
 - `torch.Tensor.is_vulkan` refers to legacy PyTorch Vulkan support and

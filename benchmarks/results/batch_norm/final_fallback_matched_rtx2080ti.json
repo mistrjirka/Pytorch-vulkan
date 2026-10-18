@@ -1,0 +1,1290 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_DISABLE_BN_RESIZE": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "results": [
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.16251000488409773,
+      "range_ms": [
+        0.1545550039736554,
+        0.174832995980978
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.167004,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0038816666666667363,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.006082666666666388,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.11087600000000034,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.015347333333333277,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0010559999999999075,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zeros",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002171000000000049,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.001860333333333301,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.22840099700260907,
+      "range_ms": [
+        0.22446400544140488,
+        0.2416260031168349
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03397066666666657,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00283899999999997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005123999999999929,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.18391766666666673,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.012041333333333492,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0012719999999999344,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zeros",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012653333333333308,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.001549666666666686,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.12788599997293204,
+      "range_ms": [
+        0.11756699677789584,
+        0.1322840034845285
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.022304000000000032,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0021503333333333266,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004238333333333425,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.11204466666666656,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 13.0,
+          "self_cpu_ms": 0.008431666666666624,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0006043333333333767,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.22878299932926893,
+      "range_ms": [
+        0.22236099903238937,
+        0.23635700199520215
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03344099999999999,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002828000000000069,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.0050669999999998746,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.18997300000000011,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 18.0,
+          "self_cpu_ms": 0.011886666666666684,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.001141999999999977,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::resize_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00043733333333331834,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zeros",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012393333333333581,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.001071999999999965,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.09433500235900283,
+      "range_ms": [
+        0.08896399958757684,
+        0.10313099483028054
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.036408333333333376,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0021563333333333976,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004806666666666587,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.05997199999999998,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 15.0,
+          "self_cpu_ms": 0.013004666666666661,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.000664666666666676,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.12978000449948013,
+      "range_ms": [
+        0.12711399904219434,
+        0.1373939958284609
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.023403000000000028,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0028896666666665756,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005098333333333282,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.10775800000000012,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 14.0,
+          "self_cpu_ms": 0.012357333333333305,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0011023333333333768,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.07250400085467845,
+      "range_ms": [
+        0.07123099931050092,
+        0.08009799785213545
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017264666666666633,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0021333333333333733,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004207999999999951,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.05637100000000002,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 13.0,
+          "self_cpu_ms": 0.008709666666666683,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0006183333333333394,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.125070997455623,
+      "range_ms": [
+        0.12356800289126113,
+        0.13435800065053627
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.022709000000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006578999999999979,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005181666666666691,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.10091433333333327,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.014877666666666726,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0011213333333333253,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 2.858446998288855,
+      "range_ms": [
+        2.834762999555096,
+        2.879194995330181
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08819899999999901,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002423999999999372,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.0050459999999996705,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 2.7234623333333348,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 15.0,
+          "self_cpu_ms": 0.0382043333333339,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0005936666666666497,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 5.44962099957047,
+      "range_ms": [
+        5.428862998087425,
+        5.511785995622631
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0856803333333352,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0038036666666657767,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.0058843333333370535,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 5.365543333333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 14.0,
+          "self_cpu_ms": 0.038373666666663656,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.001181999999999789,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 2.7837290035677142,
+      "range_ms": [
+        2.765564997389447,
+        2.801521994115319
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.061613333333332625,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002319666666666308,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004581333333334745,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 2.697516333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 13.0,
+          "self_cpu_ms": 0.03485333333333252,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0005913333333342053,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 5.515071999980137,
+      "range_ms": [
+        5.482953005412128,
+        5.536821998248342
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08368400000000292,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0033076666666650755,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005568000000001727,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 5.414052000000001,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.038431999999997066,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0011249999999996968,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 11.517052000272088,
+      "range_ms": [
+        11.489731004985515,
+        11.872157992911525
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.2997839999999954,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002732333333338223,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.005593333333329914,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 11.062237333333337,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 15.0,
+          "self_cpu_ms": 0.12793666666666423,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0006443333333348468,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 21.883939996769186,
+      "range_ms": [
+        20.819926001422573,
+        21.966984000755474
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.2984850000000018,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.004108666666664552,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.006464333333338194,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 21.386274000000004,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 14.0,
+          "self_cpu_ms": 0.1226169999999928,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0013120000000005044,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 11.074023997935,
+      "range_ms": [
+        10.866570999496616,
+        11.107195001386572
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.20859800000000603,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0026393333333344345,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004857000000010885,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 10.64910733333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 13.0,
+          "self_cpu_ms": 0.11829166666666072,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0005876666666675494,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 22.08516199607402,
+      "range_ms": [
+        21.106604996020906,
+        22.15932800027076
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.3058013333333244,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0037796666666654348,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.006211666666667952,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 21.490697666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.1251846666666708,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0011653333333342744,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.08541699935449287,
+      "range_ms": [
+        0.08358500053873286,
+        0.09450400102650747
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02954166666666664,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002151333333333331,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.004842999999999965,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.052319000000000074,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 15.0,
+          "self_cpu_ms": 0.010712666666666672,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0005843333333333192,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.11727699893526733,
+      "range_ms": [
+        0.11587399785639718,
+        0.12878800043836236
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.018955333333333296,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0029160000000000206,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005037666666666553,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.08891400000000008,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 14.0,
+          "self_cpu_ms": 0.011525333333333346,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0010220000000000292,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.06436900002881885,
+      "range_ms": [
+        0.0629659989499487,
+        0.07589100277982652
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.015678333333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002158333333333303,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 11.0,
+          "self_cpu_ms": 0.0042670000000000294,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 8.0,
+          "self_cpu_ms": 0.04588066666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 13.0,
+          "self_cpu_ms": 0.008336666666666673,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0005643333333333278,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.11218700092285872,
+      "range_ms": [
+        0.10821000614669174,
+        0.12151400005677715
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02111866666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0027976666666666905,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 13.0,
+          "self_cpu_ms": 0.005030999999999911,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 10.0,
+          "self_cpu_ms": 0.08909333333333339,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 16.0,
+          "self_cpu_ms": 0.01018266666666671,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.00097866666666665,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        0.0,
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

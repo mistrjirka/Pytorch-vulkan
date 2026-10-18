@@ -1,0 +1,38 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Grad { float g[]; };
+layout(set=0,binding=2) readonly buffer Weight { float w[]; };
+layout(set=0,binding=3) readonly buffer Mean { float sm[]; };
+layout(set=0,binding=4) readonly buffer InvOrVar { float si[]; };
+layout(set=0,binding=5) writeonly buffer DX { float dx[]; };
+layout(set=0,binding=6) writeonly buffer DW { float dw[]; };
+layout(set=0,binding=7) writeonly buffer DB { float db[]; };
+layout(push_constant) uniform Params {
+  uint n,c,s,training,flags,moff,mstride,ioff,istride;
+  float eps;
+} p;
+shared float sum_g[128],sum_xg[128];
+uint address(uint r,uint c){return (r/p.s*p.c+c)*p.s+r%p.s;}
+void main() {
+  uint c=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(c>=p.c)return;
+  uint tid=gl_LocalInvocationID.x,m=p.n*p.s;
+  float mean=sm[p.moff+c*p.mstride],inv=si[p.ioff+c*p.istride];
+  if(p.training==0)inv=inversesqrt(inv+p.eps);
+  float a=0.0,b=0.0;
+  if(p.training!=0 || (p.flags&6)!=0) {
+    for(uint r=tid;r<m;r+=128){uint i=address(r,c);a+=g[i];b+=(x[i]-mean)*g[i];}
+    sum_g[tid]=a;sum_xg[tid]=b;barrier();
+    for(uint d=64;d>0;d>>=1){if(tid<d){sum_g[tid]+=sum_g[tid+d];sum_xg[tid]+=sum_xg[tid+d];}barrier();}
+    a=sum_g[0];b=sum_xg[0];
+  }
+  if(tid==0){if((p.flags&2)!=0)dw[c]=b*inv;if((p.flags&4)!=0)db[c]=a;}
+  if((p.flags&1)!=0) {
+    float scale=inv*((p.flags&8)!=0?w[c]:1.0);
+    for(uint r=tid;r<m;r+=128){uint i=address(r,c);float v=g[i];
+      if(p.training!=0)v-=a/float(m)+(x[i]-mean)*(b/float(m))*inv*inv;
+      dx[i]=v*scale;
+    }
+  }
+}

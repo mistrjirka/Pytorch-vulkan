@@ -1,0 +1,33 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params { uint planes,ih,iw,oh,ow,backward; float sy,sx; } p;
+uint source(uint dst,float scale,uint size){return uint(min(floor(float(dst)*scale),float(size-1)));}
+// First output coordinate whose source is >= target. Binary search exactly
+// matches forward's FP32 mapping, including rounded fractional scale factors.
+uint lower_bound(uint target,uint input_size,uint output_size,float scale) {
+  if(target==0)return 0;
+  if(target>=input_size)return output_size;
+  if(scale==1.0)return min(target,output_size);
+  if(scale==0.5)return min(target*2,output_size);
+  uint lo=0,hi=output_size;
+  while(lo<hi){uint mid=lo+(hi-lo)/2;if(source(mid,scale,input_size)<target)lo=mid+1;else hi=mid;}
+  return lo;
+}
+void main(){
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(p.backward==0){
+    if(i>=p.planes*p.oh*p.ow)return;
+    uint plane=i/(p.oh*p.ow),h=(i/p.ow)%p.oh,w=i%p.ow;
+    y[i]=x[(plane*p.ih+source(h,p.sy,p.ih))*p.iw+source(w,p.sx,p.iw)];
+  }else{
+    if(i>=p.planes*p.ih*p.iw)return;
+    uint plane=i/(p.ih*p.iw),h=(i/p.iw)%p.ih,w=i%p.iw;
+    uint hb=lower_bound(h,p.ih,p.oh,p.sy),he=lower_bound(h+1,p.ih,p.oh,p.sy);
+    uint wb=lower_bound(w,p.iw,p.ow,p.sx),we=lower_bound(w+1,p.iw,p.ow,p.sx);
+    float sum=0.0;
+    for(uint oh=hb;oh<he;++oh)for(uint ow=wb;ow<we;++ow)sum+=x[(plane*p.oh+oh)*p.ow+ow];
+    y[i]=sum;
+  }
+}

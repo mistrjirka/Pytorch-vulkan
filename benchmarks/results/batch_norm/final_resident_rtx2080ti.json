@@ -1,0 +1,767 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "results": [
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5406480049714446,
+      "range_ms": [
+        0.5071660052635707,
+        0.5731079945689999
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.06025066666666673,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.00669266666666663,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.4156103134155273e-07,
+        1.1920928955078125e-07,
+        1.430511474609375e-06,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5375719993025996,
+      "range_ms": [
+        0.5099120025988668,
+        0.5516480014193803
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.033340666666666505,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004232000000000189,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.4156103134155273e-07,
+        1.1920928955078125e-07,
+        1.430511474609375e-06,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5301889977999963,
+      "range_ms": [
+        0.5036799993831664,
+        1.4908520024619065
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03177166666666671,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0037439999999999856,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        1.430511474609375e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5362400042940862,
+      "range_ms": [
+        0.5125860043335706,
+        0.5462179979076609
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03305500000000008,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004273999999999968,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        1.430511474609375e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5374129978008568,
+      "range_ms": [
+        0.5346269972505979,
+        0.5486430018208921
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.034310666666666594,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0038033333333334267,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.0244548320770264e-07,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5376819972298108,
+      "range_ms": [
+        0.5086789969936945,
+        0.5516680030268617
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03375633333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003806333333333285,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        1.0244548320770264e-07,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5036399961682037,
+      "range_ms": [
+        0.5003339974791743,
+        0.5395260013756342
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03426299999999993,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0033363333333333808,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5089799960842356,
+      "range_ms": [
+        0.5060650000814348,
+        0.5326340033207089
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.034296999999999925,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003816666666666753,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5430230012279935,
+      "range_ms": [
+        0.5410390003817156,
+        0.5831070011481643
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03431666666666673,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.031174333333333262,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        8.195638656616211e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        5.91278076171875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5421410023700446,
+      "range_ms": [
+        0.5386949997046031,
+        0.5544140003621578
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03310800000000007,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.03101066666666655,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        8.195638656616211e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        5.91278076171875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5382629969972186,
+      "range_ms": [
+        0.5308800027705729,
+        0.741588999517262
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03380199999999994,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.030480000000000056,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        7.43865966796875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5408979995991103,
+      "range_ms": [
+        0.535869003215339,
+        0.5556159958359785
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03452300000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.031662666666666645,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        7.43865966796875e-05,
+        5.7220458984375e-05
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.6420459976652637,
+      "range_ms": [
+        0.6348520037136041,
+        0.6485769990831614
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03556533333333322,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11305233333333342,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        1.210719347000122e-07,
+        1.1920928955078125e-07,
+        1.9073486328125e-06,
+        0.00019073486328125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.7188569943537004,
+      "range_ms": [
+        0.7138869987102225,
+        0.7280439967871644
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03334066666666657,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11293933333333342,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        1.210719347000122e-07,
+        1.1920928955078125e-07,
+        1.9073486328125e-06,
+        0.00019073486328125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.6322970002656803,
+      "range_ms": [
+        0.625493994448334,
+        0.6484469995484687
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.032844666666666855,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11277766666666654,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        0.000152587890625,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.7120039954315871,
+      "range_ms": [
+        0.7082169977365993,
+        0.7361790048889816
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03682400000000001,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11300933333333334,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        0.0,
+        0.0,
+        9.5367431640625e-07,
+        0.000152587890625,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.5181670057936572,
+      "range_ms": [
+        0.512767001055181,
+        0.5321429998730309
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03425266666666662,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004368333333333353,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        4.76837158203125e-07,
+        5.7220458984375e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.5180060034035705,
+      "range_ms": [
+        0.511204001668375,
+        0.5287769963615574
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03275000000000013,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004114666666666579,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        4.76837158203125e-07,
+        5.7220458984375e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.5100420021335594,
+      "range_ms": [
+        0.507807002577465,
+        0.5175859987502918
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03184933333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.003856666666666631,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        3.337860107421875e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.5179470026632771,
+      "range_ms": [
+        0.5133580052643083,
+        0.5515189986908808
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03278766666666671,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.004093999999999985,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        0.0,
+        0.0,
+        7.152557373046875e-07,
+        3.814697265625e-06,
+        3.337860107421875e-06
+      ]
+    }
+  ]
+}

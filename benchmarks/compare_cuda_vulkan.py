@@ -134,7 +134,8 @@ def main():
         "threads": args.threads,
         "vulkan_controls": {key: os.environ.get(key, "default") for key in (
             "TORCH_VULKAN_GPU_RESIDENT", "TORCH_VULKAN_DEFER_SUBMISSIONS",
-            "TORCH_VULKAN_CONV_ALGO", "TORCH_VULKAN_CONV_BACKWARD_ALGO")},
+            "TORCH_VULKAN_CONV_ALGO", "TORCH_VULKAN_CONV_BACKWARD_ALGO",
+            "TORCH_VULKAN_DISABLE_BN_RESIZE")},
         "modes": {},
         "zoo_commit": subprocess.check_output(
             ["git", "-C", str(args.zoo), "rev-parse", "HEAD"], text=True

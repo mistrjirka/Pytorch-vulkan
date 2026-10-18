@@ -77,6 +77,8 @@ add_library(torch_vulkan_C SHARED
   csrc/vulkan_context.cpp
   csrc/vulkan_allocator.cpp
   csrc/ops/mm.cpp
+  csrc/ops/upsample.cpp
+  csrc/ops/batch_norm.cpp
   csrc/ops/convolution.cpp
   csrc/ops/adamw.cpp
   csrc/ops/layer_norm_backward.cpp

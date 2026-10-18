@@ -1,0 +1,1813 @@
+{
+  "backend": "cuda",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cu130",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {},
+  "results": [
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.0408549967687577,
+      "range_ms": [
+        0.04026499664178118,
+        0.049291003961116076
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.04229866666666642,
+          "device_ms": 0.010080666666666654
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.003930666666666658,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.013050666666666738,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.009724333333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.44159833333333337,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 3.0,
+          "self_cpu_ms": 0.030580000000000156,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_collect_statistics_channels_last_kernel<at::native::Var, float, float, 4>(float const*, float*, float*, float volatile*, int*, int, int, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.004672000000000025
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::unrolled_elementwise_kernel_for_multi_outputs<3, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int> >(int, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0018773333333333539
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_channels_last_kernel<float, float, float, 4>(float const*, float const*, float const*, float const*, float const*, float const*, float*, int, int, bool)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0035313333333332744
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.007326666666666673,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        5.960464477539063e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.05765700188931078,
+      "range_ms": [
+        0.05705600051442161,
+        0.06874700193293393
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.019818666666666634,
+          "device_ms": 0.005802333333333309
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0172626666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.43324633333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.014807666666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_reduce_channels_last_kernel<4, float, float, float>(float const*, float const*, float const*, float const*, float*, float*, float*, float*, float volatile*, int*, int, int)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0027946666666665955
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.001463000000000117,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.004998999999999948,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_elemt_channels_last_kernel<4, float, float, float>(float const*, float const*, float const*, float const*, float const*, float const*, float const*, float*, float, int, int)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0030076666666667127
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004267333333333303,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        5.960464477539063e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.05999999848427251,
+      "range_ms": [
+        0.05903899727854878,
+        0.07133200415410101
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01888466666666659,
+          "device_ms": 0.0064313333333332135
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0016563333333333976,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006822666666666654,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008224999999999984,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.008111666666666528,
+          "device_ms": 0.0013226666666666916
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4581223333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1.0,
+          "self_cpu_ms": 0.013458333333333409,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0013226666666666916
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.011097333333333381,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0016210000000000187
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_channels_last_kernel<float, float, float, 4>(float const*, float const*, float const*, float const*, float const*, float const*, float*, int, int, bool)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0034876666666665036
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004464999999999842,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        32,
+        128
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.061343998822849244,
+      "range_ms": [
+        0.0606419998803176,
+        0.07138200453482568
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.032764666666666546,
+          "device_ms": 0.005045333333333246
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.02307200000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.3898696666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.11622166666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_reduce_channels_last_kernel<4, float, float, float>(float const*, float const*, float const*, float const*, float*, float*, float*, float*, float volatile*, int*, int, int)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0028159999999999553
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0014920000000000376,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::batch_norm_elementwise_backward_eval(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::batch_norm_elementwise_backward_eval(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::(anonymous namespace)::batch_norm_elementwise_backward_eval(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float)#1}>(at::TensorIteratorBase&, at::native::(anonymous namespace)::batch_norm_elementwise_backward_eval(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float)#1} const&)::{lambda(int)#1})",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0022293333333332915
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004267666666666703,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        1.9073486328125e-06,
+        1.430511474609375e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.059559999499469995,
+      "range_ms": [
+        0.05860799865331501,
+        0.07130199810490012
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.028392000000000053,
+          "device_ms": 0.0063356666666665356
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0017336666666666928,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006892666666666637,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.011347333333333324,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.00229133333333354,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.001829999999999984,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4358243333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 3.0,
+          "self_cpu_ms": 0.10550533333333328,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_collect_statistics_kernel<at::native::Var, float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, float, float, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.003018666666666604
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::unrolled_elementwise_kernel_for_multi_outputs<3, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int> >(int, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0016639999999999873
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0016529999999999442
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004074000000000145,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        7.152557373046875e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.04490299761528149,
+      "range_ms": [
+        0.04391100083012134,
+        0.05998099368298426
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.018087000000000294,
+          "device_ms": 0.0025919999999999468
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0021533333333332316,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0018370000000000365,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0032296666666664937,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.01767566666666669,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4057556666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08844999999999997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0025919999999999468
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004154333333333398,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        7.152557373046875e-07,
+        4.470348358154297e-08,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        2.86102294921875e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.06275600026128814,
+      "range_ms": [
+        0.061623999499715865,
+        0.08081900159595534
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02047133333333295,
+          "device_ms": 0.004586333333333263
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0015363333333333552,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006939333333333328,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008542000000000077,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007126333333333453,
+          "device_ms": 0.0013223333333332902
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.3968416666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09362266666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0013223333333332902
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.012249000000000024,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0015893333333332673
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0013026666666666339,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0011356666666667934,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.001674666666666705
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.00437833333333333,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        1.9073486328125e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        32,
+        33
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.04454200097825378,
+      "range_ms": [
+        0.04384099884191528,
+        0.05640399467665702
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017866333333333463,
+          "device_ms": 0.0026130000000000562
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0021440000000000005,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0017329999999999284,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0031696666666666006,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014740333333333362,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.3992906666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09803433333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0026130000000000562
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004107000000000046,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        1.9073486328125e-06,
+        1.9073486328125e-06
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.060010999732185155,
+      "range_ms": [
+        0.059179001254960895,
+        0.07446800009347498
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02692733333333346,
+          "device_ms": 0.010069333333333286
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.001755999999999967,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006906333333333341,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008508999999999958,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0022269999999999283,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0016663333333333885,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.42791,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 3.0,
+          "self_cpu_ms": 0.11095799999999993,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_collect_statistics_kernel<at::native::Var, float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, float, float, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.004895999999999882
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::unrolled_elementwise_kernel_for_multi_outputs<3, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int> >(int, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0016639999999999873
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.003509333333333416
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004134333333333264,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.430511474609375e-06,
+        3.725290298461914e-09,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        6.866455078125e-05,
+        5.245208740234375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.04509399877861142,
+      "range_ms": [
+        0.043970998376607895,
+        0.057886994909495115
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017541333333333343,
+          "device_ms": 0.005258333333333288
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.005884000000000076,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0017603333333333685,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0032326666666664845,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014720666666666786,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.40931900000000004,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08243233333333326,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.005258333333333288
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.003880666666666684,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.430511474609375e-06,
+        3.725290298461914e-09,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        6.866455078125e-05,
+        5.245208740234375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.06264499825192615,
+      "range_ms": [
+        0.06200400093803182,
+        0.07537999772466719
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.020885000000000143,
+          "device_ms": 0.006441999999999931
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0017996666666665485,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.006996666666666732,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008538666666666672,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0073166666666665305,
+          "device_ms": 0.0013226666666666157
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.42138133333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09704266666666672,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0013226666666666157
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.015705666666666653,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.001589333333333343
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012796666666666473,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0013826666666666369,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.003529999999999973
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004214333333333343,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        5.340576171875e-05,
+        5.245208740234375e-05
+      ]
+    },
+    {
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.04499300121096894,
+      "range_ms": [
+        0.044562999391928315,
+        0.05656400026055053
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017560333333333497,
+          "device_ms": 0.0049810000000000704
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.002157333333333322,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0017323333333333153,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0032460000000001277,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014519666666666495,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.39995833333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08295333333333338,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0049810000000000704
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004006999999999986,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        5.340576171875e-05,
+        5.245208740234375e-05
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.05994000093778595,
+      "range_ms": [
+        0.058849000197369605,
+        0.078776000009384
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02848666666666653,
+          "device_ms": 0.015125333333333402
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0023206666666667577,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007096333333333301,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008515333333333283,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.002180666666666421,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0017503333333336003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.21027500000000002,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 3.0,
+          "self_cpu_ms": 0.12249933333333346,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_collect_statistics_kernel<at::native::Var, float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, float, float, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.008756999999999985
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::unrolled_elementwise_kernel_for_multi_outputs<3, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int> >(int, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0017813333333333502
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.004587000000000065
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004450999999999946,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        3.725290298461914e-09,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        0.000148773193359375,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.0501629983773455,
+      "range_ms": [
+        0.049482005124446005,
+        0.06115200085332617
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01788299999999996,
+          "device_ms": 0.01876233333333327
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.002123666666666452,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.001816666666666748,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.003172333333333569,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014487333333333291,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.513991,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08968866666666675,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.01876233333333327
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004377333333333278,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        1.9073486328125e-06,
+        3.725290298461914e-09,
+        1.1920928955078125e-07,
+        9.5367431640625e-07,
+        0.000148773193359375,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.062355000409297645,
+      "range_ms": [
+        0.06140299956314266,
+        0.09378400136483833
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.021632666666666675,
+          "device_ms": 0.009226666666666612
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0024206666666666005,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007020000000000011,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.008633333333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007543999999999945,
+          "device_ms": 0.0014506666666666964
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.19563766666666668,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11500533333333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0014506666666666964
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.01254966666666678,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.001738999999999957
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0013660000000000612,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0014159999999999399,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.006036999999999959
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004361999999999853,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        0.0001220703125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.047176996304187924,
+      "range_ms": [
+        0.04662600258598104,
+        0.048179004807025194
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017638666666666646,
+          "device_ms": 0.016350999999999963
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0022306666666666547,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0018000000000001298,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.003192333333333243,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014567000000000021,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.49088299999999996,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08775533333333328,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.016350999999999963
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.0040506666666664535,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        9.5367431640625e-07,
+        null,
+        null,
+        9.5367431640625e-07,
+        0.0001220703125,
+        0.000102996826171875
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "forward",
+      "median_ms": 0.06031099474057555,
+      "range_ms": [
+        0.05889899330213666,
+        0.06896700506331399
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02955166666666658,
+          "device_ms": 0.0068689999999999906
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0017400000000000848,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007139666666666718,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.00849166666666656,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.002968666666666716,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.002127666666666651,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.536831,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 3.0,
+          "self_cpu_ms": 0.10389500000000006,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_collect_statistics_kernel<at::native::Var, float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, float, float, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::RestrictPtrTraits, int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0031253333333332496
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::unrolled_elementwise_kernel_for_multi_outputs<3, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int> >(int, at::native::(anonymous namespace)::batch_norm_update_stats_and_invert(at::Tensor const&, at::Tensor const&, at::Tensor const&, at::Tensor const&, double, double, long)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float, float, float)#1}, std::array<char*, 7ul>, TrivialOffsetCalculator<4, unsigned int>, TrivialOffsetCalculator<3, unsigned int>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0017169999999999467
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.002026666666666794
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004385333333333317,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        7.450580596923828e-09,
+        1.1920928955078125e-07,
+        3.5762786865234375e-07,
+        3.814697265625e-06,
+        5.0067901611328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": true,
+      "phase": "backward",
+      "median_ms": 0.04586499562719837,
+      "range_ms": [
+        0.045253997086547315,
+        0.05641399911837652
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01769966666666672,
+          "device_ms": 0.002773333333333388
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0021843333333332804,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.001766333333333397,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0031893333333333847,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014783666666666695,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4757146666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.08600233333333328,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.002773333333333388
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.00408133333333338,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        7.450580596923828e-09,
+        1.1920928955078125e-07,
+        3.5762786865234375e-07,
+        3.814697265625e-06,
+        5.0067901611328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "forward",
+      "median_ms": 0.06325699359877035,
+      "range_ms": [
+        0.062314997194334865,
+        0.07749300129944459
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm",
+          "calls": 1.0,
+          "self_cpu_ms": 0.022460000000000264,
+          "device_ms": 0.004949333333333395
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0018770000000003174,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00802133333333319,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.009611333333333381,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007723999999999705,
+          "device_ms": 0.0013120000000002012
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.47340733333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09436766666666677,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Memcpy DtoD (Device -> Device)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0013120000000002012
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.012166333333333265,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::(anonymous namespace)::batch_norm_calc_invstd(at::Tensor const&, at::Tensor const&, double)::{lambda()#1}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0016106666666666266
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012826666666665763,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0014326666666666674,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_transform_input_kernel<float, float, float, true, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, std::conditional<true, float, float>::type, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, std::conditional<true, float, float>::type, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::RestrictPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::RestrictPtrTraits, int>, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0020266666666665665
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004748333333333297,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        4.76837158203125e-07,
+        3.814697265625e-06,
+        5.0067901611328125e-06
+      ]
+    },
+    {
+      "shape": [
+        2,
+        7,
+        3,
+        5,
+        9
+      ],
+      "training": false,
+      "phase": "backward",
+      "median_ms": 0.04518299829214811,
+      "range_ms": [
+        0.04464200173970312,
+        0.06123299681348726
+      ],
+      "operators": [
+        {
+          "name": "aten::native_batch_norm_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01923166666666668,
+          "device_ms": 0.002698666666666668
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0022013333333333095,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::view",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0016930000000000358,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0031493333333333547,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.014633333333333278,
+          "device_ms": 0.0
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.08789233333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09293166666666668,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::batch_norm_backward_kernel<float, float, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 2ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<3ul, int>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, float)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.002698666666666668
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.6666666666666667,
+          "self_cpu_ms": 0.004070999999999989,
+          "device_ms": 0.0
+        }
+      ],
+      "gpu_timing_per_call": {},
+      "max_abs_errors_forward_saved_gradients": [
+        4.76837158203125e-07,
+        null,
+        null,
+        4.76837158203125e-07,
+        3.814697265625e-06,
+        5.0067901611328125e-06
+      ]
+    }
+  ]
+}
