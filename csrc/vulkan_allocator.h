@@ -27,6 +27,8 @@ public:
   void copy_data(void* dest, const void* src, std::size_t count) const override;
 
   std::shared_ptr<kp::TensorT<float>> get_kompute_tensor(void* ptr);
+  // Prevent reuse of storage still referenced by a queued GPU command.
+  void defer_reuse(bool enabled);
 
 private:
   VulkanAllocator() = default;
@@ -34,6 +36,8 @@ private:
   static void deleter(void* ptr);
 
   std::mutex mutex_;
+  bool defer_reuse_ = false;
+  std::vector<std::shared_ptr<kp::TensorT<float>>> deferred_;
 
   // Active allocations: data_ptr -> Kompute tensor
   std::unordered_map<void*, std::shared_ptr<kp::TensorT<float>>> tensor_map_;

@@ -1,0 +1,23 @@
+#version 450
+layout(local_size_x=256) in;
+// One thread accumulates dGamma and dBeta across every row for a feature.
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Grad { float dy[]; };
+layout(set=0,binding=2) readonly buffer Mean { float mu[]; };
+layout(set=0,binding=3) readonly buffer Rstd { float invstd[]; };
+layout(set=0,binding=4) writeonly buffer GradWeight { float dgamma[]; };
+layout(set=0,binding=5) writeonly buffer GradBias { float dbeta[]; };
+layout(push_constant) uniform Params { uint rows; uint row_size; } p;
+void main() {
+    uint c=gl_GlobalInvocationID.x;
+    if (c>=p.row_size) return;
+    float dw=0.0, db=0.0;
+    for (uint row=0;row<p.rows;++row) {
+        uint index=row*p.row_size+c;
+        float g=dy[index];
+        db+=g;
+        dw+=g*(x[index]-mu[row])*invstd[row];
+    }
+    dgamma[c]=dw;
+    dbeta[c]=db;
+}

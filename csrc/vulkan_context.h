@@ -27,6 +27,19 @@ public:
 
   std::string device_name() const;
 
+  // Experimental synchronous-to-deferred execution prototype. Only supported
+  // on Kompute eHost (coherent mapped) tensors, so no staging copies are used.
+  bool deferred_enabled() const;
+  bool can_enqueue(const std::vector<std::shared_ptr<kp::Tensor>>& bindings) const;
+  void enqueue_compute(const std::shared_ptr<kp::Algorithm>& algorithm,
+                       const std::vector<std::shared_ptr<kp::Tensor>>& bindings,
+                       const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
+  void synchronize();  // wait for all queued work before any host CPU access
+  struct QueueStats {
+    uint64_t submissions=0, recorded_ops=0, largest_batch=0;
+  };
+  QueueStats queue_stats() const;
+
   // ---- Algorithm Cache (Phase 4) ----
   // Get a cached algorithm or create a new one. The cache key is built from
   // the shader name plus the raw data pointers of each tensor -- so the same
@@ -63,7 +76,7 @@ public:
 
 private:
   VulkanContext();
-  ~VulkanContext() = default;
+  ~VulkanContext();
   VulkanContext(const VulkanContext&) = delete;
   VulkanContext& operator=(const VulkanContext&) = delete;
 
@@ -71,6 +84,11 @@ private:
   static std::string make_cache_key(
       const std::string& shader_name,
       const std::vector<std::shared_ptr<kp::Tensor>>& tensors);
+
+  mutable std::mutex deferred_mutex_;
+  std::shared_ptr<kp::Sequence> deferred_;
+  std::vector<std::shared_ptr<kp::Tensor>> pending_outputs_;
+  QueueStats queue_stats_;
 
   std::unique_ptr<kp::Manager> mgr_;
   std::string shader_dir_;

@@ -23,3 +23,6 @@ compile_commands.json
 .cmake-build/
 
 .venv-cuda/
+
+# Captured profiler sessions contain local execution metadata
+benchmarks/results/nsys/

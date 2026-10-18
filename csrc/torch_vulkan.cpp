@@ -154,11 +154,24 @@ void clear_algorithm_cache() {
   VulkanContext::instance().clear_algorithm_cache();
 }
 
+void synchronize() { VulkanContext::instance().synchronize(); }
+
+py::dict queue_stats() {
+  const auto st=VulkanContext::instance().queue_stats();
+  py::dict d;
+  d["submissions"]=st.submissions;
+  d["recorded_ops"]=st.recorded_ops;
+  d["largest_batch"]=st.largest_batch;
+  return d;
+}
+
 PYBIND11_MODULE(_C, m) {
   m.def("_set_shader_dir", &set_shader_dir);
   m.def("_device_name", &device_name);
   m.def("_is_available", &is_available);
   m.def("_is_hardware_accelerated", &is_hardware_accelerated);
+  m.def("_synchronize", &synchronize);
+  m.def("_queue_stats", &queue_stats);
   m.def("_cache_stats", &cache_stats,
         "Return algorithm cache hit/miss statistics (Phase 4)");
   m.def("_clear_algorithm_cache", &clear_algorithm_cache,

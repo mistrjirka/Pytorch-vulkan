@@ -9,6 +9,7 @@ import torch
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--backend", choices=("cpu", "cuda", "vulkan"), required=True)
+ap.add_argument("--optimizer", choices=("standard", "vulkan_fused", "vulkan_fused_unbatched"), default="standard")
 ap.add_argument("--zoo", type=Path, required=True)
 ap.add_argument("--out", type=Path)
 args = ap.parse_args()
@@ -30,11 +31,21 @@ model = model.to(args.backend).train()
 generator = torch.Generator().manual_seed(123)
 x = torch.randn(128, 784, generator=generator).to(args.backend)
 y = torch.randint(10, (128,), generator=generator).to(args.backend)
-optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, foreach=False)
+if args.optimizer.startswith("vulkan_fused"):
+    if args.backend != "vulkan":
+        raise ValueError("vulkan_fused requires Vulkan backend")
+    from torch_vulkan.optim import AdamW as VulkanAdamW
+    optimizer = VulkanAdamW(model.parameters(), lr=1e-4,
+                            batched=args.optimizer != "vulkan_fused_unbatched")
+else:
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, foreach=False)
 
 def sync():
     if args.backend == "cuda":
         torch.cuda.synchronize()
+    elif args.backend == "vulkan":
+        import torch_vulkan
+        torch_vulkan.synchronize()
 
 samples = []
 for i in range(9):
@@ -62,7 +73,7 @@ for i in range(9):
                         "backward": (t3-t2)*1000,
                         "adamw": (t4-t3)*1000,
                         "total": (t4-start)*1000})
-report = {"backend": args.backend, "device": device_name, "torch": torch.__version__,
+report = {"backend": args.backend, "optimizer": args.optimizer, "device": device_name, "torch": torch.__version__,
           "batch": 128, "dtype": "float32",
           "phases_ms": {key: round(statistics.median(s[key] for s in samples), 3)
                         for key in samples[0]}}

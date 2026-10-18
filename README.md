@@ -81,6 +81,18 @@ stride/padding/dilation/group variants. Other operations can fall back to CPU.
 The simple SGD example at `examples/linear_train.py` reduces MSE from
 4.6667 to 0.7864 in five steps.
 
+### Performance investigation and experimental optimizations
+
+The [18 October 2026 investigation](docs/performance-investigation-2026-10-18.md)
+profiles CPU fallbacks and Vulkan GPU activity, documents the optimizer,
+allocation and submission fixes, and explains why the remaining CUDA gap
+requires a new pipeline/descriptor cache and persistent GPU residency.
+
+The opt-in `torch_vulkan.optim.AdamW` fuses optimizer state updates
+on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
+`torch.optim.AdamW`. Deferred command submission and mapped host memory are
+additional *experimental* environment-configured modes, disabled by default.
+
 ### Real GPU performance versus CUDA
 
 See **[Vulkan vs CUDA vs CPU benchmarks](benchmarks/GPU_COMPARISON.md)**

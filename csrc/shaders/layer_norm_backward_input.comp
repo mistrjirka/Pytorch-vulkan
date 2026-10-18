@@ -1,0 +1,43 @@
+#version 450
+layout(local_size_x=256) in;
+// One workgroup computes dX for one normalized row.
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Grad { float dy[]; };
+layout(set=0,binding=2) readonly buffer Mean { float mu[]; };
+layout(set=0,binding=3) readonly buffer Rstd { float invstd[]; };
+layout(set=0,binding=4) readonly buffer Weight { float gamma[]; };
+layout(set=0,binding=5) writeonly buffer GradInput { float dx[]; };
+layout(push_constant) uniform Params { uint rows; uint row_size; } p;
+shared float sum_dy[256];
+shared float sum_dy_x[256];
+void main() {
+    uint row=gl_WorkGroupID.x;
+    uint tid=gl_LocalInvocationID.x;
+    if (row>=p.rows) return;
+    uint base=row*p.row_size;
+    float r=invstd[row], m=mu[row];
+    float a=0.0, b=0.0;
+    for (uint j=tid;j<p.row_size;j+=256) {
+        float norm=(x[base+j]-m)*r;
+        float g=dy[base+j]*gamma[j];
+        a+=g;
+        b+=g*norm;
+    }
+    sum_dy[tid]=a;
+    sum_dy_x[tid]=b;
+    barrier();
+    for (uint offset=128;offset>0;offset>>=1) {
+        if (tid<offset) {
+            sum_dy[tid]+=sum_dy[tid+offset];
+            sum_dy_x[tid]+=sum_dy_x[tid+offset];
+        }
+        barrier();
+    }
+    float av=sum_dy[0]/float(p.row_size);
+    float bv=sum_dy_x[0]/float(p.row_size);
+    for (uint j=tid;j<p.row_size;j+=256) {
+        float norm=(x[base+j]-m)*r;
+        float g=dy[base+j]*gamma[j];
+        dx[base+j]=r*(g-av-norm*bv);
+    }
+}

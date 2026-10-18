@@ -63,6 +63,16 @@ def is_hardware_accelerated() -> bool:
     return _C._is_hardware_accelerated()
 
 
+def synchronize() -> None:
+    """Flush deferred Vulkan commands and wait for GPU completion."""
+    _C._synchronize()
+
+
+def queue_stats() -> dict:
+    """Inspect experimental deferred dispatch/submission counts."""
+    return _C._queue_stats()
+
+
 def device_name() -> str:
     """Return the name of the Vulkan device."""
     return _C._device_name()

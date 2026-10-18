@@ -248,3 +248,20 @@ def test_reshape_alias_backprop_matches_cpu():
     ref_grad = torch.autograd.grad(ref, cpu, grad)[0]
     got_grad = torch.autograd.grad(actual, vk, grad.to('vulkan'))[0]
     check_close(got_grad, ref_grad, tol=1e-6)
+
+
+def test_native_layer_norm_backward_no_affine_and_partial_masks():
+    import torch.nn.functional as F
+    assert torch._C._dispatch_has_kernel_for_dispatch_key(
+        'aten::native_layer_norm_backward', 'PrivateUse1')
+    torch.manual_seed(38)
+    for shape, normalized in [((3, 7), (7,)), ((2, 3, 5), (3, 5)), ((2, 3, 1), (1,))]:
+        x_cpu = torch.randn(*shape, requires_grad=True)
+        x_vk = x_cpu.detach().to('vulkan').requires_grad_()
+        grad = torch.randn(*shape)
+        out_cpu = F.layer_norm(x_cpu, normalized, eps=2e-3)
+        out_vk = F.layer_norm(x_vk, normalized, eps=2e-3)
+        check_close(out_vk, out_cpu.detach(), tol=2e-4)
+        wanted = torch.autograd.grad(out_cpu, x_cpu, grad)[0]
+        got = torch.autograd.grad(out_vk, x_vk, grad.to('vulkan'))[0]
+        check_close(got, wanted, tol=5e-4)

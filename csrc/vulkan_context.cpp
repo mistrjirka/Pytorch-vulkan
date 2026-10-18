@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <cerrno>
 #include <limits>
+#include "vulkan_allocator.h"
+#include <cstring>
+#include <algorithm>
 #include <c10/util/Exception.h>
 #include <iostream>
 #include <sstream>
@@ -34,6 +37,79 @@ VulkanContext::VulkanContext() {
 
   // Default shader directory: alongside the shared library
   shader_dir_ = "";
+}
+
+VulkanContext::~VulkanContext() {
+  try { synchronize(); } catch (...) { /* Shutdown must not throw. */ }
+}
+
+bool VulkanContext::deferred_enabled() const {
+  static const bool enabled = []() {
+    const char* flag = std::getenv("TORCH_VULKAN_DEFER_SUBMISSIONS");
+    return flag && std::strcmp(flag, "1") == 0;
+  }();
+  return enabled;
+}
+
+bool VulkanContext::can_enqueue(
+    const std::vector<std::shared_ptr<kp::Tensor>>& bindings) const {
+  if (!deferred_enabled()) return false;
+  return std::all_of(bindings.begin(), bindings.end(), [](const auto& tensor) {
+    return tensor->tensorType() == kp::Tensor::TensorTypes::eHost;
+  });
+}
+
+void VulkanContext::enqueue_compute(
+    const std::shared_ptr<kp::Algorithm>& algorithm,
+    const std::vector<std::shared_ptr<kp::Tensor>>& bindings,
+    const std::vector<std::shared_ptr<kp::Tensor>>& outputs) {
+  TORCH_CHECK(deferred_enabled(), "enqueue_compute requires deferred execution");
+  for (const auto& binding : bindings) {
+    TORCH_CHECK(binding->tensorType() == kp::Tensor::TensorTypes::eHost,
+                "Deferred Vulkan commands require host-visible buffers; set "
+                "TORCH_VULKAN_HOST_VISIBLE_MAX_BYTES to cover your largest tensor");
+  }
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  if (!deferred_) {
+    deferred_ = mgr_->sequence();
+    VulkanAllocator::instance().defer_reuse(true);
+  }
+  // Serialize dispatches through this command buffer. Device->device visibility
+  // is not automatically established between independent compute dispatches.
+  deferred_->record<kp::OpAlgoDispatch>(algorithm);
+  deferred_->record<kp::OpMemoryBarrier>(
+      outputs,
+      vk::AccessFlagBits::eShaderWrite,
+      vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eComputeShader);
+  pending_outputs_.insert(pending_outputs_.end(),outputs.begin(),outputs.end());
+  ++queue_stats_.recorded_ops;
+}
+
+void VulkanContext::synchronize() {
+  if (!deferred_enabled()) return;
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  if (!deferred_) return;
+  // The final coherent-host visibility barrier is essential on mapped eHost.
+  deferred_->record<kp::OpMemoryBarrier>(
+      pending_outputs_, vk::AccessFlagBits::eShaderWrite,
+      vk::AccessFlagBits::eHostRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eHost);
+  const auto count = pending_outputs_.size();
+  deferred_->eval();
+  deferred_.reset();
+  pending_outputs_.clear();
+  VulkanAllocator::instance().defer_reuse(false);
+  ++queue_stats_.submissions;
+  queue_stats_.largest_batch = std::max(queue_stats_.largest_batch,
+                                         static_cast<uint64_t>(count));
+}
+
+VulkanContext::QueueStats VulkanContext::queue_stats() const {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  return queue_stats_;
 }
 
 kp::Manager& VulkanContext::manager() {

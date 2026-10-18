@@ -27,6 +27,7 @@ namespace ops {
 // original storage; it must never escape the call that holds `src` alive.
 static at::Tensor host_mirror(const at::Tensor& src) {
   if (src.device().type() != c10::DeviceType::PrivateUse1) return src;
+  VulkanContext::instance().synchronize();
   if (src.numel() == 0)
     return at::empty(src.sizes(), src.options().device(at::kCPU));
   TORCH_CHECK(src.const_data_ptr() != nullptr, "vulkan: unmapped host mirror");
@@ -56,6 +57,7 @@ static std::shared_ptr<kp::TensorT<float>> get_kp_tensor(const at::Tensor& t) {
 static void sync_to_device(std::shared_ptr<kp::TensorT<float>> t) {
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({t});
   seq->eval();
@@ -65,6 +67,7 @@ static void sync_to_device(std::shared_ptr<kp::TensorT<float>> t) {
 static void sync_to_local(std::shared_ptr<kp::TensorT<float>> t) {
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncLocal>({t});
   seq->eval();
@@ -112,6 +115,11 @@ static at::Tensor elementwise_binary(
       kp::Workgroup({wg, 1, 1}),
       push_constants);
 
+  if (ctx.can_enqueue({tensor_a,tensor_b,tensor_c})) {
+    ctx.enqueue_compute(algorithm, {tensor_a,tensor_b,tensor_c}, {tensor_c});
+    return output;
+  }
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b});
   seq->record<kp::OpAlgoDispatch>(algorithm);
@@ -152,6 +160,11 @@ static at::Tensor elementwise_unary(
       kp::Workgroup({wg, 1, 1}),
       push_constants);
 
+  if (ctx.can_enqueue({tensor_in,tensor_out})) {
+    ctx.enqueue_compute(algorithm, {tensor_in,tensor_out}, {tensor_out});
+    return output;
+  }
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_in});
   seq->record<kp::OpAlgoDispatch>(algorithm);
@@ -265,6 +278,11 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
                             static_cast<uint32_t>(mat2_c.stride(0)),
                             static_cast<uint32_t>(mat2_c.stride(1))});
 
+  if (ctx.can_enqueue({tensor_a,tensor_b,tensor_c})) {
+    ctx.enqueue_compute(algorithm, {tensor_a,tensor_b,tensor_c}, {tensor_c});
+    return output;
+  }
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b});
   seq->record<kp::OpAlgoDispatch>(algorithm);
@@ -424,6 +442,7 @@ at::Tensor empty_memory_format(
 // aten::_softmax — row-wise softmax via softmax.spv
 // Phase 4: cached algorithm for repeated softmax on same-sized buffers
 at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_float) {
+  VulkanContext::instance().synchronize();
   TORCH_CHECK(self.dtype() == at::kFloat, "softmax: only float32");
   auto self_c = contiguous_for_kernel(self);
 
@@ -434,12 +453,9 @@ at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_floa
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
 
-  int64_t n = self_c.numel();
-  std::vector<float> in_data(self_c.data_ptr<float>(), self_c.data_ptr<float>() + n);
-  std::vector<float> out_data(n, 0.0f);
-
-  auto tensor_in = mgr.tensor(in_data);
-  auto tensor_out = mgr.tensor(out_data);
+  auto output = at::empty(self.sizes(), self.options());
+  auto tensor_in = get_kp_tensor(self_c);
+  auto tensor_out = get_kp_tensor(output);
 
   uint32_t nr = static_cast<uint32_t>(num_rows);
   uint32_t rs = static_cast<uint32_t>(row_size);
@@ -453,14 +469,13 @@ at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_floa
       kp::Workgroup({nr, 1, 1}),
       std::vector<uint32_t>{nr, rs});
 
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_in});
   seq->record<kp::OpAlgoDispatch>(algorithm);
   seq->record<kp::OpTensorSyncLocal>({tensor_out});
   seq->eval();
 
-  auto output = at::empty(self.sizes(), self.options());
-  std::memcpy(output.data_ptr(), tensor_out->data(), n * sizeof(float));
   return output;
 }
 
@@ -473,6 +488,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     const std::optional<at::Tensor>& bias_opt,
     double eps) {
 
+  VulkanContext::instance().synchronize();
   TORCH_CHECK(input.dtype() == at::kFloat, "layer_norm: only float32");
   TORCH_CHECK(eps >= 0.0, "layer_norm: epsilon must be nonnegative");
   TORCH_CHECK(!normalized_shape.empty() &&
@@ -507,21 +523,25 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   auto out_tensor = get_kp_tensor(output);
   auto mean_tensor = get_kp_tensor(mean);
   auto rstd_tensor = get_kp_tensor(rstd);
-  std::vector<float> weights(row_size, 1.0f), biases(row_size, 0.0f);
+  // Affine parameters already live in the backend allocator. Reuse their
+  // VkBuffers instead of allocating/copying temporary buffers on every call.
+  std::shared_ptr<kp::TensorT<float>> w_tensor, b_tensor;
   if (weight_opt.has_value() && weight_opt->defined()) {
-    auto w = weight_opt->contiguous();
+    const auto w = contiguous_for_kernel(*weight_opt);
     TORCH_CHECK(w.dtype() == at::kFloat && w.numel() == row_size,
                 "layer_norm: invalid weight");
-    std::memcpy(weights.data(), w.data_ptr<float>(), row_size * sizeof(float));
+    w_tensor = get_kp_tensor(w);
+  } else {
+    w_tensor = mgr.tensor(std::vector<float>(row_size, 1.0f));
   }
   if (bias_opt.has_value() && bias_opt->defined()) {
-    auto b = bias_opt->contiguous();
+    const auto b = contiguous_for_kernel(*bias_opt);
     TORCH_CHECK(b.dtype() == at::kFloat && b.numel() == row_size,
                 "layer_norm: invalid bias");
-    std::memcpy(biases.data(), b.data_ptr<float>(), row_size * sizeof(float));
+    b_tensor = get_kp_tensor(b);
+  } else {
+    b_tensor = mgr.tensor(std::vector<float>(row_size, 0.0f));
   }
-  auto w_tensor = mgr.tensor(weights);
-  auto b_tensor = mgr.tensor(biases);
   const auto nr = static_cast<uint32_t>(num_rows);
   const auto rs = static_cast<uint32_t>(row_size);
   float eps_f = static_cast<float>(eps);
@@ -530,6 +550,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   auto algorithm = ctx.get_or_create_algorithm(
       "layer_norm", {in_tensor, w_tensor, b_tensor, out_tensor, mean_tensor, rstd_tensor},
       kp::Workgroup({nr, 1, 1}), std::vector<uint32_t>{nr, rs, eps_bits});
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({in_tensor, w_tensor, b_tensor});
   seq->record<kp::OpAlgoDispatch>(algorithm);
@@ -563,6 +584,7 @@ at::Tensor vulkan_embedding(
     bool scale_grad_by_freq,
     bool sparse) {
 
+  VulkanContext::instance().synchronize();
   TORCH_CHECK(weight.dtype() == at::kFloat, "embedding: only float32 weight");
   auto weight_c = contiguous_for_kernel(weight);
   auto indices_c = contiguous_for_kernel(indices).to(at::kFloat);  // pass as float buffer
@@ -574,15 +596,12 @@ at::Tensor vulkan_embedding(
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
 
-  std::vector<float> w_data(weight_c.data_ptr<float>(),
-      weight_c.data_ptr<float>() + weight_c.numel());
-  std::vector<float> idx_data(indices_c.data_ptr<float>(),
-      indices_c.data_ptr<float>() + num_indices);
-  std::vector<float> out_data(total, 0.0f);
-
-  auto tensor_w = mgr.tensor(w_data);
-  auto tensor_idx = mgr.tensor(idx_data);
-  auto tensor_out = mgr.tensor(out_data);
+  auto out_sizes = indices.sizes().vec();
+  out_sizes.push_back(embedding_dim);
+  auto output = at::empty(out_sizes, weight.options());
+  auto tensor_w = get_kp_tensor(weight_c);
+  auto tensor_idx = get_kp_tensor(indices_c);
+  auto tensor_out = get_kp_tensor(output);
 
   uint32_t wg = (total + 255) / 256;
   uint32_t ni = static_cast<uint32_t>(num_indices);
@@ -594,16 +613,13 @@ at::Tensor vulkan_embedding(
       kp::Workgroup({wg, 1, 1}),
       std::vector<uint32_t>{ni, ed});
 
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_w, tensor_idx});
   seq->record<kp::OpAlgoDispatch>(algorithm);
   seq->record<kp::OpTensorSyncLocal>({tensor_out});
   seq->eval();
 
-  auto out_sizes = indices.sizes().vec();
-  out_sizes.push_back(embedding_dim);
-  auto output = at::empty(out_sizes, weight.options());
-  std::memcpy(output.data_ptr(), tensor_out->data(), total * sizeof(float));
   return output;
 }
 
@@ -634,39 +650,12 @@ at::Tensor vulkan_addmm(
 // aten::mul.Scalar — elementwise scalar multiply via scalar_mul.spv
 // Phase 4: cached algorithm
 at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
-  auto self_c = contiguous_for_kernel(self);
-  int64_t n = self_c.numel();
-  float scalar = other.toFloat();
-
-  auto& ctx = VulkanContext::instance();
-  auto& mgr = ctx.manager();
-
-  std::vector<float> in_data(self_c.data_ptr<float>(), self_c.data_ptr<float>() + n);
-  std::vector<float> out_data(n, 0.0f);
-
-  auto tensor_in = mgr.tensor(in_data);
-  auto tensor_out = mgr.tensor(out_data);
-
-  uint32_t wg = (n + 255) / 256;
-  uint32_t n_val = static_cast<uint32_t>(n);
-  uint32_t scalar_bits;
-  std::memcpy(&scalar_bits, &scalar, sizeof(uint32_t));
-
-  auto algorithm = ctx.get_or_create_algorithm(
-      "scalar_mul",
-      {tensor_in, tensor_out},
-      kp::Workgroup({wg, 1, 1}),
-      std::vector<uint32_t>{n_val, scalar_bits});
-
-  auto seq = mgr.sequence();
-  seq->record<kp::OpTensorSyncDevice>({tensor_in});
-  seq->record<kp::OpAlgoDispatch>(algorithm);
-  seq->record<kp::OpTensorSyncLocal>({tensor_out});
-  seq->eval();
-
-  auto output = at::empty(self.sizes(), self.options());
-  std::memcpy(output.data_ptr(), tensor_out->data(), n * sizeof(float));
-  return output;
+  TORCH_CHECK(self.scalar_type() == at::kFloat, "scalar multiply: FP32 only");
+  const uint32_t n = static_cast<uint32_t>(self.numel());
+  const float scalar = other.toFloat();
+  uint32_t bits;
+  std::memcpy(&bits, &scalar, sizeof(bits));
+  return elementwise_unary(self, "scalar_mul", {n, bits});
 }
 
 // aten::div.Tensor — elementwise divide (a / b)
@@ -743,6 +732,7 @@ at::Tensor vulkan_t(const at::Tensor& self) {
 // B_scales: float32 [K/32, N], one scale per block of 32
 static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed,
                          const at::Tensor& weight_scales) {
+  VulkanContext::instance().synchronize();
   auto input_c = contiguous_for_kernel(input);
   int64_t M = input_c.size(0);
   int64_t K = input_c.size(1);
@@ -792,6 +782,7 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
       kp::Workgroup({wg_x, wg_y, 1}),
       std::vector<uint32_t>{m_val, k_val, n_val});
 
+  ctx.synchronize();
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>({tensor_a, tensor_b, tensor_scales});
   seq->record<kp::OpAlgoDispatch>(algorithm);
@@ -804,6 +795,7 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
 // Optional diagnostics for unsupported operations and implicit host copies.
 // Usage: TORCH_VULKAN_TRACE_FALLBACK=1 python examples/linear_train.py
 void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
+  VulkanContext::instance().synchronize();
   const bool trace = std::getenv("TORCH_VULKAN_TRACE_FALLBACK") != nullptr;
   if (!trace) {
     at::native::cpu_fallback(op, stack);

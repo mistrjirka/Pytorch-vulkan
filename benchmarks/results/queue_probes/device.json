@@ -1,0 +1,45 @@
+{
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "elements": 4096,
+  "rounds": 4,
+  "steps": 70,
+  "deferred": "0",
+  "host_visible_max_bytes": "0",
+  "median_ms": 73.736,
+  "samples": [
+    {
+      "record_ms": 83.3106,
+      "final_host_sync_ms": 0.1165,
+      "total_ms": 83.4271,
+      "submissions": 0,
+      "recorded_ops": 0
+    },
+    {
+      "record_ms": 76.1381,
+      "final_host_sync_ms": 0.094,
+      "total_ms": 76.2321,
+      "submissions": 0,
+      "recorded_ops": 0
+    },
+    {
+      "record_ms": 71.1538,
+      "final_host_sync_ms": 0.0855,
+      "total_ms": 71.2393,
+      "submissions": 0,
+      "recorded_ops": 0
+    },
+    {
+      "record_ms": 70.0269,
+      "final_host_sync_ms": 0.0852,
+      "total_ms": 70.1121,
+      "submissions": 0,
+      "recorded_ops": 0
+    }
+  ],
+  "cache": {
+    "algo_hits": 548,
+    "algo_misses": 12,
+    "seq_reuses": 0,
+    "seq_creates": 0
+  }
+}

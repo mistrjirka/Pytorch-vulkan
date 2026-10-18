@@ -97,6 +97,10 @@ static void run(const std::string& shader,
   auto algo = context.get_or_create_algorithm(shader, bindings,
       kp::Workgroup({static_cast<uint32_t>((output_count+255)/256),1,1}),
       shape.as_push_constants());
+  if (context.can_enqueue(bindings)) {
+    context.enqueue_compute(algo, bindings, {output});
+    return;
+  }
   auto seq = mgr.sequence();
   seq->record<kp::OpTensorSyncDevice>(inputs);
   seq->record<kp::OpAlgoDispatch>(algo);

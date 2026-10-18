@@ -71,6 +71,9 @@ def data_for_case(name: str, shape, generator: torch.Generator):
 def synchronize(device: str):
     if device == "cuda":
         torch.cuda.synchronize()
+    elif device == "vulkan":
+        import torch_vulkan
+        torch_vulkan.synchronize()
 
 
 def main():
@@ -82,6 +85,7 @@ def main():
     ap.add_argument("--repeats", type=int, default=5)
     ap.add_argument("--threads", type=int, default=8)
     ap.add_argument("--mode", choices=("inference", "training", "both"), default="both")
+    ap.add_argument("--optimizer", choices=("standard", "vulkan_fused"), default="standard")
     ap.add_argument("--zoo", type=Path, required=True)
     ap.add_argument("--output", type=Path)
     args = ap.parse_args()
@@ -124,6 +128,7 @@ def main():
         "input_shape": list(shape),
         "parameters": sum(p.numel() for p in model.parameters()),
         "dtype": "float32",
+        "optimizer": args.optimizer,
         "warmup": args.warmup,
         "repeats": args.repeats,
         "threads": args.threads,
@@ -143,7 +148,13 @@ def main():
             model.to(args.backend, dtype=torch.float32)
             model.train(mode == "training")
             if mode == "training":
-                opt = torch.optim.AdamW(model.parameters(), lr=1e-4, foreach=False)
+                if args.optimizer == "vulkan_fused":
+                    if args.backend != "vulkan":
+                        raise RuntimeError("vulkan_fused optimizer only supports Vulkan")
+                    from torch_vulkan.optim import AdamW as VulkanAdamW
+                    opt = VulkanAdamW(model.parameters(), lr=1e-4)
+                else:
+                    opt = torch.optim.AdamW(model.parameters(), lr=1e-4, foreach=False)
             samples = []
             first_loss = None
             first_output = None
