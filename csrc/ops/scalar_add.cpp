@@ -45,7 +45,7 @@ void dispatch(const at::Tensor& x,const at::Tensor& out,const at::Scalar& value,
       {write_base(out,out.scalar_type())},p,(x.numel()+127)/128);
 }
 at::Tensor add_scalar(const at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {
-  if(!supported(x,value,false))return at::add(native::cpu_fallback_tensor(x,__func__),value,alpha).to(x.device());
+  if(!supported(x,value,false))return at::add(x,at::scalar_tensor(value,at::TensorOptions().dtype(at::result_type(x,value))),alpha);
   auto out=at::empty(x.sizes(),x.options());dispatch(x,out,value,alpha,false);return out;
 }
 at::Tensor& add_scalar_(at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {

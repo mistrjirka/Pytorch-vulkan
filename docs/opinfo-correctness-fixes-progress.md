@@ -46,3 +46,43 @@ source-file hashes as well as the loaded extension hash to identify dirty builds
 Advanced indexing and many remaining ATen operations are still open. FP16/BF16,
 AMP and multi-GPU remain deferred by agreement. No completion or CUDA performance
 parity is claimed here.
+
+## Second checkpoint: indexing, selection, byte storage and portable FP32 math
+
+The task remains **in progress**. This checkpoint adds general GPU advanced
+indexing and indexed assignment (including duplicate accumulation), nonzero,
+GPU NLL label validation, typed selection/concatenation, masked fills, clamp
+variants, Boolean reductions, and integer arithmetic. GPU copy, packing, RNG,
+bitwise and selection primitives now also support uint8/int8/int16. Raw Boolean
+bytes survive identity copies, while numeric conversions normalize truth values.
+This also supplies the byte storage cloning used by upstream backward-compliance
+tests. There is no model-specific dispatch.
+
+New numerical fixes include empty broadcast arithmetic, zero-order norms with
+NaN entries, and inverse trigonometric accuracy on Lavapipe. FP32 division uses
+an approximate hardware quotient followed by an exact integer mantissa rounding
+check. It requires neither FP64 nor native int64 nor a fused-FMA guarantee. Tests
+cover 1.2 million values around integer quotient boundaries and random bit
+patterns across the FP32 range, including subnormals and exceptional values.
+
+Verification for the second checkpoint:
+
+- RTX 2080 Ti: **2,063 repository tests passed**, one existing CPU-reference LSTM warning.
+- Tesla V100 and Lavapipe: **344 targeted tests passed on each**, with CPU fallback forbidden.
+- Both division-specific tests passed independently on RTX and Lavapipe.
+- Edited shaders compiled and passed SPIR-V validation for Vulkan 1.0.
+- AMD and Intel hardware remain unverified.
+
+The preceding complete upstream sweep (before the byte/selection and final math
+fixes) had **3,437 passes, 4,711 errors, 442 skips, 100 expected failures and six
+unexpected successes** out of 8,696 cases. That is not a completion result. A
+subsequent sweep was deliberately stopped after Lavapipe exposed a division bug;
+its partial results must not be presented as a completed audit. A fresh full
+sweep is running against this checkpoint. The build now records source and
+extension hashes immediately after linking; the audit uses this manifest so
+later working-tree edits cannot misidentify the tested binary.
+
+Remaining work includes scatter/index reductions, additional linear algebra and
+special functions, and other gaps reported by the unchanged upstream suite.
+Explicit CPU transfers and small validation/status downloads remain distinct
+from numeric CPU fallback. FP16/BF16, AMP and multi-GPU are still deferred.

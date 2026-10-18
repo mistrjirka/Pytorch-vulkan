@@ -1,0 +1,6 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input {uint x[];};
+layout(binding=1) writeonly buffer Output {uint y[];};
+layout(push_constant) uniform P {uint count,offset;uint sizes[8],strides[8];}p;
+void main(){uint word=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(word>=(p.count+1)/2)return;uint result=0;for(uint b=0;b<2;b++){uint i=word*2+b;if(i>=p.count)break;uint off=p.offset,r=i;for(int d=7;d>=0;d--){off+=(r%p.sizes[d])*p.strides[d];r/=p.sizes[d];}result|=((x[off/2]>>(16*(off%2)))&65535u)<<(16*b);}y[word]=result;}

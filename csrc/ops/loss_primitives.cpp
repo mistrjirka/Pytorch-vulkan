@@ -1,4 +1,6 @@
 #include "fft.h"
+#include "device_copy.h"
+#include "integer_ops.h"
 #include "reduce_native.h"
 // General FP32 elementwise primitives and global reduction. No model dispatch.
 #include "native_utils.h"
@@ -60,12 +62,15 @@ at::Tensor sigmoid_native(const at::Tensor& x) {
   return supported(x)?unary(x,0):at::sigmoid(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor abs_native(const at::Tensor& x) {
+  if(integer_type(x.scalar_type()))return at::where(x.lt(0),at::mul(x,-1),x);
   return supported(x)?unary(x,1):at::abs(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor sgn_native(const at::Tensor& x) {
+  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return at::sign(x);
   return supported(x)?unary(x,2):at::sgn(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor div_scalar(const at::Tensor& x,const at::Scalar& scalar) {
+  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return div_scalar(x.to(at::kFloat),scalar);
   if(!supported(x) || at::result_type(x,scalar)!=at::kFloat)
     return at::div(native::cpu_fallback_tensor(x,__func__),scalar).to(x.device());
   return unary(x,3,scalar.toFloat());
@@ -85,6 +90,11 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
   if(op==0) {
     at::native::sub_check(aa,bb);
     at::native::alpha_check(at::result_type(aa,bb),alpha);
+  }
+  if(device_copy_supported(aa.scalar_type())&&device_copy_supported(bb.scalar_type())){
+    auto dtype=at::result_type(aa,bb);
+    if(op==0&&integer_type(dtype))return at::add(aa,bb,at::Scalar(int64_t(uint64_t(0)-uint64_t(alpha.toLong()))));
+    if((op==1||dtype==at::kFloat)&&(aa.scalar_type()!=at::kFloat||bb.scalar_type()!=at::kFloat))return binary(aa.to(at::kFloat),bb.to(at::kFloat),op,alpha);
   }
   if(at::result_type(aa,bb)!=at::kFloat ||
      (!aa.device().is_cpu() && !supported(aa)) ||
@@ -159,6 +169,10 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
     at::native::alpha_check(at::result_type(x,scalar),alpha);
   }
   if(!fill)at::assert_no_internal_overlap(x);
+  if(!fill&&device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){
+    auto value=op==1?at::div(x,scalar):op==2?at::sub(x,scalar,alpha):at::mul(x,scalar);
+    TORCH_CHECK(c10::canCast(value.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(value);return x;
+  }
   if(!supported(x) || (!fill && at::result_type(x,scalar)!=at::kFloat) ||
      (fill && scalar.isComplex()) || !independent(x,fill))
     return mutate_cpu(x,scalar,op,alpha);
@@ -175,11 +189,11 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
   return x;
 }
 at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {
- if(x.scalar_type()==at::kBool){
+ if(x.scalar_type()==at::kBool||x.scalar_type()==at::kByte||x.scalar_type()==at::kChar||x.scalar_type()==at::kShort){
   if(!x.numel())return x;
   auto shape=x.sizes().vec();for(int d=0;d<x.dim();d++)if(!x.stride(d))shape[d]=1;
   auto distinct=x.as_strided(shape,x.strides(),x.storage_offset());
-  distinct.copy_(at::scalar_tensor(s,at::TensorOptions().dtype(at::kBool)).to(x.device()));return x;
+  distinct.copy_(at::scalar_tensor(s,at::TensorOptions().dtype(x.scalar_type())).to(x.device()));return x;
  }
 
  if((x.scalar_type()==at::kInt||x.scalar_type()==at::kLong)&&can_pack_view(x)){
@@ -209,6 +223,10 @@ at::Tensor& mutate_tensor(at::Tensor& x,const at::Tensor& other,uint32_t op,
   const auto shape=at::infer_size(x.sizes(),other.sizes());
   TORCH_CHECK(at::IntArrayRef(shape)==x.sizes(),
               "output with shape ",x.sizes()," doesn't match the broadcast shape ",shape);
+  if(device_copy_supported(x.scalar_type())&&device_copy_supported(other.scalar_type())&&(x.scalar_type()!=at::kFloat||other.scalar_type()!=at::kFloat)){
+    auto value=op==1?at::div(x,other):op==2?at::sub(x,other,alpha):at::mul(x,other);
+    TORCH_CHECK(c10::canCast(value.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(value);return x;
+  }
   if(supported(x) && supported(other) && independent(x)) {
     std::vector<uint32_t> p(29,0);
     p[0]=u32(x.numel());p[1]=u32(x.storage_offset());p[2]=u32(other.storage_offset());

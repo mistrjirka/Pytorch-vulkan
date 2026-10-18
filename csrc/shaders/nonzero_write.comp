@@ -1,0 +1,6 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Prefix {uint prefix[];};
+layout(binding=1) writeonly buffer Out {uvec2 y[];};
+layout(push_constant) uniform P {uint count,rank;uint dims[8];}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count||prefix[i]==0xffffffffu)return;uint r=i;for(int d=int(p.rank)-1;d>=0;d--){y[prefix[i]*p.rank+d]=uvec2(r%p.dims[d],0);r/=p.dims[d];}}

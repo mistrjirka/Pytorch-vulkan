@@ -2,5 +2,6 @@
 layout(local_size_x=128) in;
 layout(binding=0) readonly buffer X {uint x[];};
 layout(binding=1) writeonly buffer Y {uint y[];};
-layout(push_constant) uniform P {uint count,mask,words;uint dims[8];} p;
-void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint r=i,address=0,stride=1;for(int d=7;d>=0;d--){uint c=r%p.dims[d];r/=p.dims[d];if((p.mask&(1u<<d))!=0)c=p.dims[d]-1-c;address+=c*stride;stride*=p.dims[d];}for(uint k=0;k<p.words;k++)y[i*p.words+k]=x[address*p.words+k];}
+layout(push_constant) uniform P {uint count,mask,bytes;uint dims[8];}p;
+uint source(uint i){uint address=0,stride=1;for(int d=7;d>=0;d--){uint c=i%p.dims[d];i/=p.dims[d];if((p.mask&(1u<<d))!=0)c=p.dims[d]-1-c;address+=c*stride;stride*=p.dims[d];}return address;}
+void main(){uint word=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(word>=(p.count*p.bytes+3)/4)return;uint value=0;for(uint b=0;b<4;b++){uint byteidx=word*4+b;if(byteidx<p.count*p.bytes){uint src=source(byteidx/p.bytes)*p.bytes+byteidx%p.bytes;value|=((x[src/4]>>(8*(src%4)))&255u)<<(8*b);}}y[word]=value;}

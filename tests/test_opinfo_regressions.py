@@ -276,3 +276,265 @@ def test_svd_native(shape, full, kind):
     torch.testing.assert_close((u[..., :k] * s.unsqueeze(-2)) @ vh[..., :k, :], x, atol=4e-5, rtol=2e-5)
     torch.testing.assert_close(u.mT @ u, torch.eye(u.shape[-1]).expand(*u.shape[:-2], u.shape[-1], u.shape[-1]), atol=2e-5, rtol=2e-5)
     torch.testing.assert_close(vh @ vh.mT, torch.eye(vh.shape[-2]).expand(*vh.shape[:-2], vh.shape[-2], vh.shape[-2]), atol=2e-5, rtol=2e-5)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.bool, torch.int32, torch.int64])
+@pytest.mark.parametrize('pattern', ['adjacent', 'separated', 'mask', 'empty'])
+def test_advanced_indexing_and_assignment(dtype, pattern):
+    x = (torch.arange(60).reshape(3, 4, 5) % 7).to(dtype)
+    if pattern == 'adjacent': index = (torch.tensor([0, -1, 1]), torch.tensor([3, 1, 0]))
+    elif pattern == 'separated': index = (torch.tensor([2, 0, 1]), slice(None), torch.tensor([1, 3, 0]))
+    elif pattern == 'mask': index = (torch.tensor([True, False, True]), slice(None), slice(None))
+    else: index = (torch.empty(0, dtype=torch.long),)
+    v = x.to('vulkan')
+    iv = tuple(i.to('vulkan') if isinstance(i, torch.Tensor) else i for i in index)
+    vk.reset_execution_stats()
+    result = v[iv]
+    value = torch.ones_like(result)
+    v[iv] = value
+    stats = vk.execution_stats()
+    assert stats['cpu_fallback_calls'] == 0 and stats['host_read_max_bytes'] <= 4, stats
+    torch.testing.assert_close(result.cpu(), x[index])
+    expected = x.clone(); expected[index] = 1
+    torch.testing.assert_close(v.cpu(), expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.bool])
+def test_index_put_duplicate_accumulation(dtype):
+    x = torch.ones(4, dtype=dtype)
+    indices = torch.tensor([1, 1, -1, 1])
+    values = torch.tensor([2, 3, 4, 5], dtype=dtype)
+    v, i, vals = x.to('vulkan'), indices.to('vulkan'), values.to('vulkan')
+    vk.reset_execution_stats()
+    v.index_put_((i,), vals, accumulate=True)
+    stats = vk.execution_stats()
+    assert stats['cpu_fallback_calls'] == 0 and stats['host_read_max_bytes'] <= 4, stats
+    torch.testing.assert_close(v.cpu(), x.index_put_((indices,), values, accumulate=True))
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.bool])
+@pytest.mark.parametrize('shape', [(), (0,), (3, 4)])
+def test_nonzero_native(dtype, shape):
+    x = torch.ones(shape, dtype=dtype)
+    if x.ndim == 2: x[1, 2] = 0
+    v = x.to('vulkan')
+    if x.ndim == 2: x, v = x.t(), v.t()
+    vk.reset_execution_stats()
+    result = v.nonzero()
+    stats = vk.execution_stats()
+    assert stats['cpu_fallback_calls'] == 0 and stats['host_read_max_bytes'] <= 4, stats
+    torch.testing.assert_close(result.cpu(), x.nonzero())
+
+
+def test_inline_fallback_is_forbidden(monkeypatch):
+    v = torch.ones(3, dtype=torch.float64).to('vulkan')
+    monkeypatch.setenv('TORCH_VULKAN_FORBID_CPU_FALLBACK', '1')
+    with pytest.raises(RuntimeError, match='CPU fallback forbidden'):
+        torch.sigmoid(v)
+
+
+def test_nll_device_target_validation():
+    import torch.nn.functional as F
+    x = torch.randn(137, 7).log_softmax(-1)
+    target = torch.arange(137, dtype=torch.int64) % 7
+    v = x.to('vulkan'); t = target.to('vulkan') + 0
+    vk.reset_execution_stats()
+    result = F.nll_loss(v, t)
+    stats = vk.execution_stats()
+    assert stats['cpu_fallback_calls'] == 0 and stats['host_read_max_bytes'] <= 4, stats
+    torch.testing.assert_close(result.cpu(), F.nll_loss(x, target))
+
+
+def test_boolean_arithmetic_and_isclose_helpers():
+    x = torch.tensor([True, False, True, False])
+    y = torch.tensor([True, True, False, False])
+    a, b = x.to('vulkan'), y.to('vulkan')
+    vals = torch.tensor([float('nan'), float('inf'), -float('inf'), -0., .25]).to('vulkan')
+    vk.reset_execution_stats()
+    product, total = a * b, a + b
+    close = torch.isclose(vals, vals, equal_nan=True)
+    finite = torch.isfinite(vals)
+    resident()
+    torch.testing.assert_close(product.cpu(), x * y)
+    torch.testing.assert_close(total.cpu(), x + y)
+    assert close.cpu().all()
+    torch.testing.assert_close(finite.cpu(), torch.tensor([False, False, False, True, True]))
+
+
+@pytest.mark.parametrize('left,right', [(torch.float32, torch.int64), (torch.int32, torch.bool), (torch.bool, torch.int64)])
+def test_binary_dtype_promotion(left, right):
+    a = torch.tensor([1, 2, -3], dtype=left)
+    b = torch.tensor([3, -2, 1], dtype=right)
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    vk.reset_execution_stats()
+    total, product = av + bv, av * bv
+    resident()
+    torch.testing.assert_close(total.cpu(), a + b)
+    torch.testing.assert_close(product.cpu(), a * b)
+
+
+@pytest.mark.parametrize('name', ['reciprocal', 'log', 'log1p', 'expm1', 'floor', 'ceil', 'trunc', 'round', 'sign', 'log10', 'log2', 'exp2', 'sinh', 'cosh', 'tan', 'asin', 'acos', 'atan', 'asinh', 'acosh', 'atanh', 'erf', 'erfc'])
+def test_pointwise_math_edges(name):
+    x = torch.tensor([-float('inf'), -89., -3., -1., -.99999, -.5, -1e-7, -0., 0., 1e-7, .5, .99999, 1., 1.00001, 3., 89., float('inf'), float('nan')])
+    v = x.to('vulkan')
+    vk.reset_execution_stats()
+    result = getattr(torch, name)(v)
+    resident()
+    torch.testing.assert_close(result.cpu(), getattr(torch, name)(x), equal_nan=True, rtol=1.3e-5, atol=2e-6)
+
+
+@pytest.mark.parametrize('decimals', [-3, 0, 3, 99])
+def test_round_decimals_native(decimals):
+    x = torch.tensor([-.5, .5, 1.5, 2.5, 0.12345, 12345.])
+    v = x.to('vulkan')
+    vk.reset_execution_stats()
+    result = torch.round(v, decimals=decimals)
+    resident()
+    torch.testing.assert_close(result.cpu(), torch.round(x, decimals=decimals), equal_nan=True)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.bool])
+def test_native_cat_general_dtype(dtype):
+    a = torch.tensor([[0, 2, 3], [1, 0, 4]], dtype=dtype).t()
+    b = torch.tensor([[1], [3], [7]], dtype=dtype)
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    vk.reset_execution_stats()
+    result = torch.cat((av, bv), 1)
+    resident()
+    torch.testing.assert_close(result.cpu(), torch.cat((a, b), 1))
+
+
+@pytest.mark.parametrize('dtype', [torch.uint8, torch.int8, torch.int16])
+def test_subword_native_primitives(dtype):
+    info = torch.iinfo(dtype)
+    x = torch.tensor([info.min, info.max, 0, 1, 3, 17, 42, 5], dtype=dtype).reshape(2, 4)
+    v = x.to('vulkan')
+    mask = torch.tensor([[True, False, False, True], [False, True, True, False]])
+    mv = mask.to('vulkan')
+    vk.reset_execution_stats()
+    outputs = [v.to(target) for target in (torch.float32, torch.int32, torch.int64, torch.bool)]
+    outputs += [v + v, v * v, v.sum(), torch.where(mv, v, v.flip([1]))]
+    resident()
+    expected = [x.to(target) for target in (torch.float32, torch.int32, torch.int64, torch.bool)]
+    expected += [x + x, x * x, x.sum(), torch.where(mask, x, x.flip([1]))]
+    for a, b in zip(outputs, expected): torch.testing.assert_close(a.cpu(), b)
+    base = torch.full((3, 9), 7, dtype=dtype, device='vulkan')
+    ref = torch.full((3, 9), 7, dtype=dtype)
+    vk.reset_execution_stats()
+    base[:, 1:8:2].copy_(v[0].expand(3, 4))
+    resident()
+    ref[:, 1:8:2].copy_(x[0].expand(3, 4))
+    torch.testing.assert_close(base.cpu(), ref)
+
+
+def test_noncanonical_boolean_storage():
+    raw = torch.tensor([0, 2, 255, 128, 0, 7, 3, 0, 42], dtype=torch.uint8)
+    v = raw.to('vulkan')
+    vk.reset_execution_stats()
+    b = v.view(torch.bool)
+    copied = b.clone().view(torch.uint8)
+    floats = b.to(torch.float32)
+    truth = b & True
+    selected = torch.where(b, v, torch.zeros((), dtype=torch.uint8, device='vulkan'))
+    random = torch.randint(2, 255, (1000,), dtype=torch.uint8, device='vulkan')
+    resident()
+    torch.testing.assert_close(copied.cpu(), raw)
+    torch.testing.assert_close(floats.cpu(), raw.bool().float())
+    torch.testing.assert_close(truth.cpu(), raw.bool())
+    torch.testing.assert_close(selected.cpu(), raw)
+    random = random.cpu()
+    assert random.min() >= 2 and random.max() < 255
+
+
+def test_inverse_trigonometric_dense_accuracy():
+    x = torch.linspace(-1, 1, 10001)
+    v = x.to('vulkan')
+    for name in ('asin', 'acos', 'atan'):
+        vk.reset_execution_stats()
+        actual = getattr(torch, name)(v)
+        resident()
+        torch.testing.assert_close(actual.cpu(), getattr(torch, name)(x), rtol=1.3e-6, atol=2e-7)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64, torch.int32, torch.uint8, torch.bool])
+def test_masked_fill_and_boolean_reductions(dtype):
+    x = torch.tensor([[[0, 1, 2], [3, 0, 1]], [[1, 1, 1], [0, 0, 0]]], dtype=dtype)
+    mask = torch.tensor([True, False, True])
+    v, mv = x.to('vulkan'), mask.to('vulkan')
+    scalar = torch.tensor(1, device='vulkan')
+    vk.reset_execution_stats()
+    outputs = [v.masked_fill(mv, 1), v.masked_fill(mv, scalar)]
+    z = v.transpose(0, 1).clone(); z.masked_fill_(mv, 1)
+    reductions = [getattr(torch, name)(v, dim=dims, keepdim=keep) for name in ('any', 'all') for dims in (None, (), (0, 2), (1,)) for keep in (False, True)]
+    resident()
+    for a in outputs: torch.testing.assert_close(a.cpu(), x.masked_fill(mask, 1))
+    torch.testing.assert_close(z.cpu(), x.transpose(0, 1).masked_fill(mask, 1))
+    expected = [getattr(torch, name)(x, dim=dims, keepdim=keep) for name in ('any', 'all') for dims in (None, (), (0, 2), (1,)) for keep in (False, True)]
+    for a, b in zip(reductions, expected): torch.testing.assert_close(a.cpu(), b)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64, torch.int32, torch.int8])
+def test_clamp_and_integer_arithmetic(dtype):
+    x = torch.tensor([[-3, 0, 1, 4], [2, -1, 3, 0]], dtype=dtype)
+    lo = torch.tensor([-2, 1, 0, 2], dtype=dtype)
+    hi = torch.tensor([[2], [1]], dtype=dtype)
+    v, lv, hv = [t.to('vulkan') for t in (x, lo, hi)]
+    vk.reset_execution_stats()
+    outputs = [v.clamp(-1, 2), v.clamp(lv, hv), v.clamp_min(1.5), v.abs(), -v, v - v.flip([1]), v / 2]
+    z=v.clone(); z.mul_(2); z.sub_(1)
+    resident()
+    expected = [x.clamp(-1, 2), x.clamp(lo, hi), x.clamp_min(1.5), x.abs(), -x, x-x.flip([1]), x/2]
+    for a, b in zip(outputs, expected): torch.testing.assert_close(a.cpu(), b)
+    torch.testing.assert_close(z.cpu(), x*2-1)
+
+
+def test_tensor_clamp_nan_and_addmv():
+    x=torch.tensor([float('nan'), -2., 0., 2., float('inf')]); lo=torch.tensor([0., float('nan'), -1., 3., 0.]); hi=torch.tensor([1., 1., float('nan'), 2., 5.])
+    a,b,c=[t.to('vulkan') for t in (x,lo,hi)]
+    vk.reset_execution_stats(); result=a.clamp(b,c); resident()
+    torch.testing.assert_close(result.cpu(), x.clamp(lo,hi), equal_nan=True)
+    m=torch.randn(4,7); v=torch.randn(7); bias=torch.randn(4)
+    mv,vv,bv=[t.to('vulkan') for t in (m,v,bias)]
+    vk.reset_execution_stats(); result=torch.addmv(bv,mv,vv,beta=.3,alpha=-.7); resident()
+    torch.testing.assert_close(result.cpu(),torch.addmv(bias,m,v,beta=.3,alpha=-.7))
+
+
+def test_empty_broadcast_arithmetic_and_storage_clone():
+    a=torch.empty((0,1,3),device='vulkan'); b=torch.empty((0,10,3),device='vulkan')
+    x=torch.randn(5,7,device='vulkan')
+    vk.reset_execution_stats(); y=a+b; cloned=x.untyped_storage().clone(); resident()
+    assert y.shape==(0,10,3)
+    z=torch.empty(0,device='vulkan').set_(cloned,0,x.shape,x.stride())
+    torch.testing.assert_close(z.cpu(),x.cpu())
+
+
+@pytest.mark.parametrize('ord', [0., 1., 2., float('inf'), -float('inf')])
+def test_norm_nan_and_zero_semantics(ord):
+    x=torch.tensor([[float('nan'), 0., 2.], [0., 0., 0.]])
+    v=x.to('vulkan'); vk.reset_execution_stats()
+    actual=torch.linalg.vector_norm(v,ord=ord,dim=1); resident()
+    torch.testing.assert_close(actual.cpu(),torch.linalg.vector_norm(x,ord=ord,dim=1),equal_nan=True)
+
+
+def test_division_integer_boundary_accuracy():
+    generator=torch.Generator().manual_seed(457)
+    denominator=torch.rand(400000,generator=generator)*8+.01
+    integers=torch.randint(-20,21,denominator.shape,generator=generator).float()
+    numerator=denominator*integers
+    numerator=torch.cat((numerator,torch.nextafter(numerator,torch.full_like(numerator,float('-inf'))),torch.nextafter(numerator,torch.full_like(numerator,float('inf')))))
+    denominator=denominator.repeat(3)
+    a,b=numerator.to('vulkan'),denominator.to('vulkan')
+    vk.reset_execution_stats(); actual=(a/b).trunc(); resident()
+    torch.testing.assert_close(actual.cpu(),(numerator/denominator).trunc(),rtol=0,atol=0)
+
+
+def test_division_full_float32_range():
+    g=torch.Generator().manual_seed(951)
+    bits=torch.randint(-(2**31),2**31,(20000,2),dtype=torch.int32,generator=g)
+    a,b=bits.view(torch.float32).unbind(1)
+    specials=torch.tensor([0.,-0.,float('inf'),-float('inf'),float('nan'),torch.finfo(torch.float32).tiny,torch.finfo(torch.float32).max])
+    a=torch.cat((a,specials[:,None].expand(7,7).reshape(-1)))
+    b=torch.cat((b,specials[None,:].expand(7,7).reshape(-1)))
+    av,bv=a.to('vulkan'),b.to('vulkan');vk.reset_execution_stats();actual=av/bv;resident()
+    reference=(a.double()/b.double()).float()
+    torch.testing.assert_close(actual.cpu(),reference,rtol=0,atol=0,equal_nan=True)

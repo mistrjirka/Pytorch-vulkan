@@ -26,19 +26,18 @@ void validate(const at::Tensor& x,const at::Tensor& target,
   TORCH_CHECK((x.dim()==1 && target.numel()==1) || (x.dim()==2 && target.dim()==1 && target.numel()==rows),
               "nll_loss: input/target shape mismatch");
   TORCH_CHECK(!weight || !weight->defined() || weight->numel()==cols,"nll_loss: weight must match classes");
-  // Validate indices without downloading logits or blocking unrelated queued work.
-  // CPU-created targets already have an authoritative host mirror. GPU-written
-  // targets require a real completion/download boundary before this read.
-  auto& ctx=VulkanContext::instance();auto& alloc=VulkanAllocator::instance();
-  auto target_buffer=base(target,at::kLong);
-  if(!ctx.gpu_resident_enabled() || target_buffer->tensorType()==kp::Tensor::TensorTypes::eHost)ctx.synchronize();
-  if(ctx.gpu_resident_enabled() && alloc.gpu_dirty(target_buffer))
-    ctx.ensure_host_read(target.storage().data_ptr().get());
-  const auto* ptr=target.const_data_ptr<int64_t>();
-  const auto stride=target.dim()?target.stride(0):0;
-  for(int64_t row=0;row<rows;++row) {
-    const auto index=ptr[row*stride];
-    TORCH_CHECK_INDEX(index==ignore || (index>=0 && index<cols),"Target ",index," is out of bounds.");
+  if(!rows)return;
+  // Keep label validation on GPU, including GPU-produced targets. Only the
+  // first invalid position is downloaded; its value is read only on failure.
+  auto invalid=at::full({1},-1,target.options().dtype(at::kInt));
+  const auto sentinel=uint64_t(ignore);
+  run("nll_validate",{base(target,at::kLong)},{write_base(invalid,at::kInt)},
+      {u32(rows),u32(cols),u32(target.storage_offset()),u32(target.dim()?target.stride(0):0),
+       uint32_t(sentinel),uint32_t(sentinel>>32)},(rows+127)/128);
+  const uint32_t bad=uint32_t(invalid.cpu().item<int32_t>());
+  if(bad!=UINT32_MAX){
+    auto value=(target.dim()?target.select(0,bad):target).cpu().item<int64_t>();
+    TORCH_CHECK_INDEX(false,"Target ",value," is out of bounds.");
   }
 }
 std::vector<uint32_t> params(const at::Tensor& x,const std::optional<at::Tensor>& weight,
@@ -48,7 +47,7 @@ std::vector<uint32_t> params(const at::Tensor& x,const std::optional<at::Tensor>
       uint32_t(v),uint32_t(v>>32),uint32_t(weight && weight->defined()),uint32_t(x.dim()==1)};
 }
 std::optional<at::Tensor> cpu_weight(const std::optional<at::Tensor>& w) {
-  return w && w->defined()?std::optional<at::Tensor>(w->cpu()):std::nullopt;
+  return w && w->defined()?std::optional<at::Tensor>(native::cpu_fallback_tensor(*w,__func__)):std::nullopt;
 }
 std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,const at::Tensor& target,
     const std::optional<at::Tensor>& weight,int64_t reduction,c10::SymInt ignore_index) {

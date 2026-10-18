@@ -16,11 +16,13 @@ inline bool batch_norm_resize_enabled() {
 }
 // Inline CPU implementations must obey the same strict gate as dispatcher fallback.
 // Explicit user transfers and scalar validation/status downloads do not use this.
-inline at::Tensor cpu_fallback_tensor(const at::Tensor& t,const char* operation) {
+inline void cpu_fallback_check(const char* operation) {
   audit::fallback_calls.fetch_add(1);
   TORCH_CHECK(!std::getenv("TORCH_VULKAN_FORBID_CPU_FALLBACK"),
               "CPU fallback forbidden: Vulkan inline::",operation);
-  return t.cpu();
+}
+inline at::Tensor cpu_fallback_tensor(const at::Tensor& t,const char* operation) {
+  cpu_fallback_check(operation);return t.cpu();
 }
 using Buffer = std::shared_ptr<kp::Tensor>;
 inline uint32_t u32(int64_t v) {
@@ -74,7 +76,7 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
 // supported broader CPU layouts can retain that path without catching dispatch errors.
 inline bool can_pack_view(const at::Tensor& src) {
   if(src.device().type()!=c10::DeviceType::PrivateUse1 ||
-     (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong && src.scalar_type()!=at::kInt && src.scalar_type()!=at::kComplexFloat && src.scalar_type()!=at::kBool) ||
+     (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong && src.scalar_type()!=at::kInt && src.scalar_type()!=at::kComplexFloat && src.scalar_type()!=at::kBool && src.scalar_type()!=at::kByte && src.scalar_type()!=at::kChar && src.scalar_type()!=at::kShort) ||
      src.dim()>8 || src.numel()>UINT32_MAX || src.storage_offset()<0 ||
      uint64_t(src.storage_offset())>UINT32_MAX) return false;
   if(!src.numel())return true;
@@ -95,7 +97,7 @@ inline bool can_pack_view(const at::Tensor& src) {
   return true;
 }
 inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
-  TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kComplexFloat || dtype==at::kBool,"Vulkan native packing supports FP32/complex64/int32/int64/bool");
+  TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kComplexFloat || dtype==at::kBool || dtype==at::kByte || dtype==at::kChar || dtype==at::kShort,"Vulkan native packing supports FP32/complex64/int32/int64/bool");
   TORCH_CHECK(src.device().type()==c10::DeviceType::PrivateUse1 && src.scalar_type()==dtype,
               "Vulkan native operator tensor device/dtype mismatch");
   if(!src.numel())return at::empty(src.sizes(),src.options());
@@ -111,8 +113,8 @@ inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) 
   }
   TORCH_CHECK(last<=UINT32_MAX,"Vulkan native view indexing overflow");
   auto out=at::empty(src.sizes(),src.options());
-  if(src.numel())run(dtype==at::kBool?"native_pack_bool":(dtype==at::kLong||dtype==at::kComplexFloat)?"native_pack_int64":dtype==at::kInt?"native_pack_int32":"native_pack",
-      {base(src,dtype)},{base(out,dtype)},p,(src.numel()+(dtype==at::kBool?511:127))/(dtype==at::kBool?512:128));
+  if(src.numel())run(src.element_size()==1?"native_pack_bool":src.element_size()==2?"native_pack_short":(dtype==at::kLong||dtype==at::kComplexFloat)?"native_pack_int64":dtype==at::kInt?"native_pack_int32":"native_pack",
+      {base(src,dtype)},{base(out,dtype)},p,(src.numel()+(src.element_size()==1?511:src.element_size()==2?255:127))/(src.element_size()==1?512:src.element_size()==2?256:128));
   return out;
 }
 } // namespace torch_vulkan::ops::native

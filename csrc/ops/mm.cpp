@@ -5,6 +5,7 @@
 #include <ATen/Functions.h>
 #include <ATen/EmptyTensor.h>
 #include <ATen/MemoryOverlap.h>
+#include <ATen/native/BinaryOps.h>
 #include <ATen/ops/from_blob.h>
 #include <ATen/NativeFunctions.h>
 #include <ATen/InferSize.h>
@@ -60,9 +61,9 @@ static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
     const char* flag=std::getenv("TORCH_VULKAN_GPU_PACK_VIEWS");
     return !flag || std::strcmp(flag,"0")!=0;
   }();
-  if(gpu_pack && src.numel()>0 && src.dim()<=8 &&
-      (src.scalar_type()==at::kFloat || src.scalar_type()==at::kLong))
+  if(gpu_pack && native::can_pack_view(src))
     return native::packed(src,src.scalar_type());
+  native::cpu_fallback_check(__func__);
   return host_mirror(src).contiguous().to(src.device());
 }
 
@@ -368,9 +369,21 @@ static std::optional<at::Tensor> cpu_scalar_binary(
   return out;
 }
 
+static void binary_device_check(const at::Tensor& a,const at::Tensor& b){
+ auto dev=a.is_cpu()?b.device():a.device();
+ TORCH_CHECK(dev.type()==c10::DeviceType::PrivateUse1 && (a.device()==dev||(a.is_cpu()&&a.dim()==0)) && (b.device()==dev||(b.is_cpu()&&b.dim()==0)),"Expected all tensors to be on the same device");
+}
+
 // aten::add.Tensor — alpha scaling with arbitrary compatible broadcasting.
 at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
                       const at::Scalar& alpha) {
+  binary_device_check(self,other);auto dtype=at::result_type(self,other);at::native::alpha_check(dtype,alpha);
+  if(self.scalar_type()==at::kBool&&other.scalar_type()==at::kBool){
+    if(alpha.toLong()!=0)return at::logical_or(self,other);
+    auto shape=at::infer_size(self.sizes(),other.sizes());auto dev=self.is_cpu()?other.device():self.device();return self.to(dev).expand(shape).clone();
+  }
+  if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
+  if(device_copy_supported(dtype)&&(self.scalar_type()!=dtype||other.scalar_type()!=dtype))return add_tensor(self.to(dtype),other.to(dtype),alpha);
   if(self.is_complex()||other.is_complex())return complex_binary(self,other,0,alpha);
   if(integer_type(self.scalar_type())&&integer_type(other.scalar_type()))return integer_binary(self,other,alpha,false);
   if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
@@ -385,6 +398,11 @@ at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
 
 // aten::mul.Tensor — elementwise multiplication with arbitrary broadcasting.
 at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
+  binary_device_check(self,other);
+  if(self.scalar_type()==at::kBool&&other.scalar_type()==at::kBool)return at::logical_and(self,other);
+  auto dtype=at::result_type(self,other);
+  if(auto out=cpu_scalar_binary(self,other,1.0f,true))return *out;
+  if(device_copy_supported(dtype)&&(self.scalar_type()!=dtype||other.scalar_type()!=dtype)&&!(self.device()==other.device()&&((self.scalar_type()==at::kBool&&other.scalar_type()==at::kFloat)||(other.scalar_type()==at::kBool&&self.scalar_type()==at::kFloat))))return mul_tensor(self.to(dtype),other.to(dtype));
   if((self.scalar_type()==at::kBool&&other.scalar_type()==at::kFloat)||(other.scalar_type()==at::kBool&&self.scalar_type()==at::kFloat)){
     TORCH_CHECK(self.device()==other.device(),"masked multiplication requires the same device");
     auto shape=at::infer_size(self.sizes(),other.sizes());auto mask=self.scalar_type()==at::kBool?self:other;auto value=self.scalar_type()==at::kFloat?self:other;
@@ -455,6 +473,7 @@ at::Tensor vulkan_to_copy(
         }return result;
       }
     }
+    if(self.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__);
     auto self_cpu = host_mirror(self).contiguous();
     auto self_cast = self_cpu.to(target_dtype).contiguous();
     auto result = at::empty(self_cast.sizes(),
@@ -540,6 +559,7 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
   // A Vulkan allocation is represented by a mapped host mirror. CPU's
   // stride-aware copy correctly handles offsets, permutations and casting.
   // Inputs are synchronized to the GPU by the next shader submission.
+  if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__);
   host_mirror(self).copy_(host_mirror(src));
   VulkanAllocator::instance().mark_host_dirty(self.storage().data_ptr().get());
   return self;
@@ -841,6 +861,7 @@ at::Tensor vulkan_addmm(
 // Phase 4: cached algorithm
 at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
   if(self.scalar_type()==at::kComplexFloat)return complex_scale(self,other);
+  if(device_copy_supported(self.scalar_type())&&self.scalar_type()!=at::kFloat)return at::mul(self,at::scalar_tensor(other,at::TensorOptions().dtype(at::result_type(self,other))));
   TORCH_CHECK(self.scalar_type() == at::kFloat, "scalar multiply: FP32 only");
   const uint32_t n = static_cast<uint32_t>(self.numel());
   const float scalar = other.toFloat();

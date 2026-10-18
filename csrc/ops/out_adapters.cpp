@@ -18,6 +18,9 @@ struct NativeOut : c10::OperatorKernel {
    auto t=v.toTensor();at::assert_no_partial_overlap(out,t);
    TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");
   }
+  for(const auto& value:args)if(value.isTensorList())for(const auto& t:value.toTensorVector()){
+   at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device(),"out tensor must be on the input device");
+  }
   const auto target=c10::Dispatcher::singleton().findSchemaOrThrow(name.c_str(),overload.c_str());
   TORCH_INTERNAL_ASSERT(target.schema().arguments().size()==args.size());
   target.callBoxed(&args);
@@ -35,6 +38,14 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  for(auto name:{"abs","sgn","exp","sqrt","rsqrt","sin","cos","tanh","sigmoid","neg","silu","gelu","mm","bmm","addmm","clamp"})add((std::string(name)+".out").c_str(),name);
  add("bitwise_and.Tensor_out","bitwise_and","Tensor");add("bitwise_or.Tensor_out","bitwise_or","Tensor");add("bitwise_xor.Tensor_out","bitwise_xor","Tensor");add("bitwise_not.out","bitwise_not");
  add("bitwise_and.Scalar_out","bitwise_and","Scalar");add("bitwise_or.Scalar_out","bitwise_or","Scalar");add("bitwise_xor.Scalar_out","bitwise_xor","Scalar");
+ for(auto name:{"reciprocal","log","log1p","expm1","floor","ceil","trunc","round","sign","log10","log2","exp2","sinh","cosh","tan","asin","acos","atan","asinh","acosh","atanh","erf","erfc"})add((std::string(name)+".out").c_str(),name);
+ add("round.decimals_out","round","decimals");
+ add("cat.out","cat");
+ for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
+ add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");
+ add("masked_fill.Scalar_out","masked_fill","Scalar");add("masked_fill.Tensor_out","masked_fill","Tensor");
+ add("any.out","any","dim");add("any.all_out","any");add("any.dims_out","any","dims");add("all.dims_out","all","dims");
+ add("rsub.Tensor_out","rsub","Tensor");add("rsub.Scalar_out","rsub","Scalar");add("addmv.out","addmv");
  add("add.out","add","Tensor");add("sub.out","sub","Tensor");add("mul.out","mul","Tensor");add("div.out","div","Tensor");
  add("pow.Tensor_Scalar_out","pow","Tensor_Scalar");
  add("sum.IntList_out","sum","dim_IntList");add("sum.out","sum");

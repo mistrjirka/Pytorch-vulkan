@@ -4,7 +4,11 @@ layout(binding=0) readonly buffer X {uint x[];};
 layout(binding=1) readonly buffer Old {uint old[];};
 layout(binding=2) writeonly buffer Y {uint y[];};
 layout(push_constant) uniform P {uint count,first,src_type,dst_type,src_offset,dst_offset,rank;uint dims[8],ss[8],ds[8];uint flags;}p;
-uvec2 load_value(uint s){if(p.src_type==0)return uvec2(uint(((x[s/4]>>(8*(s%4)))&255u)!=0),0);if(p.src_type==3)return uvec2(x[2*s],x[2*s+1]);uint v=x[s];return uvec2(v,p.src_type==2&&int(v)<0?0xffffffffu:0);}
+uvec2 load_value(uint s){
+ if(p.src_type==0||p.src_type==4||p.src_type==5){uint v=(x[s/4]>>(8*(s%4)))&255u;if(p.src_type==5)v=uint(int(v<<24)>>24);return uvec2(v,p.src_type==5&&int(v)<0?0xffffffffu:0);}
+ if(p.src_type==6){uint v=uint(int(((x[s/2]>>(16*(s%2)))&65535u)<<16)>>16);return uvec2(v,int(v)<0?0xffffffffu:0);}
+ if(p.src_type==3)return uvec2(x[2*s],x[2*s+1]);uint v=x[s];return uvec2(v,p.src_type==2&&int(v)<0?0xffffffffu:0);
+}
 float as_float(uvec2 v){if(p.src_type==1)return uintBitsToFloat(v.x);if(p.src_type!=3)return float(int(v.x));bool neg=int(v.y)<0;if(neg){v=~v;v.x++;if(v.x==0)v.y++;}int msb=v.y!=0?32+findMSB(v.y):findMSB(v.x);float f;
  if(msb<=23)f=float(v.x);else{
   uint shift=uint(msb-23),top;bool roundbit,sticky;
@@ -17,14 +21,15 @@ float as_float(uvec2 v){if(p.src_type==1)return uintBitsToFloat(v.x);if(p.src_ty
 uvec2 neg_value(uvec2 v,uint type){if(type==1){v.x^=0x80000000u;return v;}v=~v;v.x++;if(v.x==0)v.y++;return v;}
 uvec2 cast_value(uvec2 v){
  if(p.dst_type==p.src_type)return v;
+ if(p.src_type==0)v=uvec2(uint(v.x!=0),0);
  if(p.dst_type==0)return uvec2(uint(p.src_type==1?uintBitsToFloat(v.x)!=0.0:any(notEqual(v,uvec2(0)))),0);
  if(p.dst_type==1)return uvec2(floatBitsToUint(as_float(v)),0);
- if(p.src_type==1){float f=uintBitsToFloat(v.x);if(p.dst_type==2)return uvec2(isnan(f)||isinf(f)||f>=2147483648.0||f< -2147483648.0?0x80000000u:uint(int(f)),0);if(isnan(f)||isinf(f)||f>=9223372036854775808.0||f< -9223372036854775808.0)return uvec2(0,0x80000000u);bool neg=f<0;f=trunc(abs(f));uint hi=uint(f/4294967296.0),lo=uint(f-float(hi)*4294967296.0);v=uvec2(lo,hi);if(neg){v=~v;v.x++;if(v.x==0)v.y++;}return v;}
+ if(p.src_type==1){float f=uintBitsToFloat(v.x);if(p.dst_type==2||p.dst_type>=4)return uvec2(isnan(f)||isinf(f)||f>=2147483648.0||f< -2147483648.0?0x80000000u:uint(int(f)),0);if(isnan(f)||isinf(f)||f>=9223372036854775808.0||f< -9223372036854775808.0)return uvec2(0,0x80000000u);bool neg=f<0;f=trunc(abs(f));uint hi=uint(f/4294967296.0),lo=uint(f-float(hi)*4294967296.0);v=uvec2(lo,hi);if(neg){v=~v;v.x++;if(v.x==0)v.y++;}return v;}
  return v;
 }
 uvec2 converted(uint src){uvec2 v=load_value(src);if((p.flags&1u)!=0)v=neg_value(v,p.src_type);v=cast_value(v);if((p.flags&2u)!=0)v=neg_value(v,p.dst_type);return v;}
 bool address(uint dest,out uint src){if(dest<p.dst_offset)return false;uint r=dest-p.dst_offset;src=p.src_offset;for(uint d=0;d<p.rank;d++){uint c=r/p.ds[d];if(c>=p.dims[d])return false;r-=c*p.ds[d];src+=c*p.ss[d];}return r==0;}
 void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint word=p.first+i;
- if(p.dst_type==0){uint value=old[word];for(uint b=0;b<4;b++){uint src;if(address(word*4+b,src)){uint v=converted(src).x;value=(value&~(255u<<(8*b)))|(v<<(8*b));}}y[word]=value;}
+ if(p.dst_type==0||p.dst_type>=4){uint value=old[word],width=p.dst_type==6?16:8,slots=32/width,mask=p.dst_type==6?65535u:255u;for(uint b=0;b<slots;b++){uint src;if(address(word*slots+b,src)){uint v=converted(src).x&mask;value=(value&~(mask<<(width*b)))|(v<<(width*b));}}y[word]=value;}
  else {uint src;uint dest=p.dst_type==3?word/2:word;if(address(dest,src)){uvec2 value=converted(src);y[word]=p.dst_type==3&&word%2==1?value.y:value.x;}}
 }

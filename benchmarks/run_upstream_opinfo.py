@@ -91,6 +91,13 @@ def worker(args):
         backend_source_sha256=hashlib.sha256(json.dumps(source_hashes,sort_keys=True).encode()).hexdigest(),
         backend_source_files=source_hashes,
         bypass_device_restrictions=True, selected=selected, excluded=excluded)
+    built = root/'.cmake-build/build-source-manifest.json'
+    manifest['source_identity'] = 'runtime_snapshot_unverified_against_build'
+    if built.exists():
+        build_manifest = json.loads(built.read_text())
+        if build_manifest.get('extension_sha256') == manifest['extension_sha256']:
+            manifest.update(build_manifest)
+            manifest['source_identity'] = 'recorded_after_build'
     (args.out/'inventory.json').write_text(json.dumps(manifest,indent=2)+'\n')
     if args.collect: return
     done = {r['id'] for r in read_rows(args.out/'results.jsonl')}

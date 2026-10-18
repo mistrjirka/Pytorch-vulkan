@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "device_copy.h"
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
 #include <ATen/native/Resize.h>
@@ -17,7 +18,7 @@ at::Tensor predicate(const at::Tensor& x,const at::Scalar& value,int op){
 at::Tensor isneginf(const at::Tensor& x){return predicate(x,0,0);}
 template<int Op>at::Tensor compare(const at::Tensor& x,const at::Scalar& s){return predicate(x,s,Op);}
 at::Tensor all_dim(const at::Tensor& x,int64_t raw,bool keepdim){
- if(x.scalar_type()!=at::kBool)return all_dim(x.ne(0),raw,keepdim);
+ if(x.scalar_type()!=at::kBool){auto r=all_dim(x.ne(0),raw,keepdim);return x.scalar_type()==at::kByte?r.to(at::kByte):r;}
  TORCH_CHECK(can_pack_view(x),"all: Vulkan indexing/storage limits exceeded");
  int64_t rank=std::max<int64_t>(1,x.dim()),axis=raw<0?raw+rank:raw;TORCH_CHECK(axis>=0&&axis<rank,"all dimension out of range");
  auto shape=x.sizes().vec();if(x.dim()){if(keepdim)shape[axis]=1;else shape.erase(shape.begin()+axis);}
@@ -26,19 +27,20 @@ at::Tensor all_dim(const at::Tensor& x,int64_t raw,bool keepdim){
  auto a=x.numel()?packed(x,at::kBool):x;auto input=x.numel()?base(a,at::kBool):VulkanAllocator::instance().constant_float_buffer(1,0.f);run("bool_all",{input},{write_base(out,at::kBool)},{u32(outer),u32(x.dim()?x.size(axis):1),u32(inner)},(out.numel()+511)/512);return out;
 }
 at::Tensor all_native(const at::Tensor& x){
- if(x.scalar_type()!=at::kBool)return all_native(x.ne(0));
+ if(x.scalar_type()!=at::kBool){auto r=all_native(x.ne(0));return x.scalar_type()==at::kByte?r.to(at::kByte):r;}
  TORCH_CHECK(can_pack_view(x),"all: Vulkan indexing/storage limits exceeded");
  return all_dim((x.numel()?packed(x,at::kBool):x).view({-1}),0,false);
 }
 at::Tensor where_native(const at::Tensor& cond,const at::Tensor& left,const at::Tensor& right){
- auto dev=cond.device();
- if(cond.scalar_type()!=at::kBool||left.scalar_type()!=at::kFloat||right.scalar_type()!=at::kFloat||!can_pack_view(cond)||(!left.is_cpu()&&!can_pack_view(left))||(!right.is_cpu()&&!can_pack_view(right))||(left.is_cpu()&&left.dim()!=0)||(right.is_cpu()&&right.dim()!=0))return at::where(native::cpu_fallback_tensor(cond,__func__),native::cpu_fallback_tensor(left,__func__),native::cpu_fallback_tensor(right,__func__)).to(dev);
- auto l=left.is_cpu()?left.to(dev):left,r=right.is_cpu()?right.to(dev):right;
- TORCH_CHECK(l.device()==dev&&r.device()==dev,"where device mismatch");
- auto shape=at::infer_size_dimvector(at::infer_size_dimvector(cond.sizes(),l.sizes()),r.sizes());
- auto c=cond.expand(shape),a=l.expand(shape),b=r.expand(shape);
- if(!can_pack_view(c)||!can_pack_view(a)||!can_pack_view(b))return at::where(native::cpu_fallback_tensor(cond,__func__),native::cpu_fallback_tensor(left,__func__),native::cpu_fallback_tensor(right,__func__)).to(dev);
- auto out=at::empty(shape,l.options());if(out.numel()){c=packed(c,at::kBool);a=packed(a);b=packed(b);run("where_float",{base(c,at::kBool),base(a),base(b)},{write_base(out)},{u32(out.numel())},(out.numel()+127)/128);}return out;
+ TORCH_CHECK(cond.scalar_type()==at::kBool,"where expected condition to be a boolean tensor");
+ auto dev=cond.is_cpu()?(left.is_cpu()?right.device():left.device()):cond.device();auto dtype=at::result_type(left,right);
+ if(!device_copy_supported(dtype))return at::where(cpu_fallback_tensor(cond,__func__),cpu_fallback_tensor(left,__func__),cpu_fallback_tensor(right,__func__)).to(dev);
+ for(const auto& t:{cond,left,right})TORCH_CHECK(t.device()==dev||(t.is_cpu()&&t.dim()==0),"where device mismatch");
+ auto shape=at::infer_size_dimvector(at::infer_size_dimvector(cond.sizes(),left.sizes()),right.sizes());auto out=at::empty(shape,left.options().device(dev).dtype(dtype));if(!out.numel())return out;
+ auto c=cond.to(dev).expand(shape),a=left.to(dev,dtype).expand(shape),b=right.to(dev,dtype).expand(shape);
+ TORCH_CHECK(can_pack_view(c)&&can_pack_view(a)&&can_pack_view(b),"where exceeds Vulkan indexing limits");c=packed(c,at::kBool);a=packed(a,dtype);b=packed(b,dtype);
+ auto lanes=out.element_size()==1?512:out.element_size()==2?256:128;
+ run("where_typed",{base(c,at::kBool),base(a,dtype),base(b,dtype)},{write_base(out,dtype)},{u32(out.numel()),uint32_t(out.element_size())},(out.numel()+lanes-1)/lanes);return out;
 }
 at::Tensor& where_out(const at::Tensor& cond,const at::Tensor& left,const at::Tensor& right,at::Tensor& out){
  TORCH_CHECK(out.device()==cond.device(),"where output device mismatch");
@@ -84,6 +86,9 @@ at::Tensor power(const at::Tensor& x,const at::Scalar& exponent){
 }
 at::Tensor clamp(const at::Tensor& x,const std::optional<at::Scalar>& low,const std::optional<at::Scalar>& high){
  TORCH_CHECK(low||high,"clamp requires at least one bound");
+ if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){
+  auto dtype=x.scalar_type();if(low)dtype=at::promote_types(dtype,at::result_type(x,*low));if(high)dtype=at::promote_types(dtype,at::result_type(x,*high));auto y=x.to(dtype);if(low)y=at::clamp_min(y,*low);if(high)y=at::clamp_max(y,*high);return y;
+ }
  if(x.scalar_type()!=at::kFloat||!can_pack_view(x))return at::clamp(native::cpu_fallback_tensor(x,__func__),low,high).to(x.device());
  auto out=at::empty(x.sizes(),x.options());if(out.numel()){auto a=packed(x);run("power_clamp",{base(a)},{write_base(out)},{u32(out.numel()),1,bits(low?low->toFloat():-INFINITY),bits(high?high->toFloat():INFINITY)},(out.numel()+127)/128);}return out;
 }

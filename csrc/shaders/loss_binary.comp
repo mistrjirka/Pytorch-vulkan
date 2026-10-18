@@ -1,4 +1,6 @@
 #version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
 layout(local_size_x=128) in;
 layout(set=0,binding=0) readonly buffer InputA { float x[]; };
 layout(set=0,binding=1) readonly buffer InputB { float z[]; };
@@ -12,9 +14,9 @@ void main(){
   uint r=i,a=p.offsetA,b=p.offsetB;
   for(int d=7;d>=0;--d){uint c=r%p.dims[d];a+=c*p.stridesA[d];b+=c*p.stridesB[d];r/=p.dims[d];}
   if(p.op==0)y[i]=x[a]-p.alpha*z[b];
-  else if(p.op==1)y[i]=x[a]/z[b];
+  else if(p.op==1)y[i]=divide_refined(x[a],z[b]);
   else if(p.op==2)y[i]=x[a]*(1.0-z[b])*z[b];
-  else if(p.op==3)y[a]=x[a]/z[b];
+  else if(p.op==3)y[a]=divide_refined(x[a],z[b]);
   else if(p.op==4)y[a]=x[a]-p.alpha*z[b];
   else y[a]=x[a]*z[b];
 }

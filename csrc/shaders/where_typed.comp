@@ -1,0 +1,12 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer C {uint c[];};
+layout(binding=1) readonly buffer A {uint a[];};
+layout(binding=2) readonly buffer B {uint b[];};
+layout(binding=3) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,bytes;}p;
+bool choose(uint i){return ((c[i/4]>>(8*(i%4)))&255u)!=0;}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(p.bytes<4){uint slots=4/p.bytes,width=p.bytes*8,mask=p.bytes==1?255u:65535u;if(i>=(p.count+slots-1)/slots)return;uint value=0;for(uint j=0;j<slots;j++){uint k=i*slots+j;if(k<p.count)value|=(((choose(k)?a[i]:b[i])>>(width*j))&mask)<<(width*j);}y[i]=value;}
+ else{if(i>=p.count)return;uint words=p.bytes/4;bool select=choose(i);for(uint j=0;j<words;j++)y[i*words+j]=select?a[i*words+j]:b[i*words+j];}
+}

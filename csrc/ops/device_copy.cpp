@@ -4,8 +4,8 @@
 #include <ATen/MemoryOverlap.h>
 namespace torch_vulkan::ops {
 using namespace native;
-bool device_copy_supported(at::ScalarType t){return t==at::kFloat||t==at::kInt||t==at::kLong||t==at::kBool;}
-static uint32_t type_code(at::ScalarType t){return t==at::kBool?0:t==at::kFloat?1:t==at::kInt?2:3;}
+bool device_copy_supported(at::ScalarType t){return t==at::kFloat||t==at::kInt||t==at::kLong||t==at::kBool||t==at::kByte||t==at::kChar||t==at::kShort;}
+static uint32_t type_code(at::ScalarType t){return t==at::kBool?0:t==at::kFloat?1:t==at::kInt?2:t==at::kLong?3:t==at::kByte?4:t==at::kChar?5:6;}
 bool copy_on_device(at::Tensor& out,const at::Tensor& input){
  if(out.device().type()!=c10::DeviceType::PrivateUse1||input.device()!=out.device()||!device_copy_supported(out.scalar_type())||!device_copy_supported(input.scalar_type()))return false;
  auto src=input.expand(out.sizes());

@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer Prefix {uint prefix[];};
+layout(binding=2) writeonly buffer Count {uint count;};
+layout(push_constant) uniform P {uint n,type;}p;
+void main(){if(gl_LocalInvocationID.x!=0)return;uint total=0;for(uint i=0;i<p.n;i++){bool nonzero=p.type==0?((x[i/4]>>(8*(i%4)))&255u)!=0:p.type==1?uintBitsToFloat(x[i])!=0:p.type==2?x[i]!=0:p.type==3?(x[2*i]|x[2*i+1])!=0:(uintBitsToFloat(x[2*i])!=0||uintBitsToFloat(x[2*i+1])!=0);prefix[i]=nonzero?total++:0xffffffffu;}count=total;}

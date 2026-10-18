@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "device_copy.h"
 #include <torch/library.h>
 #include <ATen/native/Resize.h>
 #include <ATen/MemoryOverlap.h>
@@ -32,11 +33,11 @@ at::Tensor scan_native(const at::Tensor& x,int64_t raw,std::optional<at::ScalarT
  int64_t n=x.dim()?x.size(d):1,rows=x.numel()/n;run("scan_axis",{base(packed(x))},{write_base(out)},{u32(rows),u32(n),u32(inner)},rows,516);return out;
 }
 at::Tensor flip_native(const at::Tensor& x,at::IntArrayRef dims){
- TORCH_CHECK((x.scalar_type()==at::kFloat||x.scalar_type()==at::kLong||x.scalar_type()==at::kInt)&&can_pack_view(x),"Vulkan flip supports FP32/int32/int64");
+ TORCH_CHECK((device_copy_supported(x.scalar_type())||x.scalar_type()==at::kComplexFloat)&&can_pack_view(x),"Vulkan flip requires supported dtype");
  uint32_t mask=0;for(auto raw:dims){auto d=axis(x,raw);TORCH_CHECK(!(mask&(1u<<d)),"flip duplicate dim");mask|=1u<<d;}
  auto out=at::empty(x.sizes(),x.options());if(out.numel()){
-  std::vector<uint32_t> p={u32(x.numel()),mask,uint32_t(x.element_size()/4)};p.resize(11,1);for(int d=0;d<x.dim();d++)p[3+d]=u32(x.size(d));
-  run("flip",{base(packed(x,x.scalar_type()),x.scalar_type())},{write_base(out,out.scalar_type())},p,(out.numel()+127)/128);
+  std::vector<uint32_t> p={u32(x.numel()),mask,uint32_t(x.element_size())};p.resize(11,1);for(int d=0;d<x.dim();d++)p[3+d]=u32(x.size(d));
+  run("flip",{base(packed(x,x.scalar_type()),x.scalar_type())},{write_base(out,out.scalar_type())},p,(uint64_t(out.numel())*out.element_size()+511)/512);
  }return out;
 }
 at::Tensor triangle(const at::Tensor& x,int64_t diagonal,bool upper){

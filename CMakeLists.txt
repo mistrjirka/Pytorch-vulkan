@@ -109,6 +109,9 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/reduction_general.cpp
   csrc/ops/svd.cpp
   csrc/ops/bitwise.cpp
+  csrc/ops/advanced_indexing.cpp
+  csrc/ops/tensor_selection.cpp
+  csrc/ops/pointwise_math.cpp
   csrc/ops/views.cpp
   csrc/ops/comparison.cpp
   csrc/ops/device_copy.cpp
@@ -183,3 +186,10 @@ if(TORCH_VULKAN_BUILD_RUNTIME_TESTS)
   add_executable(test_fence_pool tests/cpp/test_fence_pool.cpp)
   target_link_libraries(test_fence_pool PRIVATE kompute Vulkan::Vulkan Threads::Threads)
 endif()
+
+# Capture the actual completed build, not a later edited working tree.
+add_custom_command(TARGET torch_vulkan_C POST_BUILD
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/record_build_sources.py
+    --extension $<TARGET_FILE:torch_vulkan_C>
+    --output ${CMAKE_BINARY_DIR}/build-source-manifest.json
+  VERBATIM)

@@ -1,0 +1,21 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) readonly buffer Indices {uvec2 idx[];};
+layout(binding=2) readonly buffer Metadata {uint meta[];};
+layout(binding=3) readonly buffer Values {uint vals[];};
+layout(binding=4) buffer Out {uint y[];};
+layout(binding=5) buffer Status {uint status;};
+layout(push_constant) uniform P {uint count,rank,index_count,offset,type,mode;}p;
+bool address(uint i,out uint addr){addr=p.offset;uint r=i;for(int d=int(p.rank)-1;d>=0;d--){addr+=(r%meta[d])*meta[p.rank+d];r/=meta[d];}for(uint d=0;d<p.index_count;d++){uvec2 v=idx[d*p.count+i];uint size=meta[2*p.rank+d];bool neg=int(v.y)<0;bool valid=neg?(v.y==0xffffffffu&&int(v.x)<0&&int(v.x)>=-int(size)):(v.y==0&&v.x<size);if(!valid){atomicOr(status,1);return false;}uint value=neg?v.x+size:v.x;addr+=value*meta[2*p.rank+p.index_count+d];}return true;}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(p.mode!=0){if(i!=0)return;uint addr;for(uint j=0;j<p.count;j++)if(!address(j,addr))return;
+  for(uint j=0;j<p.count;j++){address(j,addr);
+   if(p.type==0){uint shift=8*(addr%4),v=(vals[j/4]>>(8*(j%4)))&255u;if(p.mode==2)v=uint(v!=0||((y[addr/4]>>shift)&255u)!=0);y[addr/4]=(y[addr/4]&~(255u<<shift))|(v<<shift);}
+   else if(p.type<3){uint v=vals[j];if(p.mode==2)v=p.type==1?floatBitsToUint(uintBitsToFloat(y[addr])+uintBitsToFloat(v)):y[addr]+v;y[addr]=v;}
+   else{uint lo=vals[2*j],hi=vals[2*j+1];if(p.mode==2){if(p.type==4){lo=floatBitsToUint(uintBitsToFloat(y[2*addr])+uintBitsToFloat(lo));hi=floatBitsToUint(uintBitsToFloat(y[2*addr+1])+uintBitsToFloat(hi));}else{uint v=y[2*addr]+lo;hi+=y[2*addr+1]+uint(v<lo);lo=v;}}y[2*addr]=lo;y[2*addr+1]=hi;}
+  }return;
+ }
+ if(p.type==0){if(i>=(p.count+3)/4)return;uint word=0;for(uint b=0;b<4;b++){uint j=i*4+b,addr;if(j<p.count&&address(j,addr))word|=((x[addr/4]>>(8*(addr%4)))&255u)<<(8*b);}y[i]=word;}
+ else{if(i>=p.count)return;uint addr;if(!address(i,addr))return;uint words=p.type>=3?2:1;for(uint w=0;w<words;w++)y[i*words+w]=x[addr*words+w];}
+}

@@ -7,10 +7,11 @@ uint address(uint outer,uint inner){uint addr=0,stride=1;for(int d=7;d>=0;d--){u
 void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
  float result=p.mode==1?-uintBitsToFloat(0x7f800000u):uintBitsToFloat(0x7f800000u),scale=0;bool nan=false,zero=false;
  for(uint j=0;j<p.reduced;j++){float v=x[address(i,j)];nan=nan||isnan(v);if(p.mode==1)result=max(result,v);else if(p.mode==2)result=min(result,v);else{float a=abs(v);zero=zero||a==0;scale=max(scale,a);result=min(result,a);}}
+ if(p.mode==0&&p.ord==0){result=0;for(uint j=0;j<p.reduced;j++)result+=float(x[address(i,j)]!=0);y[i]=result;return;}
  if(nan){y[i]=uintBitsToFloat(0x7fc00000u);return;}
  if(p.mode!=0){y[i]=result;return;}
  if(isinf(p.ord)){y[i]=p.ord>0?scale:result;return;}
- if(p.ord==0){result=0;for(uint j=0;j<p.reduced;j++)result+=float(x[address(i,j)]!=0);y[i]=result;return;}
+
  if(p.ord<0){if(zero){y[i]=0;return;}scale=result;}
  if(scale==0||isinf(scale)){y[i]=scale;return;}
  result=0;for(uint j=0;j<p.reduced;j++){float a=abs(x[address(i,j)])/scale;result+=p.ord==2?a*a:p.ord==1?a:pow(a,p.ord);}

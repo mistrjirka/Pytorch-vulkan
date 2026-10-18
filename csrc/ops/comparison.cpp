@@ -14,6 +14,7 @@ template<int Op>at::Tensor comparison(const at::Tensor& left,const at::Tensor& r
  TORCH_CHECK(dev.type()==c10::DeviceType::PrivateUse1&&(left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"comparison: expected tensors on the same device");
  auto dtype=at::result_type(left,right);
  TORCH_CHECK(device_copy_supported(dtype),"Vulkan comparison supports FP32/int32/int64/bool");
+ if(dtype==at::kByte||dtype==at::kChar||dtype==at::kShort)dtype=at::kInt;
  auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto out=at::empty(shape,left.options().device(dev).dtype(at::kBool));if(!out.numel())return out;
  auto a=left.to(dev,dtype).expand(shape),b=right.to(dev,dtype).expand(shape);
  TORCH_CHECK(can_pack_view(a)&&can_pack_view(b),"comparison exceeds Vulkan indexing/storage limits");

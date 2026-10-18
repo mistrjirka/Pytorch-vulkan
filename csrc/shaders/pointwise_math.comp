@@ -1,0 +1,30 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,op;float factor;uint negative;}p;
+float qnan(){return uintBitsToFloat(0x7fc00000u);}
+float log1p_stable(float v){if(v< -1)return qnan();if(isinf(v))return v;float a=1+v;if(a==1)return v;return log(a)*(v/(a-1));}
+float expm1_stable(float v){if(abs(v)<0.5)return v*(1+v*(0.5+v*(1.0/6+v*(1.0/24+v*(1.0/120+v*(1.0/720+v*(1.0/5040+v*(1.0/40320+v/362880))))))));return exp(v)-1;}
+float erfc_positive(float v){float t=1/(1+0.3275911*v);return (((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*exp(-v*v);}
+// Range reduction keeps the alternating atan series within |z| <= tan(pi/8).
+// Avoid implementation-dependent GLSL asin/acos approximations.
+float atan_accurate(float v){float a=abs(v);bool invert=a>1;float z=invert?1/a:a;bool shift=z>0.4142135623730951;if(shift)z=(z-1)/(z+1);float t=z*z;
+ float poly=1.0/21;poly=-1.0/19+t*poly;poly=1.0/17+t*poly;poly=-1.0/15+t*poly;poly=1.0/13+t*poly;poly=-1.0/11+t*poly;poly=1.0/9+t*poly;poly=-1.0/7+t*poly;poly=1.0/5+t*poly;poly=-1.0/3+t*poly;
+ float r=z*(1+t*poly);if(shift)r+=0.7853981633974483;if(invert)r=1.5707963267948966-r;return (floatBitsToUint(v)&0x80000000u)!=0?-r:r;}
+float asin_accurate(float v){float a=abs(v);if(a>1)return qnan();if(a==1)return v*1.5707963267948966;if(a==0)return v;float r=a<0.5?atan_accurate(a/sqrt((1-a)*(1+a))):1.5707963267948966-2*atan_accurate(sqrt((1-a)/(1+a)));return v<0?-r:r;}
+float acos_accurate(float v){if(abs(v)>1)return qnan();if(v== -1)return 3.141592653589793;return 2*atan_accurate(sqrt((1-v)/(1+v)));}
+float apply(float v){switch(p.op){
+ case 0:return 1/v;case 1:return v<0?qnan():log(v);case 2:return log1p_stable(v);case 3:return expm1_stable(v);
+ case 4:return floor(v);case 5:return ceil(v);case 6:return trunc(v);case 7:return roundEven(v);case 8:return v>0?1:v<0?-1:0;
+ case 9:return v<0?qnan():log(v)*0.4342944819032518;case 10:return v<0?qnan():log2(v);case 11:return exp2(v);
+ case 12:{float a=abs(v);if(a==0)return v;float z=a<0.5?0.5*(expm1_stable(a)-expm1_stable(-a)):exp(a-0.6931471805599453)-exp(-a-0.6931471805599453);return v<0?-z:z;}
+ case 13:return abs(v)>20?exp(abs(v)-0.6931471805599453):0.5*exp(v)+0.5*exp(-v);case 14:return tan(v);case 15:return asin_accurate(v);case 16:return acos_accurate(v);case 17:return atan_accurate(v);
+ case 18:{float a=abs(v),z=a>1e10?log(a)+0.6931471805599453:log1p_stable(a+a*a/(1+sqrt(1+a*a)));return v<0?-z:z;}
+ case 19:return v<1?qnan():v>1e10?log(v)+0.6931471805599453:log1p_stable((v-1)+sqrt(v-1)*sqrt(v+1));
+ case 20:{float a=abs(v);if(a==0)return v;if(a>1)return qnan();float z=0.5*log1p_stable(2*a/(1-a));return v<0?-z:z;}
+ case 21:{if(v==0)return v;if(abs(v)<0.001)return 1.1283791670955126*v*(1-v*v/3);float z=1-erfc_positive(abs(v));return v<0?-z:z;}
+ case 22:return v<0?2-erfc_positive(-v):erfc_positive(v);
+ case 25:return p.negative!=0?roundEven(v/p.factor)*p.factor:roundEven(v*p.factor)/p.factor;
+ default:return qnan();}}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.count)y[i]=apply(x[i]);}

@@ -6,6 +6,7 @@ namespace {
 using namespace native;
 template<int Op>at::Tensor bitwise(const at::Tensor& left,const at::Tensor& right){
  auto dtype=at::result_type(left,right);auto dev=left.is_cpu()?right.device():left.device();
+ if(dtype==at::kByte||dtype==at::kChar||dtype==at::kShort)return bitwise<Op>(left.to(at::kInt),right.to(at::kInt)).to(dtype);
  TORCH_CHECK(dtype==at::kBool||dtype==at::kInt||dtype==at::kLong,"Vulkan bitwise operations require bool/int32/int64");
  TORCH_CHECK((left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"bitwise input device mismatch");
  if(dtype==at::kBool){if constexpr(Op==0)return at::logical_and(left,right);if constexpr(Op==1)return at::logical_or(left,right);if constexpr(Op==2)return at::logical_xor(left,right);}

@@ -39,7 +39,7 @@ bool eligible(const at::Tensor& x, int64_t n, int64_t c, int64_t hw, int64_t gro
 
 std::optional<at::Tensor> cpu_option(const std::optional<at::Tensor>& v) {
   if(!v || !v->defined()) return std::nullopt;
-  return v->cpu();
+  return native::cpu_fallback_tensor(*v,__func__);
 }
 
 std::tuple<at::Tensor,at::Tensor,at::Tensor> cpu_forward(

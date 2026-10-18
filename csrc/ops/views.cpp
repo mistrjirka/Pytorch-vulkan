@@ -20,6 +20,6 @@ at::Tensor& set_tensor(at::Tensor& out,const at::Tensor& source){
 }
 at::Tensor& set_plain_storage(at::Tensor& out,at::Storage source){auto n=source.nbytes()/out.element_size();return set_storage(out,std::move(source),0,{int64_t(n)},{1});}
 }
-TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("unfold",&at::native::unfold);m.impl("set_.source_Tensor",&set_tensor);m.impl("set_.source_Storage",&set_plain_storage);m.impl("set_.source_Storage_storage_offset",&set_storage);}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("unfold",&at::native::unfold);m.impl("view.dtype",&at::native::view_dtype);m.impl("set_.source_Tensor",&set_tensor);m.impl("set_.source_Storage",&set_plain_storage);m.impl("set_.source_Storage_storage_offset",&set_storage);}
 }
 }

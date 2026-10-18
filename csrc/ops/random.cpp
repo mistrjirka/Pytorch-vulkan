@@ -19,11 +19,16 @@ at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const st
  run("random_fill",{probability,previous},{write_base(out)},p,(out.numel()+127)/128);return out;
 }
 at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> to,std::optional<at::Generator> generator){
- if(out.scalar_type()==at::kBool||out.scalar_type()==at::kFloat){
+ if(out.scalar_type()==at::kBool||out.scalar_type()==at::kFloat||out.scalar_type()==at::kByte||out.scalar_type()==at::kChar||out.scalar_type()==at::kShort){
   at::assert_no_internal_overlap(out);
   if(out.scalar_type()==at::kBool){TORCH_CHECK(from>=0&&from<=1,"from is out of bounds for bool");TORCH_CHECK(!to||(*to>=1&&*to<=2),"to - 1 is out of bounds for bool");}
+  int64_t low=0,limit=out.scalar_type()==at::kBool?2:16777217;
+  if(out.scalar_type()==at::kByte)limit=256;
+  if(out.scalar_type()==at::kChar){low=-128;limit=128;}
+  if(out.scalar_type()==at::kShort){low=-32768;limit=32768;}
+  if(out.scalar_type()!=at::kFloat){TORCH_CHECK(from>=low&&from<limit,"random_ from is out of bounds");TORCH_CHECK(!to||(*to>low&&*to<=limit),"random_ to - 1 is out of bounds");}
   auto upper=to;
-  if(!upper && !(out.scalar_type()==at::kFloat&&from==INT64_MIN))upper=out.scalar_type()==at::kBool?2:16777217;
+  if(!upper && !(out.scalar_type()==at::kFloat&&from==INT64_MIN))upper=limit;
   auto integers=at::empty(out.sizes(),out.options().dtype(at::kLong));
   integer_random(integers,from,upper,generator);copy_on_device(out,integers);return out;
  }

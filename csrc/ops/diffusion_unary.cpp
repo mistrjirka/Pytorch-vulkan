@@ -2,6 +2,7 @@
 // Mathematical operation definitions; no upstream inference shader source copied.
 // Supports arbitrary rank<=8 strides/offsets through native_utils::base.
 #include "native_utils.h"
+#include "device_copy.h"
 #include <torch/library.h>
 #include <ATen/Functions.h>
 #include <array>
@@ -37,6 +38,10 @@ at::Tensor cpu_unary(const at::Tensor& x,uint32_t op) {
 }
 
 at::Tensor unary(const at::Tensor& x,uint32_t op) {
+  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){
+    if(op==7){TORCH_CHECK(x.scalar_type()!=at::kBool,"Negation of a bool tensor is not supported");return at::mul(x,-1);}
+    return unary(x.to(at::kFloat),op);
+  }
   if(!eligible(x))return cpu_unary(x,op);
   auto out=at::empty(x.sizes(),x.options());
   if(!x.numel())return out;
