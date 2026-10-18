@@ -468,7 +468,6 @@ static at::Tensor convolution_overrideable(
                                transposed, output_padding, groups);
   const auto input_c=packed(input), weight_c=packed(weight);
   auto x = buffer(input_c), w = buffer(weight_c);
-  auto& mgr = VulkanContext::instance().manager();
   TensorBuffer b;
   at::Tensor bias_c;
   if (bias && bias->defined()) {
@@ -477,7 +476,7 @@ static at::Tensor convolution_overrideable(
     bias_c=packed(*bias);
     b = buffer(bias_c);
   } else {
-    b = mgr.tensor(std::vector<float>(p.cout, 0.0f));
+    b = VulkanAllocator::instance().constant_float_buffer(p.cout, 0.0f);
   }
   auto result = at::empty({p.n, p.cout, p.oh, p.ow}, input.options());
   dispatch(p,ConvPhase::Forward,{x,w,b},result);

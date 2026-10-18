@@ -1,0 +1,18 @@
+{
+  "base_commit": "6b06790d866bd76e9f7abe7eb8c6f6d1f11a6a98",
+  "baseline_extension_sha256": "3601d65f297cfbbc36ad77785e8c6b5805da176af5947fd3580f76fcf2734fcf",
+  "backend_extension_sha256": "ce3d22890c3234e06424e67b781bfd1a1a5fcee252e113aa3017e3a9ec883f33",
+  "source_diff_sha256": "0e776007d76a6de927d036c81b72e6e7675a15252c48160bb7d74b47e69c4b88",
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "order": [
+    "before1",
+    "after1",
+    "after2",
+    "before2",
+    "cuda1",
+    "cuda2"
+  ],
+  "warmup": 8,
+  "repeats": 15,
+  "cuda_device_uuid": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29"
+}

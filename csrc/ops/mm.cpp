@@ -589,8 +589,6 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
               "layer_norm: tensor too large for Vulkan dispatch");
 
   auto& ctx = VulkanContext::instance();
-  auto& mgr = ctx.manager();
-  const auto n = input_c.numel();
   auto output = at::empty(input.sizes(), input.options());
   auto mean = at::empty(stat_shape, input.options());
   auto rstd = at::empty(stat_shape, input.options());
@@ -612,7 +610,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
                 "layer_norm: invalid weight");
     w_tensor = get_kp_tensor(w);
   } else {
-    w_tensor = mgr.tensor(std::vector<float>(row_size, 1.0f));
+    w_tensor = VulkanAllocator::instance().constant_float_buffer(row_size, 1.0f);
   }
   if (bias_opt.has_value() && bias_opt->defined()) {
     b_keep = contiguous_for_kernel(*bias_opt);
@@ -621,7 +619,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
                 "layer_norm: invalid bias");
     b_tensor = get_kp_tensor(b);
   } else {
-    b_tensor = mgr.tensor(std::vector<float>(row_size, 0.0f));
+    b_tensor = VulkanAllocator::instance().constant_float_buffer(row_size, 0.0f);
   }
   const auto nr = static_cast<uint32_t>(num_rows);
   const auto rs = static_cast<uint32_t>(row_size);

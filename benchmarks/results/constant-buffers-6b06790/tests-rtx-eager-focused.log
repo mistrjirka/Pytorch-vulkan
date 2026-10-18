@@ -1,0 +1,4 @@
+........................................................................ [ 96%]
+...                                                                      [100%]
+75 passed in 3.08s
+[Oct 18 2026 17:46:35] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

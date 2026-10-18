@@ -1,0 +1,73 @@
+{
+  "model": "mlp",
+  "actual": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/constant-buffers-6b06790/mlp-after.pt",
+  "reference": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/constant-buffers-6b06790/mlp-before.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "b4aab605c90c2a7a6e454100284343d30f3632007786a01fe6cebc5b6075f3a5",
+  "input_sha256": "24a6ab1f8dd106d0daef4385913bc719c367cd5de8228e1c42a43126e32636cd",
+  "gradients": {
+    "0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "5.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "5.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "6.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "6.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 10
+}

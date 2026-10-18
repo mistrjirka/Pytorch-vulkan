@@ -60,12 +60,17 @@ def test_convolution_pipeline_reused_for_different_kernel_sizes():
     os.environ['TORCH_VULKAN_CONV_ALGO']='tiled'
     try:
         before=torch_vulkan.cache_stats()
+        live_buffers=[]
         for k in [1,3,5,7,3,5,1,7]:
             torch.manual_seed(100+k)
             inp=torch.randn(1,8,12,13)
             weight=torch.randn(16,8,k,k)
             expected=F.conv2d(inp,weight,padding=k//2)
-            got=F.conv2d(inp.to('vulkan'),weight.to('vulkan'),padding=k//2)
+            inp_vk,weight_vk=inp.to('vulkan'),weight.to('vulkan')
+            got=F.conv2d(inp_vk,weight_vk,padding=k//2)
+            # Keep bindings distinct: reusing an entire bound algorithm would
+            # bypass the shared-pipeline lookup this test is measuring.
+            live_buffers.append((inp_vk,weight_vk,got))
             torch.testing.assert_close(got.cpu(),expected,atol=4e-4,rtol=4e-4)
         after=torch_vulkan.cache_stats()
         if after['pipeline_hits'] or after['pipeline_misses']:

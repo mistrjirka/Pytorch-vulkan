@@ -75,7 +75,6 @@ static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
   const std::vector<TensorBuffer> inputs={in_buf,go_buf,mean_buf,rstd_buf};
   const std::vector<uint32_t> constants={static_cast<uint32_t>(rows),static_cast<uint32_t>(k)};
   at::Tensor dx, dw, db;
-  auto& mgr=VulkanContext::instance().manager();
   if (output_mask[0]) {
     TensorBuffer gamma;
     at::Tensor gamma_c; // Keep any packed allocation alive until enqueue.
@@ -83,7 +82,7 @@ static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
       TORCH_CHECK(weight->numel()==k,"layer_norm_backward: weight size mismatch");
       gamma_c=contiguous_for_native_layer_norm(*weight);
       gamma=buffer(gamma_c);
-    } else gamma=mgr.tensor(std::vector<float>(k,1.0f));
+    } else gamma=VulkanAllocator::instance().constant_float_buffer(k,1.0f);
     dx=at::empty(input.sizes(),input.options());
     auto args=inputs;
     args.push_back(gamma);

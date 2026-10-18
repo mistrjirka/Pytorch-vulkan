@@ -1,6 +1,7 @@
 #include "vulkan_allocator.h"
 #include "vulkan_context.h"
 #include <c10/core/Device.h>
+#include <c10/util/Exception.h>
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
@@ -79,6 +80,31 @@ c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
       ptr,
       &VulkanAllocator::deleter,
       c10::Device(c10::DeviceType::PrivateUse1, 0));
+}
+
+std::shared_ptr<kp::TensorT<float>> VulkanAllocator::constant_float_buffer(
+    size_t count, float value) {
+  TORCH_CHECK(count > 0 && (value == 0.0f || value == 1.0f),
+              "Vulkan constant buffer requires a positive count and zero or one");
+  auto& mgr = VulkanContext::instance().manager();
+  constexpr size_t max_count = size_t{1} << (kConstantBuckets - 1);
+  if (count > max_count) {
+    // Uncached temporaries retain the existing upload and lifetime behavior.
+    return mgr.tensor(std::vector<float>(count, value));
+  }
+  size_t capacity = 1, bucket = 0;
+  while (capacity < count) { capacity <<= 1; ++bucket; }
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto& tensor = constant_buffers_[value == 1.0f ? 1 : 0][bucket];
+  if (!tensor) {
+    tensor = mgr.tensor(std::vector<float>(capacity, value));
+    // Keep the allocation alive for the allocator's lifetime. It never enters
+    // the mutable free list, and its staging pointer cannot be recycled. In
+    // resident mode the first queued upload marks it clean; later readers
+    // reuse that data without another transfer or a CPU synchronization.
+    residency_[tensor->rawData()] = Residency::HostDirty;
+  }
+  return tensor;
 }
 
 c10::DeleterFnPtr VulkanAllocator::raw_deleter() const {

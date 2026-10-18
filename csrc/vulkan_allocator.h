@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstring>
 #include <c10/core/Allocator.h>
 #include <kompute/Kompute.hpp>
@@ -27,6 +28,11 @@ public:
   void copy_data(void* dest, const void* src, std::size_t count) const override;
 
   std::shared_ptr<kp::TensorT<float>> get_kompute_tensor(void* ptr);
+  // Internal, read-only FP32 identity buffers. Only the first count elements
+  // may be read. Never expose these as writable tensors or kernel outputs.
+  // Cached device-local buffers participate in ordinary upload tracking.
+  std::shared_ptr<kp::TensorT<float>> constant_float_buffer(size_t count, float value);
+
   // Experimental dirty-bit tracking for device-local buffers. The host-mapped
   // pointer is staging memory, not necessarily the current GPU result.
   enum class Residency { HostDirty, GpuDirty, Clean };
@@ -52,6 +58,14 @@ private:
   // Active allocations: data_ptr -> Kompute tensor
   std::unordered_map<void*, std::shared_ptr<kp::TensorT<float>>> tensor_map_;
   std::unordered_map<void*, Residency> residency_;
+
+  // Zero/one power-of-two capacity buckets, up to 64K floats each. Including
+  // staging memory, all 34 entries have less than 2 MiB of buffer payload
+  // (driver allocation granularity is additional). Larger requests use ordinary
+  // temporary buffers, so arbitrary shapes remain valid.
+  static constexpr size_t kConstantBuckets = 17;
+  std::array<std::array<std::shared_ptr<kp::TensorT<float>>, kConstantBuckets>, 2>
+      constant_buffers_{};
 
   // Free list: size_in_floats -> list of reusable Kompute tensors
   // When a tensor is freed, it moves here instead of being destroyed.
