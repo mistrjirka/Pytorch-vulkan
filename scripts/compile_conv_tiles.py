@@ -12,7 +12,7 @@ def main():
     shader_dir = Path(__file__).resolve().parents[1] / "csrc" / "shaders"
     for phase in ("conv2d_tiled", "conv2d_backward_input_tiled",
                   "conv2d_backward_weight_tiled"):
-        for suffix in ("", "_wide", "_tall"):
+        for suffix in ("", "_wide", "_tall", "_register"):
             source = shader_dir / (phase + suffix + ".comp")
             output = source.with_suffix(".spv")
             subprocess.run(["glslangValidator", "-V", str(source), "-o", str(output)],

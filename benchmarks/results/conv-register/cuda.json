@@ -1,0 +1,2076 @@
+{
+  "backend": "cuda",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cu130",
+  "revision": "3410a3fc34e6a4542bb1712cbc84bae40eecb3f9",
+  "worktree_dirty": true,
+  "convolution_source_sha256": "c9529e4f2828ee394e32754be646286de8b5d64447725d815beac55fcbd809db",
+  "dtype": "float32",
+  "reference": "CPU float64 accumulation -> float32",
+  "seed": 2026,
+  "warmup": 8,
+  "repeats": 15,
+  "threads": 8,
+  "atol": 0.005,
+  "rtol": 0.0005,
+  "cuda_tf32": false,
+  "cudnn_benchmark": false,
+  "cudnn_deterministic": false,
+  "cuda_kernel_profile_iterations": 5,
+  "vulkan_tile": "auto",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29"
+  },
+  "timing_notes": [
+    "Wall: allocation + dispatch + synchronization, including backend-internal transfers; excludes reference and explicit .cpu() download.",
+    "First call may include compilation/tuning; exclude it from steady-state speedups.",
+    "CUDA events are separate device intervals, including possible launch gaps.",
+    "Vulkan timestamp availability depends on execution path.",
+    "Each backward output mask requests only one gradient; not a full training step."
+  ],
+  "cases": [
+    {
+      "name": "pointwise",
+      "shape": [
+        2,
+        32,
+        32,
+        35
+      ],
+      "cout": 64,
+      "kernel": [
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "output_shape": [
+        2,
+        64,
+        32,
+        35
+      ],
+      "input_sha256": "23be90f9b557b78122be1c0c7bc5970fb900f0b17535e13ea67976971abd1de4",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 58.5783730057301,
+          "wall": {
+            "median_ms": 0.041266001062467694,
+            "min_ms": 0.04011399869341403,
+            "max_ms": 0.04512300074566156,
+            "samples_ms": [
+              0.04273800004739314,
+              0.042548999772407115,
+              0.04243799776304513,
+              0.04512300074566156,
+              0.041387000237591565,
+              0.040574988815933466,
+              0.0430490035796538,
+              0.04348999937064946,
+              0.040575003367848694,
+              0.041266001062467694,
+              0.04025500675197691,
+              0.04086500848643482,
+              0.04058500053361058,
+              0.04011399869341403,
+              0.04020400228910148
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.1786889788069245e-07,
+            "reference_max_abs": 6.609276294708252
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void implicit_convolve_sgemm<float, float, int, 1024, 5, 5, 3, 3, 3, 1, false, false, true>(int, int, int, float const*, int, float*, float const*, kernel_conv_params, unsigned long long, int, float, float, int, float const*, float const*, bool, bool, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 37.31199999999967,
+                "us_per_iteration": 7.462399999999934
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 17.759000000000242,
+                "us_per_iteration": 3.5518000000000485
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 11.014199999999983,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 7.438166998326778,
+          "wall": {
+            "median_ms": 0.05626400525216013,
+            "min_ms": 0.05546299507841468,
+            "max_ms": 0.06612201104871929,
+            "samples_ms": [
+              0.05851799505762756,
+              0.05775599856860936,
+              0.05665500066243112,
+              0.056424003560096025,
+              0.05588300700765103,
+              0.056114004109986126,
+              0.05626400525216013,
+              0.05707501259166747,
+              0.05622400203719735,
+              0.055473006796091795,
+              0.05546299507841468,
+              0.055532000260427594,
+              0.056164004490710795,
+              0.06612201104871929,
+              0.05808699643239379
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.1043936646924537e-07,
+            "reference_max_abs": 7.193876266479492
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "volta_sgemm_64x64_nt",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 57.31199999999944,
+                "us_per_iteration": 11.462399999999889
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 11.462399999999889,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 1.0578709916444495,
+          "wall": {
+            "median_ms": 0.08519699622411281,
+            "min_ms": 0.08425500709563494,
+            "max_ms": 0.0991629931377247,
+            "samples_ms": [
+              0.08481599797960371,
+              0.08535799861419946,
+              0.08489600440952927,
+              0.08530699415132403,
+              0.0991629931377247,
+              0.08620899461675435,
+              0.08519699622411281,
+              0.08589800563640893,
+              0.08557799446862191,
+              0.0845360045786947,
+              0.08466601138934493,
+              0.08425500709563494,
+              0.08478699601255357,
+              0.08581900328863412,
+              0.08467699808534235
+            ]
+          },
+          "parity": {
+            "max_abs_error": 8.392333984375e-05,
+            "rms_error": 1.89641871195692e-05,
+            "reference_max_abs": 173.10198974609375
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void wgrad_alg0_engine<float, 128, 5, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 191.64599999999973,
+                "us_per_iteration": 38.32919999999994
+              }
+            ],
+            "memory_operations": [
+              {
+                "name": "Memset (Device)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 7.423000000000002,
+                "us_per_iteration": 1.4846000000000004
+              }
+            ],
+            "summed_kernel_us_per_iteration": 38.32919999999994,
+            "summed_memory_us_per_iteration": 1.4846000000000004,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 11.560029000975192,
+          "wall": {
+            "median_ms": 0.05023299308959395,
+            "min_ms": 0.04963099490851164,
+            "max_ms": 0.06224500248208642,
+            "samples_ms": [
+              0.050672999350354075,
+              0.04997200448997319,
+              0.050382004701532423,
+              0.05018299270886928,
+              0.04974199691787362,
+              0.05038299423176795,
+              0.04984199767932296,
+              0.05027299630455673,
+              0.04963099490851164,
+              0.04991200694348663,
+              0.050592992920428514,
+              0.06224500248208642,
+              0.05023299308959395,
+              0.05093400250189006,
+              0.05015199712943286
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 5.520472989333482e-06,
+            "reference_max_abs": 112.81317138671875
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 68.47900000000004,
+                "us_per_iteration": 13.695800000000009
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 13.695800000000009,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "rect3x5",
+      "shape": [
+        2,
+        16,
+        31,
+        35
+      ],
+      "cout": 24,
+      "kernel": [
+        3,
+        5
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        4
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 1,
+      "weight_shape": [
+        24,
+        16,
+        3,
+        5
+      ],
+      "output_shape": [
+        2,
+        24,
+        16,
+        35
+      ],
+      "input_sha256": "dc6124e1a95d1cae39a6aaa28dfcfd7c258d96d8121399e5e6f7635e2797dc17",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 0.3670369915198535,
+          "wall": {
+            "median_ms": 0.05470099858939648,
+            "min_ms": 0.0539190077688545,
+            "max_ms": 0.06503000622615218,
+            "samples_ms": [
+              0.055311989854089916,
+              0.0550419936189428,
+              0.05420998786576092,
+              0.05459100066218525,
+              0.053969997679814696,
+              0.0539190077688545,
+              0.05413001053966582,
+              0.05508199683390558,
+              0.06503000622615218,
+              0.05625300400424749,
+              0.054410003940574825,
+              0.05470099858939648,
+              0.05460099782794714,
+              0.05547200271394104,
+              0.05533199873752892
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.6226043701171875e-06,
+            "rms_error": 2.567880323960253e-07,
+            "reference_max_abs": 5.9771037101745605
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void implicit_convolve_sgemm<float, float, int, 1024, 5, 5, 3, 3, 3, 1, false, false, false>(int, int, int, float const*, int, float*, float const*, kernel_conv_params, unsigned long long, int, float, float, int, float const*, float const*, bool, bool, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 83.00599999999986,
+                "us_per_iteration": 16.60119999999997
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 12.223999999999933,
+                "us_per_iteration": 2.4447999999999865
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 19.045999999999957,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 6.3555310043739155,
+          "wall": {
+            "median_ms": 0.059860001783818007,
+            "min_ms": 0.059219994000159204,
+            "max_ms": 0.0706810096744448,
+            "samples_ms": [
+              0.060161008150316775,
+              0.059650003095157444,
+              0.05972999497316778,
+              0.059219994000159204,
+              0.060160993598401546,
+              0.059819998568855226,
+              0.05962999421171844,
+              0.06143300561234355,
+              0.05931900523137301,
+              0.05955000233370811,
+              0.060121004935353994,
+              0.0706810096744448,
+              0.06114300049375743,
+              0.0606520043220371,
+              0.059860001783818007
+            ]
+          },
+          "parity": {
+            "max_abs_error": 4.76837158203125e-07,
+            "rms_error": 8.839510148941263e-08,
+            "reference_max_abs": 4.379584312438965
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 76.63800000000037,
+                "us_per_iteration": 15.327600000000075
+              },
+              {
+                "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 8.479000000000497,
+                "us_per_iteration": 1.6958000000000992
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 17.023400000000173,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.25847600772976875,
+          "wall": {
+            "median_ms": 0.07713200466241688,
+            "min_ms": 0.07685099262744188,
+            "max_ms": 0.07886500679887831,
+            "samples_ms": [
+              0.07886500679887831,
+              0.07758400170132518,
+              0.07707200711593032,
+              0.07713200466241688,
+              0.07733200618531555,
+              0.07725300383754075,
+              0.07698198896832764,
+              0.0773430074332282,
+              0.07688200275879353,
+              0.07767300121486187,
+              0.07702199218329042,
+              0.07841498882044107,
+              0.07692199142184108,
+              0.07685099262744188,
+              0.07702200673520565
+            ]
+          },
+          "parity": {
+            "max_abs_error": 6.103515625e-05,
+            "rms_error": 1.185034515770128e-05,
+            "reference_max_abs": 130.37002563476562
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void wgrad_alg0_engine<float, 128, 5, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 151.06599999999958,
+                "us_per_iteration": 30.213199999999915
+              }
+            ],
+            "memory_operations": [
+              {
+                "name": "Memset (Device)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 7.998000000000275,
+                "us_per_iteration": 1.599600000000055
+              }
+            ],
+            "summed_kernel_us_per_iteration": 30.213199999999915,
+            "summed_memory_us_per_iteration": 1.599600000000055,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.0970190012594685,
+          "wall": {
+            "median_ms": 0.04942099621985108,
+            "min_ms": 0.0488399964524433,
+            "max_ms": 0.0509040110046044,
+            "samples_ms": [
+              0.049730995669960976,
+              0.04963100946042687,
+              0.04969199653714895,
+              0.04944199463352561,
+              0.04942099621985108,
+              0.04931000876240432,
+              0.04944199463352561,
+              0.04935100150760263,
+              0.04920100036542863,
+              0.049470996600575745,
+              0.04893000004813075,
+              0.049039997975341976,
+              0.048910995246842504,
+              0.0488399964524433,
+              0.0509040110046044
+            ]
+          },
+          "parity": {
+            "max_abs_error": 8.106231689453125e-06,
+            "rms_error": 3.5845475500163863e-06,
+            "reference_max_abs": 92.47672271728516
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 41.50200000000018,
+                "us_per_iteration": 8.300400000000035
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 8.300400000000035,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "filter10x10",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        10,
+        10
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        32,
+        16,
+        10,
+        10
+      ],
+      "output_shape": [
+        1,
+        32,
+        41,
+        44
+      ],
+      "input_sha256": "3fd57fdbd14a16098b04edacaa92c9deb5dfc5767bd59482166df09e46f8d1a3",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 59.232429004623555,
+          "wall": {
+            "median_ms": 0.16667699674144387,
+            "min_ms": 0.16549500287510455,
+            "max_ms": 0.18090399680659175,
+            "samples_ms": [
+              0.18090399680659175,
+              0.1681400026427582,
+              0.16747899644542485,
+              0.17088500317186117,
+              0.1664469891693443,
+              0.17723700148053467,
+              0.1663269940763712,
+              0.16598599904682487,
+              0.1668879995122552,
+              0.16667699674144387,
+              0.1657760003581643,
+              0.17691700486466289,
+              0.1666470052441582,
+              0.16624700219836086,
+              0.16549500287510455
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.12876296043396e-06,
+            "rms_error": 1.9029190783602623e-07,
+            "reference_max_abs": 5.7643656730651855
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 0u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 214.0730000000001,
+                "us_per_iteration": 42.81460000000002
+              },
+              {
+                "name": "void fft2d_c2r_32x32<float, false, false, 0u, false, false>(float*, float2 const*, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, float*, float*, int2, cudnnActivationStruct, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 210.07600000000048,
+                "us_per_iteration": 42.01520000000009
+              },
+              {
+                "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, float2, float2, float2, float2, true, true, false, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2>)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 91.00500000000011,
+                "us_per_iteration": 18.201000000000022
+              },
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 1u, true>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 56.31800000000021,
+                "us_per_iteration": 11.263600000000043
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 12.446999999999889,
+                "us_per_iteration": 2.4893999999999776
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 116.78380000000016,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 0.4573539918055758,
+          "wall": {
+            "median_ms": 0.1664869923843071,
+            "min_ms": 0.16449400573037565,
+            "max_ms": 0.17742700583767146,
+            "samples_ms": [
+              0.16928301192820072,
+              0.16728800255805254,
+              0.1656359963817522,
+              0.16723800217732787,
+              0.16449400573037565,
+              0.17742700583767146,
+              0.1664160081418231,
+              0.16605699784122407,
+              0.1664869923843071,
+              0.16619599773548543,
+              0.17526300507597625,
+              0.16984299873001873,
+              0.16599599621258676,
+              0.16590600716881454,
+              0.17107500752899796
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.430511474609375e-06,
+            "rms_error": 2.80963597959993e-07,
+            "reference_max_abs": 5.642302989959717
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 0u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 212.95500000000015,
+                "us_per_iteration": 42.59100000000003
+              },
+              {
+                "name": "void fft2d_c2r_32x32<float, false, false, 0u, false, false>(float*, float2 const*, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, float*, float*, int2, cudnnActivationStruct, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 209.27400000000011,
+                "us_per_iteration": 41.854800000000026
+              },
+              {
+                "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float2, float2, float2, float2, false, true, false, false, 5, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2>)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 79.25999999999931,
+                "us_per_iteration": 15.851999999999862
+              },
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 1u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 55.36000000000013,
+                "us_per_iteration": 11.072000000000026
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 111.36979999999994,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.5006930005038157,
+          "wall": {
+            "median_ms": 0.10321999434381723,
+            "min_ms": 0.10158699296880513,
+            "max_ms": 0.1136799983214587,
+            "samples_ms": [
+              0.10476300667505711,
+              0.102850011899136,
+              0.10306999320164323,
+              0.10158699296880513,
+              0.10454301082063466,
+              0.10268999903928488,
+              0.10503300291020423,
+              0.1136799983214587,
+              0.107127008959651,
+              0.10296900290995836,
+              0.10332099918741733,
+              0.10239900439046323,
+              0.10321999434381723,
+              0.10298000415787101,
+              0.10347100032959133
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.918212890625e-05,
+            "rms_error": 1.4992903138495174e-05,
+            "reference_max_abs": 182.11854553222656
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void wgrad_alg0_engine<float, 512, 6, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 280.4079999999999,
+                "us_per_iteration": 56.08159999999998
+              }
+            ],
+            "memory_operations": [
+              {
+                "name": "Memset (Device)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 7.80700000000013,
+                "us_per_iteration": 1.561400000000026
+              }
+            ],
+            "summed_kernel_us_per_iteration": 56.08159999999998,
+            "summed_memory_us_per_iteration": 1.561400000000026,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.09626700193621218,
+          "wall": {
+            "median_ms": 0.049220005166716874,
+            "min_ms": 0.04810901009477675,
+            "max_ms": 0.054370000725612044,
+            "samples_ms": [
+              0.054370000725612044,
+              0.049220005166716874,
+              0.04967198765370995,
+              0.04957200144417584,
+              0.04949100548401475,
+              0.04928999987896532,
+              0.04926101246383041,
+              0.04810901009477675,
+              0.04825899668503553,
+              0.04952200106345117,
+              0.04900099884252995,
+              0.04838898894377053,
+              0.04847899253945798,
+              0.04897000326309353,
+              0.04818900197278708
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.049041748046875e-05,
+            "rms_error": 4.870879390442715e-06,
+            "reference_max_abs": 114.32722473144531
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 31.77499999999975,
+                "us_per_iteration": 6.35499999999995
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 6.35499999999995,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "filter11x11",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        11,
+        11
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        32,
+        16,
+        11,
+        11
+      ],
+      "output_shape": [
+        1,
+        32,
+        40,
+        43
+      ],
+      "input_sha256": "dc5c619a9bf7cde31c0b04b07062838d1c221ff088fdf3a2cad8c269d38af472",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 0.6640450010308996,
+          "wall": {
+            "median_ms": 0.16886100638657808,
+            "min_ms": 0.16778899589553475,
+            "max_ms": 0.18093299877364188,
+            "samples_ms": [
+              0.1691719953669235,
+              0.18069300858769566,
+              0.16893100109882653,
+              0.16778899589553475,
+              0.1691519864834845,
+              0.16868099919520319,
+              0.16863101336639374,
+              0.18093299877364188,
+              0.16876100562512875,
+              0.16805999621283263,
+              0.16796999261714518,
+              0.16886100638657808,
+              0.17914100317284465,
+              0.16844099445734173,
+              0.17794799350667745
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.9208049274205335e-07,
+            "reference_max_abs": 6.107693195343018
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 0u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 214.61399999999992,
+                "us_per_iteration": 42.92279999999998
+              },
+              {
+                "name": "void fft2d_c2r_32x32<float, false, false, 0u, false, false>(float*, float2 const*, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, float*, float*, int2, cudnnActivationStruct, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 209.596,
+                "us_per_iteration": 41.919200000000004
+              },
+              {
+                "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, float2, float2, float2, float2, true, true, false, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2>)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 91.23000000000002,
+                "us_per_iteration": 18.246000000000002
+              },
+              {
+                "name": "void fft2d_r2c_32x32<float, false, 1u, true>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 56.253999999999905,
+                "us_per_iteration": 11.25079999999998
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 12.543999999999983,
+                "us_per_iteration": 2.5087999999999964
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 116.84759999999996,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 0.3530609974404797,
+          "wall": {
+            "median_ms": 0.16454300202894956,
+            "min_ms": 0.16110698925331235,
+            "max_ms": 0.1742610038490966,
+            "samples_ms": [
+              0.16204899293370545,
+              0.1660859998082742,
+              0.16599700029473752,
+              0.1688109914539382,
+              0.16110698925331235,
+              0.16436299483757466,
+              0.1677490072324872,
+              0.16395199054386467,
+              0.16406300710514188,
+              0.16589599545113742,
+              0.16187899746000767,
+              0.16454300202894956,
+              0.16381200111936778,
+              0.1742610038490966,
+              0.17265799397137016
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.914411986532526e-07,
+            "reference_max_abs": 5.4726691246032715
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 590.2850000000001,
+                "us_per_iteration": 118.05700000000002
+              },
+              {
+                "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 8.540999999999826,
+                "us_per_iteration": 1.7081999999999653
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 119.76519999999998,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.28009699599351734,
+          "wall": {
+            "median_ms": 0.11026300489902496,
+            "min_ms": 0.10833999840542674,
+            "max_ms": 0.11853799514938146,
+            "samples_ms": [
+              0.11103501310572028,
+              0.10962200758513063,
+              0.11030299356207252,
+              0.11026300489902496,
+              0.10986199777107686,
+              0.1141399989137426,
+              0.1102539972634986,
+              0.11853799514938146,
+              0.1109240110963583,
+              0.10874000145122409,
+              0.11048400483559817,
+              0.10833999840542674,
+              0.11047400766983628,
+              0.10915100574493408,
+              0.11021400860045105
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.1552734375e-05,
+            "rms_error": 1.4764752504038009e-05,
+            "reference_max_abs": 162.67340087890625
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void wgrad_alg0_engine<float, 512, 6, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 312.01700000000017,
+                "us_per_iteration": 62.40340000000003
+              }
+            ],
+            "memory_operations": [
+              {
+                "name": "Memset (Device)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 7.711999999999875,
+                "us_per_iteration": 1.5423999999999751
+              }
+            ],
+            "summed_kernel_us_per_iteration": 62.40340000000003,
+            "summed_memory_us_per_iteration": 1.5423999999999751,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.09463500464335084,
+          "wall": {
+            "median_ms": 0.049301001126877964,
+            "min_ms": 0.048519999836571515,
+            "max_ms": 0.061453989474102855,
+            "samples_ms": [
+              0.049891998060047626,
+              0.061453989474102855,
+              0.051315000746399164,
+              0.049291003961116076,
+              0.04950100264977664,
+              0.049430993385612965,
+              0.049301001126877964,
+              0.04933099262416363,
+              0.04921101208310574,
+              0.049301001126877964,
+              0.048519999836571515,
+              0.048779998905956745,
+              0.049380993004888296,
+              0.04929098940920085,
+              0.04903000080958009
+            ]
+          },
+          "parity": {
+            "max_abs_error": 7.62939453125e-06,
+            "rms_error": 3.762181720270991e-06,
+            "reference_max_abs": 87.26480865478516
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 30.720000000000027,
+                "us_per_iteration": 6.1440000000000055
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 6.1440000000000055,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "grouped",
+      "shape": [
+        2,
+        24,
+        29,
+        31
+      ],
+      "cout": 40,
+      "kernel": [
+        3,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 4,
+      "weight_shape": [
+        40,
+        6,
+        3,
+        5
+      ],
+      "output_shape": [
+        2,
+        40,
+        29,
+        31
+      ],
+      "input_sha256": "36b435f31f0483114232eb36d5facaca02c7438d9d16783abce96a5a43803380",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 0.3782270068768412,
+          "wall": {
+            "median_ms": 0.09090699313674122,
+            "min_ms": 0.08967598841991276,
+            "max_ms": 0.10580499656498432,
+            "samples_ms": [
+              0.10042499343398958,
+              0.09261100785806775,
+              0.090105997514911,
+              0.10574499901849777,
+              0.09575700096320361,
+              0.0904869957594201,
+              0.09090699313674122,
+              0.09030700311996043,
+              0.08989599882625043,
+              0.09125900396611542,
+              0.09054700785782188,
+              0.08991599315777421,
+              0.08967598841991276,
+              0.10580499656498432,
+              0.09138899622485042
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.6689300537109375e-06,
+            "rms_error": 1.6976990935590284e-07,
+            "reference_max_abs": 6.097153186798096
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void implicit_convolve_sgemm<float, float, int, 1024, 5, 5, 3, 3, 3, 1, false, false, true>(int, int, int, float const*, int, float*, float const*, kernel_conv_params, unsigned long long, int, float, float, int, float const*, float const*, bool, bool, int, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 191.09800000000064,
+                "us_per_iteration": 38.21960000000013
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 13.343000000000075,
+                "us_per_iteration": 2.6686000000000147
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 40.88820000000014,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 1.2867839977843687,
+          "wall": {
+            "median_ms": 0.10958198981825262,
+            "min_ms": 0.1080390065908432,
+            "max_ms": 0.11728599201887846,
+            "samples_ms": [
+              0.1100329973269254,
+              0.10878998728003353,
+              0.11048399028368294,
+              0.1096519990824163,
+              0.10958198981825262,
+              0.11728599201887846,
+              0.1093419996323064,
+              0.11149600322823972,
+              0.10951199510600418,
+              0.10918099724221975,
+              0.10922100045718253,
+              0.11009300942532718,
+              0.1080390065908432,
+              0.10981300147250295,
+              0.10848999954760075
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.703380658030395e-07,
+            "reference_max_abs": 5.684099197387695
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::detail::dgrad_alg1_engine<float, 512, 6, 5, 3, 3, 3, false, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, float, int)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 431.8599999999999,
+                "us_per_iteration": 86.37199999999999
+              },
+              {
+                "name": "void cudnn::engines_precompiled::scaleTensor_kernel<float, float, 16, 16>(cudnnTensor4dStruct, float*, float)",
+                "count": 20,
+                "calls_per_iteration": 4.0,
+                "total_us": 35.8070000000007,
+                "us_per_iteration": 7.16140000000014
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 93.53340000000013,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.8690029935678467,
+          "wall": {
+            "median_ms": 0.07044000085443258,
+            "min_ms": 0.06964801286812872,
+            "max_ms": 0.07327500497922301,
+            "samples_ms": [
+              0.06997899617999792,
+              0.07045999518595636,
+              0.07049000123515725,
+              0.07044000085443258,
+              0.07071999425534159,
+              0.07327500497922301,
+              0.07062000804580748,
+              0.07088099664542824,
+              0.06964801286812872,
+              0.06966799264773726,
+              0.07004899089224637,
+              0.06973899144213647,
+              0.06993900751695037,
+              0.07027899846434593,
+              0.07071100117173046
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.002716064453125e-05,
+            "rms_error": 6.118692542814474e-06,
+            "reference_max_abs": 145.6121063232422
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::cnn::wgrad2d_grouped_direct_kernel<false, true, int, float, float, float>(cudnn::cnn::WgradGroupedDirectParams, float const*, float const*, float*, float, float)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 158.43000000000006,
+                "us_per_iteration": 31.686000000000014
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 31.686000000000014,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.09422299626749009,
+          "wall": {
+            "median_ms": 0.0500919995829463,
+            "min_ms": 0.04918000195175409,
+            "max_ms": 0.05950000195298344,
+            "samples_ms": [
+              0.05065399454906583,
+              0.05031200998928398,
+              0.049851994845084846,
+              0.04969199653714895,
+              0.05012200563214719,
+              0.05014199996367097,
+              0.049601003411225975,
+              0.04962099774274975,
+              0.04918000195175409,
+              0.05950000195298344,
+              0.051736002205871046,
+              0.04974201146978885,
+              0.05093400250189006,
+              0.0500919995829463,
+              0.049430993385612965
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 4.790689720774575e-06,
+            "reference_max_abs": 71.80382537841797
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 58.430000000000064,
+                "us_per_iteration": 11.686000000000012
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 11.686000000000012,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "depthwise",
+      "shape": [
+        2,
+        24,
+        29,
+        31
+      ],
+      "cout": 48,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 24,
+      "weight_shape": [
+        48,
+        1,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        48,
+        29,
+        31
+      ],
+      "input_sha256": "6f4dda287ddd63c6e8eda3749a57c96dc8d81fe4f2eeefcd78888bb4539e4222",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 2.272049998282455,
+          "wall": {
+            "median_ms": 0.032468989957123995,
+            "min_ms": 0.03192899748682976,
+            "max_ms": 0.04348000220488757,
+            "samples_ms": [
+              0.03270000161137432,
+              0.032468989957123995,
+              0.032590003684163094,
+              0.032289986847899854,
+              0.03229999856557697,
+              0.03200898936484009,
+              0.03238899807911366,
+              0.03269100852776319,
+              0.04348000220488757,
+              0.03346201265230775,
+              0.032800991903059185,
+              0.03238000499550253,
+              0.03250999725423753,
+              0.03192899748682976,
+              0.0321789993904531
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 8.415006040498886e-08,
+            "reference_max_abs": 6.325625419616699
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::(anonymous namespace)::conv_depthwise2d_forward_kernel<3, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 33.91899999999987,
+                "us_per_iteration": 6.783799999999974
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 6.783799999999974,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 0.1416910090483725,
+          "wall": {
+            "median_ms": 0.045864013372920454,
+            "min_ms": 0.04522399103734642,
+            "max_ms": 0.05607301136478782,
+            "samples_ms": [
+              0.046075001591816545,
+              0.04606498987413943,
+              0.045765002141706645,
+              0.04600499232765287,
+              0.04587500006891787,
+              0.04600499232765287,
+              0.045855005737394094,
+              0.05607301136478782,
+              0.04771800013259053,
+              0.04568399162963033,
+              0.045474007492884994,
+              0.04566401185002178,
+              0.045864013372920454,
+              0.04522399103734642,
+              0.04523301322478801
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.1920928955078125e-06,
+            "rms_error": 1.0709281968054499e-07,
+            "reference_max_abs": 6.726355075836182
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::(anonymous namespace)::conv_depthwise2d_backward_kernel<3, 1, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 25.695999999999913,
+                "us_per_iteration": 5.139199999999983
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 5.139199999999983,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.11953999637626112,
+          "wall": {
+            "median_ms": 0.04691600042860955,
+            "min_ms": 0.046165005187503994,
+            "max_ms": 0.057155993999913335,
+            "samples_ms": [
+              0.0474580010632053,
+              0.047658002586103976,
+              0.048479007091373205,
+              0.05700498877558857,
+              0.057155993999913335,
+              0.05489100294653326,
+              0.046165005187503994,
+              0.04674600495491177,
+              0.0472069950774312,
+              0.04656500823330134,
+              0.04691600042860955,
+              0.04678699770011008,
+              0.046715998905710876,
+              0.04635599907487631,
+              0.046196000766940415
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 4.7084859738933e-06,
+            "reference_max_abs": 133.65882873535156
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::(anonymous namespace)::conv_depthwise2d_grad_weight_kernel<float, unsigned int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 36.317999999999984,
+                "us_per_iteration": 7.263599999999997
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 7.263599999999997,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.09038700954988599,
+          "wall": {
+            "median_ms": 0.05060300463810563,
+            "min_ms": 0.04974199691787362,
+            "max_ms": 0.060852005844935775,
+            "samples_ms": [
+              0.050812988774850965,
+              0.05068400059826672,
+              0.060852005844935775,
+              0.051745009841397405,
+              0.0502219918416813,
+              0.050834001740440726,
+              0.05104498995933682,
+              0.05060300463810563,
+              0.050892995204776525,
+              0.050233007641509175,
+              0.05000199598725885,
+              0.05051400512456894,
+              0.05020300159230828,
+              0.050032002036459744,
+              0.04974199691787362
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.5367431640625e-06,
+            "rms_error": 4.046598908758339e-06,
+            "reference_max_abs": 116.76470947265625
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 58.653999999999996,
+                "us_per_iteration": 11.730799999999999
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 11.730799999999999,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "conv3x3_large",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "cout": 64,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        64,
+        32,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "input_sha256": "3b02751c88177629da7f06c27b999db59bd81f8cf946946dc8100312b4ae4a5d",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 16.45086900680326,
+          "wall": {
+            "median_ms": 0.07452700810972601,
+            "min_ms": 0.07348600775003433,
+            "max_ms": 0.0769119942560792,
+            "samples_ms": [
+              0.07569900481030345,
+              0.0769119942560792,
+              0.07455800368916243,
+              0.07431699486915022,
+              0.07417700544465333,
+              0.0741769908927381,
+              0.0742570118745789,
+              0.07452700810972601,
+              0.07456800085492432,
+              0.07373599510174245,
+              0.07457700849045068,
+              0.07380598981399089,
+              0.074768002377823,
+              0.07487800030503422,
+              0.07348600775003433
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.341104507446289e-06,
+            "rms_error": 2.0757906160238497e-07,
+            "reference_max_abs": 6.411968231201172
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 157.115,
+                "us_per_iteration": 31.423000000000002
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 31.549999999999955,
+                "us_per_iteration": 6.309999999999991
+              },
+              {
+                "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 11.358000000000175,
+                "us_per_iteration": 2.271600000000035
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 40.004600000000025,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 0.6208249978953972,
+          "wall": {
+            "median_ms": 0.0728539889678359,
+            "min_ms": 0.07182300032582134,
+            "max_ms": 0.0820909917820245,
+            "samples_ms": [
+              0.07320499571505934,
+              0.07229299808386713,
+              0.07251399802044034,
+              0.0820909917820245,
+              0.07411700789816678,
+              0.07233300129882991,
+              0.07339600415434688,
+              0.07182300032582134,
+              0.07284400635398924,
+              0.07230300980154425,
+              0.07295400428120047,
+              0.0774930085754022,
+              0.07293399539776146,
+              0.0723429984645918,
+              0.0728539889678359
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.205371856689453e-06,
+            "rms_error": 3.7031011600930263e-07,
+            "reference_max_abs": 6.5827789306640625
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 132.25300000000016,
+                "us_per_iteration": 26.45060000000003
+              },
+              {
+                "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 11.039000000000215,
+                "us_per_iteration": 2.207800000000043
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 28.65840000000007,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 1.1063599959015846,
+          "wall": {
+            "median_ms": 0.1391969999531284,
+            "min_ms": 0.13742300507146865,
+            "max_ms": 0.14692101103719324,
+            "samples_ms": [
+              0.14692101103719324,
+              0.14040899986866862,
+              0.13897698954679072,
+              0.13898700126446784,
+              0.13742300507146865,
+              0.13867599773220718,
+              0.13960700016468763,
+              0.13982800010126084,
+              0.1391870027873665,
+              0.13910701090935618,
+              0.13903599756304175,
+              0.1397179876221344,
+              0.1394869905197993,
+              0.1391969999531284,
+              0.14126099995337427
+            ]
+          },
+          "parity": {
+            "max_abs_error": 0.004364013671875,
+            "rms_error": 0.000397065634191549,
+            "reference_max_abs": 384.82147216796875
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "volta_sgemm_64x64_nt",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 300.9200000000001,
+                "us_per_iteration": 60.18400000000001
+              },
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradDelta4x4<float, float>(cudnn::winograd_nonfused::WinogradDeltaParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 67.6139999999998,
+                "us_per_iteration": 13.522799999999961
+              },
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradWgradOutputParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 59.13200000000029,
+                "us_per_iteration": 11.826400000000058
+              },
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradData4x4<float, float>(cudnn::winograd_nonfused::WinogradDataParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 36.54399999999987,
+                "us_per_iteration": 7.308799999999974
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 92.842,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.09536498691886663,
+          "wall": {
+            "median_ms": 0.04905000969301909,
+            "min_ms": 0.04844900104217231,
+            "max_ms": 0.06125299842096865,
+            "samples_ms": [
+              0.04905000969301909,
+              0.04948099376633763,
+              0.04973199975211173,
+              0.04884999361820519,
+              0.04910099960397929,
+              0.04876000457443297,
+              0.04927099507767707,
+              0.04959100624546409,
+              0.04844900104217231,
+              0.06125299842096865,
+              0.04879999323748052,
+              0.04919100319966674,
+              0.04876998718827963,
+              0.04888999683316797,
+              0.048600006266497076
+            ]
+          },
+          "parity": {
+            "max_abs_error": 2.288818359375e-05,
+            "rms_error": 9.303099372212413e-06,
+            "reference_max_abs": 219.05426025390625
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 31.008000000000266,
+                "us_per_iteration": 6.201600000000053
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 6.201600000000053,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    },
+    {
+      "name": "conv3x3_small",
+      "shape": [
+        2,
+        64,
+        16,
+        19
+      ],
+      "cout": 64,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        64,
+        16,
+        19
+      ],
+      "input_sha256": "302e722799b849b32f469f229d53c4a4f3f739ef04bd3cf80666ced1d7f6960e",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 0.34681998658925295,
+          "wall": {
+            "median_ms": 0.06322599074337631,
+            "min_ms": 0.06253499304875731,
+            "max_ms": 0.07967700366862118,
+            "samples_ms": [
+              0.06469899381045252,
+              0.07967700366862118,
+              0.06559099711012095,
+              0.06342699634842575,
+              0.06271598977036774,
+              0.06344700523186475,
+              0.06360700353980064,
+              0.06265600677579641,
+              0.06284599658101797,
+              0.06303600093815476,
+              0.06322599074337631,
+              0.06303600093815476,
+              0.06337699596770108,
+              0.06314700294751674,
+              0.06253499304875731
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.3113021850585938e-06,
+            "rms_error": 2.5626105487261764e-07,
+            "reference_max_abs": 5.6343092918396
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 102.78399999999988,
+                "us_per_iteration": 20.556799999999974
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 11.967999999999734,
+                "us_per_iteration": 2.393599999999947
+              },
+              {
+                "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 11.039000000000101,
+                "us_per_iteration": 2.20780000000002
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 25.15819999999994,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dinput": {
+          "first_call_ms": 0.25490000552963465,
+          "wall": {
+            "median_ms": 0.06576099258381873,
+            "min_ms": 0.06450900400523096,
+            "max_ms": 0.06850699719507247,
+            "samples_ms": [
+              0.06726400170009583,
+              0.06584200309589505,
+              0.0655510084470734,
+              0.06479999865405262,
+              0.06850699719507247,
+              0.0649399880785495,
+              0.06574099825229496,
+              0.06652300362475216,
+              0.0660920049995184,
+              0.06450900400523096,
+              0.06550998659804463,
+              0.06547100201714784,
+              0.06729400774929672,
+              0.06704300176352262,
+              0.06576099258381873
+            ]
+          },
+          "parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.512025825943117e-07,
+            "reference_max_abs": 4.186473846435547
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 102.17399999999952,
+                "us_per_iteration": 20.434799999999903
+              },
+              {
+                "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 8.73599999999874,
+                "us_per_iteration": 1.7471999999997478
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 22.18199999999965,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dweight": {
+          "first_call_ms": 0.33218300086446106,
+          "wall": {
+            "median_ms": 0.08014800550881773,
+            "min_ms": 0.07927599654067308,
+            "max_ms": 0.09270099690183997,
+            "samples_ms": [
+              0.09270099690183997,
+              0.08222200267482549,
+              0.08014800550881773,
+              0.07959699723869562,
+              0.07973700121510774,
+              0.08037799852900207,
+              0.07927599654067308,
+              0.07932599692139775,
+              0.07931700383778661,
+              0.07930600258987397,
+              0.07999800436664373,
+              0.09170900739263743,
+              0.08069899922702461,
+              0.08033899939619005,
+              0.08406500273849815
+            ]
+          },
+          "parity": {
+            "max_abs_error": 0.00048828125,
+            "rms_error": 3.3839800868274386e-05,
+            "reference_max_abs": 119.09386444091797
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradWgradOutputParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 56.95999999999981,
+                "us_per_iteration": 11.391999999999962
+              },
+              {
+                "name": "volta_sgemm_64x64_nt",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 44.83200000000011,
+                "us_per_iteration": 8.966400000000021
+              },
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradData4x4<float, float>(cudnn::winograd_nonfused::WinogradDataParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 19.99900000000025,
+                "us_per_iteration": 3.99980000000005
+              },
+              {
+                "name": "void cudnn::winograd_nonfused::winogradWgradDelta4x4<float, float>(cudnn::winograd_nonfused::WinogradDeltaParams<float, float>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 16.223999999999933,
+                "us_per_iteration": 3.2447999999999864
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 27.60300000000002,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        },
+        "dbias": {
+          "first_call_ms": 0.1052839943440631,
+          "wall": {
+            "median_ms": 0.05001199315302074,
+            "min_ms": 0.0492710096295923,
+            "max_ms": 0.06211400614120066,
+            "samples_ms": [
+              0.05052299820818007,
+              0.05031299951951951,
+              0.04987198917660862,
+              0.06211400614120066,
+              0.05191499076317996,
+              0.050032002036459744,
+              0.049430993385612965,
+              0.05008200241718441,
+              0.04982200334779918,
+              0.05001199315302074,
+              0.04971199086867273,
+              0.05185599729884416,
+              0.049731010221876204,
+              0.049551003030501306,
+              0.0492710096295923
+            ]
+          },
+          "parity": {
+            "max_abs_error": 5.245208740234375e-06,
+            "rms_error": 2.1855487963317757e-06,
+            "reference_max_abs": 59.77552032470703
+          },
+          "cuda_kernel_profile": {
+            "iterations": 5,
+            "kernels": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+                "count": 5,
+                "calls_per_iteration": 1.0,
+                "total_us": 31.13599999999974,
+                "us_per_iteration": 6.227199999999948
+              }
+            ],
+            "memory_operations": [],
+            "summed_kernel_us_per_iteration": 6.227199999999948,
+            "summed_memory_us_per_iteration": 0,
+            "note": "Summed measured GPU kernel durations; excludes CPU/launch gaps; not end-to-end latency."
+          }
+        }
+      }
+    }
+  ]
+}

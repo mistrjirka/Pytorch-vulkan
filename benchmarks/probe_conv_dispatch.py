@@ -232,8 +232,18 @@ def main():
                         help="After normal timings, trace five warmed iterations with CUDA kernel names/times.")
     parser.add_argument("--cuda-benchmark", action="store_true",
                         help="Enable cuDNN candidate benchmarking; otherwise use heuristics.")
+    parser.add_argument("--shader-dir", type=Path,
+                        help="Vulkan-only override for the directory of compiled SPIR-V shaders.")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    shader_dir = None
+    if args.shader_dir:
+        if args.backend != "vulkan":
+            parser.error("--shader-dir requires --backend vulkan")
+        args.shader_dir = args.shader_dir.resolve()
+        if not args.shader_dir.is_dir() or not any(args.shader_dir.glob("*.spv")):
+            parser.error("--shader-dir must contain compiled .spv files")
     if args.profile_cuda_kernels and args.backend != "cuda":
         parser.error("--profile-cuda-kernels requires --backend cuda")
     if args.warmup < 0 or args.repeats < 1 or args.threads < 1:
@@ -249,6 +259,11 @@ def main():
     torch.backends.cudnn.deterministic = False
     if args.backend == "vulkan":
         import torch_vulkan
+        shader_dir = (args.shader_dir or
+                      Path(torch_vulkan.__file__).resolve().parents[1] / "csrc/shaders").resolve()
+        if args.shader_dir:
+            torch_vulkan._C._set_shader_dir(str(shader_dir))
+            os.environ["TORCH_VULKAN_SHADER_DIR"] = str(shader_dir)
         sync = torch_vulkan.synchronize
         timing_stats = torch_vulkan.gpu_timing_stats
         dispatch_stats = torch_vulkan.conv_dispatch_stats
@@ -260,14 +275,23 @@ def main():
         device_name = torch.cuda.get_device_name()
     revision = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
                               text=True, check=False).stdout.strip()
+    source_shader_dir = shader_dir or root / "csrc/shaders"
+    shader_hashes = ({path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                      for path in sorted(shader_dir.glob("*.spv"))}
+                     if shader_dir else {})
     report = dict(
         backend=args.backend, device=device_name, torch=torch.__version__,
         revision=revision,
         worktree_dirty=bool(subprocess.check_output(["git", "status", "--porcelain"], text=True).strip()),
+        shader_directory=str(shader_dir) if shader_dir else None,
+        shader_directory_override=bool(args.shader_dir),
+        shader_spv_sha256=shader_hashes,
+        convolution_source_directory=str(source_shader_dir),
         convolution_source_sha256=hashlib.sha256(b"".join(
-            path.name.encode()+path.read_bytes() for path in sorted([
-                Path("csrc/ops/convolution.cpp"), *Path("csrc/shaders").glob("conv2d*.glsl"),
-                *Path("csrc/shaders").glob("conv2d*.comp"), *Path("csrc/shaders").glob("conv2d*.spv")]))).hexdigest(),
+            path.name.encode()+path.read_bytes() for path in [
+                root / "csrc/ops/convolution.cpp", *sorted(
+                    path for path in source_shader_dir.glob("conv2d*")
+                    if path.suffix in (".glsl", ".comp", ".spv"))])).hexdigest(),
         dtype="float32", reference="CPU float64 accumulation -> float32",
         seed=args.seed, warmup=args.warmup, repeats=args.repeats, threads=args.threads,
         atol=args.atol, rtol=args.rtol, cuda_tf32=False,

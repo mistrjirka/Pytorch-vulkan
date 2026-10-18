@@ -10,15 +10,26 @@ layout(push_constant) uniform Params {
 } p;
 shared float a[TM*TK];
 shared float b[TK*TN];
+void store_result(uint c,uint spatial,uint group,float value) {
+  uint ci=p.cin/p.groups;
+  if(c<ci && spatial<p.n*p.h*p.w) {
+    uint batch=spatial/(p.h*p.w),pos=spatial%(p.h*p.w);
+    dx[(batch*p.cin+group*ci+c)*p.h*p.w+pos]=value;
+  }
+}
 void main() {
-  uint lx=gl_LocalInvocationID.x, ly=gl_LocalInvocationID.y, tid=ly*TN+lx;
+  uint lx=gl_LocalInvocationID.x, ly=gl_LocalInvocationID.y, tid=ly*WG_N+lx;
   uint ci=p.cin/p.groups, co=p.cout/p.groups;
   uint tiles=(ci+TM-1)/TM, group=gl_WorkGroupID.y/tiles;
   uint m0=(gl_WorkGroupID.y%tiles)*TM, n0=gl_WorkGroupID.x*TN;
   uint total=co*p.kh*p.kw, size_n=p.n*p.h*p.w;
+#if CONV_RM == 2
+  vec4 acc=vec4(0.0);
+#else
   float acc=0.0;
+#endif
   for(uint k0=0;k0<total;k0+=TK) {
-    for(uint i=tid;i<TM*TK;i+=TM*TN) {
+    for(uint i=tid;i<TM*TK;i+=THREADS) {
       uint c=m0+i/TK, k=k0+i%TK;
       float v=0.0;
       if(c<ci && k<total) {
@@ -27,7 +38,7 @@ void main() {
       }
       a[i]=v;
     }
-    for(uint i=tid;i<TK*TN;i+=TM*TN) {
+    for(uint i=tid;i<TK*TN;i+=THREADS) {
       uint k=k0+i/TN, spatial=n0+i%TN;
       float v=0.0;
       if(spatial<size_n && k<total) {
@@ -44,12 +55,8 @@ void main() {
       b[i]=v;
     }
     barrier();
-    for(uint k=0;k<TK;++k) acc+=a[ly*TK+k]*b[k*TN+lx];
+    #include "conv2d_tile_accumulate.glsl"
     barrier();
   }
-  uint spatial=n0+lx, c=m0+ly;
-  if(c<ci && spatial<size_n) {
-    uint batch=spatial/(p.h*p.w), pos=spatial%(p.h*p.w);
-    dx[(batch*p.cin+group*ci+c)*p.h*p.w+pos]=acc;
-  }
+  #include "conv2d_tile_store.glsl"
 }

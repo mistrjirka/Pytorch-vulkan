@@ -159,8 +159,12 @@ static ConvParams convolution_params(const at::Tensor& input,
 // Shapes stay runtime constants; only the finite tile menu changes GPU code.
 enum class ConvPhase { Forward, Input, Weight, Bias };
 enum class ConvKind { Direct, Depthwise, Tiled, Reduce };
-struct ConvTile { const char* name; uint32_t m, n, k; };
-static constexpr ConvTile kTiles[]={{"base",8,16,16},{"wide",8,32,16},{"tall",16,16,16}};
+struct ConvTile { const char* name; uint32_t m, n, k, rm=1, rn=1; };
+// Output tiles and workgroup sizes are distinct: register blocking computes
+// multiple outputs per invocation without requiring larger workgroups.
+static constexpr ConvTile kTiles[]={{"base",8,16,16},{"wide",8,32,16},
+    {"tall",16,16,16},{"register",32,32,16,2,2}};
+static constexpr int kTileCount=sizeof(kTiles)/sizeof(kTiles[0]);
 struct ConvCandidate {
   ConvKind kind=ConvKind::Direct;
   int tile=0;
@@ -226,8 +230,9 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
   if(c.kind==ConvKind::Tiled && phase==ConvPhase::Bias) return false;
   if(c.kind==ConvKind::Tiled) {
     const auto t=kTiles[c.tile];
-    if(limits.maxComputeWorkGroupInvocations<t.m*t.n || limits.maxComputeWorkGroupSize[0]<t.n ||
-       limits.maxComputeWorkGroupSize[1]<t.m || limits.maxComputeSharedMemorySize<(t.m+t.n)*t.k*4) return false;
+    const auto local_x=t.n/t.rn,local_y=t.m/t.rm;
+    if(limits.maxComputeWorkGroupInvocations<local_x*local_y || limits.maxComputeWorkGroupSize[0]<local_x ||
+       limits.maxComputeWorkGroupSize[1]<local_y || limits.maxComputeSharedMemorySize<(t.m+t.n)*t.k*4) return false;
   } else if(limits.maxComputeWorkGroupInvocations<128 || limits.maxComputeWorkGroupSize[0]<128 ||
             (c.kind==ConvKind::Reduce && limits.maxComputeSharedMemorySize<512)) return false;
   const auto bytes=workspace_bytes(p,phase,c);
@@ -243,10 +248,14 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
 }
 static std::vector<ConvCandidate> candidates(const ConvParams& p,ConvPhase phase,uint64_t budget) {
   std::vector<ConvCandidate> result;
-  const std::array<ConvCandidate,6> registry={ConvCandidate{ConvKind::Direct,0},
-      {ConvKind::Depthwise,0},{ConvKind::Reduce,0},{ConvKind::Tiled,0},
-      {ConvKind::Tiled,1},{ConvKind::Tiled,2}};
-  for(const auto c:registry) if(applicable(p,phase,c,budget)) result.push_back(c);
+  for(const auto kind:{ConvKind::Direct,ConvKind::Depthwise,ConvKind::Reduce}) {
+    const ConvCandidate c{kind,0};
+    if(applicable(p,phase,c,budget)) result.push_back(c);
+  }
+  for(int tile=0;tile<kTileCount;++tile) {
+    const ConvCandidate c{ConvKind::Tiled,tile};
+    if(applicable(p,phase,c,budget)) result.push_back(c);
+  }
   TORCH_CHECK(!result.empty(),"Vulkan convolution has no compatible ",phase_name(phase),
       " implementation for this device/geometry/workspace budget");
   return result;
@@ -262,8 +271,8 @@ static ConvControls controls(ConvPhase phase) {
       name," has an invalid algorithm (forward: auto/direct/tiled/depthwise; backward: auto/direct/optimized)");
   const char* tile=std::getenv("TORCH_VULKAN_CONV_TILE");
   if(tile && *tile && std::strcmp(tile,"auto")) {
-    for(int i=0;i<3;++i) if(!std::strcmp(tile,kTiles[i].name)) c.tile=i;
-    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall");
+    for(int i=0;i<kTileCount;++i) if(!std::strcmp(tile,kTiles[i].name)) c.tile=i;
+    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall/register");
   }
   const char* tune=std::getenv("TORCH_VULKAN_CONV_AUTOTUNE");
   TORCH_CHECK(!tune || !*tune || !std::strcmp(tune,"0") || !std::strcmp(tune,"1"),
@@ -428,6 +437,8 @@ static void dispatch(const ConvParams& p,ConvPhase phase,const std::vector<Tenso
       {
         std::lock_guard<std::mutex> lock(plan_mutex);
         ++plan_stats["tunes"]; plan_stats["candidates_timed"]+=shortlist.size();
+        for(const auto c:shortlist)
+          ++plan_stats[std::string("candidates_timed_")+phase_name(phase)+"_"+candidate_name(c)];
         if(!plan_cache.count(key)) {
           if(plan_cache.size()>=kMaxConvPlans) {
             plan_cache.erase(plan_fifo.front()); plan_fifo.pop_front(); ++plan_stats["evictions"];

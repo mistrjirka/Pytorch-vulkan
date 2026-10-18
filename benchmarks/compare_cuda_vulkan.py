@@ -13,6 +13,7 @@ network layers, needed to run the currently unoptimized Vulkan backend.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -87,13 +88,27 @@ def main():
     ap.add_argument("--mode", choices=("inference", "training", "both"), default="both")
     ap.add_argument("--optimizer", choices=("standard", "vulkan_fused"), default="standard")
     ap.add_argument("--zoo", type=Path, required=True)
+    ap.add_argument("--shader-dir", type=Path,
+                    help="Vulkan-only override for the directory of compiled SPIR-V shaders.")
     ap.add_argument("--output", type=Path)
     args = ap.parse_args()
+    shader_dir = None
+    if args.shader_dir:
+        if args.backend != "vulkan":
+            ap.error("--shader-dir requires --backend vulkan")
+        args.shader_dir = args.shader_dir.resolve()
+        if not args.shader_dir.is_dir() or not any(args.shader_dir.glob("*.spv")):
+            ap.error("--shader-dir must contain compiled .spv files")
     assert args.warmup >= 0 and args.repeats >= 1
     torch.set_num_threads(args.threads)
     torch.set_num_interop_threads(1)
     if args.backend == "vulkan":
         import torch_vulkan
+        shader_dir = (args.shader_dir or
+                      Path(torch_vulkan.__file__).resolve().parents[1] / "csrc/shaders").resolve()
+        if args.shader_dir:
+            torch_vulkan._C._set_shader_dir(str(shader_dir))
+            os.environ["TORCH_VULKAN_SHADER_DIR"] = str(shader_dir)
         device_name = torch_vulkan.device_name()
         assert torch_vulkan.is_hardware_accelerated(), "Software Vulkan is not GPU benchmark"
     elif args.backend == "cuda":
@@ -128,6 +143,11 @@ def main():
         "input_shape": list(shape),
         "parameters": sum(p.numel() for p in model.parameters()),
         "dtype": "float32",
+        "shader_directory": str(shader_dir) if shader_dir else None,
+        "shader_directory_override": bool(args.shader_dir),
+        "shader_spv_sha256": ({path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                                for path in sorted(shader_dir.glob("*.spv"))}
+                               if shader_dir else {}),
         "optimizer": args.optimizer,
         "warmup": args.warmup,
         "repeats": args.repeats,
@@ -149,6 +169,7 @@ def main():
 
     modes = ("inference", "training") if args.mode == "both" else (args.mode,)
     for mode in modes:
+        dispatch_before = torch_vulkan.conv_dispatch_stats() if args.backend == "vulkan" else {}
         try:
             # Reset model from an identical random initialization for both
             # inference and training. This also resets BN running statistics.
@@ -200,6 +221,12 @@ def main():
                 "first_loss": first_loss,
                 "first_output": first_output,
             }
+            if args.backend == "vulkan":
+                info["modes"][mode]["conv_dispatch"] = {
+                    key: value - dispatch_before.get(key, 0)
+                    for key, value in torch_vulkan.conv_dispatch_stats().items()
+                    if value != dispatch_before.get(key, 0)
+                }
             print(f"{model_name:13s} {mode:9s} {args.backend:6s} "
                   f"median={info['modes'][mode]['median_ms']:9.3f} ms  "
                   f"range=[{min(samples):.3f},{max(samples):.3f}]",

@@ -64,7 +64,7 @@ def _check_case(xshape, cout, kernel, stride, padding, dilation, groups, *, bias
         torch.testing.assert_close(result.cpu().double(), expected, rtol=5e-4, atol=5e-5)
 
 
-@pytest.mark.parametrize("tile", ["base", "wide", "tall"])
+@pytest.mark.parametrize("tile", ["base", "wide", "tall", "register"])
 @pytest.mark.parametrize("xshape,cout,kernel,stride,padding,dilation,groups", CASES)
 def test_forced_tiles_forward_and_all_gradients(
     xshape, cout, kernel, stride, padding, dilation, groups, tile, monkeypatch
@@ -80,7 +80,7 @@ def test_forced_tiles_forward_and_all_gradients(
         assert after.get(key, 0) > before.get(key, 0), (phase, tile, before, after)
 
 
-@pytest.mark.parametrize("tile", ["base", "wide", "tall"])
+@pytest.mark.parametrize("tile", ["base", "wide", "tall", "register"])
 def test_forced_tiles_without_bias_and_with_strided_gradients(tile, monkeypatch):
     monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
     monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
@@ -124,6 +124,8 @@ first = torch_vulkan.conv_dispatch_stats()
 assert first["tunes"] >= 3, first
 assert first["entries"] >= 3, first
 assert first["candidates_timed"] >= 3, first
+for phase in ("forward", "dinput", "dweight"):
+    assert first.get(f"candidates_timed_{phase}_tiled_register", 0) > 0, first
 # Identical descriptor, newly allocated tensors: reuse selection, not buffers.
 _check_case(*args)
 second = torch_vulkan.conv_dispatch_stats()
@@ -152,7 +154,7 @@ print("CONV_REPORT=" + json.dumps({"first": first, "second": second, "third": th
     assert report["third"]["entries"] <= 256, report
 
 
-@pytest.mark.parametrize("tile", ["base", "wide", "tall"])
+@pytest.mark.parametrize("tile", ["base", "wide", "tall", "register"])
 def test_adjacent_filter_sizes_reuse_compiled_tile_pipelines(tile, monkeypatch):
     monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
     monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
@@ -165,7 +167,11 @@ def test_adjacent_filter_sizes_reuse_compiled_tile_pipelines(tile, monkeypatch):
         pytest.skip("External Kompute build has no pipeline-cache counters")
     # Changing filter geometry changes runtime arguments, not these binaries.
     assert after["pipeline_misses"] == before["pipeline_misses"], (before, after)
-    assert after["pipeline_hits"] > before["pipeline_hits"], (before, after)
+    # Recycled buffers can reuse a bound algorithm directly, bypassing the
+    # lower-level compiled-pipeline lookup. Either cache hit proves reuse;
+    # neither path may create a new pipeline for the changed filter size.
+    assert (after["pipeline_hits"] > before["pipeline_hits"] or
+            after["algo_hits"] > before["algo_hits"]), (before, after)
 
 
 @pytest.mark.parametrize("mask", [(True, False, False), (False, True, False), (False, False, True)])
@@ -191,6 +197,9 @@ def test_autotune_only_requested_gradient(mask, monkeypatch):
     for enabled, phase in zip(mask, ("dinput", "dweight", "dbias")):
         count = sum(value for key, value in stats.items() if key.startswith(f"selected_{phase}_"))
         assert (count > 0) if enabled else (count == 0), (mask, phase, stats)
+        if phase != "dbias":
+            timed = stats.get(f"candidates_timed_{phase}_tiled_register", 0)
+            assert (timed > 0) if enabled else (timed == 0), (mask, phase, stats)
 
 
 def test_forced_direct_bypasses_autotuning_and_cached_plans(monkeypatch):
@@ -227,9 +236,11 @@ def test_zero_workspace_uses_eligible_plan_and_separate_cache_key(monkeypatch):
     second = torch_vulkan.conv_dispatch_stats()
     assert second["tunes"] > first["tunes"], (first, second)
     assert second["entries"] > first["entries"], (first, second)
-    for tile in ("base", "wide", "tall"):
+    for tile in ("base", "wide", "tall", "register"):
         key = f"selected_dweight_tiled_{tile}"
         assert second.get(key, 0) == first.get(key, 0), (key, first, second)
+        timed_key = f"candidates_timed_dweight_tiled_{tile}"
+        assert second.get(timed_key, 0) == first.get(timed_key, 0), (timed_key, first, second)
     _check_case(*args)
     third = torch_vulkan.conv_dispatch_stats()
     assert third["tunes"] == second["tunes"], (second, third)
@@ -277,3 +288,27 @@ def test_spatial_coordinate_overflow_rejected_before_dispatch(monkeypatch):
     w = torch.ones(1, 1, 1, 1).to("vulkan")
     with pytest.raises(RuntimeError, match="int32 coordinates"):
         F.conv2d(x, w, stride=2147483647, padding=2147483647)
+
+
+@pytest.mark.parametrize("xshape,cout,kernel,stride,padding,dilation,groups", [
+    pytest.param((2, 32, 7, 11), 32, (3, 5), (1, 2), (1, 2), (1, 1), 1,
+                 id="exact-channel32-rectangular"),
+    pytest.param((2, 62, 9, 13), 66, (3, 5), (1, 2), (2, 2), (2, 1), 2,
+                 id="group-channel31-to33-dilated"),
+    pytest.param((2, 126, 7, 11), 130, (5, 1), (2, 1), (2, 0), (1, 2), 2,
+                 id="group-channel63-to65-strided"),
+    pytest.param((2, 130, 11, 9), 126, (1, 3), (2, 1), (0, 2), (2, 2), 2,
+                 id="group-channel65-to63-dilated"),
+])
+def test_register_tile_batch_group_and_channel_boundaries(
+    xshape, cout, kernel, stride, padding, dilation, groups, monkeypatch
+):
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "register")
+    before = torch_vulkan.conv_dispatch_stats()
+    _check_case(xshape, cout, kernel, stride, padding, dilation, groups)
+    after = torch_vulkan.conv_dispatch_stats()
+    for phase in ("forward", "dinput", "dweight"):
+        key = f"selected_{phase}_tiled_register"
+        assert after.get(key, 0) > before.get(key, 0), (phase, before, after)

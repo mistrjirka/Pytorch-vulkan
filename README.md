@@ -104,11 +104,13 @@ The simple SGD example at `examples/linear_train.py` reduces MSE from
 ### General convolution selection
 
 Convolution now selects from explicit capability/workspace-checked candidates
-for forward and each gradient. Three shared tile configurations preserve exact
+for forward and each gradient. Four shared tile configurations preserve exact
 runtime filter dimensions, including 10x10 and 11x11. Optional
 `TORCH_VULKAN_CONV_AUTOTUNE=1` measures and caches choices by operator geometry
 and device; it is disabled by default because small workloads can regress.
 See [candidate dispatch, validation and matched CUDA measurements](docs/convolution-candidate-dispatch.md).
+The [register-tile report](docs/convolution-register-tiles.md) compares the new
+four-output-per-thread candidate with CUDA and records where it helps or regresses.
 
 ### Performance investigation and experimental optimizations
 

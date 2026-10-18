@@ -1,0 +1,46 @@
+{
+  "rtx": {
+    "exit_code": 0,
+    "summary": "476 passed, 3 warnings in 12.88s",
+    "tail": "lements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_fused_addmm.py::test_linear_with_bias_training_step\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [16, 64]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_training_step.py::test_mse_sgd_decreases_loss\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [3, 1]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n476 passed, 3 warnings in 12.88s\n"
+  },
+  "v100": {
+    "exit_code": 0,
+    "summary": "476 passed, 3 warnings in 12.28s",
+    "tail": "lements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_fused_addmm.py::test_linear_with_bias_training_step\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [16, 64]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_training_step.py::test_mse_sgd_decreases_loss\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [3, 1]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n476 passed, 3 warnings in 12.28s\n"
+  },
+  "lvp": {
+    "exit_code": 0,
+    "summary": "475 passed, 1 skipped, 3 warnings in 13.86s",
+    "tail": "u can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_fused_addmm.py::test_linear_with_bias_training_step\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [16, 64]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_training_step.py::test_mse_sgd_decreases_loss\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [3, 1]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n475 passed, 1 skipped, 3 warnings in 13.86s\n"
+  },
+  "deferred": {
+    "exit_code": 0,
+    "summary": "476 passed, 3 warnings in 12.81s",
+    "tail": "lements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_fused_addmm.py::test_linear_with_bias_training_step\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [16, 64]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\ntests/test_training_step.py::test_mse_sgd_decreases_loss\n  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [3, 1]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)\n    return torch._C._nn.mse_loss(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n476 passed, 3 warnings in 12.81s\n"
+  },
+  "conv_source_sha256": "d7d052e4e3d83f77b99b0e60fd058f5a34fbe15a01c7f8d236d627b4654425cb",
+  "shaders": {
+    "conv2d_backward_bias.spv": "31b5b48be86f1353d13ee8f304543366886e37663f3f5eeecbb80e1a977773df",
+    "conv2d_backward_input.spv": "135d955dee8a0afb91700609b9c8d17f41b88e965f16e60e719cfe67ded7311c",
+    "conv2d_backward_weight.spv": "9b8bcf51f4d8457d36ab01f2ae68b676a637269831983894924a60e8c9b9b4e1",
+    "conv2d_forward.spv": "5a6da6cb32b0bb499f3d1b85cccc885a76f2770f38d28e54f63a682131e43039",
+    "conv2d_tiled.spv": "625cda8c029c3cce0889a1e7b145c3e1ca9e47b060556d7961dfec8a5a598dec",
+    "conv2d_depthwise.spv": "df8d90284962b72d285b3aeeec1ca8fd5d5afd59c33ba086c772653bbe921ba9",
+    "conv2d_backward_bias_reduce.spv": "53256be9a55af537b0aa74851acd9d65e68b4d82f14551e107ff02e6977c5779",
+    "conv2d_backward_input_tiled.spv": "7f760a4aff634462363a01672b7f1a8216cc881c9cfe4ef45f7c9d2d35fcc999",
+    "conv2d_backward_weight_reduce.spv": "6cd9779b920b15e52a7deb08440ac0328f1f8f7b0ec416198ac71765b700cff9",
+    "conv2d_backward_weight_tiled.spv": "d8a34960f130196f50f87c3e46248f3ba3dd2966d2b20e7409b19a008e4f5910",
+    "conv2d_backward_weight_finalize.spv": "c10056fcc34f66feea65028a548e3b39647b2f3b8334ed5438c98c15caad5123",
+    "conv2d_pack.spv": "e8643530e5ff80413f5986391c32cf32879dd1209136f4ac13b067ccfac32d50",
+    "conv2d_tiled_wide.spv": "4a47215a9dafe0b7df393f0e721a0ca90683a05c81d1d361cd82dac07c5ed780",
+    "conv2d_tiled_tall.spv": "22c9a6fd9bac0e0265afe7572cb8c6b3c72b64f546bbd902bb0bc7781f5e220d",
+    "conv2d_backward_input_tiled_wide.spv": "ed7ab84eab955afcd106ce4407190296c358ebc74a1806a6dc7c6209f5b15adf",
+    "conv2d_backward_input_tiled_tall.spv": "fcc6c2bcf97ce4157a314c3f27fe694848fe85e3c357485782e3c162c8bc0b91",
+    "conv2d_backward_weight_tiled_wide.spv": "566efed6a35dabc64afa6bbf3f1f60188a55ac64b1de50c4180c414b3bb6ea15",
+    "conv2d_backward_weight_tiled_tall.spv": "a970519dc0b90a63defe7e6c7f69b07465957573f0f089eca087298e0d28f18e",
+    "conv2d_tiled_register.spv": "6324142d4bf72d470b4f95fdffb0399a0a7be4c6ced307b358c0eb9c0d6d56fa",
+    "conv2d_backward_input_tiled_register.spv": "32915cfdf0ebaa587f487f749e3806bf92ef103508f198a9f47cf09f7910984f",
+    "conv2d_backward_weight_tiled_register.spv": "8a49bfbe0e63a7c04a3692a56b0d8ab48b88cbe26a898ad1b38af52c9413698e"
+  }
+}

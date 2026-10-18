@@ -22,10 +22,13 @@ The finite tile menu is shared by forward, input-gradient and weight-gradient sh
 | `base` | 8 × 16 × 16 | 16 × 8 × 1 | 128 | 1,536 bytes |
 | `wide` | 8 × 32 × 16 | 32 × 8 × 1 | 256 | 2,560 bytes |
 | `tall` | 16 × 16 × 16 | 16 × 16 × 1 | 256 | 2,048 bytes |
+| `register` | 32 × 32 × 16 | 16 × 16 × 1 | 256 | 4,096 bytes |
 
 For input gradients, the channel axis is input channels per group. For weight gradients, the position axis is input channels per group × filter height × filter width. Weight gradients split batch/spatial reduction into 256-element chunks; a separate deterministic reduction combines partials when more than one chunk is needed. There are no floating-point atomics in these convolution implementations.
 
-Each phase has one shared GLSL body and three small wrappers selecting tile dimensions. `scripts/compile_conv_tiles.py` rebuilds and validates those nine SPIR-V files plus the five direct/depthwise shaders. Direct/depthwise shaders now use 128-thread groups and flatten a two-dimensional dispatch, instead of requiring 256-thread groups and a single dispatch axis.
+Each phase has one shared GLSL body and four small wrappers selecting tile dimensions and register blocks. The register tile computes four outputs per invocation; its output tile is larger without increasing workgroup size. Shared accumulation/store helpers preserve masked tails for every phase. `scripts/compile_conv_tiles.py` rebuilds and validates those twelve SPIR-V files plus the five direct/depthwise shaders. Direct/depthwise shaders now use 128-thread groups and flatten a two-dimensional dispatch, instead of requiring 256-thread groups and a single dispatch axis.
+
+The default heuristic still uses the base tile. The register tile is available through explicit selection or optional tuning; it does not win every geometry. See [register-tile measurements](convolution-register-tiles.md) for the follow-up comparison.
 
 ## A 10×10 filter and an 11×11 filter
 
@@ -57,7 +60,7 @@ The process-local cache contains at most 256 choices, with FIFO eviction. Keys i
 |---|---|
 | `TORCH_VULKAN_CONV_ALGO` | `auto` (default), `direct`, `depthwise`, `tiled`; forward selection |
 | `TORCH_VULKAN_CONV_BACKWARD_ALGO` | `auto` (default), `direct`, `optimized`; backward selection |
-| `TORCH_VULKAN_CONV_TILE` | `auto` (default), `base`, `wide`, `tall`; tile preference when a tiled candidate is selected |
+| `TORCH_VULKAN_CONV_TILE` | `auto` (default), `base`, `wide`, `tall`, `register`; tile preference when a tiled candidate is selected |
 | `TORCH_VULKAN_CONV_AUTOTUNE` | `0` (default) or `1`; tuning applies only with automatic algorithm and tile selection |
 | `TORCH_VULKAN_CONV_WORKSPACE_MB` | Integer 0–4096, default 64; scratch budget in units of 1,048,576 bytes |
 
@@ -72,7 +75,7 @@ print(torch_vulkan.conv_dispatch_stats())
 torch_vulkan.clear_conv_dispatch_cache()
 ```
 
-Counters include `entries`, `hits`, `misses`, `tunes`, `evictions`, `candidates_timed`, and `selected_<phase>_<candidate>`, such as `selected_dinput_tiled_wide`. Hits/misses concern the optional choice cache; selected counters also work with heuristic/forced selection. Clearing resets both choices and these counters, not the compiled-pipeline cache. The reported selection count does not count each internal tuning trial as an application dispatch.
+Counters include `entries`, `hits`, `misses`, `tunes`, `evictions`, `candidates_timed`, `candidates_timed_<phase>_<candidate>`, and `selected_<phase>_<candidate>`, such as `selected_dinput_tiled_wide`. Hits/misses concern the optional choice cache; selected counters also work with heuristic/forced selection. Clearing resets both choices and these counters, not the compiled-pipeline cache. The reported selection count does not count each internal tuning trial as an application dispatch. Candidate timing counters increment once per candidate considered in a tuning event, rather than once per timing sample.
 
 ## Supported semantics and remaining limits
 
@@ -102,7 +105,9 @@ Primary references:
 
 llama.cpp is an inference-oriented reference. Its scheduler assumptions must not be copied over PyTorch saved tensors, mutation/version tracking or autograd lifetimes.
 
-## Measured results
+## Original dispatch measurements
+
+The tables and validation counts below describe the original three-tile dispatch change. For the subsequent four-output register tile, 476-test validation and new matched CUDA measurements, see [the register-tile report](convolution-register-tiles.md).
 
 RTX 2080 Ti, FP32, TF32 disabled. Eight warmups; 15 samples per run. Vulkan base/tuned/tuned/base order with CUDA between the two tuned runs; Vulkan medians pool 30 samples, CUDA uses 15. Residency and deferred submission enabled. Base means the current code with tuning disabled and the original tile preference, not an older checkout. First-use compilation/tuning is excluded.
 
