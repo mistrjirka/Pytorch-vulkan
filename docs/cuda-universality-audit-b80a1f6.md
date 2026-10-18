@@ -13,7 +13,8 @@ This is an investigation. The backend implementation was not changed. The
 correctness defects below remain present at the audited revision. Subsequent
 [FP32 correctness work](fp32-single-gpu-roadmap.md) fixes the mixed-dtype matrix
 multiply, embedding-index, allocation-layout and invalid-device defects; the
-device RNG defect and broader coverage gaps remain.
+later [FP32 completion work](fp32-coverage-completion.md) addresses the audited
+FP32 operator and runtime gaps. The table below remains a historical record.
 
 ## Evidence and scope
 

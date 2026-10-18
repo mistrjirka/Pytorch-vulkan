@@ -1,3 +1,4 @@
+#include "execution_audit.h"
 #include "vulkan_context.h"
 #include <fstream>
 #include <cstdlib>
@@ -49,7 +50,9 @@ bool VulkanContext::gpu_resident_enabled() const {
 }
 
 void VulkanContext::ensure_host_read(void* raw_storage_ptr) {
-  if (!gpu_resident_enabled() || !raw_storage_ptr) return;
+  if (!raw_storage_ptr) return;
+  audit::host_read(VulkanAllocator::instance().get_kompute_tensor(raw_storage_ptr)->size()*sizeof(float));
+  if (!gpu_resident_enabled()) return;
   // This is a CPU-read boundary; any deferred shader must finish first.
   synchronize();
   auto tensor=VulkanAllocator::instance().get_kompute_tensor(raw_storage_ptr);
@@ -76,7 +79,8 @@ void VulkanContext::run_compute(
          shader=="addmm" || shader=="addmm_register" ||
          shader.rfind("conv2d_",0)==0 || shader.rfind("batch_norm_",0)==0 || shader.rfind("max_pool2d_",0)==0);
     auto seq = timed ? timed_sequence() : mgr_->sequence();
-    seq->record<kp::OpTensorSyncDevice>(inputs);
+    if(!inputs.empty())seq->record<kp::OpTensorSyncDevice>(inputs);
+    else if(timed)seq->record<kp::OpMemoryBarrier>(inputs,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
     seq->record<kp::OpAlgoDispatch>(algo);
     seq->record<kp::OpTensorSyncLocal>(outputs);
     if (timed) eval_timed_sequence(seq,shader);
@@ -94,15 +98,27 @@ void VulkanContext::run_compute(
     if (alloc.needs_upload(t)) upload.push_back(t);
     else if (alloc.gpu_dirty(t)) gpu_deps.push_back(t);
   }
-  auto seq=mgr_->sequence();
+  const bool timed=gpu_timing_enabled();
+  auto seq=timed?mgr_->sequence(0,3):mgr_->sequence();
+  // In profiling mode retain fixed slots: upload, dependency barrier, dispatch.
   if (!upload.empty()) seq->record<kp::OpTensorSyncDevice>(upload);
-  if (!gpu_deps.empty()) seq->record<kp::OpMemoryBarrier>(
+  else if(timed)seq->record<kp::OpMemoryBarrier>(upload,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
+  if (timed || !gpu_deps.empty()) seq->record<kp::OpMemoryBarrier>(
     gpu_deps,
     vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead,
     vk::PipelineStageFlagBits::eComputeShader,
     vk::PipelineStageFlagBits::eComputeShader);
   seq->record<kp::OpAlgoDispatch>(algo);
+  auto start=std::chrono::steady_clock::now();
   seq->eval();
+  if(timed){
+    auto ts=seq->getTimestamps();
+    TORCH_CHECK(ts.size()==4,"resident profiler expects three record operations");
+    const double scale=mgr_->getDeviceProperties().limits.timestampPeriod/1e6;
+    const double wall=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
+    std::lock_guard<std::mutex> lock(mutex_);auto& v=gpu_timing_[shader];++v.samples;v.host_eval_ms+=wall;
+    if(ts[1]>=ts[0]&&ts[3]>=ts[2]){v.upload_ms+=(ts[1]-ts[0])*scale;v.shader_ms+=(ts[3]-ts[2])*scale;}
+  }
   for (auto& t:upload) alloc.mark_clean(t);
   for (auto& t:outputs) alloc.mark_gpu_dirty(t);
 }
@@ -340,27 +356,57 @@ void VulkanContext::enqueue_compute(
   ++queue_stats_.recorded_ops;
 }
 
-void VulkanContext::synchronize() {
-  if (!deferred_enabled()) return;
-  std::lock_guard<std::mutex> lock(deferred_mutex_);
+void VulkanContext::submit_deferred_locked() {
   if (!deferred_) return;
-  // Mapped eHost needs compute->host visibility; eDevice stays in VRAM and
-  // a subsequent explicit readback will provide the transfer barrier.
-  if (!gpu_resident_enabled()) {
-    deferred_->record<kp::OpMemoryBarrier>(
-        pending_outputs_, vk::AccessFlagBits::eShaderWrite,
-        vk::AccessFlagBits::eHostRead,
-        vk::PipelineStageFlagBits::eComputeShader,
-        vk::PipelineStageFlagBits::eHost);
-  }
+  deferred_->record<kp::OpMemoryBarrier>(
+      pending_outputs_, vk::AccessFlagBits::eShaderWrite,
+      vk::AccessFlagBits::eMemoryRead,
+      vk::PipelineStageFlagBits::eComputeShader,
+      vk::PipelineStageFlagBits::eAllCommands);
   const auto count = pending_outputs_.size();
-  deferred_->eval();
-  deferred_.reset();
+  deferred_->evalAsync();
+  in_flight_.push_back(std::move(deferred_));
   pending_outputs_.clear();
-  VulkanAllocator::instance().defer_reuse(false);
   ++queue_stats_.submissions;
-  queue_stats_.largest_batch = std::max(queue_stats_.largest_batch,
-                                         static_cast<uint64_t>(count));
+  queue_stats_.largest_batch=std::max(queue_stats_.largest_batch,uint64_t(count));
+}
+void VulkanContext::reap_completed_locked() {
+  for(auto it=in_flight_.begin();it!=in_flight_.end();) {
+    if((*it)->isRunning())(*it)->evalAwait(0);
+    if(!(*it)->isRunning())it=in_flight_.erase(it);else ++it;
+  }
+  if(in_flight_.empty()&&!deferred_)VulkanAllocator::instance().defer_reuse(false);
+}
+void VulkanContext::synchronize() {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  submit_deferred_locked();
+  for(auto& sequence:in_flight_)if(sequence->isRunning())sequence->evalAwait();
+  in_flight_.clear();
+  VulkanAllocator::instance().defer_reuse(false);
+}
+std::shared_ptr<kp::Sequence> VulkanContext::record_event(bool timing) {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  submit_deferred_locked();
+  auto sequence=mgr_->sequence(0,timing?1:0);
+  sequence->begin();
+  sequence->end();
+  sequence->evalAsync();
+  in_flight_.push_back(sequence);
+  reap_completed_locked();
+  return sequence;
+}
+bool VulkanContext::query_queue() {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  reap_completed_locked();return !deferred_&&in_flight_.empty();
+}
+bool VulkanContext::query_event(const std::shared_ptr<kp::Sequence>& sequence) {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  if(sequence->isRunning())sequence->evalAwait(0);
+  bool done=!sequence->isRunning();reap_completed_locked();return done;
+}
+void VulkanContext::await_event(const std::shared_ptr<kp::Sequence>& sequence) {
+  std::lock_guard<std::mutex> lock(deferred_mutex_);
+  if(sequence->isRunning())sequence->evalAwait();reap_completed_locked();
 }
 
 VulkanContext::QueueStats VulkanContext::queue_stats() const {

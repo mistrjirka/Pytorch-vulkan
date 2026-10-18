@@ -1,0 +1,53 @@
+{
+  "rtx-full": {
+    "exit_code": 0,
+    "environment": {}
+  },
+  "rtx-strict": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_FORBID_CPU_FALLBACK": "1"
+    }
+  },
+  "v100-full": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "1"
+    }
+  },
+  "v100-strict": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_FORBID_CPU_FALLBACK": "1",
+      "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "1"
+    }
+  },
+  "lavapipe-full": {
+    "exit_code": 0,
+    "environment": {
+      "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json"
+    }
+  },
+  "lavapipe-strict": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_FORBID_CPU_FALLBACK": "1",
+      "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json"
+    }
+  },
+  "rtx-eager-full": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_GPU_RESIDENT": "0",
+      "TORCH_VULKAN_DEFER_SUBMISSIONS": "0"
+    }
+  },
+  "rtx-eager-strict": {
+    "exit_code": 0,
+    "environment": {
+      "TORCH_VULKAN_FORBID_CPU_FALLBACK": "1",
+      "TORCH_VULKAN_GPU_RESIDENT": "0",
+      "TORCH_VULKAN_DEFER_SUBMISSIONS": "0"
+    }
+  }
+}

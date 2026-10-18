@@ -63,8 +63,9 @@ def is_hardware_accelerated() -> bool:
     return _C._is_hardware_accelerated()
 
 
-def synchronize() -> None:
+def synchronize(device=None) -> None:
     """Flush deferred Vulkan commands and wait for GPU completion."""
+    _validate_device(device)
     _C._synchronize()
 
 
@@ -127,9 +128,7 @@ def _is_in_bad_fork() -> bool:
 
 
 def manual_seed_all(seed: int) -> None:
-    # Random factory ops currently run on CPU through PyTorch's fallback.
-    # torch.manual_seed has already seeded the CPU generator.
-    pass
+    _C._default_generator().manual_seed(seed)
 
 
 torch._register_device_module("vulkan", sys.modules[__name__])
@@ -143,3 +142,89 @@ def conv_dispatch_stats() -> dict:
 def clear_conv_dispatch_cache() -> None:
     """Reset optional convolution tuning choices and their counters."""
     _C._clear_conv_dispatch_cache()
+
+
+def manual_seed(seed: int) -> None:
+    manual_seed_all(seed)
+
+
+def initial_seed() -> int:
+    return _C._default_generator().initial_seed()
+
+
+def seed() -> None:
+    _C._default_generator().seed()
+
+
+def seed_all() -> None:
+    seed()
+
+
+def get_rng_state(device="vulkan"):
+    _validate_device(device)
+    return _C._default_generator().get_state()
+
+
+def set_rng_state(state, device="vulkan"):
+    _validate_device(device)
+    _C._default_generator().set_state(state)
+
+from . import attention as _attention
+
+
+def _validate_device(value=None):
+    if value is None:
+        return
+    d=torch.device('vulkan',value) if isinstance(value,int) else torch.device(value)
+    if d.type!='vulkan' or d.index not in (None,0):
+        raise RuntimeError('Vulkan backend supports logical device 0')
+
+
+def set_device(value):
+    _validate_device(value)
+
+
+def current_stream(device=None):
+    _validate_device(device)
+    return _C._current_stream()
+
+
+def default_stream(device=None):
+    _validate_device(device)
+    return _C._default_stream()
+
+
+def set_stream(value):
+    if value is not None:
+        _validate_device(value.device)
+        _C._set_stream_id(value.stream_id)
+
+
+def stream(value):
+    import contextlib
+    return value if value is not None else contextlib.nullcontext()
+
+
+class Stream(torch.Stream):
+    def __new__(cls,device='vulkan',priority=0):
+        _validate_device(device)
+        return super().__new__(cls,device=device,priority=priority)
+
+
+class Event(torch.Event):
+    def __new__(cls,enable_timing=False,blocking=False,interprocess=False):
+        if interprocess:
+            raise RuntimeError('Interprocess Vulkan events are unsupported')
+        return torch.Event(device='vulkan',enable_timing=enable_timing,blocking=blocking)
+
+from . import inductor as _inductor
+
+
+def execution_stats():
+    """CPU fallback and host materialization counters, including explicit .cpu()."""
+    return _C._execution_stats()
+
+
+def reset_execution_stats():
+    synchronize()
+    _C._reset_execution_stats()

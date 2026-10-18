@@ -19,12 +19,7 @@ def assert_matching(actual, expected, *, atol=2e-5, rtol=2e-5):
 
 
 @pytest.mark.parametrize("shape", [(1, 2, 8, 16), (2, 4, 24, 32)])
-def test_scaled_dot_product_attention_uses_safe_autograd_fallback(shape):
-    # The custom fused shader is currently disabled because its forward result
-    # was wrong and its gradient implementation was missing.
-    assert not torch._C._dispatch_has_kernel_for_dispatch_key(
-        "aten::scaled_dot_product_attention", "PrivateUse1"
-    )
+def test_scaled_dot_product_attention_forward_and_autograd(shape):
     torch.manual_seed(102)
     cpu_inputs = tuple(torch.randn(*shape, requires_grad=True) for _ in range(3))
     vk_inputs = tuple(t.detach().to("vulkan").requires_grad_() for t in cpu_inputs)

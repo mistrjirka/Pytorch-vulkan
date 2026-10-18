@@ -1,0 +1,12 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint rows,n,inner;} p;
+shared float block[128];shared float carry;
+void main(){uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;if(row>=p.rows)return;uint lane=gl_LocalInvocationID.x,base=(row/p.inner)*p.n*p.inner+row%p.inner;
+ if(lane==0)carry=0;barrier();
+ for(uint start=0;start<p.n;start+=128){uint j=start+lane;block[lane]=j<p.n?x[base+j*p.inner]:0;barrier();
+ for(uint step=1;step<128;step<<=1){float value=block[lane]+(lane>=step?block[lane-step]:0);barrier();block[lane]=value;barrier();}
+ float value=block[lane]+carry;if(j<p.n)y[base+j*p.inner]=value;barrier();if(lane==127)carry=value;barrier();}
+}

@@ -1,0 +1,132 @@
+/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/autograd/graph.py:1072: UserWarning: Error detected in MeanBackward0. Traceback of forward call that caused the error:
+  File "/workspace/Pytorch-vulkan-complete/benchmarks/probe_compiler_isolation.py", line 11, in <lambda>
+    fn=lambda x,w:(x.sin()@w).relu().square().mean()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/python_anomaly_mode.cpp:130.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[Oct 18 2026 20:58:54] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+Traceback (most recent call last):
+  File "/workspace/Pytorch-vulkan-complete/benchmarks/probe_compiler_isolation.py", line 12, in <module>
+    expected=fn(x,w);expected.backward();metrics.reset();compiled=torch.compile(fn,fullgraph=True);actual=compiled(y,v);actual.backward()
+                                                                                                          ^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1278, in compile_wrapper
+    raise e.remove_dynamo_frames() from None  # see TORCHDYNAMO_VERBOSE=1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 3260, in _call_user_compiler
+    raise BackendCompilerFailed(
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/output_graph.py", line 3232, in _call_user_compiler
+    compiled_fn = compiler_fn(gm, example_inputs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/repro/after_dynamo.py", line 163, in __call__
+    compiled_gm = compiler_fn(gm, example_inputs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/__init__.py", line 2905, in __call__
+    return compile_fx(
+           ^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 3020, in compile_fx
+    return _maybe_wrap_and_compile_fx_main(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 3104, in _maybe_wrap_and_compile_fx_main
+    return _compile_fx_main(
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_inductor/compile_fx.py", line 3309, in _compile_fx_main
+    return dynamo_common.aot_autograd(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/backends/common.py", line 150, in __call__
+    cg = aot_module_simplified(
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/aot_autograd.py", line 1249, in aot_module_simplified
+    aot_graph_capture = aot_stage1_graph_capture(aot_state, functional_call)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_compile.py", line 249, in aot_stage1_graph_capture
+    ) = aot_dispatch_autograd_graph(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture.py", line 532, in aot_dispatch_autograd_graph
+    fx_g, saved_updated_joint_inputs = _create_graph_and_save_traced_inputs(
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture.py", line 280, in _create_graph_and_save_traced_inputs
+    _create_graph(fn_to_trace, flat_args, flat_args_descs, aot_config=aot_config),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture.py", line 132, in _create_graph
+    fx_g = make_fx(
+           ^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 3422, in wrapped
+    return make_fx_tracer.trace(f, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 3298, in trace
+    return self._trace_inner(f, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 3248, in _trace_inner
+    t = dispatch_trace(
+        ^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 1863, in dispatch_trace
+    graph = tracer.trace(root, concrete_args)  # type: ignore[arg-type]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/_symbolic_trace.py", line 932, in trace
+    (self.create_arg(fn(*args)),),
+                     ^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/_symbolic_trace.py", line 772, in flatten_fn
+    tree_out = root_fn(*tree_args)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 1952, in wrapped
+    out = f(*tensors)  # type:ignore[call-arg]
+          ^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture.py", line 113, in inner_f
+    out, out_descs = call_and_expect_output_descs(f, args)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/utils.py", line 845, in call_and_expect_output_descs
+    outs_pair = fn(*args)
+                ^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 1233, in inner_fn
+    outs, outs_descs = call_and_expect_output_descs(fn, args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/utils.py", line 845, in call_and_expect_output_descs
+    outs_pair = fn(*args)
+                ^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 1175, in joint_helper
+    return _functionalized_f_helper(primals, tangents)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 905, in _functionalized_f_helper
+    f_outs, f_outs_descs = call_and_expect_output_descs(fn, f_args)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/utils.py", line 845, in call_and_expect_output_descs
+    outs_pair = fn(*args)
+                ^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 497, in joint_helper
+    return inner_fn_with_anomaly(primals, tangents)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 489, in inner_fn_with_anomaly
+    return inner_fn(primals, tangents)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/_functorch/_aot_autograd/graph_capture_wrappers.py", line 453, in inner_fn
+    backward_out = torch.autograd.grad(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/autograd/__init__.py", line 540, in grad
+    result_tuple = handle_torch_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/overrides.py", line 1773, in handle_torch_function
+    result = mode.__torch_function__(public_api, types, args, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/fx/experimental/proxy_tensor.py", line 2014, in __torch_function__
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/autograd/__init__.py", line 594, in grad
+    result = _engine_run_backward(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch._dynamo.exc.BackendCompilerFailed: backend='inductor' raised:
+RuntimeError: opt_ready_stream && opt_parent_stream INTERNAL ASSERT FAILED at "/__w/pytorch/pytorch/torch/csrc/autograd/engine.cpp":1141, please report a bug to PyTorch. 
+
+Set TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS="+dynamo"
+

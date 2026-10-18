@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {vec2 x[];};
+layout(binding=1) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,mode,re,im;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;vec2 v=vec2(uintBitsToFloat(p.re),uintBitsToFloat(p.im));
+ if(p.mode==1)y[i]=v;else if(p.mode==2)y[i]=vec2(x[i].x,-x[i].y);else y[i]=vec2(x[i].x*v.x-x[i].y*v.y,x[i].x*v.y+x[i].y*v.x);}

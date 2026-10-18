@@ -1,0 +1,17 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer G {float g[];};
+layout(binding=1) readonly buffer I {uint idx[];};
+layout(binding=2) readonly buffer Map {uvec2 mapping[];};
+layout(binding=3) readonly buffer Size {uvec2 sizes[];};
+layout(binding=4) readonly buffer Maximum {uvec2 maxima[];};
+layout(binding=5) readonly buffer Psw {float psw[];};
+layout(binding=6) readonly buffer W {float weight[];};
+layout(binding=7) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint n,bags,features,rows,iw,padding,mode,weighted,frequency,per_sample;} p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(p.per_sample!=0){if(id>=p.n)return;uint row=idx[id*p.iw],bag=mapping[id].x;float result=0;if(row!=p.padding)for(uint d=0;d<p.features;d++)result+=g[bag*p.features+d]*weight[row*p.features+d];y[id]=result;return;}
+ if(id>=p.rows*p.features)return;uint row=id/p.features,d=id%p.features,count=0;float result=0;
+ if(row!=p.padding){if(p.mode==2){for(uint b=0;b<p.bags;b++)if(sizes[b].x>0&&maxima[b*p.features+d].x==row)result+=g[b*p.features+d];}
+ else for(uint i=0;i<p.n;i++)if(idx[i*p.iw]==row){uint b=mapping[i].x;float v=g[b*p.features+d];if(p.mode==1)v/=float(max(1,sizes[b].x));if(p.weighted!=0)v*=psw[i];result+=v;count++;}}
+ if(p.frequency!=0&&count>0)result/=float(count);y[id]=result;}

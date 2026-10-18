@@ -1,0 +1,18 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float gh[];};
+layout(binding=1) readonly buffer B {float gc[];};
+layout(binding=2) readonly buffer C {float cx[];};
+layout(binding=3) readonly buffer D {float cy[];};
+layout(binding=4) readonly buffer E {float ws[];};
+layout(binding=5) writeonly buffer G {float gates[];};
+layout(binding=6) writeonly buffer X {float dx[];};
+layout(push_constant) uniform P {uint count,h,has_h,has_c;} p;
+void main(){
+ uint j=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(j>=p.count)return;
+ uint row=j/p.h,col=j%p.h;vec4 z;
+ for(uint k=0;k<4;k++)z[k]=ws[row*4*p.h+k*p.h+col];
+ float t=tanh(cy[j]),dh=p.has_h!=0?gh[j]:0,dc=(p.has_c!=0?gc[j]:0)+dh*z.w*(1-t*t);
+ vec4 dz=vec4(dc*z.z*z.x*(1-z.x),dc*cx[j]*z.y*(1-z.y),dc*z.x*(1-z.z*z.z),dh*t*z.w*(1-z.w));
+ dx[j]=dc*z.y;for(uint k=0;k<4;k++)gates[row*4*p.h+k*p.h+col]=dz[k];
+}

@@ -1,0 +1,29 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer Grid {float grid_values[];};
+layout(binding=2) readonly buffer Grad {float grad[];};
+layout(binding=3) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint n,c,id,ih,iw,od,oh,ow,spatial,mode,padding,align,pass_kind;} p;
+float map_coord(float u,uint n,out float derivative){derivative=1;
+ if(p.padding==1){if(u<=0||u>=float(n-1))derivative=0;return clamp(u,0,float(n-1));}
+ if(p.padding==2){float low=p.align!=0?0:-.5,span=p.align!=0?float(n-1):float(n);if(span==0){derivative=0;return 0;}float v=u-low;derivative=v<0?-1:1;v=abs(v);float turns=floor(v/span),extra=mod(v,span);if(mod(turns,2)==0)u=extra+low;else{u=span-extra+low;derivative=-derivative;}if(u<=0||u>=float(n-1))derivative=0;u=clamp(u,0,float(n-1));}
+ if(isnan(u)||isinf(u)||abs(u)>100000000){derivative=0;return -100000000;}return u;}
+void coordinates(uint position,out vec3 coord,out vec3 multiplier){uvec3 sizes=uvec3(p.iw,p.ih,p.id);coord=vec3(0);multiplier=vec3(0);
+ for(uint a=0;a<p.spatial;a++){float g=grid_values[position*p.spatial+a];if(isnan(g))g=-1;float factor=p.align!=0?float(sizes[a]-1)*.5:float(sizes[a])*.5;float u=(g+1)*factor-(p.align!=0?0:.5),derivative=1;if(p.mode!=2)u=map_coord(u,sizes[a],derivative);if(isnan(u)||isinf(u)||abs(u)>100000000){u=-100000000;derivative=0;}coord[a]=u;multiplier[a]=factor*derivative;}}
+float cubic(float t){t=abs(t);float a=-.75;if(t<=1)return ((a+2)*t-(a+3))*t*t+1;if(t<2)return ((a*t-5*a)*t+8*a)*t-4*a;return 0;}
+float cubic_grad(float t){float sign=t<0?-1:1;t=abs(t);float a=-.75;if(t<=1)return sign*(3*(a+2)*t*t-2*(a+3)*t);if(t<2)return sign*(3*a*t*t-10*a*t+8*a);return 0;}
+void tap(vec3 coord,uint which,out ivec3 location,out float weight,out vec3 dw){
+ if(p.mode==1){location=ivec3(roundEven(coord));weight=1;dw=vec3(0);return;}
+ uint width=p.mode==2?4:2;vec3 weights=vec3(1),derivatives=vec3(0);location=ivec3(0);
+ for(uint a=0;a<p.spatial;a++){uint t=which%width;which/=width;int base=int(floor(coord[a]));location[a]=base+int(t)-(p.mode==2?1:0);float f=coord[a]-float(base);
+  if(p.mode==2){weights[a]=cubic(coord[a]-float(location[a]));derivatives[a]=cubic_grad(coord[a]-float(location[a]));float ignored;location[a]=int(map_coord(float(location[a]),a==0?p.iw:a==1?p.ih:p.id,ignored));}
+  else {weights[a]=t==0?1-f:f;derivatives[a]=t==0?-1:1;}}
+ weight=weights.x*weights.y*weights.z;dw=vec3(derivatives.x*weights.y*weights.z,weights.x*derivatives.y*weights.z,weights.x*weights.y*derivatives.z);}
+bool inside(ivec3 loc){return all(greaterThanEqual(loc,ivec3(0)))&&loc.x<int(p.iw)&&loc.y<int(p.ih)&&loc.z<int(p.id);}
+uint address(ivec3 loc){return (uint(loc.z)*p.ih+uint(loc.y))*p.iw+uint(loc.x);}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x,ni=p.id*p.ih*p.iw,no=p.od*p.oh*p.ow,taps=p.mode==1?1:p.mode==2?16:p.spatial==3?8:4;
+ if(p.pass_kind==0){if(id>=p.n*p.c*no)return;uint batch=id/(p.c*no),channel=(id/no)%p.c,position=id%no;vec3 coord,mult;coordinates(batch*no+position,coord,mult);float sum=0;for(uint t=0;t<taps;t++){ivec3 loc;float w;vec3 dw;tap(coord,t,loc,w,dw);if(inside(loc))sum+=w*x[(batch*p.c+channel)*ni+address(loc)];}y[id]=sum;}
+ else if(p.pass_kind==1){if(id>=p.n*p.c*ni)return;uint batch=id/(p.c*ni),channel=(id/ni)%p.c,wanted=id%ni;float sum=0;for(uint pos=0;pos<no;pos++){vec3 coord,mult;coordinates(batch*no+pos,coord,mult);float weight=0;for(uint t=0;t<taps;t++){ivec3 loc;float w;vec3 dw;tap(coord,t,loc,w,dw);if(inside(loc)&&address(loc)==wanted)weight+=w;}if(weight!=0)sum+=weight*grad[(batch*p.c+channel)*no+pos];}y[id]=sum;}
+ else {if(id>=p.n*no)return;vec3 coord,mult;coordinates(id,coord,mult);uint batch=id/no,pos=id%no;vec3 result=vec3(0);for(uint c=0;c<p.c;c++){vec3 acc=vec3(0);for(uint t=0;t<taps;t++){ivec3 loc;float w;vec3 dw;tap(coord,t,loc,w,dw);if(inside(loc))acc+=dw*x[(batch*p.c+c)*ni+address(loc)];}result+=acc*grad[(batch*p.c+c)*no+pos];}for(uint a=0;a<p.spatial;a++)y[id*p.spatial+a]=result[a]*mult[a];}
+}

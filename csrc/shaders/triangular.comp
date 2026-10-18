@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,rows,cols,words,isbool;int diagonal;uint upper;} p;
+bool keep(uint i){int row=int((i/p.cols)%p.rows),col=int(i%p.cols);return p.upper!=0?col-row>=p.diagonal:col-row<=p.diagonal;}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(p.isbool!=0){if(i>=(p.count+3)/4)return;uint word=0;for(uint k=0;k<4;k++){uint j=i*4+k;if(j<p.count&&keep(j))word|=x[i]&(255u<<(k*8));}y[i]=word;}
+ else{if(i>=p.count)return;for(uint k=0;k<p.words;k++)y[i*p.words+k]=keep(i)?x[i*p.words+k]:0;}}

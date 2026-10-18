@@ -1,0 +1,7 @@
+volume_autoencoder 1.572629000293091
+spatial_transformer 1.5848420007387176
+recurrent_regressor 5.877117000636645
+retrieval_regressor 1.829903994803317
+spectral_filter 1.4436019991990179
+solve_regressor 1.9484630029182881
+causal_attention_block 2.1750409941887483

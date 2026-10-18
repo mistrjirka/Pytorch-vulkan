@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uvec2 indices[];};
+layout(binding=1) writeonly buffer O {uint order[];};
+layout(binding=2) writeonly buffer H {uint heads[];};
+layout(push_constant) uniform P {uint nnz,sd;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.nnz)return;uint rank=0;bool first=true;for(uint j=0;j<p.nnz;j++){int comparison=0;for(uint d=0;d<p.sd;d++){uvec2 a=indices[d*p.nnz+j],b=indices[d*p.nnz+i];if(a!=b){comparison=(int(a.y)<int(b.y)||(a.y==b.y&&a.x<b.x))?-1:1;break;}}if(comparison<0||(comparison==0&&j<i))rank++;if(comparison==0&&j<i)first=false;}order[rank]=i;heads[rank]=first?1:0;}

@@ -1,0 +1,14 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "philox.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(binding=2) writeonly buffer M {uint mask[];};
+layout(push_constant) uniform P {uint count,keep,seedlo,seedhi,offsetlo,offsethi;} p;
+void main(){
+ uint word=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;uint first=word*4;if(first>=p.count)return;
+ uvec4 r=philox(uvec2(p.seedlo,p.seedhi),uvec2(p.offsetlo,p.offsethi),word);uint m=0;float keep=uintBitsToFloat(p.keep);
+ for(uint j=0;j<4&&first+j<p.count;j++){bool yes=uniform01(r[j])<keep;m|=uint(yes)<<(j*8);y[first+j]=yes?x[first+j]/keep:0;}
+ mask[word]=m;
+}

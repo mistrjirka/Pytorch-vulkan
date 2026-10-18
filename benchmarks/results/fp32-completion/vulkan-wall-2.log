@@ -1,0 +1,8 @@
+volume_autoencoder 3.09325399575755
+spatial_transformer 1.8572340050013736
+recurrent_regressor 30.63807300350163
+retrieval_regressor 9.848468995187432
+spectral_filter 3.614355009631254
+solve_regressor 6.6905269923154265
+causal_attention_block 5.268014007015154
+[Oct 18 2026 20:58:54] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

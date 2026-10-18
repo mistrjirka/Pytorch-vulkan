@@ -10,6 +10,7 @@ find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 # Find PyTorch
 find_package(Torch REQUIRED)
+find_library(TORCH_PYTHON_LIBRARY torch_python PATHS "${TORCH_INSTALL_PREFIX}/lib" REQUIRED NO_DEFAULT_PATH)
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 # Find Vulkan SDK
@@ -92,6 +93,21 @@ endif()
 # The extension library
 add_library(torch_vulkan_C SHARED
   csrc/torch_vulkan.cpp
+  csrc/vulkan_generator.cpp
+  csrc/ops/fft.cpp
+  csrc/ops/linalg.cpp
+  csrc/ops/attention.cpp
+  csrc/ops/optimizer_primitives.cpp
+  csrc/ops/embedding_bag.cpp
+  csrc/ops/pool3d.cpp
+  csrc/ops/resample.cpp
+  csrc/ops/padding.cpp
+  csrc/ops/grid_sample.cpp
+  csrc/ops/sparse_coo.cpp
+  csrc/ops/integer_ops.cpp
+  csrc/ops/order_statistics.cpp
+  csrc/ops/indexing.cpp
+  csrc/ops/random.cpp
   csrc/vulkan_context.cpp
   csrc/vulkan_allocator.cpp
   csrc/ops/mm.cpp
@@ -110,6 +126,8 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/diffusion_unary.cpp
   csrc/ops/softmax_axis_backward.cpp
   csrc/ops/bmm.cpp
+  csrc/ops/convolution_nd.cpp
+  csrc/ops/recurrent.cpp
   csrc/ops/convolution.cpp
   csrc/ops/adamw.cpp
   csrc/ops/layer_norm_backward.cpp
@@ -136,6 +154,7 @@ target_link_libraries(torch_vulkan_C PRIVATE Python3::Python)
 
 target_link_libraries(torch_vulkan_C PRIVATE
   ${TORCH_LIBRARIES}
+  ${TORCH_PYTHON_LIBRARY}
   ${Vulkan_LIBRARIES}
   ${KOMPUTE_LIBRARY}
 )

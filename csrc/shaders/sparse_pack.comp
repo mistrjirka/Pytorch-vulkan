@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer Rank {uint ranks[];};
+layout(binding=2) writeonly buffer I {uvec2 indices[];};
+layout(binding=3) writeonly buffer V {float values[];};
+layout(push_constant) uniform P {uint rows,features,nnz,sd;uint sizes[8];} p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.rows*p.features)return;uint row=id/p.features,d=id%p.features,target=ranks[row];if(target==0xffffffff)return;values[target*p.features+d]=x[id];if(d==0){uint r=row;for(int a=int(p.sd)-1;a>=0;a--){indices[uint(a)*p.nnz+target]=uvec2(r%p.sizes[a],0);r/=p.sizes[a];}}}

@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer I {uint idx[];};
+layout(binding=2) readonly buffer S {float src[];};
+layout(binding=3) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,mode,axis,rank,words,value;uint xs[8],is[8];} p;
+void main(){
+ uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;
+ uint coords[8],r=id;
+ for(int d=7;d>=0;d--){uint size=p.mode==0?p.is[d]:p.xs[d];coords[d]=r%size;r/=size;}
+ if(p.mode==0){coords[p.axis]=idx[id*p.words];uint address=0;for(int d=0;d<8;d++)address=address*p.xs[d]+coords[d];y[id]=x[address];}
+ else{
+  float result=x[id];bool within=true;for(uint d=0;d<8;d++)if(d!=p.axis&&coords[d]>=p.is[d])within=false;
+  if(within){uint wanted=coords[p.axis];for(uint k=0;k<p.is[p.axis];k++){coords[p.axis]=k;uint address=0;for(int d=0;d<8;d++)address=address*p.is[d]+coords[d];
+   if(idx[address*p.words]==wanted){float v=p.mode==3?uintBitsToFloat(p.value):src[address];result=p.mode==1?result+v:v;}
+  }}y[id]=result;
+ }
+}

@@ -1,0 +1,11 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer G {float grad[];};
+layout(binding=1) readonly buffer H {uint head[];};
+layout(binding=2) readonly buffer N {uint next[];};
+layout(binding=3) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,width,padding,frequency;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint row=i/p.width,col=i%p.width;float sum=0;uint frequency=0;
+ if(row!=p.padding)for(uint j=head[row];j!=0xffffffffu;j=next[j]){sum+=grad[j*p.width+col];frequency++;}
+ y[i]=p.frequency!=0&&frequency!=0?sum/float(frequency):sum;
+}

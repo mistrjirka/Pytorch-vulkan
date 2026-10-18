@@ -1,0 +1,46 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer W {float w[];};
+layout(binding=2) readonly buffer G {float g[];};
+layout(binding=3) readonly buffer B {float b[];};
+layout(binding=4) writeonly buffer Y {float y[];};
+layout(push_constant) uniform Params {uint n,ci,co,groups;uint ins[3],outs[3],ks[3],stride[3],pad[3],dilation[3];uint transposed,mode,count,bias,reserved;} p;
+uint volume(uint s[3]){return s[0]*s[1]*s[2];}
+ivec3 decode(uint i,uint s[3]){return ivec3(i/(s[1]*s[2]),i/s[2]%s[1],i%s[2]);}
+uint encode(ivec3 i,uint s[3]){return (uint(i.x)*s[1]+uint(i.y))*s[2]+uint(i.z);}
+bool map_coord(ivec3 pos,ivec3 k,bool inverse,out ivec3 target,uint bounds[3]){
+ for(int d=0;d<3;d++){
+  int v=inverse?pos[d]+int(p.pad[d])-k[d]*int(p.dilation[d]):pos[d]*int(p.stride[d])-int(p.pad[d])+k[d]*int(p.dilation[d]);
+  if(inverse){if(v<0||v%int(p.stride[d])!=0)return false;v/=int(p.stride[d]);}
+  if(v<0||v>=int(bounds[d]))return false;target[d]=v;
+ }
+ return true;
+}
+uint wi(uint ci,uint co,uint k,uint kv){return p.transposed!=0?(ci*(p.co/p.groups)+co%(p.co/p.groups))*kv+k:(co*(p.ci/p.groups)+ci%(p.ci/p.groups))*kv+k;}
+void main(){
+ uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;
+ uint iv=volume(p.ins),ov=volume(p.outs),kv=volume(p.ks),icg=p.ci/p.groups,ocg=p.co/p.groups;float sum=0;
+ if(p.mode==0){
+  uint co=id/ov%p.co,n=id/(ov*p.co);ivec3 o=decode(id%ov,p.outs);uint group=co/ocg;
+  sum=p.bias!=0?b[co]:0;
+  for(uint ci=group*icg;ci<(group+1)*icg;ci++)for(uint k=0;k<kv;k++){
+   ivec3 i;if(map_coord(o,decode(k,p.ks),p.transposed!=0,i,p.ins))sum+=x[(n*p.ci+ci)*iv+encode(i,p.ins)]*w[wi(ci,co,k,kv)];
+  }
+ }else if(p.mode==1){
+  uint ci=id/iv%p.ci,n=id/(iv*p.ci);ivec3 i=decode(id%iv,p.ins);uint group=ci/icg;
+  for(uint co=group*ocg;co<(group+1)*ocg;co++)for(uint k=0;k<kv;k++){
+   ivec3 o;if(map_coord(i,decode(k,p.ks),p.transposed==0,o,p.outs))sum+=g[(n*p.co+co)*ov+encode(o,p.outs)]*w[wi(ci,co,k,kv)];
+  }
+ }else if(p.mode==2){
+  uint k=id%kv,ci,co;
+  if(p.transposed!=0){ci=id/kv/ocg;co=ci/icg*ocg+id/kv%ocg;}
+  else{co=id/kv/icg;ci=co/ocg*icg+id/kv%icg;}
+  for(uint n=0;n<p.n;n++)for(uint s=0;s<(p.transposed!=0?iv:ov);s++){
+   ivec3 pos=decode(s,p.transposed!=0?p.ins:p.outs),other;
+   if(p.transposed!=0){if(map_coord(pos,decode(k,p.ks),false,other,p.outs))sum+=x[(n*p.ci+ci)*iv+s]*g[(n*p.co+co)*ov+encode(other,p.outs)];}
+   else{if(map_coord(pos,decode(k,p.ks),false,other,p.ins))sum+=x[(n*p.ci+ci)*iv+encode(other,p.ins)]*g[(n*p.co+co)*ov+s];}
+  }
+ }else{for(uint n=0;n<p.n;n++)for(uint s=0;s<ov;s++)sum+=g[(n*p.co+id)*ov+s];}
+ y[id]=sum;
+}

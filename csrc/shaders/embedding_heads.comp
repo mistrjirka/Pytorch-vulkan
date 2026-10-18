@@ -1,0 +1,5 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) writeonly buffer H {uint head[];};
+layout(push_constant) uniform P {uint count;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.count)head[i]=0xffffffffu;}

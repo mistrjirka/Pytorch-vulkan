@@ -1,0 +1,7 @@
+{
+  "torch": "2.14.1+cu130",
+  "selected_accelerator": "cuda",
+  "eager_cuda": "ok",
+  "compiled_cuda": "ok",
+  "status": "ok"
+}

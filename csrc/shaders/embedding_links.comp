@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uint idx[];};
+layout(binding=1) buffer H {uint head[];};
+layout(binding=2) writeonly buffer N {uint next[];};
+layout(push_constant) uniform P {uint count,words,deterministic;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(p.deterministic!=0){if(i==0)for(uint n=p.count;n>0;n--){uint j=n-1,row=idx[j*p.words];next[j]=head[row];head[row]=j;}}else if(i<p.count)next[i]=atomicExchange(head[idx[i*p.words]],i);}

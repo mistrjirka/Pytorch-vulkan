@@ -1,0 +1,24 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) coherent buffer L {float lu[];};
+layout(binding=2) writeonly buffer Piv {int piv[];};
+layout(binding=3) buffer Info {int info[];};
+layout(push_constant) uniform P {uint batch,m,n,pivot;} p;
+shared uint selected;shared float diagonal;
+void sync_all(){memoryBarrierBuffer();barrier();}
+void main(){uint batch=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;if(batch>=p.batch)return;uint lane=gl_LocalInvocationID.x,base=batch*p.m*p.n,kmax=min(p.m,p.n);
+ for(uint i=lane;i<p.m*p.n;i+=128)lu[base+i]=a[base+i];if(lane==0)info[batch]=0;sync_all();
+ for(uint k=0;k<kmax;k++){
+  if(lane==0){selected=k;float best=abs(lu[base+k*p.n+k]);if(p.pivot!=0)for(uint r=k+1;r<p.m;r++){float v=abs(lu[base+r*p.n+k]);if(v>best){best=v;selected=r;}}
+   diagonal=lu[base+selected*p.n+k];piv[batch*kmax+k]=int(selected+1);if(diagonal==0&&info[batch]==0)info[batch]=int(k+1);}
+  barrier();
+  if(selected!=k)for(uint c=lane;c<p.n;c+=128){float temp=lu[base+k*p.n+c];lu[base+k*p.n+c]=lu[base+selected*p.n+c];lu[base+selected*p.n+c]=temp;}
+  sync_all();
+  if(diagonal!=0)for(uint r=k+1+lane;r<p.m;r+=128)lu[base+r*p.n+k]/=diagonal;
+  sync_all();
+  uint width=p.n-k-1,total=(p.m-k-1)*width;
+  for(uint i=lane;i<total;i+=128){uint r=k+1+i/width,c=k+1+i%width;lu[base+r*p.n+c]-=lu[base+r*p.n+k]*lu[base+k*p.n+c];}
+  sync_all();
+ }
+}

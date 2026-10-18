@@ -1,0 +1,1404 @@
+{
+  "backend": "vulkan",
+  "mode": "gpu",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "optimizer": "torch.optim.AdamW(foreach=False,amsgrad=True)",
+  "dtype": "float32",
+  "threads": 4,
+  "warmup": 8,
+  "repeats": 3,
+  "models": {
+    "volume_autoencoder": {
+      "parity_max_abs": {
+        "output": 2.2351741790771484e-08,
+        "input_gradient": 1.0913936421275139e-11,
+        "gradient/encoder.weight": 6.402842700481415e-10,
+        "gradient/encoder.bias": 1.3969838619232178e-09,
+        "gradient/decoder.weight": 6.984919309616089e-10,
+        "gradient/decoder.bias": 3.725290298461914e-09
+      },
+      "shape": [
+        2,
+        2,
+        6,
+        8,
+        10
+      ],
+      "input_sha256": "d7a230f2d3d822e85271d306a8c2a840ec3c27e645989a76360d34a372b84961",
+      "weights_sha256": "5c702dbf382439bd3d726611fc16d664dd77936a434a8790123a5ca2c73b1811",
+      "training_ms": {
+        "median": 11.104677003459074,
+        "min": 10.371584998210892,
+        "max": 13.177647997508757,
+        "samples": [
+          11.104677003459074,
+          13.177647997508757,
+          10.371584998210892
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 36,
+          "upload_ms": 0.03411199999999992,
+          "shader_ms": 0.1646719999999997,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.6884250000000005
+        },
+        "convolution_nd": {
+          "samples": 24,
+          "upload_ms": 0.024063999999999988,
+          "shader_ms": 2.6980159999999973,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.9376739999999995
+        },
+        "diffusion_unary": {
+          "samples": 12,
+          "upload_ms": 0.011935999999999988,
+          "shader_ms": 0.077344,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.586292
+        },
+        "extrema_fp32": {
+          "samples": 12,
+          "upload_ms": 0.010688,
+          "shader_ms": 0.055711999999999984,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.583696
+        },
+        "gelu": {
+          "samples": 3,
+          "upload_ms": 0.0032959999999999986,
+          "shader_ms": 0.013344000000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.14370500000000003
+        },
+        "gelu_backward": {
+          "samples": 3,
+          "upload_ms": 0.00038400000000000066,
+          "shader_ms": 0.015135999999999997,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16655700000000007
+        },
+        "loss_binary": {
+          "samples": 36,
+          "upload_ms": 0.05279999999999996,
+          "shader_ms": 0.23401600000000056,
+          "download_ms": 0.0,
+          "host_eval_ms": 4.461816
+        },
+        "loss_mean_reduce": {
+          "samples": 6,
+          "upload_ms": 0.005791999999999995,
+          "shader_ms": 0.03136,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.297219
+        },
+        "loss_mutate": {
+          "samples": 27,
+          "upload_ms": 0.03516800000000003,
+          "shader_ms": 0.17001600000000072,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.4051429999999998
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.0029120000000000014,
+          "shader_ms": 0.018272000000000004,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.21100700000000006
+        },
+        "mul": {
+          "samples": 15,
+          "upload_ms": 0.014751999999999994,
+          "shader_ms": 0.06950399999999995,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7305370000000004
+        },
+        "native_copy_strided": {
+          "samples": 48,
+          "upload_ms": 0.03920000000000001,
+          "shader_ms": 0.3288639999999994,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.3634970000000006
+        },
+        "pool3d_general": {
+          "samples": 12,
+          "upload_ms": 0.011040000000000015,
+          "shader_ms": 0.10844799999999993,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.683189
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.004832000000000003,
+          "shader_ms": 0.029343999999999995,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.32017000000000007
+        },
+        "resample_axis": {
+          "samples": 18,
+          "upload_ms": 0.016512,
+          "shader_ms": 0.12028799999999995,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.9415240000000002
+        },
+        "scalar_add_float": {
+          "samples": 12,
+          "upload_ms": 0.012352000000000002,
+          "shader_ms": 0.07190400000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.592592
+        },
+        "scalar_mul": {
+          "samples": 15,
+          "upload_ms": 0.011616000000000008,
+          "shader_ms": 0.06764799999999993,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.734232
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 279,
+        "algo_misses": 9,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 0,
+        "bound_algorithms": 9,
+        "pipeline_hits": 9,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "spatial_transformer": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 2.0954757928848267e-09,
+        "gradient/grid": 9.313225746154785e-09,
+        "gradient/conv.weight": 1.4901161193847656e-08,
+        "gradient/conv.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        2,
+        2,
+        9,
+        11
+      ],
+      "input_sha256": "68af8e01ed810b6813c42fab1faafe513607eae0ef7c850e16e2d11720d6a037",
+      "weights_sha256": "5bcd03bff6c3cf79a9a6eb5853e8f4d73607143d8dee0c1d2633c0dc527ef5cc",
+      "training_ms": {
+        "median": 8.018053995328955,
+        "min": 7.9913350054994226,
+        "max": 8.038582003791817,
+        "samples": [
+          8.038582003791817,
+          7.9913350054994226,
+          8.018053995328955
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 27,
+          "upload_ms": 0.024191999999999964,
+          "shader_ms": 0.1166400000000003,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.3159069999999957
+        },
+        "conv2d_backward_bias_reduce": {
+          "samples": 3,
+          "upload_ms": 0.002784,
+          "shader_ms": 0.01801599999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16157700000000003
+        },
+        "conv2d_backward_input": {
+          "samples": 3,
+          "upload_ms": 0.0023680000000000003,
+          "shader_ms": 0.06284799999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.24457099999999987
+        },
+        "conv2d_backward_weight_reduce": {
+          "samples": 3,
+          "upload_ms": 0.0016319999999999998,
+          "shader_ms": 0.023487999999999995,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.169512
+        },
+        "conv2d_forward": {
+          "samples": 3,
+          "upload_ms": 0.0022719999999999997,
+          "shader_ms": 0.027711999999999987,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.1648050000000001
+        },
+        "diffusion_unary": {
+          "samples": 9,
+          "upload_ms": 0.008576,
+          "shader_ms": 0.058784,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.45796300000000034
+        },
+        "extrema_fp32": {
+          "samples": 9,
+          "upload_ms": 0.0053440000000000015,
+          "shader_ms": 0.04508799999999996,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4462649999999999
+        },
+        "grid_sample_general": {
+          "samples": 9,
+          "upload_ms": 0.006592000000000004,
+          "shader_ms": 0.22348800000000013,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.6418639999999998
+        },
+        "loss_binary": {
+          "samples": 27,
+          "upload_ms": 0.04166399999999992,
+          "shader_ms": 0.1724800000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.414883999999999
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.002815999999999999,
+          "shader_ms": 0.015583999999999987,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.14870399999999995
+        },
+        "loss_mutate": {
+          "samples": 21,
+          "upload_ms": 0.02438399999999996,
+          "shader_ms": 0.12831999999999955,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.1147549999999988
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.002623999999999998,
+          "shader_ms": 0.01868800000000001,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.1949399999999999
+        },
+        "mul": {
+          "samples": 12,
+          "upload_ms": 0.00697600000000001,
+          "shader_ms": 0.055487999999999926,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.6115159999999982
+        },
+        "native_copy_strided": {
+          "samples": 36,
+          "upload_ms": 0.03379199999999993,
+          "shader_ms": 0.24156799999999912,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.8087219999999995
+        },
+        "native_pack": {
+          "samples": 6,
+          "upload_ms": 0.0039039999999999977,
+          "shader_ms": 0.03603200000000001,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3378230000000002
+        },
+        "pad_axis": {
+          "samples": 12,
+          "upload_ms": 0.00838400000000001,
+          "shader_ms": 0.07119999999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.638287
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.008319999999999994,
+          "shader_ms": 0.028447999999999973,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3218049999999999
+        },
+        "reduce_axes": {
+          "samples": 3,
+          "upload_ms": 0.0012479999999999991,
+          "shader_ms": 0.023456000000000005,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.17457199999999995
+        },
+        "resample_axis": {
+          "samples": 12,
+          "upload_ms": 0.013215999999999992,
+          "shader_ms": 0.09152000000000005,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.6683109999999992
+        },
+        "scalar_add_float": {
+          "samples": 9,
+          "upload_ms": 0.006143999999999983,
+          "shader_ms": 0.05497599999999997,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.47427500000000045
+        },
+        "scalar_mul": {
+          "samples": 12,
+          "upload_ms": 0.01446399999999999,
+          "shader_ms": 0.05139199999999988,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5757720000000006
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 228,
+        "algo_misses": 0,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 0,
+        "bound_algorithms": 0,
+        "pipeline_hits": 0,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "recurrent_regressor": {
+      "parity_max_abs": {
+        "output": 2.9802322387695312e-08,
+        "input_gradient": 1.6007106751203537e-10,
+        "gradient/lstm.weight_ih_l0": 4.656612873077393e-10,
+        "gradient/lstm.weight_hh_l0": 1.7462298274040222e-10,
+        "gradient/lstm.bias_ih_l0": 9.313225746154785e-10,
+        "gradient/lstm.bias_hh_l0": 9.313225746154785e-10,
+        "gradient/lstm.weight_ih_l0_reverse": 3.4924596548080444e-10,
+        "gradient/lstm.weight_hh_l0_reverse": 5.820766091346741e-11,
+        "gradient/lstm.bias_ih_l0_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.bias_hh_l0_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.weight_ih_l1": 2.3283064365386963e-10,
+        "gradient/lstm.weight_hh_l1": 2.3283064365386963e-10,
+        "gradient/lstm.bias_ih_l1": 9.313225746154785e-10,
+        "gradient/lstm.bias_hh_l1": 9.313225746154785e-10,
+        "gradient/lstm.weight_ih_l1_reverse": 4.656612873077393e-10,
+        "gradient/lstm.weight_hh_l1_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.bias_ih_l1_reverse": 1.862645149230957e-09,
+        "gradient/lstm.bias_hh_l1_reverse": 1.862645149230957e-09,
+        "gradient/head.weight": 4.6566128730773926e-09,
+        "gradient/head.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        2,
+        4,
+        5
+      ],
+      "input_sha256": "43ae003de03fdcc68ef29541924076e6043eeedc7e32ac9112ce402bb503d627",
+      "weights_sha256": "3bf3eb0fc90d24b81cc61fa8220644745bf8f23f1ac5a882ba554013827c75bb",
+      "training_ms": {
+        "median": 79.35170900600497,
+        "min": 78.40838900301605,
+        "max": 81.30425900162663,
+        "samples": [
+          78.40838900301605,
+          81.30425900162663,
+          79.35170900600497
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 234,
+          "upload_ms": 0.22851200000000282,
+          "shader_ms": 1.0729279999999939,
+          "download_ms": 0.0,
+          "host_eval_ms": 12.625060000000019
+        },
+        "cat_copy": {
+          "samples": 108,
+          "upload_ms": 0.10227199999999975,
+          "shader_ms": 0.5341440000000006,
+          "download_ms": 0.0,
+          "host_eval_ms": 5.738080000000002
+        },
+        "diffusion_unary": {
+          "samples": 54,
+          "upload_ms": 0.04937600000000014,
+          "shader_ms": 0.3496639999999991,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.012485
+        },
+        "extrema_fp32": {
+          "samples": 54,
+          "upload_ms": 0.052064000000000055,
+          "shader_ms": 0.25164799999999987,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.014789000000004
+        },
+        "loss_binary": {
+          "samples": 162,
+          "upload_ms": 0.2504960000000007,
+          "shader_ms": 1.05328,
+          "download_ms": 0.0,
+          "host_eval_ms": 9.500816000000022
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.0035199999999999954,
+          "shader_ms": 0.014976000000000017,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16186999999999996
+        },
+        "loss_mutate": {
+          "samples": 117,
+          "upload_ms": 0.11369600000000057,
+          "shader_ms": 0.7351999999999941,
+          "download_ms": 0.0,
+          "host_eval_ms": 6.908603999999986
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.0022080000000000016,
+          "shader_ms": 0.018016000000000032,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.19603100000000007
+        },
+        "lstm_cell": {
+          "samples": 48,
+          "upload_ms": 0.04012800000000008,
+          "shader_ms": 0.2759680000000001,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.658102000000005
+        },
+        "lstm_cell_backward": {
+          "samples": 48,
+          "upload_ms": 0.041728000000000015,
+          "shader_ms": 0.24150399999999983,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.68637
+        },
+        "mm": {
+          "samples": 285,
+          "upload_ms": 0.27622400000000114,
+          "shader_ms": 1.5846399999999887,
+          "download_ms": 0.0,
+          "host_eval_ms": 18.813926000000002
+        },
+        "mul": {
+          "samples": 57,
+          "upload_ms": 0.048031999999999825,
+          "shader_ms": 0.25667200000000157,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.1464730000000003
+        },
+        "native_copy_strided": {
+          "samples": 222,
+          "upload_ms": 0.2262400000000011,
+          "shader_ms": 1.5221760000000168,
+          "download_ms": 0.0,
+          "host_eval_ms": 12.567784000000003
+        },
+        "native_pack": {
+          "samples": 156,
+          "upload_ms": 0.14323200000000053,
+          "shader_ms": 0.9112320000000049,
+          "download_ms": 0.0,
+          "host_eval_ms": 8.851548000000005
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.004159999999999997,
+          "shader_ms": 0.030496000000000023,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.34383200000000036
+        },
+        "reduce_axes": {
+          "samples": 51,
+          "upload_ms": 0.05024000000000009,
+          "shader_ms": 0.3823679999999996,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.8574530000000014
+        },
+        "scalar_add_float": {
+          "samples": 54,
+          "upload_ms": 0.04457600000000006,
+          "shader_ms": 0.3277439999999996,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.0699310000000057
+        },
+        "scalar_mul": {
+          "samples": 57,
+          "upload_ms": 0.049791999999999975,
+          "shader_ms": 0.2569600000000014,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.060752999999993
+        },
+        "tensor_add_inplace": {
+          "samples": 135,
+          "upload_ms": 0.11875199999999997,
+          "shader_ms": 0.6975679999999969,
+          "download_ms": 0.0,
+          "host_eval_ms": 7.483368999999993
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 213,
+        "algo_misses": 1641,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 1641,
+        "bound_algorithms": 0,
+        "pipeline_hits": 1641,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "retrieval_regressor": {
+      "parity_max_abs": {
+        "output": 2.682209014892578e-07,
+        "input_gradient": 5.960464477539063e-08,
+        "gradient/embedding.weight": 2.9802322387695312e-08,
+        "gradient/head.weight": 4.76837158203125e-07,
+        "gradient/head.bias": 7.450580596923828e-08
+      },
+      "shape": [
+        2,
+        7
+      ],
+      "input_sha256": "3eba5bc3e657196187ca6175de49a94dab26ae6027e4b9452017bffc4798e19e",
+      "weights_sha256": "5ee0fc332dec930d2ce35150daadd611996a76705e60144ea26e524765c2959b",
+      "training_ms": {
+        "median": 12.531316999229603,
+        "min": 12.474101997213438,
+        "max": 15.525939001236111,
+        "samples": [
+          12.531316999229603,
+          15.525939001236111,
+          12.474101997213438
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 48,
+        "host_read_calls": 12,
+        "host_read_max_bytes": 4
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 33,
+          "upload_ms": 0.027136000000000715,
+          "shader_ms": 0.14947199999999672,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.7163960000000031
+        },
+        "addmm": {
+          "samples": 3,
+          "upload_ms": 0.0009920000000000016,
+          "shader_ms": 0.017279999999999997,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16782999999999992
+        },
+        "diffusion_unary": {
+          "samples": 9,
+          "upload_ms": 0.010464000000000029,
+          "shader_ms": 0.05801600000000029,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.48860100000000095
+        },
+        "embedding_bag": {
+          "samples": 3,
+          "upload_ms": 0.0023999999999999994,
+          "shader_ms": 0.018143999999999993,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.15757000000000004
+        },
+        "embedding_bag_backward": {
+          "samples": 3,
+          "upload_ms": 0.002048000000000001,
+          "shader_ms": 0.019807999999999992,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.17255900000000002
+        },
+        "embedding_bag_meta": {
+          "samples": 3,
+          "upload_ms": 0.0016320000000000006,
+          "shader_ms": 0.015359999999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.15777000000000002
+        },
+        "embedding_bag_validate": {
+          "samples": 3,
+          "upload_ms": 0.0019520000000000006,
+          "shader_ms": 0.016800000000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.18492999999999993
+        },
+        "embedding_validate": {
+          "samples": 9,
+          "upload_ms": 0.008063999999999995,
+          "shader_ms": 0.04720000000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4760089999999997
+        },
+        "extrema_fp32": {
+          "samples": 9,
+          "upload_ms": 0.0031679999999999486,
+          "shader_ms": 0.045631999999999895,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4857030000000009
+        },
+        "flip": {
+          "samples": 6,
+          "upload_ms": 0.0055039999999999985,
+          "shader_ms": 0.03964799999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.340808
+        },
+        "indexed": {
+          "samples": 9,
+          "upload_ms": 0.011423999999999993,
+          "shader_ms": 0.06649599999999992,
+          "download_ms": 0.0,
+          "host_eval_ms": 3.461412
+        },
+        "loss_binary": {
+          "samples": 33,
+          "upload_ms": 0.051104000000000704,
+          "shader_ms": 0.21161600000000025,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.8616129999999913
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.004256000000000003,
+          "shader_ms": 0.014367999999999992,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.1612969999999998
+        },
+        "loss_mutate": {
+          "samples": 27,
+          "upload_ms": 0.039744,
+          "shader_ms": 0.17049599999999732,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.5771480000000082
+        },
+        "loss_unary": {
+          "samples": 6,
+          "upload_ms": 0.0043199999999999975,
+          "shader_ms": 0.03571199999999991,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3492129999999998
+        },
+        "mm": {
+          "samples": 6,
+          "upload_ms": 0.005152000000000045,
+          "shader_ms": 0.03142399999999945,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3309100000000029
+        },
+        "mul": {
+          "samples": 18,
+          "upload_ms": 0.014880000000000004,
+          "shader_ms": 0.07993600000000067,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.9526970000000006
+        },
+        "native_copy_strided": {
+          "samples": 45,
+          "upload_ms": 0.0542720000000001,
+          "shader_ms": 0.3056319999999939,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.482293999999989
+        },
+        "native_pack": {
+          "samples": 6,
+          "upload_ms": 0.0045439999999999925,
+          "shader_ms": 0.034880000000000244,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.337533999999998
+        },
+        "native_pack_int64": {
+          "samples": 6,
+          "upload_ms": 0.0050560000000000015,
+          "shader_ms": 0.03366400000000001,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.32916599999999996
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.005728000000000011,
+          "shader_ms": 0.026975999999999944,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.33108000000000004
+        },
+        "reduce_axes": {
+          "samples": 15,
+          "upload_ms": 0.008576,
+          "shader_ms": 0.12678400000000156,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.8822349999999997
+        },
+        "scalar_add_float": {
+          "samples": 9,
+          "upload_ms": 0.005311999999999983,
+          "shader_ms": 0.05398399999999981,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.49913999999999703
+        },
+        "scalar_binary": {
+          "samples": 6,
+          "upload_ms": 0.0077759999999999965,
+          "shader_ms": 0.026304000000000008,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3400270000000001
+        },
+        "scalar_mul": {
+          "samples": 18,
+          "upload_ms": 0.0182719999999999,
+          "shader_ms": 0.07952000000000026,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.9615460000000091
+        },
+        "scan_axis": {
+          "samples": 6,
+          "upload_ms": 0.005728000000000004,
+          "shader_ms": 0.032831999999999986,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.32435999999999976
+        },
+        "sort_axis": {
+          "samples": 3,
+          "upload_ms": 0.0028800000000000006,
+          "shader_ms": 0.016672000000000006,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.173481
+        },
+        "tensor_add_inplace": {
+          "samples": 3,
+          "upload_ms": 0.0029120000000000257,
+          "shader_ms": 0.015487999999999946,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16368200000000144
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 280,
+        "algo_misses": 26,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 26,
+        "bound_algorithms": 0,
+        "pipeline_hits": 26,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "spectral_filter": {
+      "parity_max_abs": {
+        "output": 1.7881393432617188e-07,
+        "input_gradient": 1.30385160446167e-08,
+        "gradient/weights": 1.816079020500183e-08,
+        "gradient/head.weight": 8.940696716308594e-08,
+        "gradient/head.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        3,
+        16
+      ],
+      "input_sha256": "44e881ceba8173e86507f167dd245fb82c1ac4a1cc4e7fea926cb866764cd6a6",
+      "weights_sha256": "b50b75224393c11d69cccef4f6a317f4ea204f67deab310f3027202d4407db7a",
+      "training_ms": {
+        "median": 9.715213993331417,
+        "min": 9.67029201274272,
+        "max": 9.753845995874144,
+        "samples": [
+          9.753845995874144,
+          9.715213993331417,
+          9.67029201274272
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 27,
+          "upload_ms": 0.019520000000000204,
+          "shader_ms": 0.1256959999999978,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.2438750000000312
+        },
+        "addmm": {
+          "samples": 3,
+          "upload_ms": 0.0019520000000000023,
+          "shader_ms": 0.01635199999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.15314300000000003
+        },
+        "complex_binary": {
+          "samples": 9,
+          "upload_ms": 0.006975999999999996,
+          "shader_ms": 0.043072,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4476549999999999
+        },
+        "complex_unary": {
+          "samples": 3,
+          "upload_ms": 0.0035519999999999996,
+          "shader_ms": 0.013887999999999998,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16356199999999999
+        },
+        "diffusion_unary": {
+          "samples": 9,
+          "upload_ms": 0.012031999999999987,
+          "shader_ms": 0.058112000000000386,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.43887800000000254
+        },
+        "extrema_fp32": {
+          "samples": 9,
+          "upload_ms": 0.01011200000000001,
+          "shader_ms": 0.04236799999999996,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.43278700000000114
+        },
+        "fft_butterfly": {
+          "samples": 48,
+          "upload_ms": 0.041632,
+          "shader_ms": 0.24316800000000016,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.410908000000001
+        },
+        "fft_finish": {
+          "samples": 9,
+          "upload_ms": 0.008320000000000001,
+          "shader_ms": 0.045376,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.435832
+        },
+        "fft_prepare": {
+          "samples": 12,
+          "upload_ms": 0.009887999999999987,
+          "shader_ms": 0.06246400000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.6322020000000002
+        },
+        "loss_binary": {
+          "samples": 27,
+          "upload_ms": 0.03948799999999997,
+          "shader_ms": 0.17283199999999965,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.3917680000000061
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.0016000000000000042,
+          "shader_ms": 0.016639999999999988,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.14186100000000001
+        },
+        "loss_mutate": {
+          "samples": 27,
+          "upload_ms": 0.03331200000000023,
+          "shader_ms": 0.16796799999999656,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.439122999999995
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.0026559999999999917,
+          "shader_ms": 0.018687999999999982,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.17892900000000012
+        },
+        "mm": {
+          "samples": 6,
+          "upload_ms": 0.005856000000000083,
+          "shader_ms": 0.03094399999999986,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3264820000000128
+        },
+        "mul": {
+          "samples": 12,
+          "upload_ms": 0.014847999999999972,
+          "shader_ms": 0.05443200000000026,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5886760000000031
+        },
+        "native_copy_strided": {
+          "samples": 48,
+          "upload_ms": 0.053343999999999836,
+          "shader_ms": 0.32751999999999803,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.431941000000009
+        },
+        "native_pack": {
+          "samples": 9,
+          "upload_ms": 0.006399999999999961,
+          "shader_ms": 0.05350399999999844,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4776289999999932
+        },
+        "native_pack_int64": {
+          "samples": 3,
+          "upload_ms": 0.005376000000000002,
+          "shader_ms": 0.017535999999999996,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.16249999999999987
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.006047999999999998,
+          "shader_ms": 0.028383999999999965,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3062459999999998
+        },
+        "reduce_axes": {
+          "samples": 6,
+          "upload_ms": 0.006496000000000002,
+          "shader_ms": 0.04678400000000016,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.33506800000000325
+        },
+        "scalar_add_float": {
+          "samples": 9,
+          "upload_ms": 0.007935999999999999,
+          "shader_ms": 0.05385599999999968,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.44304699999999997
+        },
+        "scalar_mul": {
+          "samples": 12,
+          "upload_ms": 0.01132799999999995,
+          "shader_ms": 0.053056000000000214,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5870600000000046
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 300,
+        "algo_misses": 0,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 0,
+        "bound_algorithms": 0,
+        "pipeline_hits": 0,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "solve_regressor": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 2.2351741790771484e-08,
+        "gradient/factor": 9.313225746154785e-09,
+        "gradient/head.weight": 4.470348358154297e-08,
+        "gradient/head.bias": 2.9802322387695312e-08
+      },
+      "shape": [
+        3,
+        5
+      ],
+      "input_sha256": "c91389506264004e3f8aa0b4dfe9244f6ceafb3717da1746bb223f812c5c014d",
+      "weights_sha256": "aa74a82f3fad29e1f0865f9f2f72011be125d1caf8f743e5b927bfe704fd73d5",
+      "training_ms": {
+        "median": 8.877809988916852,
+        "min": 8.810996994725429,
+        "max": 8.886024996172637,
+        "samples": [
+          8.877809988916852,
+          8.886024996172637,
+          8.810996994725429
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 36,
+        "host_read_calls": 9,
+        "host_read_max_bytes": 4
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 30,
+          "upload_ms": 0.034720000000000084,
+          "shader_ms": 0.22236799999999945,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.6960850000000391
+        },
+        "addmm": {
+          "samples": 3,
+          "upload_ms": 0.004031999999999994,
+          "shader_ms": 0.025088,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.18739500000000042
+        },
+        "diffusion_unary": {
+          "samples": 12,
+          "upload_ms": 0.020736000000000032,
+          "shader_ms": 0.13206400000000018,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7434390000000022
+        },
+        "extrema_fp32": {
+          "samples": 9,
+          "upload_ms": 0.01584000000000002,
+          "shader_ms": 0.0656639999999995,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5209790000000005
+        },
+        "loss_binary": {
+          "samples": 27,
+          "upload_ms": 0.056672000000000944,
+          "shader_ms": 0.29305599999999554,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.7013449999999892
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.003392000000000006,
+          "shader_ms": 0.025407999999999986,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.175624
+        },
+        "loss_mutate": {
+          "samples": 21,
+          "upload_ms": 0.03270400000000051,
+          "shader_ms": 0.21401599999999998,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.3291730000000044
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.003007999999999997,
+          "shader_ms": 0.030272000000000077,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.22171900000000022
+        },
+        "lu_factor": {
+          "samples": 3,
+          "upload_ms": 0.0036799999999999992,
+          "shader_ms": 0.07667200000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.23121599999999998
+        },
+        "lu_solve": {
+          "samples": 6,
+          "upload_ms": 0.007103999999999996,
+          "shader_ms": 0.10777600000000001,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.4200360000000001
+        },
+        "lu_validate": {
+          "samples": 6,
+          "upload_ms": 0.006815999999999996,
+          "shader_ms": 0.044864,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.37287800000000004
+        },
+        "mm": {
+          "samples": 18,
+          "upload_ms": 0.023488000000000175,
+          "shader_ms": 0.15513599999999972,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.171549999999982
+        },
+        "mul": {
+          "samples": 12,
+          "upload_ms": 0.018880000000000008,
+          "shader_ms": 0.08838400000000046,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7002009999999999
+        },
+        "native_copy_strided": {
+          "samples": 39,
+          "upload_ms": 0.05753600000000003,
+          "shader_ms": 0.4349120000000042,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.412085999999988
+        },
+        "native_pack": {
+          "samples": 3,
+          "upload_ms": 0.0034240000000000936,
+          "shader_ms": 0.030208000000000013,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.17342899999999872
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.008319999999999994,
+          "shader_ms": 0.047456000000000054,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.37279799999999863
+        },
+        "reduce_axes": {
+          "samples": 3,
+          "upload_ms": 0.0024639999999999662,
+          "shader_ms": 0.0376000000000003,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.20795300000000339
+        },
+        "scalar_add_float": {
+          "samples": 9,
+          "upload_ms": 0.009792000000000134,
+          "shader_ms": 0.08719999999999928,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.542151000000004
+        },
+        "scalar_mul": {
+          "samples": 12,
+          "upload_ms": 0.01721600000000001,
+          "shader_ms": 0.08956800000000031,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7016740000000041
+        },
+        "tensor_add_inplace": {
+          "samples": 3,
+          "upload_ms": 0.0018880000000001118,
+          "shader_ms": 0.025055999999999745,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.20022900000000732
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 228,
+        "algo_misses": 0,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 0,
+        "bound_algorithms": 0,
+        "pipeline_hits": 0,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "causal_attention_block": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 4.656612873077393e-10,
+        "gradient/qkv.weight": 2.7939677238464355e-09,
+        "gradient/qkv.bias": 5.587935447692871e-09,
+        "gradient/out.weight": 2.7939677238464355e-09,
+        "gradient/out.bias": 7.450580596923828e-09
+      },
+      "shape": [
+        2,
+        17,
+        16
+      ],
+      "input_sha256": "cf21c4d57de7a97b29c114e7b1bc45fd61852102d841e6f6950658ab2eec6073",
+      "weights_sha256": "9dcdfe5ada2e46be5f259aac6207f46bf9ef4f88fa63d39d7f12e991439f87e7",
+      "training_ms": {
+        "median": 11.182490008650348,
+        "min": 10.82089300325606,
+        "max": 11.22319400019478,
+        "samples": [
+          10.82089300325606,
+          11.22319400019478,
+          11.182490008650348
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {
+        "add": {
+          "samples": 36,
+          "upload_ms": 0.0458240000000012,
+          "shader_ms": 0.27718399999999566,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.0044050000000624
+        },
+        "addmm": {
+          "samples": 6,
+          "upload_ms": 0.007040000000000005,
+          "shader_ms": 0.05619200000000002,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.3730189999999993
+        },
+        "cat_copy": {
+          "samples": 9,
+          "upload_ms": 0.01423999999999992,
+          "shader_ms": 0.07065599999999916,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5641110000000005
+        },
+        "diffusion_unary": {
+          "samples": 12,
+          "upload_ms": 0.018688000000000038,
+          "shader_ms": 0.12876800000000044,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7212220000000045
+        },
+        "extrema_fp32": {
+          "samples": 12,
+          "upload_ms": 0.013471999999999984,
+          "shader_ms": 0.0899520000000007,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.6811560000000014
+        },
+        "loss_binary": {
+          "samples": 36,
+          "upload_ms": 0.0806079999999989,
+          "shader_ms": 0.40016000000000496,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.230809999999991
+        },
+        "loss_mean_reduce": {
+          "samples": 3,
+          "upload_ms": 0.0042240000000000055,
+          "shader_ms": 0.026751999999999887,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.1716880000000005
+        },
+        "loss_mutate": {
+          "samples": 27,
+          "upload_ms": 0.039200000000000124,
+          "shader_ms": 0.2779839999999991,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.677104
+        },
+        "loss_unary": {
+          "samples": 3,
+          "upload_ms": 0.0054399999999999865,
+          "shader_ms": 0.031039999999999957,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.21397400000000033
+        },
+        "mm": {
+          "samples": 12,
+          "upload_ms": 0.01651199999999986,
+          "shader_ms": 0.13660799999999895,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.8190709999999939
+        },
+        "mul": {
+          "samples": 15,
+          "upload_ms": 0.02224000000000015,
+          "shader_ms": 0.11356800000000078,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.862921999999994
+        },
+        "native_copy_strided": {
+          "samples": 48,
+          "upload_ms": 0.06352000000000046,
+          "shader_ms": 0.5432959999999998,
+          "download_ms": 0.0,
+          "host_eval_ms": 2.892525000000049
+        },
+        "native_pack": {
+          "samples": 18,
+          "upload_ms": 0.023328000000000126,
+          "shader_ms": 0.18243200000000037,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.1653590000000023
+        },
+        "power_clamp": {
+          "samples": 6,
+          "upload_ms": 0.005760000000000043,
+          "shader_ms": 0.04950399999999977,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.36528399999999905
+        },
+        "reduce_axes": {
+          "samples": 6,
+          "upload_ms": 0.009824000000000055,
+          "shader_ms": 0.21030399999999982,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.5422089999999962
+        },
+        "scalar_add_float": {
+          "samples": 12,
+          "upload_ms": 0.019008000000000025,
+          "shader_ms": 0.12063999999999986,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.7286740000000052
+        },
+        "scalar_mul": {
+          "samples": 15,
+          "upload_ms": 0.022208000000000172,
+          "shader_ms": 0.11328000000000094,
+          "download_ms": 0.0,
+          "host_eval_ms": 0.8608659999999944
+        },
+        "sdpa_training": {
+          "samples": 9,
+          "upload_ms": 0.010911999999999998,
+          "shader_ms": 0.5607359999999999,
+          "download_ms": 0.0,
+          "host_eval_ms": 1.0258899999999995
+        }
+      },
+      "queue_delta": {
+        "submissions": 0,
+        "recorded_ops": 0,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 285,
+        "algo_misses": 0,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 0,
+        "bound_algorithms": 0,
+        "pipeline_hits": 0,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    }
+  },
+  "extension_sha256": "1dbbd97d32503522f8af573e81f5c6ab81702e2c13f2e4ac252546b8eaf542d7"
+}

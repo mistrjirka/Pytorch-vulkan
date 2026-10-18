@@ -1,0 +1,21 @@
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+volume_autoencoder GPU profile
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+spatial_transformer GPU profile
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:55 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+recurrent_regressor GPU profile
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+retrieval_regressor GPU profile
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+spectral_filter GPU profile
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+solve_regressor GPU profile
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-18 21:25:56 241437:241437 SyncActivityProfilerHandler.cpp:46] profiler_stop
+causal_attention_block GPU profile

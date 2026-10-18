@@ -1,0 +1,8 @@
+{
+  "torch": "2.14.1+cu130",
+  "vulkan_module": "/workspace/Pytorch-vulkan-complete/torch_vulkan/__init__.py",
+  "selected_accelerator": "vulkan",
+  "error_type": "RuntimeError",
+  "error": "opt_ready_stream && opt_parent_stream INTERNAL ASSERT FAILED at \"/__w/pytorch/pytorch/torch/csrc/autograd/engine.cpp\":1141, please report a bug to PyTorch. ",
+  "status": "error"
+}

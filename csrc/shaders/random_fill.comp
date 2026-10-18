@@ -1,0 +1,16 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "philox.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer P {float prob[];};
+layout(binding=1) readonly buffer Previous {float previous[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(push_constant) uniform Params {uint count,mode,seedlo,seedhi,offsetlo,offsethi,a,b,offset;uint dims[8],strides[8];} p;
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uvec4 r=philox(uvec2(p.seedlo,p.seedhi),uvec2(p.offsetlo,p.offsethi),i/4);float u=uniform01(r[i%4]),value;
+ if(p.mode==0){float a=uintBitsToFloat(p.a),b=uintBitsToFloat(p.b);value=a*(1-u)+b*u;}
+ else if(p.mode==1){uint j=(i%4)/2*2;float radius=sqrt(-2*log((float(r[j]>>8)+1)*0.000000059604644775390625));float angle=6.283185307179586*uniform01(r[j+1]);value=uintBitsToFloat(p.a)+uintBitsToFloat(p.b)*radius*(i%2==0?cos(angle):sin(angle));}
+ else value=u<(p.mode==2?uintBitsToFloat(p.a):prob[i])?1:0;
+ uint address=p.offset,remainder=i;for(int d=7;d>=0;d--){address+=remainder%p.dims[d]*p.strides[d];remainder/=p.dims[d];}y[address]=value;
+}

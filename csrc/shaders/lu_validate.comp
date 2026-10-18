@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Piv {int piv[];};
+layout(binding=1) writeonly buffer F {float flags[];};
+layout(push_constant) uniform P {uint count,n;} p;
+shared uint bad;
+void main(){uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;if(lane==0)bad=0;barrier();uint step=gl_NumWorkGroups.x*gl_NumWorkGroups.y*128;for(uint i=group*128+lane;i<p.count;i+=step)if(piv[i]<1||piv[i]>int(p.n))atomicOr(bad,1);barrier();if(lane==0)flags[group]=float(bad);}

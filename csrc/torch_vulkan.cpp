@@ -1,3 +1,6 @@
+#include "execution_audit.h"
+#include "ops/native_utils.h"
+#include "vulkan_generator.h"
 #include "vulkan_device.h"
 // torch_vulkan.cpp — Entry point for the PrivateUse1 Vulkan backend.
 //
@@ -17,6 +20,7 @@
 #include "vulkan_context.h"
 #include <c10/core/impl/alloc_cpu.h>
 #include <torch/extension.h>
+#include <torch/csrc/Stream.h>
 #include <cstring>
 #include <ATen/detail/PrivateUse1HooksInterface.h>
 
@@ -27,6 +31,11 @@ void clear_conv_dispatch_cache();
 }
 
 
+// Logical streams share one physical queue. This preserves ordering while
+// allowing asynchronous host submission; independent streams currently serialize.
+static thread_local c10::StreamId current_stream_id=0;
+static std::atomic<int64_t> next_stream_id{1};
+struct VulkanEvent {std::shared_ptr<kp::Sequence> sequence;bool timing=false;};
 // DeviceGuard integration — tells PyTorch how to manage Vulkan device context
 struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   c10::DeviceType type() const override {
@@ -49,7 +58,7 @@ struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   void uncheckedSetDevice(c10::Device d) const noexcept override {}
 
   c10::Stream getStream(c10::Device d) const noexcept override {
-    return c10::Stream(c10::Stream::DEFAULT, d);
+    return c10::Stream(c10::Stream::UNSAFE,c10::Device(c10::DeviceType::PrivateUse1,0),current_stream_id);
   }
 
   c10::Stream getDefaultStream(c10::Device d) const override {
@@ -58,7 +67,39 @@ struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   }
 
   c10::Stream exchangeStream(c10::Stream s) const noexcept override {
-    return c10::Stream(c10::Stream::DEFAULT, s.device());
+    auto old=c10::Stream(c10::Stream::UNSAFE,c10::Device(c10::DeviceType::PrivateUse1,0),current_stream_id);
+    current_stream_id=s.id();return old;
+  }
+
+  c10::Stream getNewStream(c10::Device d,int priority=0) const override {
+    validate_vulkan_device(d);TORCH_CHECK(priority==0,"Vulkan stream priorities are unsupported");
+    return c10::Stream(c10::Stream::UNSAFE,c10::Device(c10::DeviceType::PrivateUse1,0),next_stream_id.fetch_add(1));
+  }
+  c10::Stream getStreamFromGlobalPool(c10::Device d,bool high=false) const override {return getNewStream(d,high?-1:0);}
+  bool queryStream(const c10::Stream&) const override {return VulkanContext::instance().query_queue();}
+  void synchronizeStream(const c10::Stream&) const override {VulkanContext::instance().synchronize();}
+  void synchronizeDevice(c10::DeviceIndex index) const override {TORCH_CHECK(index==0,"Invalid Vulkan device");VulkanContext::instance().synchronize();}
+  void record(void** event,const c10::Stream& stream,c10::DeviceIndex index,c10::EventFlag flag) const override {
+    validate_vulkan_device(stream.device());TORCH_CHECK(index==-1||index==0,"Invalid Vulkan event device");
+    TORCH_CHECK(flag!=c10::EventFlag::INVALID,"Invalid event flag");
+    auto timing=flag==c10::EventFlag::BACKEND_DEFAULT;
+    auto sequence=VulkanContext::instance().record_event(timing);
+    if(!*event)*event=new VulkanEvent();
+    auto* e=static_cast<VulkanEvent*>(*event);e->sequence=std::move(sequence);e->timing=timing;
+  }
+  void destroyEvent(void* event,c10::DeviceIndex) const noexcept override {delete static_cast<VulkanEvent*>(event);}
+  void block(void*,const c10::Stream&) const override {
+    // Every stream submits to the same ordered VkQueue. A recorded event is
+    // already enqueued before subsequent operations, including re-records.
+  }
+  bool queryEvent(void* event) const override {return !event||VulkanContext::instance().query_event(static_cast<VulkanEvent*>(event)->sequence);}
+  void synchronizeEvent(void* event) const override {if(event)VulkanContext::instance().await_event(static_cast<VulkanEvent*>(event)->sequence);}
+  double elapsedTime(void* first,void* second,c10::DeviceIndex) const override {
+    TORCH_CHECK(first&&second,"Both events must be recorded");auto* a=static_cast<VulkanEvent*>(first);auto* b=static_cast<VulkanEvent*>(second);
+    TORCH_CHECK(a->timing&&b->timing,"Event timing was not enabled");
+    TORCH_CHECK(queryEvent(first)&&queryEvent(second),"Events have not completed");
+    auto start=a->sequence->getTimestamps()[0],end=b->sequence->getTimestamps()[0];
+    return double(end-start)*VulkanContext::instance().manager().getDeviceProperties().limits.timestampPeriod/1e6;
   }
 
   c10::DeviceIndex deviceCount() const noexcept override {
@@ -75,7 +116,11 @@ void resize_vulkan_storage(c10::StorageImpl* impl, size_t bytes) {
   if (bytes <= old_bytes) return;
   auto next = VulkanAllocator::instance().allocate(bytes);
   if (old_bytes && impl->data() != nullptr) {
-    std::memcpy(next.get(), impl->data(), old_bytes);
+    auto& alloc=VulkanAllocator::instance();
+    const auto count=(old_bytes+3)/4;
+    std::vector<uint32_t> push(18,0);push[0]=ops::native::u32(count);
+    std::fill(push.begin()+2,push.begin()+10,1);push[2]=ops::native::u32(count);push[10]=1;
+    ops::native::run("native_pack_int32",{alloc.get_kompute_tensor(const_cast<void*>(impl->data()))},{alloc.get_kompute_tensor(next.get())},push,(count+127)/128);
   }
   impl->set_data_ptr(std::move(next));
   impl->set_nbytes(bytes);
@@ -87,6 +132,8 @@ void resize_vulkan_storage(c10::StorageImpl* impl, size_t bytes) {
 // CPU fallback is not a replacement for these hooks: the autograd engine calls
 // into the accelerator interface even when all backward operations exist.
 struct VulkanHooks final : public at::PrivateUse1HooksInterface {
+  const at::Generator& getDefaultGenerator(c10::DeviceIndex index) const override {TORCH_CHECK(index==-1||index==0,"Invalid Vulkan generator device");return default_generator();}
+  at::Generator getNewGenerator(c10::DeviceIndex index=-1) const override {return new_generator(index);}
   bool isBuilt() const override { return true; }
   // The public Python `is_available()` does the full Vulkan-driver check.
   bool isAvailable() const override { return true; }
@@ -193,6 +240,7 @@ py::dict gpu_timing_stats() {
 }
 
 PYBIND11_MODULE(_C, m) {
+  m.def("_default_generator", [](){return default_generator();});
   m.def("_conv_dispatch_stats", &ops::conv_dispatch_stats);
   m.def("_clear_conv_dispatch_cache", &ops::clear_conv_dispatch_cache);
   m.def("_set_shader_dir", &set_shader_dir);
@@ -200,6 +248,11 @@ PYBIND11_MODULE(_C, m) {
   m.def("_is_available", &is_available);
   m.def("_is_hardware_accelerated", &is_hardware_accelerated);
   m.def("_synchronize", &synchronize);
+  m.def("_execution_stats", &audit::stats);
+  m.def("_reset_execution_stats", &audit::reset);
+  m.def("_current_stream", [](){return pybind11::reinterpret_steal<pybind11::object>(THPStream_Wrap(c10::Stream(c10::Stream::UNSAFE,c10::Device(c10::DeviceType::PrivateUse1,0),current_stream_id)));});
+  m.def("_default_stream", [](){return pybind11::reinterpret_steal<pybind11::object>(THPStream_Wrap(c10::Stream(c10::Stream::DEFAULT,c10::Device(c10::DeviceType::PrivateUse1,0))));});
+  m.def("_set_stream_id", [](int64_t id){TORCH_CHECK(id>=0&&id<next_stream_id.load(),"Unknown Vulkan stream");current_stream_id=id;});
   m.def("_queue_stats", &queue_stats);
   m.def("_gpu_timing_stats", &gpu_timing_stats);
   m.def("_cache_stats", &cache_stats,

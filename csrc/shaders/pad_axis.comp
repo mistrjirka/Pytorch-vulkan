@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,ins,outs,inner;int left;uint reflect,backward;} p;
+int source_at(uint output_index){int i=int(output_index)-p.left;if(p.reflect==0)return clamp(i,0,int(p.ins)-1);if(i<0)i=-i;if(i>=int(p.ins))i=2*int(p.ins)-i-2;return i;}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;uint n=p.backward!=0?p.ins:p.outs,coord=(id/p.inner)%n,outer=id/(n*p.inner),tail=id%p.inner;
+ if(p.backward==0)y[id]=x[(outer*p.ins+uint(source_at(coord)))*p.inner+tail];else{float result=0;for(uint o=0;o<p.outs;o++)if(source_at(o)==int(coord))result+=x[(outer*p.outs+o)*p.inner+tail];y[id]=result;}}

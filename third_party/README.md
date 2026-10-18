@@ -18,3 +18,9 @@ Original implementations in this change cover pooling, reduction, predicates,
 selection, power/clamp and boolean packing. They are not copies of upstream
 training kernels. Burn's MIT/Apache-2.0 licensing and CubeCL approach were also
 reviewed as alternatives; no Burn/CubeCL code is included.
+
+The FP32 completion kernels listed in `scripts/compile_coverage.py` are original
+implementations in this project. Philox4x32-10 is implemented from its counter
+transformation using core GLSL integer operations; no cuRAND, cuDNN, MIOpen,
+cuFFT, rocFFT or other vendor-library code or binary is included. PyTorch's
+native metadata helpers are called through the installed PyTorch library.

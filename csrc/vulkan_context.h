@@ -66,6 +66,10 @@ public:
                        const std::vector<std::shared_ptr<kp::Tensor>>& bindings,
                        const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
   void synchronize();  // wait for all queued work before any host CPU access
+  std::shared_ptr<kp::Sequence> record_event(bool timing);
+  bool query_queue();
+  void await_event(const std::shared_ptr<kp::Sequence>& sequence);
+  bool query_event(const std::shared_ptr<kp::Sequence>& sequence);
   struct QueueStats {
     uint64_t submissions=0, recorded_ops=0, largest_batch=0;
   };
@@ -139,6 +143,9 @@ private:
 
   mutable std::mutex deferred_mutex_;
   std::shared_ptr<kp::Sequence> deferred_;
+  std::vector<std::shared_ptr<kp::Sequence>> in_flight_;
+  void submit_deferred_locked();
+  void reap_completed_locked();
   std::vector<std::shared_ptr<kp::Tensor>> pending_outputs_;
   QueueStats queue_stats_;
 

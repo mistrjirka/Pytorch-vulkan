@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {vec2 x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,input_n,output_n,inner,real,scale;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uint col=i/p.inner%p.output_n,outer=i/(p.output_n*p.inner),tail=i%p.inner;vec2 v=x[(outer*p.input_n+col)*p.inner+tail]*uintBitsToFloat(p.scale);
+ if(p.real!=0)y[i]=v.x;else{y[2*i]=v.x;y[2*i+1]=v.y;}}

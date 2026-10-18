@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {vec2 x[];};
+layout(binding=1) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,n,inner,width,inverse;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uint col=i/p.inner%p.n,halfwidth=p.width/2,k=col%halfwidth,a=i-(col%p.width)*p.inner+k*p.inner,b=a+halfwidth*p.inner;
+ float angle=(p.inverse!=0?1:-1)*6.283185307179586*float(k)/float(p.width);vec2 w=vec2(cos(angle),sin(angle)),v=x[b];vec2 t=vec2(w.x*v.x-w.y*v.y,w.x*v.y+w.y*v.x);y[i]=x[a]+(col%p.width<halfwidth?t:-t);}

@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uvec2 indices[];};
+layout(binding=1) readonly buffer V {float values[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,features,nnz,sd,mask;uint sizes[8];} p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;uint d=id%p.features;
+ if(p.mask!=0){uint n=id/p.features,address=0;bool valid=true;for(uint a=0;a<p.sd;a++){uvec2 i=indices[a*p.nnz+n];if(i.y!=0||i.x>=p.sizes[a])valid=false;address=address*p.sizes[a]+i.x;}y[id]=valid?values[address*p.features+d]:0;return;}
+ uint row=id/p.features;float sum=0;for(uint n=0;n<p.nnz;n++){uint r=row;bool match=true;for(int a=int(p.sd)-1;a>=0;a--){uvec2 i=indices[uint(a)*p.nnz+n];if(i.y!=0||i.x!=r%p.sizes[a])match=false;r/=p.sizes[a];}if(match)sum+=values[n*p.features+d];}y[id]=sum;}

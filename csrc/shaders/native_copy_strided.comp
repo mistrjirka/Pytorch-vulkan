@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) readonly buffer Previous {uint previous[];};
+layout(binding=2) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,words,src_offset,dst_offset;uint dims[8],ss[8],ds[8];uint conjugate,negative_word_stride;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint s=p.src_offset,d=p.dst_offset,r=i;for(int a=7;a>=0;a--){uint c=r%p.dims[a];r/=p.dims[a];s+=c*p.ss[a];d+=c*p.ds[a];}for(uint k=0;k<p.words;k++)y[d*p.words+k]=x[s*p.words+k]^((p.conjugate!=0&&k==(p.words==4?3:1))?0x80000000u:0u)^((p.negative_word_stride!=0&&((k+1)%p.negative_word_stride)==0)?0x80000000u:0u);}

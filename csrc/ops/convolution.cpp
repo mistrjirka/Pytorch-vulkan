@@ -1,3 +1,4 @@
+#include "convolution_nd.h"
 // Generic FP32 NCHW convolution with capability-gated forward/backward
 // implementations. Direct shaders remain available for reference and fallback.
 #include "../vulkan_context.h"
@@ -464,6 +465,7 @@ static at::Tensor convolution_overrideable(
     c10::SymIntArrayRef stride, c10::SymIntArrayRef padding,
     c10::SymIntArrayRef dilation, bool transposed,
     c10::SymIntArrayRef output_padding, c10::SymInt groups) {
+  if(transposed || input.dim()==5) return convolution_nd(input,weight,bias,stride,padding,dilation,transposed,output_padding,groups);
   auto p = convolution_params(input, weight, stride, padding, dilation,
                                transposed, output_padding, groups);
   const auto input_c=packed(input), weight_c=packed(weight);
@@ -490,6 +492,7 @@ static std::tuple<at::Tensor,at::Tensor,at::Tensor> convolution_backward_overrid
     c10::SymIntArrayRef dilation, bool transposed,
     c10::SymIntArrayRef output_padding, c10::SymInt groups,
     std::array<bool,3> output_mask) {
+  if(transposed || input.dim()==5) return convolution_nd_backward(grad_output,input,weight,stride,padding,dilation,transposed,output_padding,groups,output_mask);
   auto p = convolution_params(input, weight, stride, padding, dilation,
                                transposed, output_padding, groups);
   TORCH_CHECK(grad_output.dim() == 4 && grad_output.size(0) == p.n &&

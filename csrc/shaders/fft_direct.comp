@@ -1,0 +1,10 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,n,inner,input_n,mode,inverse;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uint col=i/p.inner%p.n,outer=i/(p.n*p.inner),tail=i%p.inner;vec2 sum=vec2(0);
+ for(uint k=0;k<p.n;k++){bool conjugate=p.mode==2&&k>=p.input_n;uint src=(outer*p.input_n+(conjugate?p.n-k:k))*p.inner+tail;
+ vec2 v=p.mode==0?vec2(x[src],0):vec2(x[src*2],(conjugate?-1:1)*x[src*2+1]);float angle=(p.inverse!=0?1:-1)*6.283185307179586*float(k)*float(col)/float(p.n);vec2 w=vec2(cos(angle),sin(angle));sum+=vec2(w.x*v.x-w.y*v.y,w.x*v.y+w.y*v.x);}
+ y[i]=sum;}

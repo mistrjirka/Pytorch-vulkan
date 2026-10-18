@@ -1,0 +1,11 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uint idx[];};
+layout(binding=1) readonly buffer O {uint off[];};
+layout(binding=2) writeonly buffer F {float flags[];};
+layout(push_constant) uniform P {uint n,no,rows,iw,ow,last;} p;
+shared uint bad;
+void main(){uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x,groups=gl_NumWorkGroups.x*gl_NumWorkGroups.y;if(lane==0)bad=0;barrier();
+ for(uint i=group*128+lane;i<p.n;i+=groups*128)if(idx[i*p.iw]>=p.rows||(p.iw==2&&idx[i*2+1]!=0))atomicOr(bad,1);
+ for(uint i=group*128+lane;i<p.no;i+=groups*128){uint value=off[i*p.ow];if(value>p.n||(p.ow==2&&off[i*2+1]!=0)||(i==0&&value!=0)||(i>0&&value<off[(i-1)*p.ow])||(p.last!=0&&i+1==p.no&&value!=p.n))atomicOr(bad,1);}
+ barrier();if(lane==0)flags[group]=float(bad);}

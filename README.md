@@ -64,18 +64,18 @@ to load.
 
 ## Verified functionality (October 18, 2026)
 
-On **PyTorch 2.14.1+cpu**:
+The [FP32 completion report](docs/fp32-coverage-completion.md) records the current
+full regression matrix, strict CPU-fallback/host-read checks, seven additional
+feature networks and fresh matched CUDA measurements. The audited FP32 gaps now
+include native Conv3D/transposed convolution, LSTM, independent RNG/dropout,
+indexing/embedding-bag, sorting/FFT/dense solve, extra spatial operators, sparse
+COO, fused training attention, ordinary AdamW/AMSGrad, logical streams/events and
+default Inductor integration. See the report for each supported contract and the
+remaining API/performance limits.
 
-| Driver | Test results |
-|---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 1,229 passed (GPU-resident + deferred mode) |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 1,229 passed (GPU-resident + deferred mode) |
-| Lavapipe software Vulkan | 1,228 passed, 1 hardware-only skip |
-| RTX 2080 Ti, eager / host-backed mode | 1,227 passed, 2 deferred-only skips |
-
-These counts include both the native operators and runtime/convolution optimizations;
-see the [latest spatial/reduction coverage and CUDA measurements](docs/spatial-reductions-and-network-coverage.md)
-and the [earlier combined integration](docs/native-operator-integration.md).
+Earlier [spatial/reduction coverage](docs/spatial-reductions-and-network-coverage.md)
+and [combined integration](docs/native-operator-integration.md) reports retain
+historical measurements. The measurements below refer to their named revisions.
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -126,8 +126,9 @@ backward. General reductions, predicates, boolean operations, where, power and
 clamp also cover the tested composed-attention and reduction networks. See the
 [license research, 17-case feature audit and five-network CUDA comparison](docs/spatial-reductions-and-network-coverage.md).
 
-Still missing: fully fused training SDPA, complete dropout/RNG, transposed
-convolution, antialiased resize, and generalized FP16/BF16 compute.
+The later [FP32 completion work](docs/fp32-coverage-completion.md) adds fused
+training SDPA, independent RNG/dropout, transposed convolution and antialiased
+resize. FP16/BF16/AMP and multi-GPU remain deferred.
 
 ### General convolution selection
 

@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer G {float g[];};
+layout(binding=1) readonly buffer M {uint mask[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,scale;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.count)y[i]=g[i]*float(((mask[i/4]>>((i%4)*8))&255)!=0)*uintBitsToFloat(p.scale);}

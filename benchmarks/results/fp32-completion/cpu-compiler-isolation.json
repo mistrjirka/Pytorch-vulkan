@@ -1,0 +1,6 @@
+{
+  "device": "cpu",
+  "torch": "2.14.1+cpu",
+  "status": "ok",
+  "generated_kernel_count": 5
+}

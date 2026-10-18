@@ -92,7 +92,7 @@ def test_device_to_cpu_cast_dtype():
 
 def test_reject_incompatible_dtype_in_arithmetic():
     import pytest
-    x = torch.tensor([1, 2], dtype=torch.int32).to("vulkan")
+    x = torch.tensor([1, 2], dtype=torch.float64).to("vulkan")
     with pytest.raises(RuntimeError, match="float32 inputs required"):
         _ = x + x
 

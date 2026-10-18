@@ -1,0 +1,14 @@
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 66%]
+........................................................................ [ 83%]
+......................................................................   [100%]
+=============================== warnings summary ===============================
+tests/test_complete_spatial_recurrent.py::test_lstm_forward_backward[1-True-3-True]
+  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/modules/rnn.py:1164: UserWarning: LSTM with projections is not supported with oneDNN. Using default implementation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/RNN.cpp:1512.)
+    result = _VF.lstm(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+430 passed, 1 warning in 7.19s
+[Oct 18 2026 20:58:54] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Rank {uint ranks[];};
+layout(binding=2) writeonly buffer Count {uint count[];};
+layout(push_constant) uniform P {uint rows,features;} p;
+void main(){if(gl_GlobalInvocationID.x!=0)return;uint n=0;for(uint r=0;r<p.rows;r++){bool nz=false;for(uint d=0;d<p.features;d++)nz=nz||x[r*p.features+d]!=0;ranks[r]=nz?n++:0xffffffff;}count[0]=n;}

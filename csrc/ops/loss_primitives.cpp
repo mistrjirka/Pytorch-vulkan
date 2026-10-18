@@ -1,8 +1,10 @@
+#include "fft.h"
 #include "reduce_native.h"
 // General FP32 elementwise primitives and global reduction. No model dispatch.
 #include "native_utils.h"
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
+#include <ATen/native/Resize.h>
 #include <ATen/native/BinaryOps.h>
 #include <torch/library.h>
 #include <cmath>
@@ -128,9 +130,11 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
   return out;
 }
 at::Tensor sub_tensor(const at::Tensor& a,const at::Tensor& b,const at::Scalar& alpha) {
+  if(a.is_complex()||b.is_complex())return complex_binary(a,b,0,-alpha);
   return binary(a,b,0,alpha);
 }
 at::Tensor div_tensor_native(const at::Tensor& a,const at::Tensor& b) {
+  if(a.is_complex()||b.is_complex())return complex_binary(a,b,2);
   return binary(a,b,1);
 }
 at::Tensor sigmoid_backward_native(const at::Tensor& grad,const at::Tensor& out) {
@@ -148,6 +152,7 @@ at::Tensor& mutate_cpu(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const 
   flat.copy_(storage);return x;
 }
 at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::Scalar& alpha=1) {
+  if(x.scalar_type()==at::kComplexFloat&&op==3){at::assert_no_internal_overlap(x);x.copy_(complex_scale(x,scalar));return x;}
   const bool fill=op==0;
   if(op==2) {
     at::native::sub_check(x,scalar);
@@ -169,7 +174,13 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
   run("loss_mutate",{base(x)},{base(x)},p,(uint64_t(p[0])+127)/128);
   return x;
 }
-at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {return mutate(x,s,0);}
+at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {
+ if((x.scalar_type()==at::kInt||x.scalar_type()==at::kLong)&&can_pack_view(x)){
+  at::assert_no_internal_overlap(x);if(!x.numel())return x;uint64_t value=x.scalar_type()==at::kInt?uint32_t(s.toInt()):uint64_t(s.toLong());
+  std::vector<uint32_t> p={u32(x.numel()),u32(x.storage_offset()),uint32_t(x.element_size()/4),uint32_t(value),uint32_t(value>>32)};p.resize(21,0);std::fill(p.begin()+5,p.begin()+13,1);for(int d=0;d<x.dim();d++){p[5+d]=u32(x.size(d));p[13+d]=u32(x.stride(d));}
+  run("integer_fill",{base(x,x.scalar_type())},{base(x,x.scalar_type())},p,(x.numel()+127)/128);return x;
+ }
+if(x.scalar_type()==at::kComplexFloat)return complex_fill(x,s);return mutate(x,s,0);}
 at::Tensor& zero_native(at::Tensor& x) {return fill_scalar(x,0);}
 at::Tensor& div_scalar_(at::Tensor& x,const at::Scalar& s) {return mutate(x,s,1);}
 
@@ -187,6 +198,7 @@ at::Tensor& mutate_tensor(at::Tensor& x,const at::Tensor& other,uint32_t op,
   at::assert_no_partial_overlap(x,other);
   if(other.device().is_cpu() && other.dim()==0)
     return mutate(x,other.item(),op,alpha);
+  if(x.is_complex()||other.is_complex()){auto result=complex_binary(x,other,op==1?2:op==2?0:1,op==2?-alpha:at::Scalar(1));TORCH_CHECK(result.sizes()==x.sizes(),"inplace complex broadcast mismatch");x.copy_(result);return x;}
   const auto shape=at::infer_size(x.sizes(),other.sizes());
   TORCH_CHECK(at::IntArrayRef(shape)==x.sizes(),
               "output with shape ",x.sizes()," doesn't match the broadcast shape ",shape);
@@ -291,10 +303,22 @@ at::Tensor mean_dim(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keepdi
 at::Tensor mean_all(const at::Tensor& x,std::optional<at::ScalarType> dtype) {
   return mean_dim(x,std::nullopt,false,dtype);
 }
+at::Tensor mse_native(const at::Tensor& x,const at::Tensor& target,int64_t reduction){
+ TORCH_CHECK(x.scalar_type()==at::kFloat&&target.scalar_type()==at::kFloat&&x.device()==target.device()&&reduction>=0&&reduction<=2,"MSE requires FP32 tensors on the same device and a valid reduction");
+ auto difference=x.sub(target);auto squares=difference.mul(difference);if(reduction==0)return squares;return reduction==1?squares.mean():squares.sum();
+}
+at::Tensor mse_backward_native(const at::Tensor& grad,const at::Tensor& x,const at::Tensor& target,int64_t reduction){
+ TORCH_CHECK(x.scalar_type()==at::kFloat&&target.scalar_type()==at::kFloat&&grad.scalar_type()==at::kFloat&&x.device()==target.device()&&grad.device()==x.device()&&reduction>=0&&reduction<=2,"MSE backward input mismatch");
+ auto difference=x.sub(target);return difference.mul(reduction==1?2.0/difference.numel():2.0).mul(grad);
+}
+at::Tensor& mse_output(const at::Tensor& value,at::Tensor& out){TORCH_CHECK(out.device()==value.device()&&out.scalar_type()==value.scalar_type(),"MSE output mismatch");at::assert_no_internal_overlap(out);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
+at::Tensor& mse_out(const at::Tensor& x,const at::Tensor& target,int64_t reduction,at::Tensor& out){return mse_output(mse_native(x,target,reduction),out);}
+at::Tensor& mse_backward_out(const at::Tensor& grad,const at::Tensor& x,const at::Tensor& target,int64_t reduction,at::Tensor& out){return mse_output(mse_backward_native(grad,x,target,reduction),out);}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {
   const char* flag=std::getenv("TORCH_VULKAN_DISABLE_LOSS_PRIMITIVES");
   if(flag && !std::strcmp(flag,"1"))return;
+  m.impl("mse_loss",&mse_native);m.impl("mse_loss.out",&mse_out);m.impl("mse_loss_backward",&mse_backward_native);m.impl("mse_loss_backward.grad_input",&mse_backward_out);
   m.impl("sub.Tensor",&sub_tensor);
   m.impl("div.Tensor",&div_tensor_native);
   m.impl("div.Scalar",&div_scalar);

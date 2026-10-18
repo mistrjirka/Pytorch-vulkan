@@ -1,0 +1,12 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "philox.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Previous {uint previous[];};
+layout(binding=1) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,words,offset,seedlo,seedhi,offsetlo,offsethi,lo,hi,range_lo,range_hi,mask_lo,mask_hi;uint dims[8],strides[8];} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uint low=p.offsetlo+i;uvec2 value;uint attempt=0;bool accept;
+ do{value=philox_counter(uvec2(p.seedlo,p.seedhi),uvec4(low,p.offsethi+uint(low<p.offsetlo),attempt++,0)).xy&uvec2(p.mask_lo,p.mask_hi);accept=(p.range_lo==0&&p.range_hi==0)||value.y<p.range_hi||(value.y==p.range_hi&&value.x<p.range_lo);}while(!accept);
+ uint result=value.x+p.lo;value=uvec2(result,value.y+p.hi+uint(result<value.x));uint address=p.offset,r=i;for(int d=7;d>=0;d--){address+=(r%p.dims[d])*p.strides[d];r/=p.dims[d];}y[address*p.words]=value.x;if(p.words==2)y[address*2+1]=value.y;
+}

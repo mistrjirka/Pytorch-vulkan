@@ -1,0 +1,12 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer W {float weight[];};
+layout(binding=1) readonly buffer I {uint idx[];};
+layout(binding=2) readonly buffer O {uint off[];};
+layout(binding=3) readonly buffer Psw {float psw[];};
+layout(binding=4) writeonly buffer Y {float y[];};
+layout(binding=5) writeonly buffer Maximum {uvec2 maxima[];};
+layout(push_constant) uniform P {uint n,bags,features,iw,ow,last,padding,mode,weighted;} p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.bags*p.features)return;uint b=id/p.features,d=id%p.features,start=off[b*p.ow],end=(b+1<p.bags||p.last!=0)?off[(b+1)*p.ow]:p.n,count=0,best=0;float result=0;
+ for(uint i=start;i<end;i++){uint row=idx[i*p.iw];if(row==p.padding)continue;float value=weight[row*p.features+d];if(p.mode==2){if(count==0||value>result){result=value;best=row;}}else result+=value*(p.weighted!=0?psw[i]:1);count++;}
+ if(p.mode==1&&count>0)result/=float(count);y[id]=result;if(p.mode==2)maxima[id]=uvec2(best,0);else if(d==0)maxima[b]=uvec2(count,0);}

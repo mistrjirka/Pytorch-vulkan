@@ -1,3 +1,6 @@
+#include "../execution_audit.h"
+#include "fft.h"
+#include "integer_ops.h"
 #include <ATen/Functions.h>
 #include <ATen/EmptyTensor.h>
 #include <ATen/MemoryOverlap.h>
@@ -36,9 +39,12 @@ static at::Tensor host_mirror(const at::Tensor& src) {
   if (src.numel() == 0)
     return at::empty(src.sizes(), src.options().device(at::kCPU));
   TORCH_CHECK(src.const_data_ptr() != nullptr, "vulkan: unmapped host mirror");
-  return at::from_blob(const_cast<void*>(src.const_data_ptr()),
+  auto mirror=at::from_blob(const_cast<void*>(src.const_data_ptr()),
       src.sizes(), src.strides(), [](void*) {},
       at::TensorOptions().dtype(src.scalar_type()).device(at::kCPU));
+  mirror.unsafeGetTensorImpl()->_set_conj(src.is_conj());
+  mirror.unsafeGetTensorImpl()->_set_neg(src.is_neg());
+  return mirror;
 }
 
 static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
@@ -101,6 +107,7 @@ static at::Tensor elementwise_binary(
   int64_t n = self_c.numel();
   TORCH_CHECK(self_c.sizes() == other_c.sizes(), shader_name,
               ": broadcasting requires matching shapes or an explicit expanded operand");
+  if(!n)return at::empty(self.sizes(),self.options());
 
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
@@ -148,6 +155,7 @@ static at::Tensor elementwise_unary(
               shader_name, ": float32 input required");
   auto self_c = contiguous_for_kernel(self);
   int64_t n = self_c.numel();
+  if(!n)return at::empty(self.sizes(),self.options());
 
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
@@ -362,6 +370,8 @@ static std::optional<at::Tensor> cpu_scalar_binary(
 // aten::add.Tensor — alpha scaling with arbitrary compatible broadcasting.
 at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
                       const at::Scalar& alpha) {
+  if(self.is_complex()||other.is_complex())return complex_binary(self,other,0,alpha);
+  if(integer_type(self.scalar_type())&&integer_type(other.scalar_type()))return integer_binary(self,other,alpha,false);
   if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
   auto [a, b] = broadcast_binary_operands(self, other);
   TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan add: tensor too large");
@@ -374,6 +384,15 @@ at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
 
 // aten::mul.Tensor — elementwise multiplication with arbitrary broadcasting.
 at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
+  if((self.scalar_type()==at::kBool&&other.scalar_type()==at::kFloat)||(other.scalar_type()==at::kBool&&self.scalar_type()==at::kFloat)){
+    TORCH_CHECK(self.device()==other.device(),"masked multiplication requires the same device");
+    auto shape=at::infer_size(self.sizes(),other.sizes());auto mask=self.scalar_type()==at::kBool?self:other;auto value=self.scalar_type()==at::kFloat?self:other;
+    return at::native_dropout_backward(value.expand(shape),mask.expand(shape),1.0);
+  }
+  if(integer_type(self.scalar_type())&&integer_type(other.scalar_type()))return integer_binary(self,other,1,true);
+  if(self.scalar_type()==at::kComplexFloat&&other.is_cpu()&&other.dim()==0)return complex_scale(self,other.item());
+  if(other.scalar_type()==at::kComplexFloat&&self.is_cpu()&&self.dim()==0)return complex_scale(other,self.item());
+  if(self.is_complex()||other.is_complex())return complex_binary(self,other,1);
   if(auto out=cpu_scalar_binary(self,other,1.0f,true))return *out;
   auto [a, b] = broadcast_binary_operands(self, other);
   TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan mul: tensor too large");
@@ -418,6 +437,19 @@ at::Tensor vulkan_to_copy(
 
   if (target_device.type() == c10::DeviceType::PrivateUse1) {
     validate_vulkan_device(target_device);
+    if(self.device()==target_device || (self.device().type()==c10::DeviceType::PrivateUse1&&!target_device.has_index())){
+      TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided&&!pin_memory.value_or(false),"invalid Vulkan copy layout/pinning");
+      if(target_dtype==self.scalar_type()){
+        auto result=at::empty_like(self,self.options(),memory_format);result.copy_(self);return result;
+      }
+      if(self.scalar_type()==at::kBool&&target_dtype==at::kFloat){
+        auto result=at::empty_like(self,self.options().dtype(at::kFloat),memory_format);
+        if(self.numel()){auto input=native::packed(self,at::kBool);auto output=result.is_contiguous()?result:at::empty(self.sizes(),result.options());
+          native::run("bool_to_float",{native::base(input,at::kBool)},{native::base(output)},{native::u32(self.numel())},(self.numel()+127)/128);
+          if(!result.is_contiguous())result.copy_(output);
+        }return result;
+      }
+    }
     auto self_cpu = host_mirror(self).contiguous();
     auto self_cast = self_cpu.to(target_dtype).contiguous();
     auto result = at::empty(self_cast.sizes(),
@@ -441,15 +473,41 @@ at::Tensor vulkan_to_copy(
 // copy_ — in-place copy
 at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_blocking) {
   if(self.device()==src.device() && self.scalar_type()==src.scalar_type() &&
-     self.data_ptr()==src.data_ptr() && self.sizes()==src.sizes() && self.strides()==src.strides())return self;
+     self.data_ptr()==src.data_ptr() && self.sizes()==src.sizes() && self.strides()==src.strides() && self.is_conj()==src.is_conj() && self.is_neg()==src.is_neg())return self;
   // Check aliases before host mirrors wrap the same bytes in separate storages.
   at::assert_no_internal_overlap(self);
   at::assert_no_partial_overlap(self,src);
+  if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device()==self.device()&&self.scalar_type()==at::kFloat&&src.scalar_type()==at::kBool){
+    auto converted=vulkan_to_copy(src,at::kFloat,std::nullopt,std::nullopt,std::nullopt,false,std::nullopt);
+    return vulkan_copy_(self,converted,non_blocking);
+  }
+  // Copy non-overlapping strided destinations directly on GPU, retaining the
+  // enclosing allocation and its untouched elements.
+  if(self.device().type()==c10::DeviceType::PrivateUse1 && src.device()==self.device() &&
+     self.scalar_type()==src.scalar_type() && self.element_size()>=4 &&
+     self.numel()>0 && !self.storage().is_alias_of(src.storage()) && native::can_pack_view(self) &&
+     (self.is_neg()==src.is_neg()||self.is_floating_point()||self.is_complex())) {
+    const auto shape=at::infer_size(self.sizes(),src.sizes());
+    TORCH_CHECK(at::IntArrayRef(shape)==self.sizes(),"copy broadcast shape mismatch");
+    auto input=src.expand(self.sizes());
+    std::vector<std::pair<int64_t,int64_t>> axes;
+    for(int d=0;d<self.dim();d++)if(self.size(d)>1)axes.push_back({self.stride(d),self.size(d)});
+    std::sort(axes.begin(),axes.end());uint64_t span=1;bool independent=true;
+    for(auto [stride,size]:axes){if(uint64_t(stride)<span)independent=false;span+=uint64_t(size-1)*stride;}
+    if(independent && native::can_pack_view(input)) {
+      std::vector<uint32_t> p(30,0);p[28]=uint32_t(self.is_conj()!=src.is_conj());p[29]=self.is_neg()!=src.is_neg()?(self.scalar_type()==at::kDouble||self.scalar_type()==at::kComplexDouble?2u:1u):0u;p[0]=native::u32(self.numel());p[1]=self.element_size()/4;
+      p[2]=native::u32(input.storage_offset());p[3]=native::u32(self.storage_offset());
+      std::fill(p.begin()+4,p.begin()+12,1);
+      for(int d=0;d<self.dim();d++){p[4+d]=native::u32(self.size(d));p[12+d]=native::u32(input.stride(d));p[20+d]=native::u32(self.stride(d));}
+      native::run("native_copy_strided",{native::base(input,input.scalar_type()),native::base(self,self.scalar_type())},{native::base(self,self.scalar_type())},p,(self.numel()+127)/128);
+      return self;
+    }
+  }
   // General device copy into an entire contiguous allocation. Strided sources
   // use the existing pack shader; dtype casts, aliases and partial destinations
   // retain CPU's established copy semantics below.
   if(self.device().type()==c10::DeviceType::PrivateUse1 && src.device()==self.device() &&
-     self.scalar_type()==src.scalar_type() && self.is_contiguous() &&
+     self.scalar_type()==src.scalar_type() && self.scalar_type()==at::kBool && self.is_neg()==src.is_neg() && self.is_conj()==src.is_conj() && self.is_contiguous() &&
      self.storage_offset()==0 && self.numel()>0 &&
      self.storage().nbytes()==uint64_t(self.numel())*self.element_size() &&
      !self.storage().is_alias_of(src.storage()) && native::can_pack_view(self)) {
@@ -772,6 +830,7 @@ at::Tensor vulkan_addmm(
 // aten::mul.Scalar — elementwise scalar multiply via scalar_mul.spv
 // Phase 4: cached algorithm
 at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
+  if(self.scalar_type()==at::kComplexFloat)return complex_scale(self,other);
   TORCH_CHECK(self.scalar_type() == at::kFloat, "scalar multiply: FP32 only");
   const uint32_t n = static_cast<uint32_t>(self.numel());
   const float scalar = other.toFloat();
@@ -900,9 +959,26 @@ static at::Tensor mm_q4(const at::Tensor& input, const at::Tensor& weight_packed
   return output;
 }
 
+const at::Tensor& resize_native(const at::Tensor& self,c10::SymIntArrayRef symbolic,std::optional<at::MemoryFormat> format){
+  std::vector<int64_t> size;for(auto n:symbolic){auto v=n.expect_int();TORCH_CHECK(v>=0,"negative resize dimension");size.push_back(v);}
+  TORCH_CHECK(!format||*format!=at::MemoryFormat::Preserve,"resize_ does not support preserve memory format");
+  const auto bytes=at::detail::computeStorageNbytesContiguous(size,self.element_size(),self.storage_offset());
+  if(bytes>self.storage().nbytes())resize_vulkan_storage(self.storage().unsafeGetStorageImpl(),bytes);
+  at::native::resize_impl_cpu_(self.unsafeGetTensorImpl(),size,std::nullopt,false);
+  if(format)self.unsafeGetTensorImpl()->empty_tensor_restride(*format);
+  return self;
+}
+
+at::Scalar local_scalar_dense(const at::Tensor& self) {
+  TORCH_CHECK(self.numel()==1,"a Tensor with ",self.numel()," elements cannot be converted to Scalar");
+  return host_mirror(self).item();
+}
+
 // Optional diagnostics for unsupported operations and implicit host copies.
 // Usage: TORCH_VULKAN_TRACE_FALLBACK=1 python examples/linear_train.py
 void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
+  audit::fallback_calls.fetch_add(1);
+  TORCH_CHECK(!std::getenv("TORCH_VULKAN_FORBID_CPU_FALLBACK"),"CPU fallback forbidden: ",op.schema());
   VulkanContext::instance().synchronize();
   const bool trace = std::getenv("TORCH_VULKAN_TRACE_FALLBACK") != nullptr;
   if (!trace) {
@@ -918,6 +994,8 @@ void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
 }
 
 TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
+  m.impl("resize_",&resize_native);
+  m.impl("_local_scalar_dense", &local_scalar_dense);
   m.impl("mm", &mm);
   m.impl("add.Tensor", &add_tensor);
   m.impl("mul.Tensor", &mul_tensor);

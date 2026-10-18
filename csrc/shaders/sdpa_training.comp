@@ -1,0 +1,43 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "philox.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Q {float q[];};
+layout(binding=1) readonly buffer K {float k[];};
+layout(binding=2) readonly buffer V {float v[];};
+layout(binding=3) readonly buffer Mask {uint mask[];};
+layout(binding=4) readonly buffer GO {float go[];};
+layout(binding=5) readonly buffer O {float o[];};
+layout(binding=6) readonly buffer LSE {float lse[];};
+layout(binding=7) buffer Out {float outv[];};
+layout(binding=8) buffer Aux {float aux[];};
+layout(push_constant) uniform P {uint rows,L,S,D,E,mode,masktype,causal,scale,drop,seed0,seed1,off0,off1;} p;
+shared float sums[128],dots[128],deltas[128],scores[128];
+float mask_value(uint i,uint j,uint index){if(p.causal!=0&&j>i)return -1.0/0.0;if(p.masktype==1)return uintBitsToFloat(mask[index]);if(p.masktype==2&&((mask[index/4]>>((index%4)*8))&255)==0)return -1.0/0.0;return 0;}
+float dropped(uint index){float drop=uintBitsToFloat(p.drop);if(drop==0)return 1;if(drop==1)return 0;uvec4 r=philox(uvec2(p.seed0,p.seed1),uvec2(p.off0,p.off1),index/4);return uniform01(r[index%4])>=drop?1/(1-drop):0;}
+void reduce3(uint lane){barrier();for(uint n=64;n>0;n/=2){if(lane<n){sums[lane]+=sums[lane+n];dots[lane]+=dots[lane+n];deltas[lane]+=deltas[lane+n];}barrier();}}
+void main(){uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;float scale=uintBitsToFloat(p.scale);
+ if(p.mode==0){if(row>=p.rows*p.L)return;uint b=row/p.L,i=row%p.L;float maximum=-1.0/0.0,total=0;
+  for(uint start=0;start<p.S;start+=128){uint j=start+lane;float score=-1.0/0.0;if(j<p.S){score=0;for(uint d=0;d<p.D;d++)score+=q[row*p.D+d]*k[(b*p.S+j)*p.D+d];score=score*scale+mask_value(i,j,row*p.S+j);}scores[lane]=score;sums[lane]=score;barrier();
+   for(uint n=64;n>0;n/=2){if(lane<n)sums[lane]=max(sums[lane],sums[lane+n]);barrier();}float next=max(maximum,sums[0]);float old=isinf(maximum)?0:exp(maximum-next);barrier();sums[lane]=isinf(next)?0:exp(score-next);barrier();for(uint n=64;n>0;n/=2){if(lane<n)sums[lane]+=sums[lane+n];barrier();}total=total*old+sums[0];maximum=next;barrier();
+  }
+  float logsum=total==0?-1.0/0.0:maximum+log(total);if(lane==0)aux[row]=logsum;
+  for(uint d=lane;d<p.E;d+=128)outv[row*p.E+d]=0;memoryBarrierBuffer();barrier();
+  for(uint start=0;start<p.S;start+=128){uint j=start+lane;float score=0;if(j<p.S&&!isinf(logsum)){for(uint d=0;d<p.D;d++)score+=q[row*p.D+d]*k[(b*p.S+j)*p.D+d];score=exp(score*scale+mask_value(i,j,row*p.S+j)-logsum)*dropped(row*p.S+j);}else score=0;scores[lane]=score;barrier();
+   for(uint d=lane;d<p.E;d+=128){float acc=0;for(uint t=0;t<min(128,p.S-start);t++)acc+=scores[t]*v[(b*p.S+start+t)*p.E+d];outv[row*p.E+d]+=acc;}memoryBarrierBuffer();barrier();
+  }return;
+ }
+ // Query gradients (mode 1) and key/value gradients (mode 2), each with
+ // exclusive output ownership; no floating-point atomics or saved SxL matrix.
+ uint outer=p.mode==1?p.L:p.S;if(row>=p.rows*outer)return;uint b=row/outer,fixed_index=row%outer;
+ for(uint d=lane;d<p.D;d+=128)outv[row*p.D+d]=0;
+ if(p.mode==2)for(uint d=lane;d<p.E;d+=128)aux[row*p.E+d]=0;memoryBarrierBuffer();barrier();
+ uint count=p.mode==1?p.S:p.L;
+ for(uint t=0;t<count;t++){uint i=p.mode==1?fixed_index:t,j=p.mode==1?t:fixed_index,qr=b*p.L+i,kr=b*p.S+j,index=qr*p.S+j;
+  float a=0,z=0,delta=0;for(uint d=lane;d<p.D;d+=128)a+=q[qr*p.D+d]*k[kr*p.D+d];for(uint d=lane;d<p.E;d+=128){z+=go[qr*p.E+d]*v[kr*p.E+d];delta+=go[qr*p.E+d]*o[qr*p.E+d];}sums[lane]=a;dots[lane]=z;deltas[lane]=delta;reduce3(lane);
+  float prob=isinf(lse[qr])?0:exp(sums[0]*scale+mask_value(i,j,index)-lse[qr]),weight=dropped(index),ds=prob*(dots[0]*weight-deltas[0]);
+  for(uint d=lane;d<p.D;d+=128)outv[row*p.D+d]+=ds*scale*(p.mode==1?k[kr*p.D+d]:q[qr*p.D+d]);
+  if(p.mode==1&&lane==0)aux[index]=ds;
+  if(p.mode==2)for(uint d=lane;d<p.E;d+=128)aux[row*p.E+d]+=prob*weight*go[qr*p.E+d];memoryBarrierBuffer();barrier();
+ }
+}

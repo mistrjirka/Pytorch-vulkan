@@ -1,0 +1,6 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0,std430) readonly buffer I {uvec2 data[];} indices;
+layout(set=0,binding=1,std430) writeonly buffer O {int data[];} sizes;
+layout(push_constant) uniform P {uint n;uint dims;} p;
+void main(){uint d=gl_LocalInvocationID.x;if(d>=p.dims)return;uint maximum=0;bool valid=true;for(uint j=0;j<p.n;j++){uvec2 v=indices.data[d*p.n+j];valid=valid&&v.y==0&&v.x<2147483647u;maximum=max(maximum,v.x);}sizes.data[d]=valid?int(maximum+1):0;}

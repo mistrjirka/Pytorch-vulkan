@@ -1,0 +1,536 @@
+{
+  "backend": "vulkan",
+  "mode": "wall",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "optimizer": "torch.optim.AdamW(foreach=False,amsgrad=True)",
+  "dtype": "float32",
+  "threads": 4,
+  "warmup": 8,
+  "repeats": 25,
+  "models": {
+    "volume_autoencoder": {
+      "parity_max_abs": {
+        "output": 2.2351741790771484e-08,
+        "input_gradient": 1.0913936421275139e-11,
+        "gradient/encoder.weight": 6.402842700481415e-10,
+        "gradient/encoder.bias": 1.3969838619232178e-09,
+        "gradient/decoder.weight": 6.984919309616089e-10,
+        "gradient/decoder.bias": 3.725290298461914e-09
+      },
+      "shape": [
+        2,
+        2,
+        6,
+        8,
+        10
+      ],
+      "input_sha256": "d7a230f2d3d822e85271d306a8c2a840ec3c27e645989a76360d34a372b84961",
+      "weights_sha256": "5c702dbf382439bd3d726611fc16d664dd77936a434a8790123a5ca2c73b1811",
+      "training_ms": {
+        "median": 3.09325399575755,
+        "min": 3.005381004186347,
+        "max": 3.8571519980905578,
+        "samples": [
+          3.8571519980905578,
+          3.4637369972188026,
+          3.411921003134921,
+          3.2302359904861078,
+          3.2127640006365255,
+          3.138357002171688,
+          3.1528539984719828,
+          3.1437370053026825,
+          3.1553779990645126,
+          3.2530079915886745,
+          3.4314770018681884,
+          3.1150639988482,
+          3.081211994867772,
+          3.0445839947788045,
+          3.09325399575755,
+          3.0762620008317754,
+          3.0855289951432496,
+          3.0849690083414316,
+          3.0729660065844655,
+          3.04208901070524,
+          3.005381004186347,
+          3.008226995007135,
+          3.0194979917723686,
+          3.023975994437933,
+          3.008076993864961
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 25,
+        "recorded_ops": 2400,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 2040,
+        "algo_misses": 360,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 360,
+        "bound_algorithms": 0,
+        "pipeline_hits": 360,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "spatial_transformer": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 2.0954757928848267e-09,
+        "gradient/grid": 9.313225746154785e-09,
+        "gradient/conv.weight": 1.4901161193847656e-08,
+        "gradient/conv.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        2,
+        2,
+        9,
+        11
+      ],
+      "input_sha256": "68af8e01ed810b6813c42fab1faafe513607eae0ef7c850e16e2d11720d6a037",
+      "weights_sha256": "5bcd03bff6c3cf79a9a6eb5853e8f4d73607143d8dee0c1d2633c0dc527ef5cc",
+      "training_ms": {
+        "median": 1.8572340050013736,
+        "min": 1.8400629924144596,
+        "max": 2.6877560012508184,
+        "samples": [
+          2.6877560012508184,
+          2.174469002056867,
+          2.1615860023302957,
+          1.9749820057768375,
+          1.9838879961753264,
+          1.8594580033095554,
+          1.8513440008973703,
+          1.845802995376289,
+          1.85906799742952,
+          1.850723012466915,
+          1.8572340050013736,
+          1.8559219897724688,
+          1.8635159940458834,
+          1.8517040007282048,
+          1.8585469952085987,
+          1.8518540018703789,
+          1.8488289933884516,
+          1.8561619945103303,
+          1.8587669910630211,
+          1.8466449982952327,
+          1.857554991147481,
+          1.8483580061001703,
+          1.8400629924144596,
+          1.8558820011094213,
+          1.863565994426608
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 25,
+        "recorded_ops": 1900,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 1762,
+        "algo_misses": 138,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 138,
+        "bound_algorithms": 0,
+        "pipeline_hits": 138,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "recurrent_regressor": {
+      "parity_max_abs": {
+        "output": 2.9802322387695312e-08,
+        "input_gradient": 1.6007106751203537e-10,
+        "gradient/lstm.weight_ih_l0": 4.656612873077393e-10,
+        "gradient/lstm.weight_hh_l0": 1.7462298274040222e-10,
+        "gradient/lstm.bias_ih_l0": 9.313225746154785e-10,
+        "gradient/lstm.bias_hh_l0": 9.313225746154785e-10,
+        "gradient/lstm.weight_ih_l0_reverse": 3.4924596548080444e-10,
+        "gradient/lstm.weight_hh_l0_reverse": 5.820766091346741e-11,
+        "gradient/lstm.bias_ih_l0_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.bias_hh_l0_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.weight_ih_l1": 2.3283064365386963e-10,
+        "gradient/lstm.weight_hh_l1": 2.3283064365386963e-10,
+        "gradient/lstm.bias_ih_l1": 9.313225746154785e-10,
+        "gradient/lstm.bias_hh_l1": 9.313225746154785e-10,
+        "gradient/lstm.weight_ih_l1_reverse": 4.656612873077393e-10,
+        "gradient/lstm.weight_hh_l1_reverse": 2.3283064365386963e-10,
+        "gradient/lstm.bias_ih_l1_reverse": 1.862645149230957e-09,
+        "gradient/lstm.bias_hh_l1_reverse": 1.862645149230957e-09,
+        "gradient/head.weight": 4.6566128730773926e-09,
+        "gradient/head.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        2,
+        4,
+        5
+      ],
+      "input_sha256": "43ae003de03fdcc68ef29541924076e6043eeedc7e32ac9112ce402bb503d627",
+      "weights_sha256": "3bf3eb0fc90d24b81cc61fa8220644745bf8f23f1ac5a882ba554013827c75bb",
+      "training_ms": {
+        "median": 30.63807300350163,
+        "min": 28.560873004607856,
+        "max": 32.42037899326533,
+        "samples": [
+          28.810612988309003,
+          30.821050007943995,
+          30.89210100006312,
+          32.42037899326533,
+          28.560873004607856,
+          30.612154994742014,
+          30.716717999894172,
+          30.818975996226072,
+          30.63807300350163,
+          30.689276987686753,
+          30.673617991851643,
+          30.58699799294118,
+          30.534472010913305,
+          30.67816700786352,
+          30.937243995140307,
+          30.937545001506805,
+          30.659031006507576,
+          30.571049996069632,
+          30.577901998185553,
+          30.52753899828531,
+          30.5378280027071,
+          30.628024993347935,
+          30.534410994732752,
+          30.465654999716207,
+          31.19864600012079
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 25,
+        "recorded_ops": 15450,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 25,
+        "algo_misses": 15425,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 15425,
+        "bound_algorithms": 0,
+        "pipeline_hits": 15425,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "retrieval_regressor": {
+      "parity_max_abs": {
+        "output": 2.682209014892578e-07,
+        "input_gradient": 5.960464477539063e-08,
+        "gradient/embedding.weight": 2.9802322387695312e-08,
+        "gradient/head.weight": 4.76837158203125e-07,
+        "gradient/head.bias": 7.450580596923828e-08
+      },
+      "shape": [
+        2,
+        7
+      ],
+      "input_sha256": "3eba5bc3e657196187ca6175de49a94dab26ae6027e4b9452017bffc4798e19e",
+      "weights_sha256": "5ee0fc332dec930d2ce35150daadd611996a76705e60144ea26e524765c2959b",
+      "training_ms": {
+        "median": 9.848468995187432,
+        "min": 6.941248997463845,
+        "max": 12.195146991871297,
+        "samples": [
+          10.65073799691163,
+          10.334695994970389,
+          9.665051009505987,
+          9.848468995187432,
+          10.948818002361804,
+          11.158936002175324,
+          9.860352001851425,
+          10.860524998861365,
+          9.701890012365766,
+          9.873244998743758,
+          9.511989002930932,
+          10.63775499642361,
+          9.670771003584377,
+          10.58919500792399,
+          12.195146991871297,
+          9.671242005424574,
+          9.43761199596338,
+          10.754981005447917,
+          9.821970990742557,
+          9.864559004199691,
+          8.985627995571122,
+          8.485325990477577,
+          7.647139995242469,
+          6.941248997463845,
+          9.805250010685995
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 125,
+        "recorded_ops": 2550,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 1310,
+        "algo_misses": 1240,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 1240,
+        "bound_algorithms": 0,
+        "pipeline_hits": 1240,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "spectral_filter": {
+      "parity_max_abs": {
+        "output": 1.7881393432617188e-07,
+        "input_gradient": 1.30385160446167e-08,
+        "gradient/weights": 1.816079020500183e-08,
+        "gradient/head.weight": 8.940696716308594e-08,
+        "gradient/head.bias": 1.4901161193847656e-08
+      },
+      "shape": [
+        3,
+        16
+      ],
+      "input_sha256": "44e881ceba8173e86507f167dd245fb82c1ac4a1cc4e7fea926cb866764cd6a6",
+      "weights_sha256": "b50b75224393c11d69cccef4f6a317f4ea204f67deab310f3027202d4407db7a",
+      "training_ms": {
+        "median": 3.614355009631254,
+        "min": 3.4591480070957914,
+        "max": 4.6565060038119555,
+        "samples": [
+          4.6565060038119555,
+          4.106481996132061,
+          3.7935150030534714,
+          3.5351390106370673,
+          3.5634810046758503,
+          3.5445860121399164,
+          3.5977240040665492,
+          3.7874440022278577,
+          4.006136994576082,
+          3.6794240004383028,
+          3.9581479941261932,
+          3.6107979976804927,
+          3.660229005618021,
+          3.6210669932188466,
+          3.62131699512247,
+          3.614355009631254,
+          3.5039909998886287,
+          3.482432002783753,
+          3.9464470028178766,
+          3.4591480070957914,
+          3.6113990063313395,
+          3.61034699017182,
+          3.5443350061541423,
+          3.46112200350035,
+          3.6492789949988946
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 25,
+        "recorded_ops": 2500,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 2231,
+        "algo_misses": 269,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 269,
+        "bound_algorithms": 0,
+        "pipeline_hits": 269,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "solve_regressor": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 2.2351741790771484e-08,
+        "gradient/factor": 9.313225746154785e-09,
+        "gradient/head.weight": 4.470348358154297e-08,
+        "gradient/head.bias": 2.9802322387695312e-08
+      },
+      "shape": [
+        3,
+        5
+      ],
+      "input_sha256": "c91389506264004e3f8aa0b4dfe9244f6ceafb3717da1746bb223f812c5c014d",
+      "weights_sha256": "aa74a82f3fad29e1f0865f9f2f72011be125d1caf8f743e5b927bfe704fd73d5",
+      "training_ms": {
+        "median": 6.6905269923154265,
+        "min": 5.399546003900468,
+        "max": 8.772425004281104,
+        "samples": [
+          5.574007998802699,
+          5.584457001532428,
+          5.710819998057559,
+          5.479683997691609,
+          6.295628001680598,
+          5.584426995483227,
+          5.602699995506555,
+          5.399546003900468,
+          6.992133014136925,
+          7.647912003449164,
+          6.853075989056379,
+          8.772425004281104,
+          7.656147005036473,
+          6.632620003074408,
+          7.8281040041474625,
+          7.468319992767647,
+          6.507348996819928,
+          7.5087560107931495,
+          6.383760992321186,
+          6.577668013051152,
+          7.2815570019884035,
+          7.277459008037113,
+          6.6905269923154265,
+          7.58539600064978,
+          6.827990000601858
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 300,
+        "host_read_calls": 75,
+        "host_read_max_bytes": 4
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 100,
+        "recorded_ops": 1900,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 1289,
+        "algo_misses": 611,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 611,
+        "bound_algorithms": 0,
+        "pipeline_hits": 611,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    },
+    "causal_attention_block": {
+      "parity_max_abs": {
+        "output": 1.1920928955078125e-07,
+        "input_gradient": 4.656612873077393e-10,
+        "gradient/qkv.weight": 2.7939677238464355e-09,
+        "gradient/qkv.bias": 5.587935447692871e-09,
+        "gradient/out.weight": 2.7939677238464355e-09,
+        "gradient/out.bias": 7.450580596923828e-09
+      },
+      "shape": [
+        2,
+        17,
+        16
+      ],
+      "input_sha256": "cf21c4d57de7a97b29c114e7b1bc45fd61852102d841e6f6950658ab2eec6073",
+      "weights_sha256": "9dcdfe5ada2e46be5f259aac6207f46bf9ef4f88fa63d39d7f12e991439f87e7",
+      "training_ms": {
+        "median": 5.268014007015154,
+        "min": 4.494898006669246,
+        "max": 6.772307999199256,
+        "samples": [
+          5.446922994451597,
+          4.955818003509194,
+          4.64558599924203,
+          5.038830000557937,
+          4.989128996385261,
+          4.922576990793459,
+          5.308298001182266,
+          4.847959004109725,
+          5.312014996889047,
+          4.884697002125904,
+          4.612414995790459,
+          4.564917006064206,
+          4.494898006669246,
+          5.08805199933704,
+          5.437415995402262,
+          5.175853002583608,
+          5.268014007015154,
+          5.311523986165412,
+          5.281297999317758,
+          5.507997004315257,
+          5.611446991679259,
+          6.0982649883953854,
+          6.140912999399006,
+          6.772307999199256,
+          6.677572993794456
+        ]
+      },
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "gpu_timing": {},
+      "queue_delta": {
+        "submissions": 25,
+        "recorded_ops": 2375,
+        "largest_batch": 0
+      },
+      "cache_delta": {
+        "algo_hits": 1742,
+        "algo_misses": 633,
+        "seq_reuses": 0,
+        "seq_creates": 0,
+        "algo_evictions": 633,
+        "bound_algorithms": 0,
+        "pipeline_hits": 633,
+        "pipeline_misses": 0,
+        "pipeline_evictions": 0,
+        "pipeline_entries": 0
+      }
+    }
+  },
+  "extension_sha256": "1dbbd97d32503522f8af573e81f5c6ab81702e2c13f2e4ac252546b8eaf542d7"
+}

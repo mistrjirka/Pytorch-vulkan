@@ -1,0 +1,27 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer I {uvec2 arg[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(binding=3) writeonly buffer O {uvec2 indices[];};
+layout(push_constant) uniform P {uint planes;uint ins[3],outs[3],kernel[3],stride[3],padding[3],dilation[3];uint maximum,backward,adaptive,include_pad,divisor;} p;
+int begin_at(uint q,uint a){return p.adaptive!=0?int(q*p.ins[a]/p.outs[a]):int(q*p.stride[a])-int(p.padding[a]);}
+int end_at(uint q,uint a){return p.adaptive!=0?int(((q+1)*p.ins[a]+p.outs[a]-1)/p.outs[a]):begin_at(q,a)+int((p.kernel[a]-1)*p.dilation[a])+1;}
+float denominator(uvec3 q){float override_value=uintBitsToFloat(p.divisor);if(override_value!=0)return override_value;float count=1;for(uint a=0;a<3;a++){int lo=begin_at(q[a],a),hi=end_at(q[a],a);int pad=p.include_pad!=0&&p.adaptive==0?int(p.padding[a]):0;count*=max(0,min(hi,int(p.ins[a])+pad)-max(lo,-pad));}return count;}
+uint linear_address(uvec3 v,uint sizes[3]){return (v.x*sizes[1]+v.y)*sizes[2]+v.z;}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;uint ni=p.ins[0]*p.ins[1]*p.ins[2],no=p.outs[0]*p.outs[1]*p.outs[2],size=p.backward!=0?ni:no;if(id>=p.planes*size)return;uint plane=id/size,r=id%size;
+ if(p.backward==0){uvec3 q=uvec3(r/(p.outs[1]*p.outs[2]),(r/p.outs[2])%p.outs[1],r%p.outs[2]);float result=p.maximum!=0?-1.0/0.0:0;uint best=0;bool found=false;
+  for(int z=begin_at(q.x,0);z<end_at(q.x,0);z+=int(p.dilation[0]))for(int h=begin_at(q.y,1);h<end_at(q.y,1);h+=int(p.dilation[1]))for(int w=begin_at(q.z,2);w<end_at(q.z,2);w+=int(p.dilation[2])){
+   if(z<0||h<0||w<0||z>=p.ins[0]||h>=p.ins[1]||w>=p.ins[2])continue;uint pos=(uint(z)*p.ins[1]+uint(h))*p.ins[2]+uint(w);float v=x[plane*ni+pos];
+   if(p.maximum!=0){if(!found||v>result||isnan(v)){result=v;best=pos;found=true;}}else result+=v;
+  }
+  y[id]=p.maximum!=0?result:result/denominator(q);if(p.maximum!=0)indices[id]=uvec2(best,0);
+ }else{
+  uvec3 pos=uvec3(r/(p.ins[1]*p.ins[2]),(r/p.ins[2])%p.ins[1],r%p.ins[2]);ivec3 lo,hi;
+  for(uint a=0;a<3;a++)if(p.adaptive!=0){lo[a]=int(pos[a]*p.outs[a]/p.ins[a]);hi[a]=int(((pos[a]+1)*p.outs[a]-1)/p.ins[a]);}else{int t=int(pos[a]+p.padding[a]);int numerator=t-int((p.kernel[a]-1)*p.dilation[a]);lo[a]=max(0,int(ceil(float(numerator)/float(p.stride[a]))));hi[a]=min(int(p.outs[a])-1,t/int(p.stride[a]));}
+  float sum=0;for(int z=lo.x;z<=hi.x;z++)for(int h=lo.y;h<=hi.y;h++)for(int w=lo.z;w<=hi.z;w++){
+   uvec3 q=uvec3(z,h,w);bool inside=true;for(uint a=0;a<3;a++){int t=int(pos[a])-begin_at(q[a],a);if(t<0||int(pos[a])>=end_at(q[a],a)||t%int(p.dilation[a])!=0)inside=false;}if(!inside)continue;uint at=plane*no+linear_address(q,p.outs);
+   if(p.maximum!=0){if(arg[at].x==r)sum+=x[at];}else sum+=x[at]/denominator(q);
+  }y[id]=sum;
+ }
+}

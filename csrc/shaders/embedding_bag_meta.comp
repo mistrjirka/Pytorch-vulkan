@@ -1,0 +1,10 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uint idx[];};
+layout(binding=1) readonly buffer O {uint off[];};
+layout(binding=2) writeonly buffer Map {uvec2 mapping[];};
+layout(binding=3) writeonly buffer Size {uvec2 sizes[];};
+layout(push_constant) uniform P {uint n,bags,iw,ow,last,padding;} p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(id<p.n){uint low=0,high=p.bags;while(low<high){uint mid=(low+high)/2;if(off[mid*p.ow]<=id)low=mid+1;else high=mid;}mapping[id]=uvec2(low-1,0);}
+ if(id<p.bags){uint start=off[id*p.ow],end=(id+1<p.bags||p.last!=0)?off[(id+1)*p.ow]:p.n,count=0;for(uint i=start;i<end;i++)if(idx[i*p.iw]!=p.padding)count++;sizes[id]=uvec2(count,0);}}

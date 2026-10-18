@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer H {uint heads[];};
+layout(binding=1) writeonly buffer R {uint ranks[];};
+layout(binding=2) writeonly buffer C {uint count[];};
+layout(push_constant) uniform P {uint nnz;} p;
+void main(){if(gl_GlobalInvocationID.x!=0)return;uint n=0;for(uint i=0;i<p.nnz;i++){if(heads[i]!=0)n++;ranks[i]=n-1;}count[0]=n;}

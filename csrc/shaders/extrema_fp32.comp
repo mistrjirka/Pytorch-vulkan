@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) readonly buffer B {float b[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,minimum;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;float x=a[i],z=b[i];y[i]=isnan(x)?x:isnan(z)?z:p.minimum!=0?(x<=z?x:z):(x>=z?x:z);}

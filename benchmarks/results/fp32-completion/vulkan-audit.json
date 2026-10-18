@@ -1,0 +1,798 @@
+{
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "cases": {
+    "conv1d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 9.5367431640625e-07,
+      "gradient_max_abs": 1.430511474609375e-06,
+      "status": "ok"
+    },
+    "conv2d_10x10": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.52587890625e-05,
+      "gradient_max_abs": 9.5367431640625e-06,
+      "status": "ok"
+    },
+    "conv2d_11x11": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.52587890625e-05,
+      "gradient_max_abs": 7.62939453125e-06,
+      "status": "ok"
+    },
+    "conv3d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 2.3245811462402344e-06,
+      "gradient_max_abs": 7.62939453125e-06,
+      "status": "ok"
+    },
+    "conv_transpose2d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.430511474609375e-06,
+      "gradient_max_abs": 2.86102294921875e-06,
+      "status": "ok"
+    },
+    "avg_pool3d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "max_pool3d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "resize_bilinear_aa": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 2.384185791015625e-07,
+      "gradient_max_abs": 5.960464477539063e-08,
+      "status": "ok"
+    },
+    "resize_trilinear": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 2.384185791015625e-07,
+      "gradient_max_abs": 3.814697265625e-06,
+      "status": "ok"
+    },
+    "grid_sample": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 3.5762786865234375e-07,
+      "gradient_max_abs": 1.1920928955078125e-06,
+      "status": "ok"
+    },
+    "reflection_pad2d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "mm_fp32": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 4.76837158203125e-07,
+      "gradient_max_abs": 2.384185791015625e-07,
+      "status": "ok"
+    },
+    "add_fp32": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "mm_fp16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_fp16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_bf16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_bf16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_fp64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_fp64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_complex64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_complex64": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "add_int64": {
+      "backward_requested": false,
+      "forward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "status": "ok"
+    },
+    "sum_int64": {
+      "backward_requested": false,
+      "forward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "status": "ok"
+    },
+    "index_select": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 8,
+        "host_read_calls": 2,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "gather": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 8,
+        "host_read_calls": 2,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "scatter_add": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 8,
+        "host_read_calls": 2,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "embedding": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 8,
+        "host_read_calls": 2,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "embedding_bag": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 4,
+        "host_read_calls": 1,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 5.960464477539063e-08,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "sort": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 4,
+        "host_read_calls": 1,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "topk": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 4,
+        "host_read_calls": 1,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "cumsum": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.7881393432617188e-07,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "variance": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.7881393432617188e-07,
+      "gradient_max_abs": 2.9802322387695312e-08,
+      "status": "ok"
+    },
+    "fft": {
+      "backward_requested": false,
+      "forward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 5.331201577973843e-07,
+      "status": "ok"
+    },
+    "linalg_solve": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 12,
+        "host_read_calls": 3,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 5.960464477539063e-08,
+      "gradient_max_abs": 2.384185791015625e-07,
+      "status": "ok"
+    },
+    "sparse_roundtrip": {
+      "backward_requested": false,
+      "forward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 4,
+        "host_read_calls": 1,
+        "host_read_max_bytes": 4
+      },
+      "output_max_abs": 0.0,
+      "status": "ok"
+    },
+    "mse_loss": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "cross_entropy": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 1.1920928955078125e-07,
+      "gradient_max_abs": 2.9802322387695312e-08,
+      "status": "ok"
+    },
+    "sdpa": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 3.5762786865234375e-07,
+      "gradient_max_abs": 5.960464477539062e-07,
+      "status": "ok"
+    },
+    "sdpa_causal": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "output_max_abs": 3.5762786865234375e-07,
+      "gradient_max_abs": 3.5762786865234375e-07,
+      "status": "ok"
+    }
+  },
+  "special": {
+    "dropout": {
+      "status": "ok",
+      "result": {
+        "dropped": 530
+      }
+    },
+    "rng": {
+      "status": "ok",
+      "result": {
+        "torch_manual_seed_repeats": true,
+        "changes_cpu_rng_state": false
+      }
+    },
+    "device_seed": {
+      "status": "ok",
+      "result": {
+        "device_manual_seed_all_repeats": true
+      }
+    },
+    "generator": {
+      "status": "ok",
+      "result": "<torch._C.Generator object at 0x7efce9d35170>"
+    },
+    "autocast": {
+      "status": "error",
+      "error_type": "AssertionError",
+      "error": "Tried to use AMP with the `vulkan` backend, but the backend has not registered a module or the module misses some necessary funcs. The backend should register a module by `torch._register_device_module`, and the module must have these funcs: \n`get_amp_supported_dtype() -> List[torch.dtype]`. \nBut the func `get_amp_supported_dtype` is missing. \n"
+    },
+    "lstm": {
+      "status": "ok",
+      "result": "forward/backward CPU parity"
+    },
+    "standard_adamw": {
+      "status": "ok",
+      "result": [
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813
+      ]
+    },
+    "second_order_grad": {
+      "status": "ok",
+      "result": "sin second derivative matches CPU"
+    }
+  },
+  "extension_sha256": "1dbbd97d32503522f8af573e81f5c6ab81702e2c13f2e4ac252546b8eaf542d7",
+  "direct_registrations": [
+    "aten::_adaptive_avg_pool2d",
+    "aten::_adaptive_avg_pool2d_backward",
+    "aten::_adaptive_avg_pool3d",
+    "aten::_adaptive_avg_pool3d_backward",
+    "aten::_conj_physical",
+    "aten::_copy_from",
+    "aten::_copy_from_and_resize",
+    "aten::_embedding_bag",
+    "aten::_embedding_bag_backward",
+    "aten::_embedding_bag_dense_backward",
+    "aten::_embedding_bag_forward_only",
+    "aten::_embedding_bag_per_sample_weights_backward",
+    "aten::_fft_c2c",
+    "aten::_fft_c2r",
+    "aten::_fft_r2c",
+    "aten::_linalg_check_errors",
+    "aten::_linalg_solve_ex",
+    "aten::_local_scalar_dense",
+    "aten::_log_softmax",
+    "aten::_log_softmax_backward_data",
+    "aten::_reshape_alias",
+    "aten::_softmax",
+    "aten::_softmax_backward_data",
+    "aten::_thnn_fused_lstm_cell",
+    "aten::_thnn_fused_lstm_cell_backward_impl",
+    "aten::_to_copy",
+    "aten::_to_sparse",
+    "aten::_to_sparse.sparse_dim",
+    "aten::_upsample_bicubic2d_aa",
+    "aten::_upsample_bicubic2d_aa_backward",
+    "aten::_upsample_bilinear2d_aa",
+    "aten::_upsample_bilinear2d_aa_backward",
+    "aten::_validate_sparse_coo_tensor_args",
+    "aten::abs",
+    "aten::adaptive_max_pool3d",
+    "aten::adaptive_max_pool3d_backward",
+    "aten::add.Scalar",
+    "aten::add.Tensor",
+    "aten::add_.Scalar",
+    "aten::add_.Tensor",
+    "aten::addcdiv",
+    "aten::addcdiv.out",
+    "aten::addcdiv_",
+    "aten::addcmul",
+    "aten::addcmul.out",
+    "aten::addcmul_",
+    "aten::addmm",
+    "aten::all",
+    "aten::all.dim",
+    "aten::as_strided",
+    "aten::avg_pool2d",
+    "aten::avg_pool2d_backward",
+    "aten::avg_pool3d",
+    "aten::avg_pool3d_backward",
+    "aten::bernoulli",
+    "aten::bernoulli_.Tensor",
+    "aten::bernoulli_.float",
+    "aten::bitwise_and.Tensor",
+    "aten::bitwise_not",
+    "aten::bmm",
+    "aten::cat",
+    "aten::clamp",
+    "aten::convolution_backward_overrideable",
+    "aten::convolution_overrideable",
+    "aten::copy_",
+    "aten::cos",
+    "aten::cumsum",
+    "aten::div.Scalar",
+    "aten::div.Tensor",
+    "aten::div_.Scalar",
+    "aten::div_.Tensor",
+    "aten::embedding",
+    "aten::embedding_dense_backward",
+    "aten::empty.memory_format",
+    "aten::empty_strided",
+    "aten::eq.Scalar",
+    "aten::exp",
+    "aten::eye.m_out",
+    "aten::eye.out",
+    "aten::fill_.Scalar",
+    "aten::flip",
+    "aten::gather",
+    "aten::gather.out",
+    "aten::ge.Scalar",
+    "aten::gelu",
+    "aten::gelu_backward",
+    "aten::grid_sampler_2d",
+    "aten::grid_sampler_2d_backward",
+    "aten::grid_sampler_3d",
+    "aten::grid_sampler_3d_backward",
+    "aten::gt.Scalar",
+    "aten::index_add",
+    "aten::index_add.out",
+    "aten::index_add_",
+    "aten::index_select",
+    "aten::index_select.out",
+    "aten::isneginf",
+    "aten::le.Scalar",
+    "aten::leaky_relu",
+    "aten::leaky_relu.out",
+    "aten::leaky_relu_",
+    "aten::leaky_relu_backward",
+    "aten::leaky_relu_backward.grad_input",
+    "aten::lerp.Scalar",
+    "aten::lerp.Scalar_out",
+    "aten::lerp.Tensor",
+    "aten::lerp.Tensor_out",
+    "aten::lerp_.Scalar",
+    "aten::lerp_.Tensor",
+    "aten::linalg_lu_factor_ex",
+    "aten::linalg_lu_solve",
+    "aten::log_sigmoid_backward",
+    "aten::log_sigmoid_forward",
+    "aten::logical_and",
+    "aten::logical_and.out",
+    "aten::lt.Scalar",
+    "aten::max_pool2d_with_indices",
+    "aten::max_pool2d_with_indices_backward",
+    "aten::max_pool3d_with_indices",
+    "aten::max_pool3d_with_indices_backward",
+    "aten::maximum",
+    "aten::maximum.out",
+    "aten::mean",
+    "aten::mean.dim",
+    "aten::minimum",
+    "aten::minimum.out",
+    "aten::mm",
+    "aten::mse_loss",
+    "aten::mse_loss.out",
+    "aten::mse_loss_backward",
+    "aten::mse_loss_backward.grad_input",
+    "aten::mul.Scalar",
+    "aten::mul.Tensor",
+    "aten::mul_.Scalar",
+    "aten::mul_.Tensor",
+    "aten::native_batch_norm",
+    "aten::native_batch_norm_backward",
+    "aten::native_dropout",
+    "aten::native_dropout_backward",
+    "aten::native_group_norm",
+    "aten::native_group_norm_backward",
+    "aten::native_layer_norm",
+    "aten::native_layer_norm_backward",
+    "aten::neg",
+    "aten::nll_loss_backward",
+    "aten::nll_loss_forward",
+    "aten::normal_",
+    "aten::pow.Tensor_Scalar",
+    "aten::random_",
+    "aten::random_.from",
+    "aten::random_.to",
+    "aten::reflection_pad1d",
+    "aten::reflection_pad1d_backward",
+    "aten::reflection_pad2d",
+    "aten::reflection_pad2d_backward",
+    "aten::reflection_pad3d",
+    "aten::reflection_pad3d_backward",
+    "aten::relu",
+    "aten::replication_pad1d",
+    "aten::replication_pad1d_backward",
+    "aten::replication_pad2d",
+    "aten::replication_pad2d_backward",
+    "aten::replication_pad3d",
+    "aten::replication_pad3d_backward",
+    "aten::resize_",
+    "aten::rsqrt",
+    "aten::scaled_dot_product_attention",
+    "aten::scatter.src",
+    "aten::scatter.src_out",
+    "aten::scatter.value",
+    "aten::scatter.value_out",
+    "aten::scatter_.src",
+    "aten::scatter_.value",
+    "aten::scatter_add",
+    "aten::scatter_add.out",
+    "aten::scatter_add_",
+    "aten::sgn",
+    "aten::sigmoid",
+    "aten::sigmoid_backward",
+    "aten::silu",
+    "aten::silu_backward",
+    "aten::sin",
+    "aten::sort",
+    "aten::sort.stable",
+    "aten::sort.values",
+    "aten::sort.values_stable",
+    "aten::sparse_coo_tensor.indices",
+    "aten::sparse_coo_tensor.indices_size",
+    "aten::sparse_mask",
+    "aten::sqrt",
+    "aten::sub.Tensor",
+    "aten::sub_.Scalar",
+    "aten::sub_.Tensor",
+    "aten::sum",
+    "aten::sum.dim_IntList",
+    "aten::t",
+    "aten::tanh",
+    "aten::tanh_backward",
+    "aten::threshold_backward",
+    "aten::topk",
+    "aten::tril",
+    "aten::tril.out",
+    "aten::tril_",
+    "aten::triu",
+    "aten::triu.out",
+    "aten::triu_",
+    "aten::uniform_",
+    "aten::upsample_bicubic2d",
+    "aten::upsample_bicubic2d_backward",
+    "aten::upsample_bilinear2d",
+    "aten::upsample_bilinear2d_backward",
+    "aten::upsample_nearest2d",
+    "aten::upsample_nearest2d_backward",
+    "aten::upsample_trilinear3d",
+    "aten::upsample_trilinear3d_backward",
+    "aten::var",
+    "aten::var.correction",
+    "aten::var.dim",
+    "aten::var_mean.correction",
+    "aten::view",
+    "aten::view_as_complex",
+    "aten::view_as_real",
+    "aten::where.ScalarOther",
+    "aten::where.ScalarSelf",
+    "aten::where.self",
+    "aten::where.self_out",
+    "aten::zero_",
+    "c10d::_allgather_base_",
+    "c10d::_reduce_scatter_base_",
+    "c10d::allgather_",
+    "c10d::allgather_coalesced_",
+    "c10d::allgather_into_tensor_coalesced_",
+    "c10d::allreduce_",
+    "c10d::allreduce_coalesced_",
+    "c10d::alltoall_",
+    "c10d::alltoall_base_",
+    "c10d::barrier",
+    "c10d::broadcast_",
+    "c10d::gather_",
+    "c10d::gather_into_tensor_",
+    "c10d::recv_",
+    "c10d::recv_any_source_",
+    "c10d::reduce_",
+    "c10d::reduce_scatter_",
+    "c10d::reduce_scatter_tensor_coalesced_",
+    "c10d::scatter_",
+    "c10d::send",
+    "fsdp::all_gather_copy_in",
+    "fsdp::chunk_cat",
+    "fsdp::split_with_sizes_copy",
+    "torch_vulkan::adamw_step_",
+    "torch_vulkan::adamw_step_batch_",
+    "torch_vulkan::attention_backward",
+    "torch_vulkan::attention_forward"
+  ]
+}

@@ -1,0 +1,20 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) readonly buffer B {float b[];};
+layout(binding=2) readonly buffer C {float cx[];};
+layout(binding=3) readonly buffer D {float bi[];};
+layout(binding=4) readonly buffer E {float bh[];};
+layout(binding=5) writeonly buffer H {float hy[];};
+layout(binding=6) writeonly buffer Y {float cy[];};
+layout(binding=7) writeonly buffer S {float ws[];};
+layout(push_constant) uniform P {uint count,h,ib,hb;} p;
+float sigmoid(float v){return 1.0/(1.0+exp(-v));}
+void main(){
+ uint j=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(j>=p.count)return;
+ uint row=j/p.h,col=j%p.h;vec4 z;
+ for(uint k=0;k<4;k++){uint i=row*4*p.h+k*p.h+col;z[k]=a[i]+b[i]+(p.ib!=0?bi[k*p.h+col]:0)+(p.hb!=0?bh[k*p.h+col]:0);}
+ z=vec4(sigmoid(z.x),sigmoid(z.y),tanh(z.z),sigmoid(z.w));
+ float c=z.y*cx[j]+z.x*z.z;cy[j]=c;hy[j]=z.w*tanh(c);
+ for(uint k=0;k<4;k++)ws[row*4*p.h+k*p.h+col]=z[k];
+}

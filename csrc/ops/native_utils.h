@@ -60,7 +60,7 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
 // supported broader CPU layouts can retain that path without catching dispatch errors.
 inline bool can_pack_view(const at::Tensor& src) {
   if(src.device().type()!=c10::DeviceType::PrivateUse1 ||
-     (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong && src.scalar_type()!=at::kInt && src.scalar_type()!=at::kBool) ||
+     (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong && src.scalar_type()!=at::kInt && src.scalar_type()!=at::kComplexFloat && src.scalar_type()!=at::kBool) ||
      src.dim()>8 || src.numel()>UINT32_MAX || src.storage_offset()<0 ||
      uint64_t(src.storage_offset())>UINT32_MAX) return false;
   const auto& limits=device_limits();
@@ -80,7 +80,7 @@ inline bool can_pack_view(const at::Tensor& src) {
   return true;
 }
 inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
-  TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kBool,"Vulkan native packing supports FP32/int32/int64/bool");
+  TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kComplexFloat || dtype==at::kBool,"Vulkan native packing supports FP32/complex64/int32/int64/bool");
   base(src,dtype); // Validate device and dtype even on the no-copy path.
   if(src.is_contiguous() && src.storage_offset()==0) return src;
   TORCH_CHECK(src.dim()<=8,"Vulkan native packing supports at most 8 dimensions");
@@ -93,7 +93,7 @@ inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) 
   }
   TORCH_CHECK(last<=UINT32_MAX,"Vulkan native view indexing overflow");
   auto out=at::empty(src.sizes(),src.options());
-  if(src.numel())run(dtype==at::kBool?"native_pack_bool":dtype==at::kLong?"native_pack_int64":dtype==at::kInt?"native_pack_int32":"native_pack",
+  if(src.numel())run(dtype==at::kBool?"native_pack_bool":(dtype==at::kLong||dtype==at::kComplexFloat)?"native_pack_int64":dtype==at::kInt?"native_pack_int32":"native_pack",
       {base(src,dtype)},{base(out,dtype)},p,(src.numel()+(dtype==at::kBool?511:127))/(dtype==at::kBool?512:128));
   return out;
 }

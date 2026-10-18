@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,n,inner,input_n,mode,logn;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ uint j=i/p.inner%p.n,outer=i/(p.n*p.inner),tail=i%p.inner,k=p.logn==0?0:bitfieldReverse(j)>>(32-p.logn);bool conjugate=p.mode==2&&k>=p.input_n;uint src=(outer*p.input_n+(conjugate?p.n-k:k))*p.inner+tail;
+ y[i]=p.mode==0?vec2(x[src],0):vec2(x[2*src],(conjugate?-1:1)*x[2*src+1]);}

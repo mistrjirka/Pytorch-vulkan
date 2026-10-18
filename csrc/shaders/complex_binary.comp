@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {uint a[];};
+layout(binding=1) readonly buffer B {uint b[];};
+layout(binding=2) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,ac,bc,mode,re,im;} p;
+vec2 multiply(vec2 a,vec2 b){return vec2(a.x*b.x-a.y*b.y,a.x*b.y+a.y*b.x);}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;vec2 x=vec2(uintBitsToFloat(a[i*(p.ac+1)]),p.ac!=0?uintBitsToFloat(a[i*2+1]):0),z=vec2(uintBitsToFloat(b[i*(p.bc+1)]),p.bc!=0?uintBitsToFloat(b[i*2+1]):0);if(p.mode==0)y[i]=x+multiply(z,vec2(uintBitsToFloat(p.re),uintBitsToFloat(p.im)));else if(p.mode==1)y[i]=multiply(x,z);else{if(abs(z.x)>=abs(z.y)){float r=z.y/z.x,den=z.x+z.y*r;y[i]=vec2((x.x+x.y*r)/den,(x.y-x.x*r)/den);}else{float r=z.x/z.y,den=z.y+z.x*r;y[i]=vec2((x.x*r+x.y)/den,(x.y*r-x.x)/den);}}}
