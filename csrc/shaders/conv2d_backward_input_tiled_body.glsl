@@ -46,9 +46,17 @@ void main() {
         uint oc=group*co+k/(p.kh*p.kw), rem=k%(p.kh*p.kw);
         int yh=int(pos/p.w)+int(p.ph)-int((rem/p.kw)*p.dh);
         int xw=int(pos%p.w)+int(p.pw)-int((rem%p.kw)*p.dw);
-        if(yh>=0 && xw>=0 && yh%int(p.sh)==0 && xw%int(p.sw)==0) {
-          uint oy=uint(yh)/p.sh, ox=uint(xw)/p.sw;
-          if(oy<p.oh && ox<p.ow)
+        if(yh>=0 && xw>=0) {
+          uint oy=uint(yh), ox=uint(xw);
+          bool aligned=true;
+          // Unit stride needs neither divisibility checks nor coordinate
+          // division. This uniform geometry guard applies to every model,
+          // filter size, dilation and group count; other strides stay general.
+          if(p.sh!=1u || p.sw!=1u) {
+            aligned=(oy%p.sh==0u && ox%p.sw==0u);
+            oy/=p.sh; ox/=p.sw;
+          }
+          if(aligned && oy<p.oh && ox<p.ow)
             v=go[((batch*p.cout+oc)*p.oh+oy)*p.ow+ox];
         }
       }

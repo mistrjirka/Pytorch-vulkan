@@ -1,4 +1,4 @@
-"""Validate and summarize the matched constant-buffer experiment captures."""
+"""Validate and summarize matched network latency, parity and Nsight captures."""
 import argparse
 from collections import defaultdict
 import json
@@ -47,7 +47,7 @@ def main():
     def read(name): return json.loads((args.directory/name).read_text())
     manifest = read('manifest.json')
     result = dict(models={}, vulkan_api={}, diagnostic_stages={}, notes=[
-        'Latency: pooled 30 synchronized samples, two runs of 15 after 8 warmups.',
+        f"Latency: pooled {2*manifest['repeats']} synchronized samples, two runs of {manifest['repeats']} after {manifest['warmup']} warmups.",
         'Nsight stages synchronize separately and are not normal step latency.',
         'Summed CUDA kernel durations are not GPU utilization or elapsed critical-path time.',
         'No Vulkan workload events were captured inside measured stages; zero events does not mean zero GPU work.'])
@@ -55,12 +55,14 @@ def main():
         row = dict(wall={}, parity={})
         for variant in ['before','after','cuda']:
             captures = [read(f'{model}-{variant}{i}.json') for i in [1,2]]
+            assert all(d['warmup'] == manifest['warmup'] for d in captures)
             if variant != 'cuda':
                 expected = manifest['baseline_extension_sha256' if variant == 'before' else 'backend_extension_sha256']
                 assert all(d['backend_extension_sha256'] == expected for d in captures)
             row['wall'][variant] = {}
             for mode in ['inference','training']:
                 samples = [v for d in captures for v in d['modes'][mode]['samples_ms']]
+                assert all(len(d['modes'][mode]['samples_ms']) == manifest['repeats'] for d in captures)
                 row['wall'][variant][mode] = dict(pooled_median_ms=statistics.median(samples),
                     run_medians_ms=[d['modes'][mode]['median_ms'] for d in captures],
                     min_ms=min(samples), max_ms=max(samples))

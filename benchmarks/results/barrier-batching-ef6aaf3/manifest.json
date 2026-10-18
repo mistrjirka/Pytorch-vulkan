@@ -1,0 +1,24 @@
+{
+  "base_commit": "ef6aaf3364d876358676669d568a49d9d0c1e3ed",
+  "baseline_extension_sha256": "ce3d22890c3234e06424e67b781bfd1a1a5fcee252e113aa3017e3a9ec883f33",
+  "backend_extension_sha256": "8d9e3bad7c617072f7c7339c95796c7b0083f89b302207f4f6272565610e1cac",
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "order": [
+    "before1",
+    "after1",
+    "after2",
+    "before2",
+    "cuda1",
+    "cuda2"
+  ],
+  "warmup": 8,
+  "repeats": 15,
+  "cuda_device_uuid": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29",
+  "cmake_diff_sha256": "41bbdc58d9e4f57d595a5b4d7a408d10a139466a260278d3dc71323d23547860",
+  "barrier_patch_sha256": "2262e4446efc2e650612636d0e39cc55c4cb80c376915d5780668c32f6473258",
+  "compiled_kompute_source_sha256": {
+    "src/OpAlgoDispatch.cpp": "4340ed1fe1f9bfa2a45d07c4b00d9af2fc149df1dd66a51444ae87a79ee192a9",
+    "src/OpMemoryBarrier.cpp": "50ef1456dec3a4fb714d7f068268353ead8ecc71d16d34ce7d9a56840806d4be",
+    "src/include/kompute/BarrierBatch.hpp": "3b11945b592ed970bffadf78294b0e11aa18d8ae70009fcc570c91873a75fd8a"
+  }
+}

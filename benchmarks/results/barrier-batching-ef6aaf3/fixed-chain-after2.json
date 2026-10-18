@@ -1,0 +1,443 @@
+{
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "elements": 4096,
+  "rounds": 60,
+  "steps": 70,
+  "deferred": "1",
+  "host_visible_max_bytes": "0",
+  "median_ms": 1.863,
+  "samples": [
+    {
+      "record_ms": 101.2907,
+      "final_host_sync_ms": 0.7057,
+      "total_ms": 101.9964,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.9179,
+      "final_host_sync_ms": 0.6307,
+      "total_ms": 2.5486,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.5386,
+      "final_host_sync_ms": 0.5993,
+      "total_ms": 2.138,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.6334,
+      "final_host_sync_ms": 0.6091,
+      "total_ms": 2.2426,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.3367,
+      "final_host_sync_ms": 0.6142,
+      "total_ms": 1.9509,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2569,
+      "final_host_sync_ms": 0.6236,
+      "total_ms": 1.8806,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2677,
+      "final_host_sync_ms": 0.6118,
+      "total_ms": 1.8795,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2593,
+      "final_host_sync_ms": 0.6118,
+      "total_ms": 1.8711,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2477,
+      "final_host_sync_ms": 0.6106,
+      "total_ms": 1.8583,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2684,
+      "final_host_sync_ms": 0.6116,
+      "total_ms": 1.88,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2752,
+      "final_host_sync_ms": 0.6031,
+      "total_ms": 1.8784,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.258,
+      "final_host_sync_ms": 0.6014,
+      "total_ms": 1.8594,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2567,
+      "final_host_sync_ms": 0.61,
+      "total_ms": 1.8667,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2451,
+      "final_host_sync_ms": 0.6089,
+      "total_ms": 1.854,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2734,
+      "final_host_sync_ms": 0.6189,
+      "total_ms": 1.8924,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2443,
+      "final_host_sync_ms": 0.6167,
+      "total_ms": 1.861,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.248,
+      "final_host_sync_ms": 0.6032,
+      "total_ms": 1.8512,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2641,
+      "final_host_sync_ms": 0.6037,
+      "total_ms": 1.8678,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2686,
+      "final_host_sync_ms": 0.6062,
+      "total_ms": 1.8747,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2716,
+      "final_host_sync_ms": 0.6064,
+      "total_ms": 1.8779,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2658,
+      "final_host_sync_ms": 0.6005,
+      "total_ms": 1.8662,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2549,
+      "final_host_sync_ms": 0.598,
+      "total_ms": 1.853,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2667,
+      "final_host_sync_ms": 0.6059,
+      "total_ms": 1.8726,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2519,
+      "final_host_sync_ms": 0.6009,
+      "total_ms": 1.8528,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2592,
+      "final_host_sync_ms": 0.5828,
+      "total_ms": 1.8421,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.248,
+      "final_host_sync_ms": 0.6019,
+      "total_ms": 1.8498,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2553,
+      "final_host_sync_ms": 0.6042,
+      "total_ms": 1.8595,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2573,
+      "final_host_sync_ms": 0.605,
+      "total_ms": 1.8623,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2523,
+      "final_host_sync_ms": 0.6115,
+      "total_ms": 1.8637,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.3113,
+      "final_host_sync_ms": 0.6031,
+      "total_ms": 1.9144,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2636,
+      "final_host_sync_ms": 0.574,
+      "total_ms": 1.8376,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2582,
+      "final_host_sync_ms": 0.5728,
+      "total_ms": 1.831,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2514,
+      "final_host_sync_ms": 0.5979,
+      "total_ms": 1.8493,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2575,
+      "final_host_sync_ms": 0.6027,
+      "total_ms": 1.8602,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2465,
+      "final_host_sync_ms": 0.6161,
+      "total_ms": 1.8626,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2615,
+      "final_host_sync_ms": 0.603,
+      "total_ms": 1.8646,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2474,
+      "final_host_sync_ms": 0.6055,
+      "total_ms": 1.8529,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.26,
+      "final_host_sync_ms": 0.6083,
+      "total_ms": 1.8683,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2526,
+      "final_host_sync_ms": 0.6068,
+      "total_ms": 1.8595,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.282,
+      "final_host_sync_ms": 0.609,
+      "total_ms": 1.891,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2663,
+      "final_host_sync_ms": 0.6025,
+      "total_ms": 1.8688,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2576,
+      "final_host_sync_ms": 0.5965,
+      "total_ms": 1.8541,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2568,
+      "final_host_sync_ms": 0.6045,
+      "total_ms": 1.8613,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2481,
+      "final_host_sync_ms": 0.5771,
+      "total_ms": 1.8252,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2545,
+      "final_host_sync_ms": 0.5404,
+      "total_ms": 1.795,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2515,
+      "final_host_sync_ms": 0.6172,
+      "total_ms": 1.8687,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2574,
+      "final_host_sync_ms": 0.6035,
+      "total_ms": 1.8609,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2503,
+      "final_host_sync_ms": 0.599,
+      "total_ms": 1.8493,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2634,
+      "final_host_sync_ms": 0.6025,
+      "total_ms": 1.8659,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2619,
+      "final_host_sync_ms": 0.6085,
+      "total_ms": 1.8704,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2655,
+      "final_host_sync_ms": 0.5955,
+      "total_ms": 1.861,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2632,
+      "final_host_sync_ms": 0.6043,
+      "total_ms": 1.8675,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2616,
+      "final_host_sync_ms": 0.5968,
+      "total_ms": 1.8584,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2571,
+      "final_host_sync_ms": 0.6046,
+      "total_ms": 1.8617,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2459,
+      "final_host_sync_ms": 0.5996,
+      "total_ms": 1.8455,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2526,
+      "final_host_sync_ms": 0.6128,
+      "total_ms": 1.8654,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.26,
+      "final_host_sync_ms": 0.6015,
+      "total_ms": 1.8615,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2533,
+      "final_host_sync_ms": 0.6039,
+      "total_ms": 1.8571,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.3324,
+      "final_host_sync_ms": 0.6139,
+      "total_ms": 1.9463,
+      "submissions": 1,
+      "recorded_ops": 140
+    },
+    {
+      "record_ms": 1.2774,
+      "final_host_sync_ms": 0.6115,
+      "total_ms": 1.8889,
+      "submissions": 1,
+      "recorded_ops": 140
+    }
+  ],
+  "cache": {
+    "algo_hits": 0,
+    "algo_misses": 8401,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 7889,
+    "bound_algorithms": 512,
+    "pipeline_hits": 8398,
+    "pipeline_misses": 3,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 3
+  }
+}

@@ -1,0 +1,821 @@
+{
+  "note": "Vulkan GPU dispatch intervals include dependency work; CUDA sums device kernel durations. Eager diagnostic, not whole-network GPU time.",
+  "cases": [
+    {
+      "name": "pointwise",
+      "shape": [
+        2,
+        32,
+        32,
+        35
+      ],
+      "cout": 64,
+      "kernel": [
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "input_sha256": "23be90f9b557b78122be1c0c7bc5970fb900f0b17535e13ea67976971abd1de4",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 22.133333333333336,
+          "cuda_kernel_us": 11.039600000000018,
+          "ratio": 2.0049035593077016,
+          "selected_shaders": [
+            "conv2d_tiled_wide"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.1786889788069245e-07,
+            "reference_max_abs": 6.609276294708252
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.1786889788069245e-07,
+            "reference_max_abs": 6.609276294708252
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 26.259199999999996,
+          "cuda_kernel_us": 11.481400000000031,
+          "ratio": 2.2871078439911443,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.1043936646924537e-07,
+            "reference_max_abs": 7.193876266479492
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.1043936646924537e-07,
+            "reference_max_abs": 7.193876266479492
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 36.51626666666666,
+          "cuda_kernel_us": 38.34839999999999,
+          "ratio": 0.9522239954383147,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 5.340576171875e-05,
+            "rms_error": 1.3968423531344533e-05,
+            "reference_max_abs": 173.10198974609375
+          },
+          "cuda_parity": {
+            "max_abs_error": 8.392333984375e-05,
+            "rms_error": 1.89641871195692e-05,
+            "reference_max_abs": 173.10198974609375
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 9.113599999999996,
+          "cuda_kernel_us": 13.689200000000028,
+          "ratio": 0.6657511030593444,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 5.234402733848372e-06,
+            "reference_max_abs": 112.81317138671875
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 5.520472989333482e-06,
+            "reference_max_abs": 112.81317138671875
+          }
+        }
+      }
+    },
+    {
+      "name": "rect3x5",
+      "shape": [
+        2,
+        16,
+        31,
+        35
+      ],
+      "cout": 24,
+      "kernel": [
+        3,
+        5
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        4
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 1,
+      "input_sha256": "dc6124e1a95d1cae39a6aaa28dfcfd7c258d96d8121399e5e6f7635e2797dc17",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 32.29013333333332,
+          "cuda_kernel_us": 19.154800000000023,
+          "ratio": 1.685746305538731,
+          "selected_shaders": [
+            "conv2d_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 2.6226043701171875e-06,
+            "rms_error": 2.567880323960253e-07,
+            "reference_max_abs": 5.9771037101745605
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.6226043701171875e-06,
+            "rms_error": 2.567880323960253e-07,
+            "reference_max_abs": 5.9771037101745605
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 52.910933333333325,
+          "cuda_kernel_us": 15.590200000000186,
+          "ratio": 3.393858535062584,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.9073486328125e-06,
+            "rms_error": 2.0282359731239847e-07,
+            "reference_max_abs": 4.379584312438965
+          },
+          "cuda_parity": {
+            "max_abs_error": 7.152557373046875e-07,
+            "rms_error": 8.906782660207707e-08,
+            "reference_max_abs": 4.379584312438965
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 40.10240000000005,
+          "cuda_kernel_us": 30.239000000000054,
+          "ratio": 1.3261814213432979,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 4.482269287109375e-05,
+            "rms_error": 8.468286627857292e-06,
+            "reference_max_abs": 130.37002563476562
+          },
+          "cuda_parity": {
+            "max_abs_error": 6.103515625e-05,
+            "rms_error": 1.1840292672859831e-05,
+            "reference_max_abs": 130.37002563476562
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 8.537599999999998,
+          "cuda_kernel_us": 8.288200000000051,
+          "ratio": 1.0300909727081808,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 7.62939453125e-06,
+            "rms_error": 2.416255949224369e-06,
+            "reference_max_abs": 92.47672271728516
+          },
+          "cuda_parity": {
+            "max_abs_error": 8.106231689453125e-06,
+            "rms_error": 3.5845475500163863e-06,
+            "reference_max_abs": 92.47672271728516
+          }
+        }
+      }
+    },
+    {
+      "name": "filter10x10",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        10,
+        10
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "input_sha256": "3fd57fdbd14a16098b04edacaa92c9deb5dfc5767bd59482166df09e46f8d1a3",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 218.15893333333344,
+          "cuda_kernel_us": 116.71699999999979,
+          "ratio": 1.8691273193565106,
+          "selected_shaders": [
+            "conv2d_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 6.67572021484375e-06,
+            "rms_error": 6.408903258376939e-07,
+            "reference_max_abs": 5.7643656730651855
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.12876296043396e-06,
+            "rms_error": 1.9029190783602623e-07,
+            "reference_max_abs": 5.7643656730651855
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 320.046933333333,
+          "cuda_kernel_us": 111.49940000000011,
+          "ratio": 2.8703915297600946,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.3828277587890625e-05,
+            "rms_error": 1.3154407121714503e-06,
+            "reference_max_abs": 5.642302989959717
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.430511474609375e-06,
+            "rms_error": 2.80963597959993e-07,
+            "reference_max_abs": 5.642302989959717
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 127.28106666666669,
+          "cuda_kernel_us": 59.30119999999995,
+          "ratio": 2.1463489215507745,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_register"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 7.62939453125e-05,
+            "rms_error": 1.1133630504461222e-05,
+            "reference_max_abs": 182.11854553222656
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.918212890625e-05,
+            "rms_error": 1.5000500870754191e-05,
+            "reference_max_abs": 182.11854553222656
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 7.69919999999998,
+          "cuda_kernel_us": 6.310400000000049,
+          "ratio": 1.2200811359026242,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.049041748046875e-05,
+            "rms_error": 4.699562604484928e-06,
+            "reference_max_abs": 114.32722473144531
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.049041748046875e-05,
+            "rms_error": 4.870879390442715e-06,
+            "reference_max_abs": 114.32722473144531
+          }
+        }
+      }
+    },
+    {
+      "name": "filter11x11",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        11,
+        11
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "input_sha256": "dc5c619a9bf7cde31c0b04b07062838d1c221ff088fdf3a2cad8c269d38af472",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 236.10879999999986,
+          "cuda_kernel_us": 116.8888000000001,
+          "ratio": 2.0199437414020815,
+          "selected_shaders": [
+            "conv2d_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 7.212162017822266e-06,
+            "rms_error": 7.075959954028604e-07,
+            "reference_max_abs": 6.107693195343018
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 1.9208049274205335e-07,
+            "reference_max_abs": 6.107693195343018
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 347.6949333333335,
+          "cuda_kernel_us": 122.15320000000001,
+          "ratio": 2.8463841580354297,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.2874603271484375e-05,
+            "rms_error": 1.4105492013344113e-06,
+            "reference_max_abs": 5.4726691246032715
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.908310890411173e-07,
+            "reference_max_abs": 5.4726691246032715
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 132.0938666666667,
+          "cuda_kernel_us": 62.19380000000003,
+          "ratio": 2.12390731337636,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_register"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 6.866455078125e-05,
+            "rms_error": 1.0845905030191886e-05,
+            "reference_max_abs": 162.67340087890625
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.1552734375e-05,
+            "rms_error": 1.4762105615629456e-05,
+            "reference_max_abs": 162.67340087890625
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 7.1402666666666645,
+          "cuda_kernel_us": 6.099400000000037,
+          "ratio": 1.170650665092734,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 7.62939453125e-06,
+            "rms_error": 4.187623994410109e-06,
+            "reference_max_abs": 87.26480865478516
+          },
+          "cuda_parity": {
+            "max_abs_error": 7.62939453125e-06,
+            "rms_error": 3.762181720270991e-06,
+            "reference_max_abs": 87.26480865478516
+          }
+        }
+      }
+    },
+    {
+      "name": "grouped",
+      "shape": [
+        2,
+        24,
+        29,
+        31
+      ],
+      "cout": 40,
+      "kernel": [
+        3,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 4,
+      "input_sha256": "36b435f31f0483114232eb36d5facaca02c7438d9d16783abce96a5a43803380",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 34.80533333333333,
+          "cuda_kernel_us": 40.36999999999989,
+          "ratio": 0.8621583684254006,
+          "selected_shaders": [
+            "conv2d_tiled"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.6689300537109375e-06,
+            "rms_error": 1.6976990935590284e-07,
+            "reference_max_abs": 6.097153186798096
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.6689300537109375e-06,
+            "rms_error": 1.6976990935590284e-07,
+            "reference_max_abs": 6.097153186798096
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 34.58346666666674,
+          "cuda_kernel_us": 93.06759999999994,
+          "ratio": 0.3715951272694983,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.703380658030395e-07,
+            "reference_max_abs": 5.684099197387695
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.384185791015625e-06,
+            "rms_error": 2.703380658030395e-07,
+            "reference_max_abs": 5.684099197387695
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 39.26613333333335,
+          "cuda_kernel_us": 31.801400000000058,
+          "ratio": 1.2347297079164212,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 5.7220458984375e-05,
+            "rms_error": 1.1460612970862479e-05,
+            "reference_max_abs": 145.6121063232422
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.002716064453125e-05,
+            "rms_error": 6.118692542814474e-06,
+            "reference_max_abs": 145.6121063232422
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 7.41333333333333,
+          "cuda_kernel_us": 11.724599999999986,
+          "ratio": 0.6322888058725533,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 9.834766387939453e-06,
+            "rms_error": 4.5205515942354226e-06,
+            "reference_max_abs": 71.80382537841797
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 4.790689720774575e-06,
+            "reference_max_abs": 71.80382537841797
+          }
+        }
+      }
+    },
+    {
+      "name": "depthwise",
+      "shape": [
+        2,
+        24,
+        29,
+        31
+      ],
+      "cout": 48,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 24,
+      "input_sha256": "6f4dda287ddd63c6e8eda3749a57c96dc8d81fe4f2eeefcd78888bb4539e4222",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 9.717333333333334,
+          "cuda_kernel_us": 6.764600000000064,
+          "ratio": 1.4364978466329483,
+          "selected_shaders": [
+            "conv2d_depthwise"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 8.415006040498886e-08,
+            "reference_max_abs": 6.325625419616699
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.5367431640625e-07,
+            "rms_error": 8.415006040498886e-08,
+            "reference_max_abs": 6.325625419616699
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 18.131200000000014,
+          "cuda_kernel_us": 5.184000000000014,
+          "ratio": 3.497530864197524,
+          "selected_shaders": [
+            "conv2d_backward_input"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.1920928955078125e-06,
+            "rms_error": 1.0709281968054499e-07,
+            "reference_max_abs": 6.726355075836182
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.1920928955078125e-06,
+            "rms_error": 1.0709281968054499e-07,
+            "reference_max_abs": 6.726355075836182
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 14.237866666666932,
+          "cuda_kernel_us": 7.282999999999992,
+          "ratio": 1.9549453064213849,
+          "selected_shaders": [
+            "conv2d_backward_weight_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 1.1444091796875e-05,
+            "rms_error": 4.315827860586393e-06,
+            "reference_max_abs": 133.65882873535156
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.52587890625e-05,
+            "rms_error": 4.7084859738933e-06,
+            "reference_max_abs": 133.65882873535156
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 7.261866666666646,
+          "cuda_kernel_us": 11.718199999999957,
+          "ratio": 0.6197083738685696,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 9.5367431640625e-06,
+            "rms_error": 4.5144766442495996e-06,
+            "reference_max_abs": 116.76470947265625
+          },
+          "cuda_parity": {
+            "max_abs_error": 9.5367431640625e-06,
+            "rms_error": 4.046598908758339e-06,
+            "reference_max_abs": 116.76470947265625
+          }
+        }
+      }
+    },
+    {
+      "name": "conv3x3_large",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "cout": 64,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "input_sha256": "3b02751c88177629da7f06c27b999db59bd81f8cf946946dc8100312b4ae4a5d",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 136.5994666666668,
+          "cuda_kernel_us": 40.0059999999999,
+          "ratio": 3.414474495492355,
+          "selected_shaders": [
+            "conv2d_tiled_register"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 3.0994415283203125e-06,
+            "rms_error": 3.016444892024095e-07,
+            "reference_max_abs": 6.411968231201172
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.341104507446289e-06,
+            "rms_error": 2.0757906160238497e-07,
+            "reference_max_abs": 6.411968231201172
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 169.79840000000019,
+          "cuda_kernel_us": 28.710200000000032,
+          "ratio": 5.9142186400652035,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled_register"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 8.58306884765625e-06,
+            "rms_error": 5.934436798697625e-07,
+            "reference_max_abs": 6.5827789306640625
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.205371856689453e-06,
+            "rms_error": 3.7031011600930263e-07,
+            "reference_max_abs": 6.5827789306640625
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 182.90346666666662,
+          "cuda_kernel_us": 92.69060000000005,
+          "ratio": 1.9732687744676,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_register"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 0.0001373291015625,
+            "rms_error": 2.7315177273699628e-05,
+            "reference_max_abs": 384.82147216796875
+          },
+          "cuda_parity": {
+            "max_abs_error": 0.004364013671875,
+            "rms_error": 0.000397065634191549,
+            "reference_max_abs": 384.82147216796875
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 19.62453333333333,
+          "cuda_kernel_us": 6.137599999999975,
+          "ratio": 3.1974278762600052,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 4.38690185546875e-05,
+            "rms_error": 1.5363899317779417e-05,
+            "reference_max_abs": 219.05426025390625
+          },
+          "cuda_parity": {
+            "max_abs_error": 2.288818359375e-05,
+            "rms_error": 9.303099372212413e-06,
+            "reference_max_abs": 219.05426025390625
+          }
+        }
+      }
+    },
+    {
+      "name": "conv3x3_small",
+      "shape": [
+        2,
+        64,
+        16,
+        19
+      ],
+      "cout": 64,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "input_sha256": "302e722799b849b32f469f229d53c4a4f3f739ef04bd3cf80666ced1d7f6960e",
+      "phases": {
+        "forward": {
+          "vulkan_dispatch_us": 65.16266666666652,
+          "cuda_kernel_us": 25.222199999999976,
+          "ratio": 2.583544126470593,
+          "selected_shaders": [
+            "conv2d_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 3.5762786865234375e-06,
+            "rms_error": 4.018655277124666e-07,
+            "reference_max_abs": 5.6343092918396
+          },
+          "cuda_parity": {
+            "max_abs_error": 1.3113021850585938e-06,
+            "rms_error": 2.5626105487261764e-07,
+            "reference_max_abs": 5.6343092918396
+          }
+        },
+        "dinput": {
+          "vulkan_dispatch_us": 71.60533333333372,
+          "cuda_kernel_us": 21.996600000000033,
+          "ratio": 3.2552909692104057,
+          "selected_shaders": [
+            "conv2d_backward_input_tiled_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 3.5762786865234375e-06,
+            "rms_error": 4.0256656551719156e-07,
+            "reference_max_abs": 4.186473846435547
+          },
+          "cuda_parity": {
+            "max_abs_error": 7.171183824539185e-07,
+            "rms_error": 1.5084871316443588e-07,
+            "reference_max_abs": 4.186473846435547
+          }
+        },
+        "dweight": {
+          "vulkan_dispatch_us": 50.55360000000029,
+          "cuda_kernel_us": 27.602800000000023,
+          "ratio": 1.8314663729766634,
+          "selected_shaders": [
+            "conv2d_backward_weight_split_tall"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 4.4055283069610596e-05,
+            "rms_error": 6.271662880746113e-06,
+            "reference_max_abs": 119.09386444091797
+          },
+          "cuda_parity": {
+            "max_abs_error": 0.00048828125,
+            "rms_error": 3.3839800868274386e-05,
+            "reference_max_abs": 119.09386444091797
+          }
+        },
+        "dbias": {
+          "vulkan_dispatch_us": 3.9530666666667416,
+          "cuda_kernel_us": 6.27199999999998,
+          "ratio": 0.6302721088435513,
+          "selected_shaders": [
+            "conv2d_backward_bias_reduce"
+          ],
+          "vulkan_parity": {
+            "max_abs_error": 5.7220458984375e-06,
+            "rms_error": 2.2885777550635324e-06,
+            "reference_max_abs": 59.77552032470703
+          },
+          "cuda_parity": {
+            "max_abs_error": 5.245208740234375e-06,
+            "rms_error": 2.1855487963317757e-06,
+            "reference_max_abs": 59.77552032470703
+          }
+        }
+      }
+    }
+  ]
+}

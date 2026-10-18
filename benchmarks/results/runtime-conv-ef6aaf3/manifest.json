@@ -1,0 +1,20 @@
+{
+  "base_commit": "ef6aaf3364d876358676669d568a49d9d0c1e3ed",
+  "baseline_extension_sha256": "ce3d22890c3234e06424e67b781bfd1a1a5fcee252e113aa3017e3a9ec883f33",
+  "backend_extension_sha256": "8d9e3bad7c617072f7c7339c95796c7b0083f89b302207f4f6272565610e1cac",
+  "source_diff_sha256": "4d5ee2ed1b044a219344d5d1e8152a81baff7d197dc87f33d07ef16a7c03f93f",
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "order": [
+    "before1",
+    "after1",
+    "after2",
+    "before2",
+    "cuda1",
+    "cuda2"
+  ],
+  "warmup": 12,
+  "repeats": 50,
+  "cuda_device_uuid": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29",
+  "barrier_patch_sha256": "2262e4446efc2e650612636d0e39cc55c4cb80c376915d5780668c32f6473258",
+  "phase_note": "Combined barrier batching and unit-stride dInput optimization; Nsight uses 8 warmups and 3 steps."
+}

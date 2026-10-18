@@ -36,6 +36,12 @@ CASES = [
                  id="grouped-stride-dilation"),
     pytest.param((1, 5, 11, 13), 15, (3, 5), (1, 2), (1, 4), (1, 2), 5,
                  id="depthwise-multiplier3"),
+    pytest.param((2, 6, 15, 19), 9, (3, 5), (1, 1), (3, 4), (2, 3), 3,
+                 id="unit-stride-dilated-grouped"),
+    pytest.param((1, 5, 11, 13), 15, (3, 5), (1, 1), (2, 4), (2, 2), 5,
+                 id="unit-stride-dilated-depthwise"),
+    pytest.param((1, 9, 17, 23), 17, (3, 5), (2, 3), (3, 2), (2, 1), 1,
+                 id="both-strides-nonunit"),
     *[pytest.param((1, 9, 1, positions), 17, (1, 1), (1, 1), (0, 0), (1, 1), 1,
                    id=f"weight-reduction{positions}") for positions in (255, 256, 257)],
 ]

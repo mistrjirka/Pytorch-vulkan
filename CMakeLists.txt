@@ -74,6 +74,15 @@ if(NOT kompute_FOUND)
       message(FATAL_ERROR "Kompute fence patch failed: ${KOMPUTE_FENCES_ERR}")
     endif()
     message(STATUS "${KOMPUTE_FENCES_OUT}")
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_barrier_batch.py" "${kompute_SOURCE_DIR}"
+      RESULT_VARIABLE KOMPUTE_BARRIERS_RC
+      OUTPUT_VARIABLE KOMPUTE_BARRIERS_OUT
+      ERROR_VARIABLE KOMPUTE_BARRIERS_ERR)
+    if(NOT KOMPUTE_BARRIERS_RC EQUAL 0)
+      message(FATAL_ERROR "Kompute barrier batch patch failed: ${KOMPUTE_BARRIERS_ERR}")
+    endif()
+    message(STATUS "${KOMPUTE_BARRIERS_OUT}")
     add_subdirectory("${kompute_SOURCE_DIR}" "${kompute_BINARY_DIR}")
     set(KOMPUTE_LIBRARY kompute)
     set(KOMPUTE_INCLUDE_DIR "")
