@@ -12,7 +12,7 @@ layout(push_constant) uniform Params {
   uint n,c,s,training,flags,moff,mstride,ioff,istride;
   float eps;
 } p;
-shared float sum_g[128],sum_xg[128];
+shared float sum_g[128],sum_xg[128],sum_x[128];
 uint address(uint r,uint c){return (r/p.s*p.c+c)*p.s+r%p.s;}
 void main() {
   uint c=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
@@ -20,18 +20,43 @@ void main() {
   uint tid=gl_LocalInvocationID.x,m=p.n*p.s;
   float mean=sm[p.moff+c*p.mstride],inv=si[p.ioff+c*p.istride];
   if(p.training==0)inv=inversesqrt(inv+p.eps);
-  float a=0.0,b=0.0;
+  // With two values, the generic expression subtracts nearly identical
+  // terms. The algebraic derivative keeps eps explicit and is antisymmetric.
+  // This is a reduction-size property, independent of rank, layout or model.
+  if(p.training!=0 && m==2) {
+    if(tid==0) {
+      uint i0=address(0,c),i1=address(1,c);
+      precise float dg=0.5*g[i0]-0.5*g[i1];
+      if((p.flags&2)!=0)dw[c]=((x[i0]-x[i1])*dg)*inv;
+      if((p.flags&4)!=0)db[c]=g[i0]+g[i1];
+      if((p.flags&1)!=0) {
+        float gamma=(p.flags&8)!=0?w[c]:1.0;
+        float v=(dg*gamma)*(((p.eps*inv)*inv)*inv);
+        dx[i0]=v;dx[i1]=-v;
+      }
+    }
+    return;
+  }
+  float a=0.0,b=0.0,residual=0.0;
   if(p.training!=0 || (p.flags&6)!=0) {
-    for(uint r=tid;r<m;r+=128){uint i=address(r,c);a+=g[i];b+=(x[i]-mean)*g[i];}
-    sum_g[tid]=a;sum_xg[tid]=b;barrier();
-    for(uint d=64;d>0;d>>=1){if(tid<d){sum_g[tid]+=sum_g[tid+d];sum_xg[tid]+=sum_xg[tid+d];}barrier();}
+    for(uint r=tid;r<m;r+=128){uint i=address(r,c);float centered=x[i]-mean;
+      a+=g[i];b+=centered*g[i];residual+=centered;}
+    sum_g[tid]=a;sum_xg[tid]=b;sum_x[tid]=residual;barrier();
+    for(uint d=64;d>0;d>>=1){if(tid<d){sum_g[tid]+=sum_g[tid+d];sum_xg[tid]+=sum_xg[tid+d];sum_x[tid]+=sum_x[tid+d];}barrier();}
     a=sum_g[0];b=sum_xg[0];
+    // Recover the mean's low part from the input instead of treating the
+    // rounded saved mean as exact. Evaluation uses supplied running stats.
+    if(p.training!=0) {
+      residual=sum_x[0]/float(m);
+      // Avoid introducing 0*infinity when only sum(g) overflows.
+      if(residual!=0.0)b-=residual*a;
+    } else residual=0.0;
   }
   if(tid==0){if((p.flags&2)!=0)dw[c]=b*inv;if((p.flags&4)!=0)db[c]=a;}
   if((p.flags&1)!=0) {
     float scale=inv*((p.flags&8)!=0?w[c]:1.0);
     for(uint r=tid;r<m;r+=128){uint i=address(r,c);float v=g[i];
-      if(p.training!=0)v-=a/float(m)+(x[i]-mean)*(b/float(m))*inv*inv;
+      if(p.training!=0)v-=a/float(m)+((x[i]-mean)-residual)*(b/float(m))*inv*inv;
       dx[i]=v*scale;
     }
   }

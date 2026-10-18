@@ -18,17 +18,19 @@ void main() {
   uint c=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
   if(c>=p.c)return;
   uint tid=gl_LocalInvocationID.x,m=p.n*p.s;
-  float mean,inv;
+  float mean,inv,origin=0.0,mean_shift=0.0;
   if(p.training!=0) {
     // Shift before summation, then use a centered second pass. This avoids
     // catastrophic cancellation of E[x*x]-E[x]^2 for large-offset data.
-    float origin=x[c*p.s],sum=0.0;
+    origin=x[c*p.s];
+    float sum=0.0;
     for(uint r=tid;r<m;r+=128)sum+=x[address(r,c)]-origin;
     scratch[tid]=sum;barrier();
     for(uint d=64;d>0;d>>=1){if(tid<d)scratch[tid]+=scratch[tid+d];barrier();}
-    mean=origin+scratch[0]/float(m);barrier();
+    mean_shift=scratch[0]/float(m);
+    mean=origin+mean_shift;barrier();
     sum=0.0;
-    for(uint r=tid;r<m;r+=128){float v=x[address(r,c)]-mean;sum+=v*v;}
+    for(uint r=tid;r<m;r+=128){float v=(x[address(r,c)]-origin)-mean_shift;sum+=v*v;}
     scratch[tid]=sum;barrier();
     for(uint d=64;d>0;d>>=1){if(tid<d)scratch[tid]+=scratch[tid+d];barrier();}
     float variance=scratch[0]/float(m);
@@ -42,5 +44,10 @@ void main() {
     mean=rm[p.rmoff+c*p.rmstride];inv=inversesqrt(rv[p.rvoff+c*p.rvstride]+p.eps);
   }
   float gamma=(p.flags&1)!=0?w[c]:1.0,beta=(p.flags&2)!=0?b[c]:0.0;
-  for(uint r=tid;r<m;r+=128){uint i=address(r,c);y[i]=((x[i]-mean)*inv)*gamma+beta;}
+  // Keep the low part of the mean through normalization. The public saved
+  // mean is FP32, but rounding it first can corrupt small channel variance.
+  for(uint r=tid;r<m;r+=128){uint i=address(r,c);
+    float centered=p.training!=0?(x[i]-origin)-mean_shift:x[i]-mean;
+    y[i]=(centered*inv)*gamma+beta;
+  }
 }

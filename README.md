@@ -82,7 +82,9 @@ stride/padding/dilation/group variants. Conv2D also accepts FP32 channels-last,
 transposed, sliced, offset and broadcast views via GPU packing. Native FP32
 BatchNorm training/evaluation and nearest-neighbor 2D resize include backward
 and strided-view support. See the [BatchNorm and resize report](docs/batch-norm-and-nearest-resize.md)
-for semantics, matched A/B timings and remaining CUDA gaps. Native FP32 max-pool
+for semantics, matched A/B timings and remaining CUDA gaps. The
+[BatchNorm precision investigation](docs/batch-norm-precision.md) covers stable
+centering, two-value gradients and the ResNet FP32/FP64 comparison. Native FP32 max-pool
 forward/backward, concatenation and arithmetic view packing now cover general
 layouts. Completed-fence reuse removes repeated driver allocation overhead.
 The [pooling, layout and fence report](docs/pooling-layouts-and-fences.md) records
@@ -187,9 +189,10 @@ a closer-to-exact GELU further improved correctness.
   experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.
   `ConvTranspose2d` is also not supported. A reduced-size ResNet18
-  training comparison before the native BatchNorm implementation exhibited
-  numerical divergence near small spatial layers; ResNet18 convergence has
-  **not been revalidated** by this change.
+  training comparison remains sensitive to FP32 rounding in its final
+  two-value BatchNorm reductions, including on CUDA. Local BatchNorm precision
+  defects are fixed and compared with FP64; this is **not a validation of
+  ResNet18 training convergence**. See the precision investigation above.
 - Only the two NVIDIA GPUs and software Lavapipe have been tested;
   AMD/Intel portability still needs verification.
 - `torch.Tensor.is_vulkan` refers to legacy PyTorch Vulkan support and

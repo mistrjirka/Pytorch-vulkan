@@ -184,7 +184,7 @@ The recorded CUDA kernels show FFT-based forward for both 10x10 and 11x11. Their
 - lavapipe: 421 passed, 1 skipped, 3 warnings in 10.64s
 - resident: 422 passed, 3 warnings in 12.63s
 
-Includes 61 new dispatch tests: forced tiles, ragged boundaries, filters9/10/11/12, groups/stride/dilation/layouts, gradients and masks, pipeline reuse, tuning-cache reuse, workspace changes, explicit-control bypass, signed-coordinate rejection and two-axis direct dispatch. All14 shader binaries pass spirv-val. Three pre-existing MSE output-resize warnings remain; Lavapipe skips the hardware-acceleration assertion. AMD/Intel hardware remains untested. The previously observed TinyResNet end-to-end numerical mismatch is not resolved by this work.
+Includes 61 new dispatch tests: forced tiles, ragged boundaries, filters9/10/11/12, groups/stride/dilation/layouts, gradients and masks, pipeline reuse, tuning-cache reuse, workspace changes, explicit-control bypass, signed-coordinate rejection and two-axis direct dispatch. All14 shader binaries pass spirv-val. Three pre-existing MSE output-resize warnings remain; Lavapipe skips the hardware-acceleration assertion. AMD/Intel hardware remains untested. The previously observed reduced-size ResNet18 end-to-end numerical mismatch was not resolved by this convolution work. A subsequent [BatchNorm precision investigation](batch-norm-precision.md) separates local operator defects from FP32 amplification using matched CPU FP64 and CUDA references; it does not establish training convergence.
 
 
 Raw measurements: [`benchmarks/results/conv-dispatch`](../benchmarks/results/conv-dispatch/).

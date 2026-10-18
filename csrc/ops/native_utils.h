@@ -24,8 +24,14 @@ inline Buffer base(const at::Tensor& t,at::ScalarType dtype=at::kFloat) {
               "Vulkan native operator tensor device/dtype mismatch");
   return VulkanAllocator::instance().get_kompute_tensor(t.storage().data_ptr().get());
 }
+// A process selects one physical device before constructing VulkanContext.
+// Its immutable limits can be shared by all native operators and dispatches.
+inline const vk::PhysicalDeviceLimits& device_limits() {
+  static const auto limits=VulkanContext::instance().manager().getDeviceProperties().limits;
+  return limits;
+}
 inline kp::Workgroup grid(uint64_t groups) {
-  auto l=VulkanContext::instance().manager().getDeviceProperties().limits;
+  const auto& l=device_limits();
   auto x=std::min<uint64_t>(groups,l.maxComputeWorkGroupCount[0]);
   auto y=x ? (groups+x-1)/x : 0;
   TORCH_CHECK(x && y<=l.maxComputeWorkGroupCount[1],"Vulkan dispatch exceeds device limits");
@@ -35,7 +41,7 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
                 const std::vector<Buffer>& outputs,const std::vector<uint32_t>& push,
                 uint64_t groups,uint32_t shared_bytes=0) {
   auto& ctx=VulkanContext::instance();
-  auto l=ctx.manager().getDeviceProperties().limits;
+  const auto& l=device_limits();
   auto bindings=inputs; bindings.insert(bindings.end(),outputs.begin(),outputs.end());
   TORCH_CHECK(l.maxComputeWorkGroupInvocations>=128 && l.maxComputeWorkGroupSize[0]>=128 &&
               l.maxComputeSharedMemorySize>=shared_bytes &&

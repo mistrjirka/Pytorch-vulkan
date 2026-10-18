@@ -97,3 +97,163 @@ def test_batch_norm_single_sample_and_no_cpu_fallback():
     assert not any(e.key=='aten::_to_copy' for e in prof.key_averages())
     torch.testing.assert_close(y.cpu(),torch.zeros(1,3))
     assert v.cpu().isnan().all()
+
+
+# Precision regressions use the values actually representable in FP32 as their
+# input, then promote to FP64. Reproducing CPU FP32 cancellation is not a
+# correctness oracle for almost-constant channels or two-value reductions.
+def _precision_batch_norm(shape, kind, offset, noise, eps, affine, *,
+                          training=True, mask=(True, True, True), grad_offset=0.0):
+    generator = torch.Generator().manual_seed(397 + sum(shape))
+    x = torch.randn(shape, generator=generator) * noise + offset
+    g = torch.randn(shape, generator=generator) * 0.3 + grad_offset
+    channels = shape[1]
+    weight = torch.linspace(-1.3, 1.7, channels) if affine else None
+    bias = torch.linspace(-0.4, 0.2, channels) if affine else None
+    running_mean = torch.linspace(-3.0, 7.0, channels)
+    running_var = torch.linspace(0.7, 2.1, channels)
+    momentum = 0.23
+
+    # FP64 reference uses contiguous channel vectors; the Vulkan side also
+    # checks offset/strided vectors, including running-stat mutation.
+    xd, gd = x.double(), g.double()
+    wd, bd = [t.double() if t is not None else None for t in (weight, bias)]
+    md, vd = running_mean.double(), running_var.double()
+    expected, mean_d, inv_d = torch.ops.aten.native_batch_norm(
+        xd, wd, bd, md, vd, training, momentum, eps)
+    expected_grads = torch.ops.aten.native_batch_norm_backward(
+        gd, xd, wd, md, vd, mean_d, inv_d, training, eps, mask)
+
+    xv, gv = layout(x, kind, 'vulkan'), layout(g, kind, 'vulkan')
+    def vector(v):
+        return None if v is None else layout(v, 'slice', 'vulkan')
+    wv, bv, mv, vv = map(vector, (weight, bias, running_mean, running_var))
+    actual, mean_v, inv_v = torch.ops.aten.native_batch_norm(
+        xv, wv, bv, mv, vv, training, momentum, eps)
+    actual_grads = torch.ops.aten.native_batch_norm_backward(
+        gv, xv, wv, mv, vv, mean_v, inv_v, training, eps, mask)
+    torch.testing.assert_close(actual.cpu().double(), expected, rtol=4e-5, atol=2e-5)
+    if training:
+        torch.testing.assert_close(mean_v.cpu(), mean_d.float(), rtol=0, atol=0.001)
+        torch.testing.assert_close(inv_v.cpu().double(), inv_d, rtol=4e-5, atol=2e-5)
+    else:
+        assert mean_v.numel() == 0 and inv_v.numel() == 0
+    for enabled, actual_grad, expected_grad in zip(mask, actual_grads, expected_grads):
+        if enabled:
+            torch.testing.assert_close(actual_grad.cpu().double(), expected_grad,
+                                       rtol=8e-5, atol=5e-5)
+        else:
+            assert actual_grad is None
+    torch.testing.assert_close(mv.cpu(), md.float(), rtol=2e-7, atol=0.001)
+    torch.testing.assert_close(vv.cpu().double(), vd, rtol=2e-6, atol=2e-7, equal_nan=True)
+    return x, g, actual_grads, mean_v, inv_v
+
+
+@pytest.mark.parametrize('shape,kind,offset,noise,eps,affine', [
+    pytest.param((2, 3), 'contiguous', 10000.0, .1, 1e-5, True, id='pair-batch-high-offset'),
+    pytest.param((2, 3), 'slice', 10000.0, .1, 0.0, False, id='pair-batch-high-offset-eps0'),
+    pytest.param((2, 3), 'slice', 1.0, 1e-4, 1e-5, False, id='pair-batch-near-equal'),
+    pytest.param((2, 3), 'contiguous', 1.0, 1e-4, 0.0, True, id='pair-batch-near-equal-eps0'),
+    pytest.param((2, 3), 'slice', 3.0, 0.0, 1e-5, True, id='pair-batch-constant'),
+    pytest.param((2, 3), 'contiguous', 3.0, 0.0, 0.0, False, id='pair-batch-constant-eps0'),
+    pytest.param((1, 3, 1, 2), 'channels_last', 10000.0, .1, 1e-5, True, id='pair-spatial-high-offset'),
+    pytest.param((1, 3, 1, 2), 'slice', 10000.0, .1, 0.0, False, id='pair-spatial-high-offset-eps0'),
+    pytest.param((1, 3, 2, 1), 'transpose', 1.0, 1e-4, 1e-5, False, id='pair-spatial-near-equal'),
+    pytest.param((1, 3, 1, 2), 'slice', 1.0, 1e-4, 0.0, True, id='pair-spatial-near-equal-eps0'),
+    pytest.param((1, 3, 1, 2), 'channels_last', 3.0, 0.0, 1e-5, True, id='pair-spatial-constant'),
+    pytest.param((1, 3, 2, 1), 'transpose', 3.0, 0.0, 0.0, False, id='pair-spatial-constant-eps0'),
+    *[pytest.param((1, 3, samples), 'slice', 10000.0, .1, eps, True,
+                   id=f'general-reduction{samples}-eps{eps}')
+      for samples in (3, 8, 129) for eps in (0.0, 1e-5)],
+])
+def test_batch_norm_centering_and_small_reduction_precision(shape, kind, offset, noise, eps, affine):
+    x, _, grads, _, _ = _precision_batch_norm(shape, kind, offset, noise, eps, affine)
+    if x.numel() // shape[1] == 2:
+        # The two input derivatives must be equal and opposite, including
+        # epsilon zero and constant inputs. This catches asymmetric residuals.
+        per_channel = grads[0].cpu().movedim(1, 0).reshape(shape[1], 2)
+        torch.testing.assert_close(per_channel[:, 0], -per_channel[:, 1], rtol=0, atol=0)
+
+
+@pytest.mark.parametrize('affine', [False, True])
+def test_batch_norm_pair_common_gradient_offset_cancellation(affine):
+    x, g, grads, _, inv = _precision_batch_norm(
+        (1, 3, 1, 2), 'slice', 10000.0, .1, 1e-5, affine, grad_offset=10000.0)
+    # dWeight depends on the difference of the two gradients, not their large
+    # common offset. Compare against a direct FP64 pair identity as well.
+    pair_x = x.double().reshape(3, 2)
+    pair_g = g.double().reshape(3, 2)
+    expected_dw = .5 * (pair_x[:, 0] - pair_x[:, 1]) * (pair_g[:, 0] - pair_g[:, 1]) * inv.cpu().double()
+    torch.testing.assert_close(grads[1].cpu().double(), expected_dw, rtol=3e-6, atol=1e-7)
+
+
+@pytest.mark.parametrize('mask', [(False, False, False), (True, False, False),
+                                 (False, True, False), (False, False, True)])
+def test_batch_norm_pair_precision_output_masks(mask):
+    _precision_batch_norm((1, 3, 1, 2), 'slice', 10000.0, .1, 1e-5, True, mask=mask)
+
+
+@pytest.mark.parametrize('shape,kind,eps,affine', [
+    ((2, 3), 'slice', 0.0, True),
+    ((2, 3), 'contiguous', 1e-5, False),
+    ((1, 3, 1, 2), 'channels_last', 0.0, False),
+    ((1, 3, 2, 1), 'transpose', 1e-5, True),
+])
+def test_batch_norm_two_values_evaluation_uses_running_statistics(shape, kind, eps, affine):
+    # The training pair identity would force opposite dInputs; inference must
+    # instead independently scale each gradient using the supplied variance.
+    _precision_batch_norm(shape, kind, 10000.0, .1, eps, affine, training=False)
+
+
+@pytest.mark.parametrize('eps', [0.0, 1e-5])
+def test_batch_norm_single_value_precision_convention(eps):
+    x, g, grads, mean, inv = _precision_batch_norm(
+        (1, 3, 1, 1), 'slice', 3.0, 0.0, eps, True)
+    torch.testing.assert_close(grads[0].cpu(), torch.zeros_like(x), rtol=0, atol=0)
+    torch.testing.assert_close(grads[1].cpu(), torch.zeros(3), rtol=0, atol=0)
+    torch.testing.assert_close(grads[2].cpu(), g.reshape(3), rtol=0, atol=0)
+    if eps == 0:
+        torch.testing.assert_close(inv.cpu(), torch.zeros(3), rtol=0, atol=0)
+
+
+def test_batch_norm_eval_dweight_with_overflowing_dbias():
+    # Finite individual gradients can overflow their sum. Evaluation must not
+    # introduce 0*infinity into an otherwise exactly zero scale gradient.
+    x = torch.ones(2, 3).to('vulkan')
+    g = torch.full((2, 3), 2e38).to('vulkan')
+    mean = torch.ones(3).to('vulkan')
+    var = torch.ones(3).to('vulkan')
+    empty = torch.empty(0).to('vulkan')
+    dx, dw, db = torch.ops.aten.native_batch_norm_backward(
+        g, x, None, mean, var, empty, empty, False, 0., [True]*3)
+    torch.testing.assert_close(dx.cpu(), torch.full((2, 3), 2e38))
+    torch.testing.assert_close(dw.cpu(), torch.zeros(3), rtol=0, atol=0)
+    assert db.cpu().isposinf().all()
+
+
+def test_batch_norm_training_dweight_with_overflowing_dbias():
+    x = torch.tensor([[-1.], [-1.], [1.], [1.]]).to('vulkan')
+    g = torch.full((4, 1), 1e38).to('vulkan')
+    _, mean, inv = torch.ops.aten.native_batch_norm(
+        x, None, None, None, None, True, .1, 1e-5)
+    dx, dw, db = torch.ops.aten.native_batch_norm_backward(
+        g, x, None, None, None, mean, inv, True, 1e-5, [False, True, False])
+    assert dx is None and db is None
+    torch.testing.assert_close(dw.cpu(), torch.zeros(1), rtol=0, atol=0)
+
+
+def test_batch_norm_pair_finite_opposite_large_gradients():
+    # Half the difference is finite even when forming the difference first
+    # would overflow. Small gamma leaves the exact dInput representable.
+    x = torch.zeros(2, 1)
+    g = torch.tensor([[3e38], [-3e38]])
+    w = torch.tensor([1e-20])
+    results = []
+    for device, dtype in [('cpu', torch.float64), ('vulkan', torch.float32)]:
+        xx, gg, ww = [t.to(device=device, dtype=dtype) for t in (x, g, w)]
+        _, mean, inv = torch.ops.aten.native_batch_norm(
+            xx, ww, None, None, None, True, .1, 1e-5)
+        results.append(torch.ops.aten.native_batch_norm_backward(
+            gg, xx, ww, None, None, mean, inv, True, 1e-5, [True]*3))
+    for actual, expected in zip(results[1], results[0]):
+        torch.testing.assert_close(actual.cpu().double(), expected, rtol=3e-6, atol=0)

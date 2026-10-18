@@ -53,7 +53,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm(
   // Validate capabilities via the same checks as native::run, and dispatch with
   // mutation outputs separately from descriptor order.
   auto bindings=inputs;bindings.insert(bindings.end(),outputs.begin(),outputs.end());
-  const auto l=ctx.manager().getDeviceProperties().limits;
+  const auto& l=device_limits();
   TORCH_CHECK(l.maxComputeWorkGroupInvocations>=128 && l.maxComputeWorkGroupSize[0]>=128 &&
       l.maxComputeSharedMemorySize>=512 && bindings.size()<=l.maxPerStageDescriptorStorageBuffers &&
       bindings.size()<=l.maxDescriptorSetStorageBuffers,"Vulkan BatchNorm exceeds device capabilities");
@@ -93,7 +93,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_backward(
   run("batch_norm_backward",{base(x),base(g),w.defined()?base(w):dummy,base(*mean),base(*inv)},
       {mask[0]?base(dx):dummy,mask[1]?base(dw):dummy,mask[2]?base(db):dummy},
       {u32(input.size(0)),u32(c),u32(s),uint32_t(training),flags,
-       u32(mean->storage_offset()),u32(mean->stride(0)),u32(inv->storage_offset()),u32(inv->stride(0)),bits(float(eps))},c,1024);
+       u32(mean->storage_offset()),u32(mean->stride(0)),u32(inv->storage_offset()),u32(inv->stride(0)),bits(float(eps))},c,1536);
   return {dx,dw,db};
 }
 } // namespace
