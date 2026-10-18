@@ -1,0 +1,150 @@
+{
+  "measured_steps": 3,
+  "measurement": "Host Vulkan API time; includes waits; not GPU kernel time",
+  "stages": {
+    "zero_grad": {
+      "mean_wall_ms": 0.039951,
+      "api_per_step": {}
+    },
+    "forward": {
+      "mean_wall_ms": 0.9675936666666667,
+      "api_per_step": {
+        "vkWaitForFences": {
+          "calls": 3.0,
+          "ms": 0.6173373333333334
+        },
+        "vkQueueSubmit": {
+          "calls": 3.0,
+          "ms": 0.02132
+        },
+        "vkCmdPipelineBarrier": {
+          "calls": 45.0,
+          "ms": 0.016772333333333334
+        },
+        "vkBeginCommandBuffer": {
+          "calls": 3.0,
+          "ms": 0.014002999999999998
+        },
+        "vkAllocateCommandBuffers": {
+          "calls": 3.0,
+          "ms": 0.011111
+        },
+        "vkCmdBindPipeline": {
+          "calls": 7.0,
+          "ms": 0.005067333333333333
+        },
+        "vkEndCommandBuffer": {
+          "calls": 3.0,
+          "ms": 0.004008
+        },
+        "vkCreateCommandPool": {
+          "calls": 3.0,
+          "ms": 0.0016773333333333336
+        }
+      }
+    },
+    "loss": {
+      "mean_wall_ms": 0.2287296666666667,
+      "api_per_step": {
+        "vkWaitForFences": {
+          "calls": 1.0,
+          "ms": 0.026522666666666667
+        },
+        "vkQueueSubmit": {
+          "calls": 1.0,
+          "ms": 0.005827333333333334
+        },
+        "vkBeginCommandBuffer": {
+          "calls": 1.0,
+          "ms": 0.004311333333333334
+        },
+        "vkAllocateCommandBuffers": {
+          "calls": 1.0,
+          "ms": 0.0027716666666666666
+        },
+        "vkEndCommandBuffer": {
+          "calls": 1.0,
+          "ms": 0.0007583333333333333
+        },
+        "vkCreateCommandPool": {
+          "calls": 1.0,
+          "ms": 0.0006046666666666667
+        }
+      }
+    },
+    "backward": {
+      "mean_wall_ms": 2.499839666666667,
+      "api_per_step": {
+        "vkWaitForFences": {
+          "calls": 5.0,
+          "ms": 0.799817
+        },
+        "vkCmdPipelineBarrier": {
+          "calls": 79.0,
+          "ms": 0.063765
+        },
+        "vkQueueSubmit": {
+          "calls": 5.0,
+          "ms": 0.06016566666666667
+        },
+        "vkBeginCommandBuffer": {
+          "calls": 5.0,
+          "ms": 0.045144
+        },
+        "vkAllocateCommandBuffers": {
+          "calls": 5.0,
+          "ms": 0.030309333333333334
+        },
+        "vkCmdBindPipeline": {
+          "calls": 14.0,
+          "ms": 0.016334666666666664
+        },
+        "vkEndCommandBuffer": {
+          "calls": 5.0,
+          "ms": 0.012527333333333331
+        },
+        "vkCreateCommandPool": {
+          "calls": 5.0,
+          "ms": 0.006173999999999999
+        }
+      }
+    },
+    "optimizer": {
+      "mean_wall_ms": 0.4696823333333333,
+      "api_per_step": {
+        "vkWaitForFences": {
+          "calls": 1.0,
+          "ms": 0.14281333333333332
+        },
+        "vkCmdPipelineBarrier": {
+          "calls": 99.0,
+          "ms": 0.03618266666666667
+        },
+        "vkAllocateCommandBuffers": {
+          "calls": 1.0,
+          "ms": 0.007470333333333332
+        },
+        "vkQueueSubmit": {
+          "calls": 1.0,
+          "ms": 0.007453999999999999
+        },
+        "vkBeginCommandBuffer": {
+          "calls": 1.0,
+          "ms": 0.0067989999999999995
+        },
+        "vkCmdBindPipeline": {
+          "calls": 10.0,
+          "ms": 0.0029186666666666666
+        },
+        "vkEndCommandBuffer": {
+          "calls": 1.0,
+          "ms": 0.0014893333333333334
+        },
+        "vkCreateCommandPool": {
+          "calls": 1.0,
+          "ms": 0.0007843333333333333
+        }
+      }
+    }
+  }
+}

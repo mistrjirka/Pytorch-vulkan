@@ -1,0 +1,48 @@
+{
+  "revision": "795d34e661593c386218388b93c9ebb4092b5552",
+  "script_sha256": "1c464ff1393df2b3a578a1551e50f57bc6e1af5e24943c3220139f46cc434476",
+  "model": "style_net",
+  "shape": [
+    1,
+    3,
+    36,
+    36
+  ],
+  "variant": "composite",
+  "leaky_modules": 11,
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "warmup": 8,
+  "repeats": 15,
+  "median_ms": 46.24944299575873,
+  "min_ms": 43.0293690005783,
+  "max_ms": 49.35149599623401,
+  "samples_ms": [
+    46.24944299575873,
+    49.35149599623401,
+    43.0293690005783,
+    47.48240701155737,
+    44.845619006082416,
+    48.37220300396439,
+    43.93409300246276,
+    48.177099000895396,
+    43.90228299598675,
+    48.01012900134083,
+    44.2795959970681,
+    48.22483900352381,
+    43.99110798840411,
+    48.837588998139836,
+    44.26161199808121
+  ],
+  "queue_per_step": {
+    "submissions": 9.0,
+    "recorded_ops": 306.0
+  },
+  "env": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_CONV_AUTOTUNE": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "note": "Diagnostic finite-input composition, not a published backend kernel; one parity pass precedes warmup."
+}

@@ -1,0 +1,16 @@
+{
+  "output": {
+    "max_abs": 2.6226043701171875e-06,
+    "relative_l2": 1.5444358185468708e-06
+  },
+  "loss": {
+    "max_abs": 5.960464477539063e-08,
+    "relative_l2": 8.368061485838018e-08
+  },
+  "gradients": {
+    "relative_l2": 1.6789070241281836e-06,
+    "max_abs": 3.725290298461914e-08,
+    "worst_parameter": "conv12.weight",
+    "parameters": 50
+  }
+}

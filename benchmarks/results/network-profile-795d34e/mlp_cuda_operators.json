@@ -1,0 +1,2529 @@
+{
+  "revision": "795d34e661593c386218388b93c9ebb4092b5552",
+  "profile_script_sha256": "05f42fc70e931fe3fad6a571c9ec75f2689b37d79995425d4bbaaa20e2264ca2",
+  "zoo_revision": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "cuda",
+  "model": "mlp",
+  "dtype": "float32",
+  "shape": [
+    256,
+    784
+  ],
+  "torch": "2.14.1+cu130",
+  "initial_state_sha256": "b4aab605c90c2a7a6e454100284343d30f3632007786a01fe6cebc5b6075f3a5",
+  "input_sha256": "24a6ab1f8dd106d0daef4385913bc719c367cd5de8228e1c42a43126e32636cd",
+  "model_seed": 42,
+  "input_seed": 123,
+  "first_loss": 2.4708096981048584,
+  "optimizer": "standard_foreach_false",
+  "env": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_CONV_AUTOTUNE": "1",
+    "CUDA_VISIBLE_DEVICES": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29"
+  },
+  "warmup_ms": [
+    136.82965400221292,
+    2.9507430008379743,
+    2.2699550027027726,
+    2.414564005448483,
+    2.1532390092033893,
+    2.2936289897188544,
+    2.3017749917926267,
+    2.2852649999549612
+  ],
+  "profiled_steps": 3,
+  "counter_delta": {},
+  "operators": [
+    {
+      "name": "network/backward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 1.334403333333334,
+      "inclusive_cpu_ms": 1.7740423333333337,
+      "inclusive_device_ms": 0.001311999999999898
+    },
+    {
+      "name": "Activity Buffer Request",
+      "shapes": [],
+      "calls_per_step": 0.6666666666666666,
+      "self_cpu_ms": 0.8118146666666668,
+      "inclusive_cpu_ms": 0.8118146666666668,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "cudaLaunchKernel",
+      "shapes": [],
+      "calls_per_step": 107.0,
+      "self_cpu_ms": 0.7087019999999947,
+      "inclusive_cpu_ms": 0.7087019999999947,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.step#AdamW.step",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.6391600000000044,
+      "inclusive_cpu_ms": 1.9035736666666672,
+      "inclusive_device_ms": 0.3330440000000026
+    },
+    {
+      "name": "aten::fill_",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.4183453333333335,
+      "inclusive_cpu_ms": 0.4444806666666662,
+      "inclusive_device_ms": 0.0014289999999997842
+    },
+    {
+      "name": "network/forward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.12113533333333461,
+      "inclusive_cpu_ms": 0.914362333333333,
+      "inclusive_device_ms": 0.18214499999999992
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.07423666666666667,
+      "inclusive_cpu_ms": 0.14846033333333253,
+      "inclusive_device_ms": 0.0197966666666692
+    },
+    {
+      "name": "aten::empty",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.0669283333333342,
+      "inclusive_cpu_ms": 0.0669283333333342,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::sqrt",
+      "shapes": [
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.06304099999999804,
+      "inclusive_cpu_ms": 0.09736099999999806,
+      "inclusive_device_ms": 0.010346666666666351
+    },
+    {
+      "name": "aten::div",
+      "shapes": [
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.059691000000000716,
+      "inclusive_cpu_ms": 0.09170366666666724,
+      "inclusive_device_ms": 0.008736000000001999
+    },
+    {
+      "name": "aten::addmm",
+      "shapes": [
+        [
+          1024
+        ],
+        [
+          256,
+          784
+        ],
+        [
+          784,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.058054000000000314,
+      "inclusive_cpu_ms": 0.5022916666666665,
+      "inclusive_device_ms": 0.06621899999999997
+    },
+    {
+      "name": "autograd::engine::evaluate_function: AddmmBackward0",
+      "shapes": [],
+      "calls_per_step": 3.0,
+      "self_cpu_ms": 0.05400666666666894,
+      "inclusive_cpu_ms": 0.38077466666666804,
+      "inclusive_device_ms": 0.2274446666666663
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.05101866666666744,
+      "inclusive_cpu_ms": 0.14316700000000068,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: NllLossBackward0",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.046703666666665866,
+      "inclusive_cpu_ms": 0.5542483333333335,
+      "inclusive_device_ms": 0.005322333333333215
+    },
+    {
+      "name": "Optimizer.zero_grad#AdamW.zero_grad",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.045120666666666615,
+      "inclusive_cpu_ms": 0.045120666666666615,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_to_copy",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.044086999999999835,
+      "inclusive_cpu_ms": 0.07831599999999798,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::gelu",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.041955000000000305,
+      "inclusive_cpu_ms": 0.057279999999999824,
+      "inclusive_device_ms": 0.006101333333332604
+    },
+    {
+      "name": "autograd::engine::evaluate_function: torch::autograd::AccumulateGrad",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.041170000000000075,
+      "inclusive_cpu_ms": 0.0905550000000009,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_layer_norm",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [],
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.04080299999999761,
+      "inclusive_cpu_ms": 0.09307366666666682,
+      "inclusive_device_ms": 0.015178666666666838
+    },
+    {
+      "name": "aten::addcmul_",
+      "shapes": [
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.04064199999999952,
+      "inclusive_cpu_ms": 0.07732000000000032,
+      "inclusive_device_ms": 0.010357666666667986
+    },
+    {
+      "name": "aten::addcdiv_",
+      "shapes": [
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.040362333333332875,
+      "inclusive_cpu_ms": 0.07296966666666564,
+      "inclusive_device_ms": 0.012725333333331644
+    },
+    {
+      "name": "aten::lerp_",
+      "shapes": [
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.03992433333333156,
+      "inclusive_cpu_ms": 0.07270866666666582,
+      "inclusive_device_ms": 0.011369333333333998
+    },
+    {
+      "name": "aten::mm",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.03944399999999951,
+      "inclusive_cpu_ms": 0.05120600000000013,
+      "inclusive_device_ms": 0.005311999999999898
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.03864566666666845,
+      "inclusive_cpu_ms": 0.07094933333333392,
+      "inclusive_device_ms": 0.008949333333333016
+    },
+    {
+      "name": "network/final_sync",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.035439666666667716,
+      "inclusive_cpu_ms": 0.044159000000000864,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::nll_loss_backward",
+      "shapes": [
+        [],
+        [
+          256,
+          10
+        ],
+        [
+          256
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.03420733333333449,
+      "inclusive_cpu_ms": 0.4899460000000004,
+      "inclusive_device_ms": 0.005322333333333215
+    },
+    {
+      "name": "aten::sum",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.03188000000000011,
+      "inclusive_cpu_ms": 0.046112666666666885,
+      "inclusive_device_ms": 0.023220999999999853
+    },
+    {
+      "name": "aten::native_layer_norm_backward",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [
+          256,
+          1024
+        ],
+        [],
+        [
+          256,
+          1
+        ],
+        [
+          256,
+          1
+        ],
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.03106000000000131,
+      "inclusive_cpu_ms": 0.09778833333333387,
+      "inclusive_device_ms": 0.02295466666666592
+    },
+    {
+      "name": "network/zero_grad",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.029845333333333314,
+      "inclusive_cpu_ms": 0.07496599999999994,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::addmm",
+      "shapes": [
+        [
+          10
+        ],
+        [
+          256,
+          1024
+        ],
+        [
+          1024,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.027581000000000282,
+      "inclusive_cpu_ms": 0.04325033333333325,
+      "inclusive_device_ms": 0.01136000000000028
+    },
+    {
+      "name": "network/loss",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.027273666666666637,
+      "inclusive_cpu_ms": 0.10482499999999936,
+      "inclusive_device_ms": 0.008906666666667661
+    },
+    {
+      "name": "aten::gelu_backward",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [
+          256,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.02685200000000047,
+      "inclusive_cpu_ms": 0.04320599999999983,
+      "inclusive_device_ms": 0.008852666666666058
+    },
+    {
+      "name": "aten::addmm",
+      "shapes": [
+        [
+          1024
+        ],
+        [
+          256,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.02641266666666737,
+      "inclusive_cpu_ms": 0.04079966666666663,
+      "inclusive_device_ms": 0.08328600000000021
+    },
+    {
+      "name": "aten::mm",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.025631000000000313,
+      "inclusive_cpu_ms": 0.035308999999999896,
+      "inclusive_device_ms": 0.06630399999999918
+    },
+    {
+      "name": "aten::empty_strided",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 11.0,
+      "self_cpu_ms": 0.025613333333331868,
+      "inclusive_cpu_ms": 0.025613333333331868,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: NativeLayerNormBackward0",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.024001333333332393,
+      "inclusive_cpu_ms": 0.13369866666666622,
+      "inclusive_device_ms": 0.02295466666666592
+    },
+    {
+      "name": "aten::nll_loss_forward",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          256
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.023140000000000174,
+      "inclusive_cpu_ms": 0.031138000000000225,
+      "inclusive_device_ms": 0.0070723333333339725
+    },
+    {
+      "name": "network/optimizer",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.021513333333333017,
+      "inclusive_cpu_ms": 1.9250870000000002,
+      "inclusive_device_ms": 0.3330440000000026
+    },
+    {
+      "name": "cudaMemsetAsync",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.020939333333332494,
+      "inclusive_cpu_ms": 0.020939333333332494,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_log_softmax",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.020030666666667155,
+      "inclusive_cpu_ms": 0.02875700000000006,
+      "inclusive_device_ms": 0.0018343333333336886
+    },
+    {
+      "name": "aten::mm",
+      "shapes": [
+        [
+          1024,
+          256
+        ],
+        [
+          256,
+          784
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.019887666666667126,
+      "inclusive_cpu_ms": 0.028753666666666806,
+      "inclusive_device_ms": 0.05800533333333351
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.01974066666666628,
+      "inclusive_cpu_ms": 0.040485666666665567,
+      "inclusive_device_ms": 0.023701999999999012
+    },
+    {
+      "name": "aten::sum",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01883499999999943,
+      "inclusive_cpu_ms": 0.026756333333332806,
+      "inclusive_device_ms": 0.0069433333333339155
+    },
+    {
+      "name": "aten::item",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.017818333333333308,
+      "inclusive_cpu_ms": 0.02482533333333413,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "NllLossBackward0",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.017598666666667213,
+      "inclusive_cpu_ms": 0.5075446666666675,
+      "inclusive_device_ms": 0.005322333333333215
+    },
+    {
+      "name": "autograd::engine::evaluate_function: TBackward0",
+      "shapes": [],
+      "calls_per_step": 3.0,
+      "self_cpu_ms": 0.016600666666668682,
+      "inclusive_cpu_ms": 0.03734300000000076,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "AddmmBackward0",
+      "shapes": [
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.016473999999998948,
+      "inclusive_cpu_ms": 0.12891633333333358,
+      "inclusive_device_ms": 0.1816426666666663
+    },
+    {
+      "name": "aten::copy_",
+      "shapes": [
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.01639666666666623,
+      "inclusive_cpu_ms": 0.01639666666666623,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::mm",
+      "shapes": [
+        [
+          10,
+          256
+        ],
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01613033333333321,
+      "inclusive_cpu_ms": 0.024248666666666394,
+      "inclusive_device_ms": 0.010325666666666317
+    },
+    {
+      "name": "aten::mm",
+      "shapes": [
+        [
+          1024,
+          256
+        ],
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.016016666666666728,
+      "inclusive_cpu_ms": 0.02254866666666688,
+      "inclusive_device_ms": 0.05733333333333364
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          1024,
+          784
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.01590000000000191,
+      "inclusive_cpu_ms": 0.027230666666667618,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: GeluBackward0",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.01570866666666552,
+      "inclusive_cpu_ms": 0.06561566666666628,
+      "inclusive_device_ms": 0.008852666666666058
+    },
+    {
+      "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessor",
+      "shapes": [],
+      "calls_per_step": 7.0,
+      "self_cpu_ms": 0.015288333333333185,
+      "inclusive_cpu_ms": 0.015288333333333185,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::div",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.013838999999999942,
+      "inclusive_cpu_ms": 0.020371000000000094,
+      "inclusive_device_ms": 0.006836999999999534
+    },
+    {
+      "name": "aten::sqrt",
+      "shapes": [
+        [
+          1024,
+          784
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01383266666666744,
+      "inclusive_cpu_ms": 0.020688666666666904,
+      "inclusive_device_ms": 0.005621333333332889
+    },
+    {
+      "name": "aten::to",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.013832333333335252,
+      "inclusive_cpu_ms": 0.09214833333333323,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "AddmmBackward0",
+      "shapes": [
+        [
+          256,
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.013093333333333854,
+      "inclusive_cpu_ms": 0.11635699999999997,
+      "inclusive_device_ms": 0.015637666666666217
+    },
+    {
+      "name": "aten::_log_softmax_backward_data",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          256,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.013080666666667034,
+      "inclusive_cpu_ms": 0.021128999999999905,
+      "inclusive_device_ms": 0.0016746666666661743
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.013043666666666771,
+      "inclusive_cpu_ms": 0.025112666666666277,
+      "inclusive_device_ms": 0.03200033333333371
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.013008333333334425,
+      "inclusive_cpu_ms": 0.024943000000000513,
+      "inclusive_device_ms": 0.0036163333333327804
+    },
+    {
+      "name": "aten::sqrt",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01290466666666604,
+      "inclusive_cpu_ms": 0.01891533333333276,
+      "inclusive_device_ms": 0.009620999999999791
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.01207600000000184,
+      "inclusive_cpu_ms": 0.025122666666667404,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.011941666666665393,
+      "inclusive_cpu_ms": 0.023566666666666302,
+      "inclusive_device_ms": 0.003082666666666834
+    },
+    {
+      "name": "NativeLayerNormBackward0",
+      "shapes": [
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.011908999999999954,
+      "inclusive_cpu_ms": 0.10969733333333383,
+      "inclusive_device_ms": 0.02295466666666592
+    },
+    {
+      "name": "aten::div",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.011277999999999035,
+      "inclusive_cpu_ms": 0.01677133333333313,
+      "inclusive_device_ms": 0.0015360000000000582
+    },
+    {
+      "name": "aten::div",
+      "shapes": [
+        [
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01109733333333285,
+      "inclusive_cpu_ms": 0.01651066666666672,
+      "inclusive_device_ms": 0.001621333333333799
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.011086666666666285,
+      "inclusive_cpu_ms": 0.023657000000000455,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::sqrt",
+      "shapes": [
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01090966666666615,
+      "inclusive_cpu_ms": 0.016510333333333318,
+      "inclusive_device_ms": 0.0018666666666661816
+    },
+    {
+      "name": "aten::sqrt",
+      "shapes": [
+        [
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.010151999999999741,
+      "inclusive_cpu_ms": 0.015779333333333246,
+      "inclusive_device_ms": 0.0017813333333333502
+    },
+    {
+      "name": "aten::addcmul_",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009822333333333518,
+      "inclusive_cpu_ms": 0.01633066666666703,
+      "inclusive_device_ms": 0.011253333333333407
+    },
+    {
+      "name": "aten::div",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009820999999999913,
+      "inclusive_cpu_ms": 0.01552866666666614,
+      "inclusive_device_ms": 0.010293333333333977
+    },
+    {
+      "name": "cudaDeviceSynchronize",
+      "shapes": [],
+      "calls_per_step": 1.3333333333333333,
+      "self_cpu_ms": 0.009494333333333391,
+      "inclusive_cpu_ms": 0.009494333333333391,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::lerp_",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009437333333333906,
+      "inclusive_cpu_ms": 0.016527000000000045,
+      "inclusive_device_ms": 0.019050666666666983
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.00924766666666801,
+      "inclusive_cpu_ms": 0.01257033333333417,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          1024,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.009143666666667438,
+      "inclusive_cpu_ms": 0.01170166666666743,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::addcdiv_",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008601666666666764,
+      "inclusive_cpu_ms": 0.01481700000000031,
+      "inclusive_device_ms": 0.02083199999999973
+    },
+    {
+      "name": "aten::fill_",
+      "shapes": [
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008432333333333191,
+      "inclusive_cpu_ms": 0.01742200000000033,
+      "inclusive_device_ms": 0.001311999999999898
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.00823533333333459,
+      "inclusive_cpu_ms": 0.014697333333334124,
+      "inclusive_device_ms": 0.004895666666666026
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.007980999999998175,
+      "inclusive_cpu_ms": 0.011330666666665707,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          1024,
+          10
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.007761333333332004,
+      "inclusive_cpu_ms": 0.019462999999999436,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: LogSoftmaxBackward0",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007600999999999961,
+      "inclusive_cpu_ms": 0.034828333333333225,
+      "inclusive_device_ms": 0.0016746666666661743
+    },
+    {
+      "name": "aten::cross_entropy_loss",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          256
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007430666666665729,
+      "inclusive_cpu_ms": 0.07755133333333272,
+      "inclusive_device_ms": 0.008906666666667661
+    },
+    {
+      "name": "aten::addcdiv_",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007269666666666429,
+      "inclusive_cpu_ms": 0.012897000000000238,
+      "inclusive_device_ms": 0.02917366666666688
+    },
+    {
+      "name": "aten::linear",
+      "shapes": [
+        [
+          256,
+          784
+        ],
+        [
+          1024,
+          784
+        ],
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007076333333332817,
+      "inclusive_cpu_ms": 0.5322106666666664,
+      "inclusive_device_ms": 0.06621899999999997
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007039666666665956,
+      "inclusive_cpu_ms": 0.012750333333332795,
+      "inclusive_device_ms": 0.006325333333333826
+    },
+    {
+      "name": "aten::_local_scalar_dense",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.00700700000000082,
+      "inclusive_cpu_ms": 0.00700700000000082,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::addcmul_",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006753000000001217,
+      "inclusive_cpu_ms": 0.012006000000000617,
+      "inclusive_device_ms": 0.0018133333333331999
+    },
+    {
+      "name": "aten::addcmul_",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0067263333333336655,
+      "inclusive_cpu_ms": 0.012126333333333301,
+      "inclusive_device_ms": 0.017333333333333638
+    },
+    {
+      "name": "aten::addcdiv_",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0067226666666659485,
+      "inclusive_cpu_ms": 0.012022666666665828,
+      "inclusive_device_ms": 0.0022186666666663465
+    },
+    {
+      "name": "GeluBackward0",
+      "shapes": [
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.006701000000000931,
+      "inclusive_cpu_ms": 0.049907000000000756,
+      "inclusive_device_ms": 0.008852666666666058
+    },
+    {
+      "name": "aten::lerp_",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.00669966666666672,
+      "inclusive_cpu_ms": 0.012476999999999861,
+      "inclusive_device_ms": 0.024490999999999985
+    },
+    {
+      "name": "aten::addcdiv_",
+      "shapes": [
+        [
+          10
+        ],
+        [
+          10
+        ],
+        [
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0066993333333333184,
+      "inclusive_cpu_ms": 0.012213000000000647,
+      "inclusive_device_ms": 0.0018666666666667879
+    },
+    {
+      "name": "aten::addcmul_",
+      "shapes": [
+        [
+          10
+        ],
+        [
+          10
+        ],
+        [
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006662999999999859,
+      "inclusive_cpu_ms": 0.011898999999999736,
+      "inclusive_device_ms": 0.0015676666666668098
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.0065913333333331445,
+      "inclusive_cpu_ms": 0.013046666666665563,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0065686666666667105,
+      "inclusive_cpu_ms": 0.011948666666666516,
+      "inclusive_device_ms": 0.0015889999999993355
+    },
+    {
+      "name": "aten::lerp_",
+      "shapes": [
+        [
+          10
+        ],
+        [
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006565666666666402,
+      "inclusive_cpu_ms": 0.012005999999999706,
+      "inclusive_device_ms": 0.0018023333333330811
+    },
+    {
+      "name": "aten::lerp_",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0065286666666661405,
+      "inclusive_cpu_ms": 0.01207933333333282,
+      "inclusive_device_ms": 0.00203733333333336
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.006455333333332419,
+      "inclusive_cpu_ms": 0.006455333333332419,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006378666666666201,
+      "inclusive_cpu_ms": 0.011618666666666286,
+      "inclusive_device_ms": 0.0016216666666672003
+    },
+    {
+      "name": "LogSoftmaxBackward0",
+      "shapes": [
+        [
+          256,
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0060983333333333575,
+      "inclusive_cpu_ms": 0.027227333333333263,
+      "inclusive_device_ms": 0.0016746666666661743
+    },
+    {
+      "name": "cudaLaunchKernelExC",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006051333333333332,
+      "inclusive_cpu_ms": 0.006051333333333332,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::layer_norm",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [],
+        [
+          1024
+        ],
+        [
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0059639999999991835,
+      "inclusive_cpu_ms": 0.099037666666666,
+      "inclusive_device_ms": 0.015178666666666838
+    },
+    {
+      "name": "aten::zero_",
+      "shapes": [
+        [
+          256,
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005814333333333555,
+      "inclusive_cpu_ms": 0.4502949999999998,
+      "inclusive_device_ms": 0.0014289999999997842
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005480666666666366,
+      "inclusive_cpu_ms": 0.011204333333333276,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::view",
+      "shapes": [
+        [
+          1,
+          1024
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005466333333332841,
+      "inclusive_cpu_ms": 0.005466333333332841,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::ones_like",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005190999999998894,
+      "inclusive_cpu_ms": 0.033536333333332856,
+      "inclusive_device_ms": 0.001311999999999898
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.004624666666666599,
+      "inclusive_cpu_ms": 0.006404999999999745,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004478333333332557,
+      "inclusive_cpu_ms": 0.004478333333332557,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::log_softmax",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004364333333333889,
+      "inclusive_cpu_ms": 0.0336226666666668,
+      "inclusive_device_ms": 0.0018343333333336886
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          256,
+          1024
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0043350000000003394,
+      "inclusive_cpu_ms": 0.010740000000000085,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004154333333333549,
+      "inclusive_cpu_ms": 0.004154333333333549,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0040270000000000436,
+      "inclusive_cpu_ms": 0.0057236666666669106,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003987333333333784,
+      "inclusive_cpu_ms": 0.007149999999999939,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::view",
+      "shapes": [
+        [
+          256
+        ],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.003400000000001152,
+      "inclusive_cpu_ms": 0.003400000000001152,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          1024,
+          784
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.003349666666667531,
+      "inclusive_cpu_ms": 0.003349666666667531,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          1024,
+          1024
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.003322666666666161,
+      "inclusive_cpu_ms": 0.003322666666666161,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::linear",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ],
+        [
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.00320266666666627,
+      "inclusive_cpu_ms": 0.051643333333333125,
+      "inclusive_device_ms": 0.08328600000000021
+    },
+    {
+      "name": "aten::view",
+      "shapes": [
+        [
+          1,
+          10
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003159333333333052,
+      "inclusive_cpu_ms": 0.003159333333333052,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::empty_like",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003142333333333681,
+      "inclusive_cpu_ms": 0.01092333333333363,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::linear",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [
+          10,
+          1024
+        ],
+        [
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003112666666666579,
+      "inclusive_cpu_ms": 0.053055333333333086,
+      "inclusive_device_ms": 0.01136000000000028
+    },
+    {
+      "name": "aten::nll_loss_nd",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          256
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002928666666667444,
+      "inclusive_cpu_ms": 0.0364980000000002,
+      "inclusive_device_ms": 0.0070723333333339725
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          1024,
+          10
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0025579999999999926,
+      "inclusive_cpu_ms": 0.0025579999999999926,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0025513333333343933,
+      "inclusive_cpu_ms": 0.00702966666666695,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002551333333333484,
+      "inclusive_cpu_ms": 0.002551333333333484,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::nll_loss",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [
+          256
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0024313333333325316,
+      "inclusive_cpu_ms": 0.03356933333333276,
+      "inclusive_device_ms": 0.0070723333333339725
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          784,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002291333333333872,
+      "inclusive_cpu_ms": 0.005049666666667387,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::t",
+      "shapes": [
+        [
+          256,
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0022076666666662275,
+      "inclusive_cpu_ms": 0.009237333333333177,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002113333333333382,
+      "inclusive_cpu_ms": 0.007540666666666463,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::transpose",
+      "shapes": [
+        [
+          784,
+          1024
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002107333333333372,
+      "inclusive_cpu_ms": 0.0027583333333335153,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          1024,
+          784
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001974333333332955,
+      "inclusive_cpu_ms": 0.003901000000000143,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0019466666666673215,
+      "inclusive_cpu_ms": 0.005670666666666875,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          256,
+          1024
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0017803333333331465,
+      "inclusive_cpu_ms": 0.0017803333333331465,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "TBackward0",
+      "shapes": [
+        [
+          1024,
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001759999999999915,
+      "inclusive_cpu_ms": 0.007163333333332958,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          10,
+          1024
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0016966666666668668,
+      "inclusive_cpu_ms": 0.0016966666666668668,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001683000000000599,
+      "inclusive_cpu_ms": 0.001683000000000599,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "TBackward0",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0016236666666660919,
+      "inclusive_cpu_ms": 0.00693666666666589,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "TBackward0",
+      "shapes": [
+        [
+          784,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0015926666666658397,
+      "inclusive_cpu_ms": 0.006642333333333227,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          10
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0014796666666655558,
+      "inclusive_cpu_ms": 0.0031626666666661547,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "cudaStreamIsCapturing",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0013493333333335614,
+      "inclusive_cpu_ms": 0.0013493333333335614,
+      "inclusive_device_ms": 0.001311999999999898
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          1024,
+          784
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0013423333333339542,
+      "inclusive_cpu_ms": 0.001926666666667188,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          10,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0012729999999995319,
+      "inclusive_cpu_ms": 0.005427333333333081,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          1024,
+          1024
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.00117266666666607,
+      "inclusive_cpu_ms": 0.0037239999999995536,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::resize_",
+      "shapes": [
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0006510000000001431,
+      "inclusive_cpu_ms": 0.0006510000000001431,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          784,
+          1024
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0006510000000001431,
+      "inclusive_cpu_ms": 0.0006510000000001431,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          1024,
+          784
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0005843333333332339,
+      "inclusive_cpu_ms": 0.0005843333333332339,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::to",
+      "shapes": [
+        [
+          256,
+          10
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0005013333333328471,
+      "inclusive_cpu_ms": 0.0005013333333328471,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/forward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.36706366666666695
+    },
+    {
+      "name": "Memset (Device)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.000917333333333166
+    },
+    {
+      "name": "volta_sgemm_128x64_tn",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.148587666666667
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::GeluCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::GeluCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.006101333333332604
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::vectorized_layer_norm_kernel<float, float, false>(int, float, float const*, float const*, float const*, float*, float*, float*)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.015178666666666838
+    },
+    {
+      "name": "volta_sgemm_32x32_sliced1x4_tn",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.008437333333333451
+    },
+    {
+      "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, float, float, float, false, float, float, float, true, true, false, false>(cublasLt::cublasSplitKParams<float>, float const*, float const*, float*, float*, float const*, float const*, float const*, float const*, float*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.002922666666666828
+    },
+    {
+      "name": "network/loss",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.04970700000000064
+    },
+    {
+      "name": "void (anonymous namespace)::softmax_warp_forward<float, float, float, 4, true, false, 32>(float*, float const*, int, int, int, bool const*, int, bool)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0018343333333336886
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::nll_loss_forward_reduce_cuda_kernel_2d<float, float, long>(float*, float*, float const*, long const*, float const*, bool, long, long, long, long)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0070723333333339725
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0027409999999996825
+    },
+    {
+      "name": "network/backward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.001311999999999898
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::nll_loss_backward_reduce_cuda_kernel_2d<float, long>(float*, float const*, long const*, float const*, float const*, bool, int, int, long, long)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0038933333333334304
+    },
+    {
+      "name": "void (anonymous namespace)::softmax_warp_backward<float, float, float, 4, true, false, 32>(float*, float const*, float const*, int, int, int, bool const*)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0016746666666661743
+    },
+    {
+      "name": "volta_sgemm_128x32_nn",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.005311999999999898
+    },
+    {
+      "name": "volta_sgemm_32x32_sliced1x4_nt",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.010325666666666317
+    },
+    {
+      "name": "void at::native::reduce_kernel<256, 2, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.0069433333333339155
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::layer_norm_grad_input_kernel_vectorized<float, float, false>(float const*, float const*, float const*, float const*, float const*, float*, int)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.013429333333332882
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::GammaBetaBackwardCUDAKernelTemplate<float, float, 32u, 32u, 256u, false, true, false>(long, long, float const*, float const*, float const*, float const*, float*, float*)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.009525333333333037
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::GeluBackwardCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>, false>(int, at::native::GeluBackwardCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.008852666666666058
+    },
+    {
+      "name": "volta_sgemm_128x32_sliced1x4_nn",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.06630399999999918
+    },
+    {
+      "name": "volta_sgemm_128x128_nt",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.11533866666666714
+    },
+    {
+      "name": "void at::native::reduce_kernel<128, 4, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.023220999999999853
+    },
+    {
+      "name": "Optimizer.step#AdamW.step",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 1.730625333333333
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>, false>(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>)",
+      "shapes": [],
+      "calls_per_step": 20.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.08219800000000153
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::lerp_scalar_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>, false>(int, at::native::(anonymous namespace)::lerp_scalar_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.05875066666666741
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::addcmul_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>, false>(int, at::native::addcmul_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.04232533333333504
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::sqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::sqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.029236999999998563
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>, false>(int, at::native::BUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.029023666666669366
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnSelf_add<float>, std::array<char*, 2ul>, false>(int, at::native::CUDAFunctorOnSelf_add<float>, std::array<char*, 2ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.023380999999999402
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::addcdiv_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>, false>(int, at::native::addcdiv_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>)",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0,
+      "inclusive_cpu_ms": 0.0,
+      "inclusive_device_ms": 0.06681633333333138
+    }
+  ],
+  "device_events": [
+    {
+      "name": "volta_sgemm_128x64_tn",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.148587666666667
+    },
+    {
+      "name": "volta_sgemm_128x128_nt",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.11533866666666714
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>, false>(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>)",
+      "calls_per_step": 19.999999999999996,
+      "gpu_ms_per_step": 0.08219800000000156
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::addcdiv_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>, false>(int, at::native::addcdiv_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.0668163333333314
+    },
+    {
+      "name": "volta_sgemm_128x32_sliced1x4_nn",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.06630399999999918
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::lerp_scalar_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>, false>(int, at::native::(anonymous namespace)::lerp_scalar_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.0587506666666674
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::addcmul_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>, false>(int, at::native::addcmul_cuda_kernel(at::TensorIteratorBase&, c10::Scalar const&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const::{lambda(float, float, float)#1}, std::array<char*, 4ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.04232533333333503
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::sqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::sqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.02923699999999857
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>, false>(int, at::native::BUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.02902366666666937
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnSelf_add<float>, std::array<char*, 2ul>, false>(int, at::native::CUDAFunctorOnSelf_add<float>, std::array<char*, 2ul>)",
+      "calls_per_step": 10.0,
+      "gpu_ms_per_step": 0.0233809999999994
+    },
+    {
+      "name": "void at::native::reduce_kernel<128, 4, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.023220999999999853
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::vectorized_layer_norm_kernel<float, float, false>(int, float, float const*, float const*, float const*, float*, float*, float*)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.015178666666666837
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::layer_norm_grad_input_kernel_vectorized<float, float, false>(float const*, float const*, float const*, float const*, float const*, float*, int)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.013429333333332882
+    },
+    {
+      "name": "volta_sgemm_32x32_sliced1x4_nt",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.010325666666666317
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::GammaBetaBackwardCUDAKernelTemplate<float, float, 32u, 32u, 256u, false, true, false>(long, long, float const*, float const*, float const*, float const*, float*, float*)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.009525333333333037
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::GeluBackwardCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>, false>(int, at::native::GeluBackwardCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float, float)#1}, std::array<char*, 3ul>)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.008852666666666058
+    },
+    {
+      "name": "volta_sgemm_32x32_sliced1x4_tn",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.008437333333333451
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::nll_loss_forward_reduce_cuda_kernel_2d<float, float, long>(float*, float*, float const*, long const*, float const*, bool, long, long, long, long)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.0070723333333339725
+    },
+    {
+      "name": "void at::native::reduce_kernel<256, 2, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.006943333333333916
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::GeluCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>, false>(int, at::native::GeluCUDAKernelImpl(at::TensorIteratorBase&, at::native::GeluType)::{lambda()#2}::operator()() const::{lambda()#2}::operator()() const::{lambda(float)#1}, std::array<char*, 2ul>)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.006101333333332603
+    },
+    {
+      "name": "volta_sgemm_128x32_nn",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.005311999999999898
+    },
+    {
+      "name": "void at::native::(anonymous namespace)::nll_loss_backward_reduce_cuda_kernel_2d<float, long>(float*, float const*, long const*, float const*, float const*, bool, int, int, long, long)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.00389333333333343
+    },
+    {
+      "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, float, float, float, false, float, float, float, true, true, false, false>(cublasLt::cublasSplitKParams<float>, float const*, float const*, float*, float*, float const*, float const*, float const*, float const*, float*, void*, long, float*, int*, float*, float*, float const*, float const*, float const*, float const*, float const*)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.0029226666666668276
+    },
+    {
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.0027409999999996825
+    },
+    {
+      "name": "void (anonymous namespace)::softmax_warp_forward<float, float, float, 4, true, false, 32>(float*, float const*, int, int, int, bool const*, int, bool)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.0018343333333336886
+    },
+    {
+      "name": "void (anonymous namespace)::softmax_warp_backward<float, float, float, 4, true, false, 32>(float*, float const*, float const*, int, int, int, bool const*)",
+      "calls_per_step": 1.0,
+      "gpu_ms_per_step": 0.0016746666666661743
+    },
+    {
+      "name": "Memset (Device)",
+      "calls_per_step": 1.9999999999999998,
+      "gpu_ms_per_step": 0.000917333333333166
+    }
+  ],
+  "notes": [
+    "Instrumented attribution only; shape recording can retain tensors and alter buffer reuse.",
+    "Inclusive operator and stage durations overlap; never add them together.",
+    "CPU operator times include waits; they are not GPU execution times.",
+    "Vulkan queue counters cover deferred submissions, not all Vulkan API submissions.",
+    "Vulkan GPU timestamp coverage can be empty under resident/deferred execution.",
+    "Device events include CUDA kernels and memory operations; summed durations can overlap."
+  ]
+}

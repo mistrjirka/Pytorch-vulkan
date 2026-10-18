@@ -1,0 +1,45 @@
+{
+  "torch_version": "2.14.1+cpu",
+  "backend": "vulkan",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "model": "unet",
+  "shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "warmup": 8,
+  "optimizer": "vulkan_fused",
+  "samples": [
+    {
+      "zero_grad": 0.15566000365652144,
+      "forward": 5.421587004093453,
+      "loss": 1.4903890114510432,
+      "backward": 7.11497399606742,
+      "optimizer": 3.1941950001055375
+    },
+    {
+      "zero_grad": 0.17780200869310647,
+      "forward": 5.211736002820544,
+      "loss": 1.5510010125581175,
+      "backward": 8.586666997871362,
+      "optimizer": 2.8554230084409937
+    },
+    {
+      "zero_grad": 0.17375400057062507,
+      "forward": 5.078536996734329,
+      "loss": 1.4727750094607472,
+      "backward": 8.89479200122878,
+      "optimizer": 2.893013006541878
+    }
+  ],
+  "median_stage_ms": {
+    "zero_grad": 0.1738,
+    "forward": 5.2117,
+    "loss": 1.4904,
+    "backward": 8.5867,
+    "optimizer": 2.893
+  },
+  "total_median_ms": 18.3826
+}

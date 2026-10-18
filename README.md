@@ -112,6 +112,8 @@ See [candidate dispatch, validation and matched CUDA measurements](docs/convolut
 The [register-tile report](docs/convolution-register-tiles.md) compares the new
 four-output-per-thread candidate with CUDA and records where it helps or regresses.
 
+[Latest whole-network profile](docs/network-profile-795d34e.md): CPU activation fallbacks dominate StyleNet; a GPU-only diagnostic reduces its training step by about 3×. Includes current U-Net/MLP comparisons and the next general fixes.
+
 ### Performance investigation and experimental optimizations
 
 The [18 October 2026 investigation](docs/performance-investigation-2026-10-18.md)

@@ -5,7 +5,7 @@ profile_matched_nsys.py driver. Vulkan workload ranges overlap (submit parent
 and child activities), so we use interval union, not a sum of durations.
 """
 from __future__ import annotations
-import argparse, collections, json, sqlite3, statistics
+import argparse, collections, json, re, sqlite3, statistics
 from pathlib import Path
 
 STAGES = ("zero_grad", "forward", "loss", "backward", "optimizer")
@@ -52,22 +52,28 @@ def summarize(db, backend):
         api=[(r["start"],r["end"],r["name"]) for r in conn.execute("SELECT a.start,a.end,s.value as name FROM CUPTI_ACTIVITY_KIND_RUNTIME a LEFT JOIN StringIds s ON s.id=a.nameId")]
         opnames=("cudaLaunchKernel","cudaLaunchKernelExC","cudaLaunchKernelExC_ptsz","cudaStreamSynchronize","cudaDeviceSynchronize")
     else:
-        times_gpu=[tuple(r) for r in conn.execute("SELECT start,end FROM VULKAN_WORKLOAD")]
+        has_workload=conn.execute("SELECT 1 FROM sqlite_master WHERE name='VULKAN_WORKLOAD'").fetchone()
+        times_gpu=[tuple(r) for r in conn.execute("SELECT start,end FROM VULKAN_WORKLOAD")] if has_workload else []
         memcopy=[]
         api=[(r["start"],r["end"],r["name"]) for r in conn.execute("SELECT a.start,a.end,s.value as name FROM VULKAN_API a LEFT JOIN StringIds s ON s.id=a.nameId")]
         opnames=("vkQueueSubmit","vkWaitForFences","vkAllocateMemory","vkFreeMemory",
                  "vkCreateComputePipelines","vkCreateFence","vkDestroyFence","vkAllocateDescriptorSets")
+    api=[(a,b,re.sub(r"_v[0-9]+$", "", name or "")) for a,b,name in api]
     # Some Nsight versions capture Vulkan GPU workloads only during startup.
     # Missing intervals during measured NVTX ranges mean unknown GPU time,
     # NOT that the Vulkan device was idle.
-    gpu_trace_complete=bool(runs) and any(
+    gpu_trace_observed=bool(runs) and any(
         a < end and b > start
         for a,b in times_gpu for start,end in runs)
+    # A few Vulkan intervals do not prove complete coverage: these traces can
+    # omit entire submitted phases. Preserve observed intervals as lower bounds.
+    gpu_trace_complete=gpu_trace_observed and backend=="cuda"
     res={}
     for name, intervals in stages.items():
         entries=[]
         for start,end in intervals:
             d={"wall_ms":(end-start)*1e-6,
+                "observed_gpu_union_ms":overlap_ms(times_gpu,start,end),
                 "gpu_union_ms":overlap_ms(times_gpu,start,end) if gpu_trace_complete else None,
                "gpu_events":sum(not (t1<=start or t0>=end) for t0,t1 in times_gpu) if gpu_trace_complete else None,
                "cuda_memcpy_union_ms":overlap_ms(memcopy,start,end)}
@@ -83,7 +89,11 @@ def summarize(db, backend):
                        if entries[0][k] is not None else None) for k in keys}
             res[name]["per_run"]=entries
     return {"database":db.name,"backend":backend,"steps":len(runs),
-            "gpu_trace_complete":gpu_trace_complete,"results":res}
+            "gpu_trace_complete":gpu_trace_complete,
+            "gpu_trace_status":("observed" if backend=="cuda" and gpu_trace_observed else
+                                "partial_unverified" if gpu_trace_observed else "missing"),
+            "gpu_trace_note":"Vulkan observed intervals are lower bounds; missing activity is not idle time.",
+            "results":res}
 
 
 def main():
@@ -98,7 +108,7 @@ def main():
         for stage,details in v["results"].items():
             busy=details["median_gpu_union_ms"]
             if busy is None:
-                print(f"{stage:12s} wall={details['median_wall_ms']:8.3f}ms gpu_busy=N/A (missing GPU workload trace)")
+                print(f"{stage:12s} wall={details['median_wall_ms']:8.3f}ms gpu_busy=N/A (incomplete GPU workload trace)")
             else:
                 print(f"{stage:12s} wall={details['median_wall_ms']:8.3f}ms gpu_busy={busy:8.3f}ms gpu_events={details['median_gpu_events']:6.1f} non-GPU gap={details['median_wall_ms']-busy:8.3f}ms")
             extra={k.removeprefix("median_").removesuffix("_api_ms"):details[k]

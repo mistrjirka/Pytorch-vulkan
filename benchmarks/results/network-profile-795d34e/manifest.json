@@ -1,0 +1,107 @@
+{
+  "backend_revision": "795d34e661593c386218388b93c9ebb4092b5552",
+  "zoo_revision": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "core_unchanged": true,
+  "capture_directory": "/workspace/Pytorch-vulkan/benchmarks/results/nsys/network-795d34e",
+  "captures": {
+    "network_unet_cuda.nsys-rep": {
+      "bytes": 462982,
+      "sha256": "e5f2dfc6a5340f5d3ea8c7934d73648299dae5ec95047ab791f23074de590c12"
+    },
+    "network_unet_vulkan.sqlite": {
+      "bytes": 2043904,
+      "sha256": "c106c6d8e213f2ae3962299e530bdeb2ee3a43b911bc6b39a7033ff6a409abc0"
+    },
+    "network_style_net_vulkan.sqlite": {
+      "bytes": 2404352,
+      "sha256": "d69248293be43cfd26b1e9ae1dfbff5be5cc8816646727f0a3446946b0659e56"
+    },
+    "network_mlp_vulkan.trace.json": {
+      "bytes": 302297,
+      "sha256": "f031fd7e8e0ad5df6c000a84db1decfeb3bae35138a8c471fdbf6731687fd6dd"
+    },
+    "network_unet_cuda.trace.json": {
+      "bytes": 4405403,
+      "sha256": "49868ea0e7f12a748949a130308b063fdb6fe88d0a4ed18050d5f92dd4fd6f81"
+    },
+    "network_style_net_cuda.nsys-rep": {
+      "bytes": 528691,
+      "sha256": "f9dcad226847bda565900c5b7a62d43769d8edee60e61b3dbeba238dbc246011"
+    },
+    "network_style_net_composite.trace.json": {
+      "bytes": 1960759,
+      "sha256": "e8a27d9d9f036cba9656e67201a75de57ec5c815cf9c71abfc28cb1fe46c48a2"
+    },
+    "network_mlp_cuda.sqlite": {
+      "bytes": 729088,
+      "sha256": "cd61ca5289276ba36abcc3c254ec00d219d600568e78f4a3741e8863a90ffeb2"
+    },
+    "network_unet_vulkan.nsys-rep": {
+      "bytes": 769025,
+      "sha256": "d7c55c528c32b67d2ea744637fc787e1922ea5ce00c9589532fce965f276b600"
+    },
+    "network_style_net_cuda.trace.json": {
+      "bytes": 5455180,
+      "sha256": "9289926f4905ac36ed4fcd10523f83ca5049b80f38334555d0ff2e6e612f2eb6"
+    },
+    "network_style_net_vulkan.nsys-rep": {
+      "bytes": 948441,
+      "sha256": "d255f59644f3bb76fe181bf091f56f4977ea40472f20621b6799e3dcd925d667"
+    },
+    "network_unet_vulkan.trace.json": {
+      "bytes": 1126888,
+      "sha256": "666844afa6081f3e44b333f95879903a29d6eabf5c99d7251e8d2e59316f25bf"
+    },
+    "network_mlp_cuda.trace.json": {
+      "bytes": 972518,
+      "sha256": "84416813bd4344a3719d4e7483f520ccb3a476e7a34a1655186861b40d7fe77c"
+    },
+    "network_mlp_cuda.nsys-rep": {
+      "bytes": 155511,
+      "sha256": "253de7280324b1f3f346fb267c285ba64f2e7a6ae747c408bc84acdf6103f0f6"
+    },
+    "network_unet_cuda.sqlite": {
+      "bytes": 1458176,
+      "sha256": "f19cb502365c429188e18469442434e4a30b92e515ded54fc0964b787be885ac"
+    },
+    "network_style_net_vulkan.trace.json": {
+      "bytes": 2056301,
+      "sha256": "f3819b419bb404d0170bda2e5de0ee967b5f3216683f83fc7a3ce161094e9172"
+    },
+    "network_mlp_vulkan.sqlite": {
+      "bytes": 651264,
+      "sha256": "efa1986ae9bd191002a4ac2352d1c05f8b33578aecde0cbf08a62b1306ac3a92"
+    },
+    "network_mlp_vulkan.nsys-rep": {
+      "bytes": 133972,
+      "sha256": "313ede7b162ad2c410314676faab74d44878787bca5be190b12d62ecfa270972"
+    },
+    "network_style_net_cuda.sqlite": {
+      "bytes": 1646592,
+      "sha256": "fce01620151948fce32ecbd750be2ead51da65d6db7b4bd6d5e9af33babca492"
+    },
+    "activation_stock_1.pt": {
+      "bytes": 9646917,
+      "sha256": "c6778e08456d0b029aa230e4fd9ba1b75f1751db5a724fe90b860e3327b49221"
+    },
+    "activation_stock_2.pt": {
+      "bytes": 9646917,
+      "sha256": "12f2091a7a3cd5aca2bded48c3b6defd896c4df6bd18c57945e5b9bc3d65ef99"
+    },
+    "activation_composite_2.pt": {
+      "bytes": 9647213,
+      "sha256": "895d3cce9e0a0285f723bb685fd50791d9788d738470b7835bca9070f5bc5386"
+    },
+    "activation_composite_1.pt": {
+      "bytes": 9647213,
+      "sha256": "5b4cb3c6a7c7604ee8fea4e9dc22454e72f2812221e8967bcf9708d27b154e02"
+    }
+  },
+  "nsys_version": "NVIDIA Nsight Systems version 2025.1.3.140-251335620677v0",
+  "gpu": "index, name, uuid, driver_version\n0, NVIDIA GeForce RTX 2080 Ti, GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29, 580.178.04\n1, Tesla V100-SXM2-32GB, GPU-1d64d3a4-4aea-87ec-9048-33a5217efd79, 580.178.04\n",
+  "notes": [
+    "Raw captures retained locally and excluded from git because they contain process metadata.",
+    "Only profiling/diagnostic scripts changed; no backend optimization was enabled by this analysis.",
+    "Model-zoo StyleNet uses L1 loss here, not the separate perceptual VGG loss."
+  ]
+}
