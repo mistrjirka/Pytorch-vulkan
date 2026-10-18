@@ -1,0 +1,739 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "cuda",
+  "torch": "2.14.1+cu130",
+  "dtype": "float32",
+  "warmup": 4,
+  "repeats": 9,
+  "resident": "0",
+  "deferred": "0",
+  "timestamps": "0",
+  "cases": [
+    {
+      "name": "tiny",
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "weight_shape": [
+        8,
+        3,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.07708199700573459,
+          "wall_min_ms": 0.07479800115106627,
+          "wall_max_ms": 0.11690500105032697,
+          "max_abs_error": 0.0,
+          "cuda_event_median_ms": 0.05523199960589409
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.08271199476439506,
+          "wall_min_ms": 0.08079899998847395,
+          "wall_max_ms": 0.09904299804475158,
+          "max_abs_error": 3.814697265625e-06,
+          "cuda_event_median_ms": 0.060896001756191254
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.0751289990148507,
+          "wall_min_ms": 0.07362500036833808,
+          "wall_max_ms": 0.0842160006868653,
+          "max_abs_error": 4.76837158203125e-06,
+          "cuda_event_median_ms": 0.05443200096487999
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07236300007207319,
+          "wall_min_ms": 0.07131099846446887,
+          "wall_max_ms": 0.10498300252947956,
+          "max_abs_error": 1.430511474609375e-06,
+          "cuda_event_median_ms": 0.05119999870657921
+        }
+      ]
+    },
+    {
+      "name": "pointwise",
+      "input_shape": [
+        2,
+        32,
+        32,
+        32
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.07683099829591811,
+          "wall_min_ms": 0.07578000077046454,
+          "wall_max_ms": 0.08694000280229375,
+          "max_abs_error": 5.7220458984375e-06,
+          "cuda_event_median_ms": 0.055296000093221664
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.07973700121510774,
+          "wall_min_ms": 0.07862499478505924,
+          "wall_max_ms": 0.09456500265514478,
+          "max_abs_error": 1.1444091796875e-05,
+          "cuda_event_median_ms": 0.057472001761198044
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.09555600263411179,
+          "wall_min_ms": 0.09438400593353435,
+          "wall_max_ms": 0.10116699559148401,
+          "max_abs_error": 9.918212890625e-05,
+          "cuda_event_median_ms": 0.07782399654388428
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07236400415422395,
+          "wall_min_ms": 0.07176199869718403,
+          "wall_max_ms": 0.07888500113040209,
+          "max_abs_error": 1.1444091796875e-05,
+          "cuda_event_median_ms": 0.05119999870657921
+        }
+      ]
+    },
+    {
+      "name": "standard3",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.07605000428156927,
+          "wall_min_ms": 0.07479800115106627,
+          "wall_max_ms": 0.08444600098300725,
+          "max_abs_error": 0.0,
+          "cuda_event_median_ms": 0.05488000065088272
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.08127999899443239,
+          "wall_min_ms": 0.08067800081335008,
+          "wall_max_ms": 0.09339299867860973,
+          "max_abs_error": 1.1444091796875e-05,
+          "cuda_event_median_ms": 0.0607680007815361
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.08704100036993623,
+          "wall_min_ms": 0.08666000212542713,
+          "wall_max_ms": 0.09746000432642177,
+          "max_abs_error": 6.866455078125e-05,
+          "cuda_event_median_ms": 0.06976000219583511
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.0719030067557469,
+          "wall_min_ms": 0.0707910003256984,
+          "wall_max_ms": 0.07811400428181514,
+          "max_abs_error": 6.67572021484375e-06,
+          "cuda_event_median_ms": 0.05119999870657921
+        }
+      ]
+    },
+    {
+      "name": "standard5",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.11047400039387867,
+          "wall_min_ms": 0.10939200001303107,
+          "wall_max_ms": 0.1411600023857318,
+          "max_abs_error": 8.392333984375e-05,
+          "cuda_event_median_ms": 0.09353599697351456
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.08214199624489993,
+          "wall_min_ms": 0.08081999840214849,
+          "wall_max_ms": 0.09804099681787193,
+          "max_abs_error": 1.9073486328125e-05,
+          "cuda_event_median_ms": 0.06022400036454201
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.08656999852973968,
+          "wall_min_ms": 0.08567800250602886,
+          "wall_max_ms": 0.09170999692287296,
+          "max_abs_error": 7.43865966796875e-05,
+          "cuda_event_median_ms": 0.06924799829721451
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07134199404390529,
+          "wall_min_ms": 0.0705599959474057,
+          "wall_max_ms": 0.08297299791593105,
+          "max_abs_error": 7.62939453125e-06,
+          "cuda_event_median_ms": 0.05087999999523163
+        }
+      ]
+    },
+    {
+      "name": "standard7",
+      "input_shape": [
+        1,
+        8,
+        32,
+        32
+      ],
+      "weight_shape": [
+        16,
+        8,
+        7,
+        7
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        3,
+        3
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.1536230047349818,
+          "wall_min_ms": 0.15300200175261125,
+          "wall_max_ms": 0.17578400002093986,
+          "max_abs_error": 3.24249267578125e-05,
+          "cuda_event_median_ms": 0.1367039978504181
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.08159100252669305,
+          "wall_min_ms": 0.08089900074992329,
+          "wall_max_ms": 0.09207000402966514,
+          "max_abs_error": 3.0517578125e-05,
+          "cuda_event_median_ms": 0.05974400043487549
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.08619899745099247,
+          "wall_min_ms": 0.08534800144843757,
+          "wall_max_ms": 0.10012499842559919,
+          "max_abs_error": 9.1552734375e-05,
+          "cuda_event_median_ms": 0.06886400282382965
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.0717129951226525,
+          "wall_min_ms": 0.07074099994497374,
+          "wall_max_ms": 0.08049899770412594,
+          "max_abs_error": 3.814697265625e-06,
+          "cuda_event_median_ms": 0.050624001771211624
+        }
+      ]
+    },
+    {
+      "name": "depthwise3",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.053999996453057975,
+          "wall_min_ms": 0.05294799484545365,
+          "wall_max_ms": 0.07107100100256503,
+          "max_abs_error": 2.86102294921875e-06,
+          "cuda_event_median_ms": 0.03471999987959862
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.06788500468246639,
+          "wall_min_ms": 0.06667299749096856,
+          "wall_max_ms": 0.08655999408802018,
+          "max_abs_error": 2.86102294921875e-06,
+          "cuda_event_median_ms": 0.047648001462221146
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.06759499956388026,
+          "wall_min_ms": 0.066201995650772,
+          "wall_max_ms": 0.08044900459935889,
+          "max_abs_error": 2.288818359375e-05,
+          "cuda_event_median_ms": 0.04742399975657463
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07088099664542824,
+          "wall_min_ms": 0.06955900607863441,
+          "wall_max_ms": 0.07729299977654591,
+          "max_abs_error": 1.52587890625e-05,
+          "cuda_event_median_ms": 0.05052800104022026
+        }
+      ]
+    },
+    {
+      "name": "depthwise5",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.054349999118130654,
+          "wall_min_ms": 0.05309800326358527,
+          "wall_max_ms": 0.06440799916163087,
+          "max_abs_error": 5.7220458984375e-06,
+          "cuda_event_median_ms": 0.034432001411914825
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.06664299871772528,
+          "wall_min_ms": 0.06542100163642317,
+          "wall_max_ms": 0.07343499601120129,
+          "max_abs_error": 7.62939453125e-06,
+          "cuda_event_median_ms": 0.046560000628232956
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.06914700497873127,
+          "wall_min_ms": 0.0686269995640032,
+          "wall_max_ms": 0.07511900184908882,
+          "max_abs_error": 3.4332275390625e-05,
+          "cuda_event_median_ms": 0.052032001316547394
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07244299922604114,
+          "wall_min_ms": 0.07123199611669406,
+          "wall_max_ms": 0.08223199984058738,
+          "max_abs_error": 1.9073486328125e-05,
+          "cuda_event_median_ms": 0.05129599943757057
+        }
+      ]
+    },
+    {
+      "name": "grouped35",
+      "input_shape": [
+        1,
+        16,
+        31,
+        29
+      ],
+      "weight_shape": [
+        32,
+        4,
+        3,
+        5
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 4,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.10057599865831435,
+          "wall_min_ms": 0.09936300193658099,
+          "wall_max_ms": 0.11267799709457904,
+          "max_abs_error": 8.58306884765625e-06,
+          "cuda_event_median_ms": 0.07849600166082382
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.11692600673995912,
+          "wall_min_ms": 0.11486199946375564,
+          "wall_max_ms": 0.12809700274374336,
+          "max_abs_error": 5.7220458984375e-06,
+          "cuda_event_median_ms": 0.09462399780750275
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.07506899419240654,
+          "wall_min_ms": 0.07391600229311734,
+          "wall_max_ms": 0.08157100091921166,
+          "max_abs_error": 7.62939453125e-06,
+          "cuda_event_median_ms": 0.05379199981689453
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07211300544440746,
+          "wall_min_ms": 0.07101099618012086,
+          "wall_max_ms": 0.0863800014485605,
+          "max_abs_error": 7.62939453125e-06,
+          "cuda_event_median_ms": 0.05119999870657921
+        }
+      ]
+    },
+    {
+      "name": "large3",
+      "input_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.15608800458721817,
+          "wall_min_ms": 0.15388400061056018,
+          "wall_max_ms": 0.176886998815462,
+          "max_abs_error": 0.00011444091796875,
+          "cuda_event_median_ms": 0.13808000087738037
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.1405789953423664,
+          "wall_min_ms": 0.13909699919167906,
+          "wall_max_ms": 0.14630999794462696,
+          "max_abs_error": 9.72747802734375e-05,
+          "cuda_event_median_ms": 0.12332800030708313
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.2220189999206923,
+          "wall_min_ms": 0.1860530028352514,
+          "wall_max_ms": 0.22721899586031213,
+          "max_abs_error": 0.0054473876953125,
+          "cuda_event_median_ms": 0.20441600680351257
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07279399869730696,
+          "wall_min_ms": 0.07159200322348624,
+          "wall_max_ms": 0.08267199882538989,
+          "max_abs_error": 2.384185791015625e-05,
+          "cuda_event_median_ms": 0.051392000168561935
+        }
+      ]
+    },
+    {
+      "name": "large5",
+      "input_shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "weight_shape": [
+        64,
+        32,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.11842900130432099,
+          "wall_min_ms": 0.1170859977719374,
+          "wall_max_ms": 0.13891599519411102,
+          "max_abs_error": 0.000152587890625,
+          "cuda_event_median_ms": 0.10051199793815613
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.3641319999587722,
+          "wall_min_ms": 0.36030499904882163,
+          "wall_max_ms": 0.3811429996858351,
+          "max_abs_error": 4.57763671875e-05,
+          "cuda_event_median_ms": 0.34569600224494934
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.19030100520467386,
+          "wall_min_ms": 0.18231599824503064,
+          "wall_max_ms": 0.20175200188532472,
+          "max_abs_error": 0.0001621246337890625,
+          "cuda_event_median_ms": 0.1730239987373352
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07226299931062385,
+          "wall_min_ms": 0.0715019996277988,
+          "wall_max_ms": 0.08049900498008355,
+          "max_abs_error": 3.0517578125e-05,
+          "cuda_event_median_ms": 0.05119999870657921
+        }
+      ]
+    },
+    {
+      "name": "large1",
+      "input_shape": [
+        4,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.11742700007744133,
+          "wall_min_ms": 0.11659499432425946,
+          "wall_max_ms": 0.1382550035486929,
+          "max_abs_error": 1.049041748046875e-05,
+          "cuda_event_median_ms": 0.10041599720716476
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.08626899943919852,
+          "wall_min_ms": 0.08530700142728165,
+          "wall_max_ms": 0.1068580022547394,
+          "max_abs_error": 2.86102294921875e-05,
+          "cuda_event_median_ms": 0.06963200122117996
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.19436900038272142,
+          "wall_min_ms": 0.19011100084753707,
+          "wall_max_ms": 0.20611099898815155,
+          "max_abs_error": 0.000225067138671875,
+          "cuda_event_median_ms": 0.1762239933013916
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.07227300375234336,
+          "wall_min_ms": 0.07144200208131224,
+          "wall_max_ms": 0.08403499668929726,
+          "max_abs_error": 4.57763671875e-05,
+          "cuda_event_median_ms": 0.052032001316547394
+        }
+      ]
+    }
+  ]
+}

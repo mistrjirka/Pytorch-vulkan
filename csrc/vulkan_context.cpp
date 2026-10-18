@@ -71,11 +71,15 @@ void VulkanContext::run_compute(
   if (!gpu_resident_enabled()) {
     // Flush older deferred eHost commands before a legacy eager operation.
     synchronize();
-    auto seq=(shader=="mm" || shader=="mm_register" || shader=="addmm" || shader=="addmm_register") ? timed_sequence() : mgr_->sequence();
+    const bool timed = gpu_timing_enabled() &&
+        (shader=="mm" || shader=="mm_register" ||
+         shader=="addmm" || shader=="addmm_register" ||
+         shader.rfind("conv2d_",0)==0);
+    auto seq = timed ? timed_sequence() : mgr_->sequence();
     seq->record<kp::OpTensorSyncDevice>(inputs);
     seq->record<kp::OpAlgoDispatch>(algo);
     seq->record<kp::OpTensorSyncLocal>(outputs);
-    if (shader=="mm" || shader=="mm_register" || shader=="addmm" || shader=="addmm_register") eval_timed_sequence(seq,shader);
+    if (timed) eval_timed_sequence(seq,shader);
     else seq->eval();
     return;
   }
@@ -136,6 +140,71 @@ void VulkanContext::enqueue_resident_compute(
   for (const auto& t:upload)alloc.mark_clean(t);
   for (const auto& t:outputs)alloc.mark_gpu_dirty(t);
   ++queue_stats_.recorded_ops;
+}
+
+void VulkanContext::run_compute_pair(
+    const std::shared_ptr<kp::Algorithm>& first,
+    const std::shared_ptr<kp::Algorithm>& second,
+    const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+    const std::vector<std::shared_ptr<kp::Tensor>>& intermediate,
+    const std::vector<std::shared_ptr<kp::Tensor>>& outputs,
+    const std::string& profile_name) {
+  if(gpu_resident_enabled() && deferred_enabled()) {
+    enqueue_resident_compute(first,inputs,intermediate);
+    enqueue_resident_compute(second,intermediate,outputs);
+    return;
+  }
+  synchronize();
+  auto& alloc=VulkanAllocator::instance();
+  std::vector<std::shared_ptr<kp::Tensor>> upload,deps,download;
+  for(const auto& t:inputs) {
+    if(!gpu_resident_enabled() || alloc.needs_upload(t)) upload.push_back(t);
+    else if(alloc.gpu_dirty(t)) deps.push_back(t);
+  }
+  if(!gpu_resident_enabled()) download=outputs;
+  const bool timed=gpu_timing_enabled();
+  auto seq=timed ? mgr_->sequence(0,6) : mgr_->sequence();
+  // Kompute rejects empty sync operations. An empty memory barrier is a
+  // no-op that keeps timestamp slots stable without uploading scratch data.
+  const auto empty_slot=[&]() {
+    seq->record<kp::OpMemoryBarrier>(std::vector<std::shared_ptr<kp::Tensor>>{},
+        vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+        vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
+  };
+  if(!upload.empty()) seq->record<kp::OpTensorSyncDevice>(upload);
+  else empty_slot();
+  seq->record<kp::OpMemoryBarrier>(deps,
+      vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
+  seq->record<kp::OpAlgoDispatch>(first);
+  seq->record<kp::OpMemoryBarrier>(intermediate,
+      vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
+  seq->record<kp::OpAlgoDispatch>(second);
+  if(!download.empty()) seq->record<kp::OpTensorSyncLocal>(download);
+  else empty_slot();
+  const auto start=std::chrono::steady_clock::now();
+  seq->eval();
+  if(timed) {
+    const auto ts=seq->getTimestamps();
+    TORCH_CHECK(ts.size()==7,"Vulkan pair profiler expects six operations");
+    const double scale=mgr_->getDeviceProperties().limits.timestampPeriod/1e6;
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto& v=gpu_timing_[profile_name];
+    ++v.samples;
+    v.host_eval_ms+=std::chrono::duration<double,std::milli>(
+        std::chrono::steady_clock::now()-start).count();
+    if(std::is_sorted(ts.begin(),ts.end())) {
+      v.upload_ms+=(ts[2]-ts[0])*scale;
+      v.shader_ms+=(ts[5]-ts[2])*scale;
+      v.download_ms+=(ts[6]-ts[5])*scale;
+    }
+  }
+  if(gpu_resident_enabled()) {
+    for(const auto& t:upload) alloc.mark_clean(t);
+    for(const auto& t:outputs) alloc.mark_gpu_dirty(t);
+    for(const auto& t:intermediate) alloc.mark_gpu_dirty(t);
+  }
 }
 
 void VulkanContext::run_compute_batch(
@@ -219,6 +288,12 @@ std::map<std::string,VulkanContext::GpuTiming> VulkanContext::gpu_timing_stats()
 
 VulkanContext::~VulkanContext() {
   try { synchronize(); } catch (...) { /* Shutdown must not throw. */ }
+#ifdef TORCH_VULKAN_PATCHED_KOMPUTE
+  // The cache owns Vulkan pipeline/layout handles. Release while the logical
+  // device is still live (mgr_ is destroyed after this destructor body).
+  clear_algorithm_cache();
+  kp::Algorithm::clearSharedPipelineCache();
+#endif
 }
 
 bool VulkanContext::deferred_enabled() const {
@@ -339,14 +414,15 @@ std::string VulkanContext::device_name() const {
 std::string VulkanContext::make_cache_key(
     const std::string& shader_name,
     const std::vector<std::shared_ptr<kp::Tensor>>& tensors) {
-  // Key format: "shader_name:N:ptr0:ptr1:..."
-  // Using raw data pointers ensures we match only when the exact same
-  // Vulkan buffers are bound. This is safe because allocator-backed tensors
-  // have stable pointers for their entire lifetime.
+  // A mapped data pointer can be recycled for a DIFFERENT VkBuffer. Use the
+  // primary VkBuffer handle for correctness; this is NOT a pipeline key.
   std::ostringstream oss;
   oss << shader_name << ':' << tensors.size();
   for (const auto& t : tensors) {
-    oss << ':' << reinterpret_cast<uintptr_t>(t->rawData());
+    auto desc = t->constructDescriptorBufferInfo();
+    oss << ':' << static_cast<VkBuffer>(desc.buffer)
+        << ':' << static_cast<uint64_t>(desc.offset)
+        << ':' << static_cast<uint64_t>(desc.range);
   }
   return oss.str();
 }
@@ -400,7 +476,13 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
       tensors, spirv, workgroup,
       std::vector<float>{}, push_constants);
 
+  if (algo_cache_.size() >= kMaxBoundAlgorithms) {
+    algo_cache_.erase(algo_cache_fifo_.front());
+    algo_cache_fifo_.pop_front();
+    ++stats_.algo_evictions;
+  }
   algo_cache_[key] = algo;
+  algo_cache_fifo_.push_back(key);
   stats_.algo_misses++;
   return algo;
 }
@@ -428,12 +510,22 @@ void VulkanContext::release_sequence(std::shared_ptr<kp::Sequence> seq) {
 
 VulkanContext::CacheStats VulkanContext::cache_stats() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return stats_;
+  auto result = stats_;
+  result.bound_algorithms = algo_cache_.size();
+#ifdef TORCH_VULKAN_PATCHED_KOMPUTE
+  const auto p = kp::Algorithm::sharedPipelineCacheStats();
+  result.pipeline_hits = p.hits;
+  result.pipeline_misses = p.misses;
+  result.pipeline_evictions = p.evictions;
+  result.pipeline_entries = p.entries;
+#endif
+  return result;
 }
 
 void VulkanContext::clear_algorithm_cache() {
   std::lock_guard<std::mutex> lock(mutex_);
   algo_cache_.clear();
+  algo_cache_fifo_.clear();
 }
 
 } // namespace torch_vulkan

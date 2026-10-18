@@ -1,0 +1,24 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer GradOut { float go[]; };
+layout(set=0,binding=1) writeonly buffer GradBias { float db[]; };
+layout(push_constant) uniform Params {
+    uint n,cin,cout,h,w,kh,kw,oh,ow;
+    uint sh,sw,ph,pw,dh,dw,groups;
+} p;
+shared float partial[128];
+void main() {
+    uint oc=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+    if(oc>=p.cout) return;
+    uint lane=gl_LocalInvocationID.x, spatial=p.oh*p.ow;
+    float sum=0.0;
+    for(uint r=lane;r<p.n*spatial;r+=128)
+        sum+=go[((r/spatial)*p.cout+oc)*spatial+r%spatial];
+    partial[lane]=sum;
+    barrier();
+    for(uint stride=64;stride>0;stride/=2) {
+        if(lane<stride) partial[lane]+=partial[lane+stride];
+        barrier();
+    }
+    if(lane==0) db[oc]=partial[0];
+}

@@ -6,11 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Find Python (needed for torch/extension.h -> Python.h)
-find_package(Python3 COMPONENTS Development REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 # Find PyTorch
 find_package(Torch REQUIRED)
-find_package(Python3 COMPONENTS Development REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 # Find Vulkan SDK
 find_package(Vulkan REQUIRED)
@@ -39,7 +39,33 @@ if(NOT kompute_FOUND)
     set(KOMPUTE_OPT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(KOMPUTE_OPT_BUILD_DOCS OFF CACHE BOOL "" FORCE)
     set(KOMPUTE_OPT_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(kompute)
+    # Pin and patch the bundled v0.9.0 runtime. Kompute originally compiles
+    # a fresh VkPipeline for each tensor binding; the patch shares immutable
+    # pipelines across per-binding Algorithm descriptors. Reproducible, checked
+    # patch source is under scripts/patch_kompute.py.
+    FetchContent_GetProperties(kompute)
+    if(NOT kompute_POPULATED)
+      FetchContent_Populate(kompute)
+    endif()
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_kompute.py" "${kompute_SOURCE_DIR}"
+      RESULT_VARIABLE KOMPUTE_PATCH_RC
+      OUTPUT_VARIABLE KOMPUTE_PATCH_OUT
+      ERROR_VARIABLE KOMPUTE_PATCH_ERR)
+    if(NOT KOMPUTE_PATCH_RC EQUAL 0)
+      message(FATAL_ERROR "Kompute patch failed: ${KOMPUTE_PATCH_ERR}")
+    endif()
+    message(STATUS "${KOMPUTE_PATCH_OUT}")
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_descriptor_arenas.py" "${kompute_SOURCE_DIR}"
+      RESULT_VARIABLE KOMPUTE_DESCRIPTORS_RC
+      OUTPUT_VARIABLE KOMPUTE_DESCRIPTORS_OUT
+      ERROR_VARIABLE KOMPUTE_DESCRIPTORS_ERR)
+    if(NOT KOMPUTE_DESCRIPTORS_RC EQUAL 0)
+      message(FATAL_ERROR "Kompute descriptor patch failed: ${KOMPUTE_DESCRIPTORS_ERR}")
+    endif()
+    message(STATUS "${KOMPUTE_DESCRIPTORS_OUT}")
+    add_subdirectory("${kompute_SOURCE_DIR}" "${kompute_BINARY_DIR}")
     set(KOMPUTE_LIBRARY kompute)
     set(KOMPUTE_INCLUDE_DIR "")
   endif()
@@ -58,6 +84,11 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/log_softmax.cpp
   csrc/vulkan_engine.cpp
 )
+
+# Public algorithm-cache counters exist only with our verified bundled patch.
+if(TARGET kompute)
+  target_compile_definitions(torch_vulkan_C PRIVATE TORCH_VULKAN_PATCHED_KOMPUTE=1)
+endif()
 
 target_include_directories(torch_vulkan_C PRIVATE
   ${TORCH_INCLUDE_DIRS}

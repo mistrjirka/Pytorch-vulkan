@@ -1,0 +1,36 @@
+#version 450
+
+// General FP32 depthwise Conv2D with an arbitrary integer channel multiplier.
+// Groups == input channels. Kernel width/height, stride, padding and dilation
+// are runtime parameters, so the same SPIR-V covers 1x1 through 7x7 and more.
+layout(local_size_x=256,local_size_y=1,local_size_z=1) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Weight { float w[]; };
+layout(set=0,binding=2) readonly buffer Bias { float b[]; };
+layout(set=0,binding=3) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {
+  uint n,cin,cout,h,w,kh,kw,oh,ow;
+  uint sh,sw,ph,pw,dh,dw,groups;
+} p;
+void main() {
+  uint id=gl_GlobalInvocationID.x;
+  uint sp=p.oh*p.ow;
+  if (id >= p.n*p.cout*sp) return;
+  uint position=id%sp;
+  uint oc=(id/sp)%p.cout;
+  uint batch=id/(sp*p.cout);
+  uint ic=oc/(p.cout/p.cin);
+  uint oy=position/p.ow, ox=position%p.ow;
+  float v=b[oc];
+  for(uint ky=0;ky<p.kh;ky++){
+    int iy=int(oy*p.sh)-int(p.ph)+int(ky*p.dh);
+    if(iy<0||iy>=int(p.h))continue;
+    for(uint kx=0;kx<p.kw;kx++){
+      int ix=int(ox*p.sw)-int(p.pw)+int(kx*p.dw);
+      if(ix<0||ix>=int(p.w))continue;
+      v += x[((batch*p.cin+ic)*p.h+uint(iy))*p.w+uint(ix)]
+          *w[(oc*p.kh+ky)*p.kw+kx];
+    }
+  }
+  y[id]=v;
+}

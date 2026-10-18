@@ -1,0 +1,791 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "warmup": 3,
+  "repeats": 7,
+  "dtype": "float32",
+  "cases": [
+    {
+      "name": "tiny",
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "weight_shape": [
+        8,
+        3,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        8,
+        16,
+        16
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5607,
+          "min_ms": 0.5502,
+          "max_ms": 1.5173,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.003342,
+          "shader_ms": 0.012105,
+          "download_ms": 0.005115,
+          "host_eval_ms": 0.515968
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5548,
+          "min_ms": 0.5237,
+          "max_ms": 0.5792,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.003159,
+          "shader_ms": 0.011067,
+          "download_ms": 0.004571,
+          "host_eval_ms": 0.503091
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.55,
+          "min_ms": 0.5271,
+          "max_ms": 0.5569,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.003269,
+          "shader_ms": 0.010615,
+          "download_ms": 0.005042,
+          "host_eval_ms": 0.501636
+        }
+      ]
+    },
+    {
+      "name": "pointwise",
+      "input_shape": [
+        2,
+        32,
+        32,
+        32
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "output_shape": [
+        2,
+        64,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.7606,
+          "min_ms": 0.7575,
+          "max_ms": 2.2589,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.02667,
+          "shader_ms": 0.041659,
+          "download_ms": 0.163835,
+          "host_eval_ms": 0.69665
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.7461,
+          "min_ms": 0.7406,
+          "max_ms": 0.7604,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.026729,
+          "shader_ms": 0.019941,
+          "download_ms": 0.167557,
+          "host_eval_ms": 0.670545
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.741,
+          "min_ms": 0.7371,
+          "max_ms": 0.7515,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.026606,
+          "shader_ms": 0.019831,
+          "download_ms": 0.165394,
+          "host_eval_ms": 0.667486
+        }
+      ]
+    },
+    {
+      "name": "standard3",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        32,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5773,
+          "min_ms": 0.573,
+          "max_ms": 1.6357,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.009038,
+          "shader_ms": 0.032608,
+          "download_ms": 0.03141,
+          "host_eval_ms": 0.526235
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5643,
+          "min_ms": 0.5623,
+          "max_ms": 0.5715,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.009175,
+          "shader_ms": 0.027547,
+          "download_ms": 0.027136,
+          "host_eval_ms": 0.5123
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5671,
+          "min_ms": 0.5619,
+          "max_ms": 0.569,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.00928,
+          "shader_ms": 0.027525,
+          "download_ms": 0.029751,
+          "host_eval_ms": 0.514894
+        }
+      ]
+    },
+    {
+      "name": "standard5",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        32,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5951,
+          "min_ms": 0.593,
+          "max_ms": 0.6117,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.011954,
+          "shader_ms": 0.055269,
+          "download_ms": 0.02821,
+          "host_eval_ms": 0.544963
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.602,
+          "min_ms": 0.5922,
+          "max_ms": 0.608,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.012059,
+          "shader_ms": 0.059287,
+          "download_ms": 0.029847,
+          "host_eval_ms": 0.547535
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.6505,
+          "min_ms": 0.5993,
+          "max_ms": 0.8695,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.011707,
+          "shader_ms": 0.058729,
+          "download_ms": 0.03125,
+          "host_eval_ms": 0.6193
+        }
+      ]
+    },
+    {
+      "name": "standard7",
+      "input_shape": [
+        1,
+        8,
+        32,
+        32
+      ],
+      "weight_shape": [
+        16,
+        8,
+        7,
+        7
+      ],
+      "output_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        3,
+        3
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.567,
+          "min_ms": 0.5622,
+          "max_ms": 1.3191,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.007278,
+          "shader_ms": 0.042377,
+          "download_ms": 0.015451,
+          "host_eval_ms": 0.522447
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5749,
+          "min_ms": 0.569,
+          "max_ms": 0.59,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.007136,
+          "shader_ms": 0.051237,
+          "download_ms": 0.015785,
+          "host_eval_ms": 0.52575
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5707,
+          "min_ms": 0.5675,
+          "max_ms": 0.5806,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.007255,
+          "shader_ms": 0.051927,
+          "download_ms": 0.014007,
+          "host_eval_ms": 0.524166
+        }
+      ]
+    },
+    {
+      "name": "depthwise3",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        64,
+        48,
+        48
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.771,
+          "min_ms": 0.7644,
+          "max_ms": 3.2807,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.029627,
+          "shader_ms": 0.01531,
+          "download_ms": 0.18512,
+          "host_eval_ms": 0.703716
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.7869,
+          "min_ms": 0.7798,
+          "max_ms": 0.7985,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.029376,
+          "shader_ms": 0.032544,
+          "download_ms": 0.187077,
+          "host_eval_ms": 0.707436
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.7673,
+          "min_ms": 0.7584,
+          "max_ms": 0.782,
+          "shader": "conv2d_depthwise",
+          "upload_ms": 0.029303,
+          "shader_ms": 0.014619,
+          "download_ms": 0.186898,
+          "host_eval_ms": 0.686247
+        },
+        {
+          "algo": "depthwise",
+          "median_ms": 0.7673,
+          "min_ms": 0.7608,
+          "max_ms": 0.7746,
+          "shader": "conv2d_depthwise",
+          "upload_ms": 0.029303,
+          "shader_ms": 0.014395,
+          "download_ms": 0.187241,
+          "host_eval_ms": 0.68733
+        }
+      ]
+    },
+    {
+      "name": "depthwise5",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        64,
+        48,
+        48
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.7668,
+          "min_ms": 0.7552,
+          "max_ms": 0.8094,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.029559,
+          "shader_ms": 0.020233,
+          "download_ms": 0.186802,
+          "host_eval_ms": 0.689212
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.7999,
+          "min_ms": 0.7907,
+          "max_ms": 0.8244,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.029911,
+          "shader_ms": 0.051744,
+          "download_ms": 0.18736,
+          "host_eval_ms": 0.721422
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.764,
+          "min_ms": 0.7583,
+          "max_ms": 0.7843,
+          "shader": "conv2d_depthwise",
+          "upload_ms": 0.029742,
+          "shader_ms": 0.019205,
+          "download_ms": 0.184859,
+          "host_eval_ms": 0.687446
+        },
+        {
+          "algo": "depthwise",
+          "median_ms": 0.7652,
+          "min_ms": 0.7591,
+          "max_ms": 0.7797,
+          "shader": "conv2d_depthwise",
+          "upload_ms": 0.029577,
+          "shader_ms": 0.019241,
+          "download_ms": 0.185504,
+          "host_eval_ms": 0.687128
+        }
+      ]
+    },
+    {
+      "name": "grouped35",
+      "input_shape": [
+        1,
+        16,
+        31,
+        29
+      ],
+      "weight_shape": [
+        32,
+        4,
+        3,
+        5
+      ],
+      "output_shape": [
+        1,
+        32,
+        16,
+        25
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 4,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5282,
+          "min_ms": 0.5208,
+          "max_ms": 1.2685,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.007744,
+          "shader_ms": 0.014222,
+          "download_ms": 0.011703,
+          "host_eval_ms": 0.480321
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5249,
+          "min_ms": 0.5196,
+          "max_ms": 0.5411,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.007927,
+          "shader_ms": 0.013938,
+          "download_ms": 0.01173,
+          "host_eval_ms": 0.476481
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5232,
+          "min_ms": 0.5208,
+          "max_ms": 0.5416,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.007575,
+          "shader_ms": 0.014153,
+          "download_ms": 0.011305,
+          "host_eval_ms": 0.478809
+        }
+      ]
+    },
+    {
+      "name": "large3",
+      "input_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        128,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 4.2224,
+          "min_ms": 4.1968,
+          "max_ms": 7.1683,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.18832,
+          "shader_ms": 1.870048,
+          "download_ms": 1.292338,
+          "host_eval_ms": 3.921852
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 3.8189,
+          "min_ms": 3.7973,
+          "max_ms": 3.8975,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.187936,
+          "shader_ms": 1.466171,
+          "download_ms": 1.295086,
+          "host_eval_ms": 3.524108
+        },
+        {
+          "algo": "auto",
+          "median_ms": 3.8353,
+          "min_ms": 3.7877,
+          "max_ms": 4.4878,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.187982,
+          "shader_ms": 1.467017,
+          "download_ms": 1.295995,
+          "host_eval_ms": 3.620941
+        }
+      ]
+    },
+    {
+      "name": "large5",
+      "input_shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "weight_shape": [
+        64,
+        32,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        64,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 1.6076,
+          "min_ms": 1.5942,
+          "max_ms": 3.7787,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.061609,
+          "shader_ms": 0.542949,
+          "download_ms": 0.327346,
+          "host_eval_ms": 1.478733
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 1.6012,
+          "min_ms": 1.5829,
+          "max_ms": 1.6083,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.061189,
+          "shader_ms": 0.540142,
+          "download_ms": 0.330354,
+          "host_eval_ms": 1.457581
+        },
+        {
+          "algo": "auto",
+          "median_ms": 1.5847,
+          "min_ms": 1.5654,
+          "max_ms": 1.8719,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.061115,
+          "shader_ms": 0.53088,
+          "download_ms": 0.330505,
+          "host_eval_ms": 1.486066
+        }
+      ]
+    },
+    {
+      "name": "large1",
+      "input_shape": [
+        4,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        1,
+        1
+      ],
+      "output_shape": [
+        4,
+        128,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 4.8906,
+          "min_ms": 4.8313,
+          "max_ms": 10.3323,
+          "shader": "conv2d_forward",
+          "upload_ms": 0.327506,
+          "shader_ms": 0.938619,
+          "download_ms": 2.578126,
+          "host_eval_ms": 4.384817
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 4.2675,
+          "min_ms": 4.2399,
+          "max_ms": 4.3054,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.327616,
+          "shader_ms": 0.339835,
+          "download_ms": 2.579922,
+          "host_eval_ms": 3.766546
+        },
+        {
+          "algo": "auto",
+          "median_ms": 4.2802,
+          "min_ms": 4.2325,
+          "max_ms": 4.3314,
+          "shader": "conv2d_tiled",
+          "upload_ms": 0.327177,
+          "shader_ms": 0.339767,
+          "download_ms": 2.583945,
+          "host_eval_ms": 3.776464
+        }
+      ]
+    }
+  ]
+}

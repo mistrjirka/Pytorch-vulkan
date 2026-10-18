@@ -1,0 +1,83 @@
+{
+  "backend": "cuda",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "torch_version": "2.14.1+cu130",
+  "cuda_version": "13.0",
+  "model": "unet",
+  "scale": "medium",
+  "input_shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "parameters": 472833,
+  "dtype": "float32",
+  "optimizer": "standard",
+  "warmup": 4,
+  "repeats": 9,
+  "threads": 8,
+  "vulkan_controls": {
+    "TORCH_VULKAN_GPU_RESIDENT": "default",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "default",
+    "TORCH_VULKAN_CONV_ALGO": "default",
+    "TORCH_VULKAN_CONV_BACKWARD_ALGO": "default"
+  },
+  "modes": {
+    "inference": {
+      "median_ms": 1.11,
+      "min_ms": 1.08,
+      "max_ms": 1.167,
+      "samples_ms": [
+        1.155,
+        1.096,
+        1.11,
+        1.135,
+        1.125,
+        1.08,
+        1.099,
+        1.167,
+        1.1
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.08970028907060623,
+        "rms": 0.08991298079490662
+      }
+    },
+    "training": {
+      "median_ms": 8.878,
+      "min_ms": 8.069,
+      "max_ms": 9.681,
+      "samples_ms": [
+        8.069,
+        9.006,
+        8.85,
+        8.794,
+        8.878,
+        8.837,
+        9.105,
+        9.655,
+        9.681
+      ],
+      "first_loss": 0.7050257325172424,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.11960466206073761,
+        "rms": 0.3529641628265381
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

@@ -1,0 +1,1135 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 4,
+  "repeats": 9,
+  "resident": "1",
+  "deferred": "0",
+  "timestamps": "0",
+  "cases": [
+    {
+      "name": "tiny",
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "weight_shape": [
+        8,
+        3,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5256810036371462,
+          "wall_min_ms": 0.49361200217390433,
+          "wall_max_ms": 0.5455869977595285,
+          "max_abs_error": 0.0,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.5840380035806447,
+          "wall_min_ms": 0.5718160027754493,
+          "wall_max_ms": 0.6729820015607402,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.5603240060736425,
+          "wall_min_ms": 0.5502459971467033,
+          "wall_max_ms": 0.5813829993712716,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5466590009746142,
+          "wall_min_ms": 0.5427120049716905,
+          "wall_max_ms": 0.5553750015678816,
+          "max_abs_error": 6.973743438720703e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.521693000337109,
+          "wall_min_ms": 0.5179459985811263,
+          "wall_max_ms": 0.5268130043987185,
+          "max_abs_error": 0.0,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5475099969771691,
+          "wall_min_ms": 0.5309699990903027,
+          "wall_max_ms": 0.5497050005942583,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5389549987739883,
+          "wall_min_ms": 0.5274340001051314,
+          "wall_max_ms": 0.544955997611396,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5364000026020221,
+          "wall_min_ms": 0.5345570025383495,
+          "wall_max_ms": 0.5503860011231154,
+          "max_abs_error": 1.9073486328125e-06,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "pointwise",
+      "input_shape": [
+        2,
+        32,
+        32,
+        32
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5559960045502521,
+          "wall_min_ms": 0.5283150021568872,
+          "wall_max_ms": 0.5615469999611378,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.6507209982373752,
+          "wall_min_ms": 0.6219380011316389,
+          "wall_max_ms": 0.6603489964618348,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.9466179981245659,
+          "wall_min_ms": 0.9172529971692711,
+          "wall_max_ms": 0.9604129954823293,
+          "max_abs_error": 0.000213623046875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.6747760053258389,
+          "wall_min_ms": 0.6437990014092065,
+          "wall_max_ms": 0.6822990035288967,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5534819938475266,
+          "wall_min_ms": 0.5240980026428588,
+          "wall_max_ms": 0.5607959974440746,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5359089991543442,
+          "wall_min_ms": 0.5338849950931035,
+          "wall_max_ms": 0.5712950005545281,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5512369971256703,
+          "wall_min_ms": 0.5488329989020713,
+          "wall_max_ms": 0.5601840020972304,
+          "max_abs_error": 2.288818359375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5034190035075881,
+          "wall_min_ms": 0.5021070028305985,
+          "wall_max_ms": 0.5133579979883507,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "standard3",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5124960007378832,
+          "wall_min_ms": 0.5106919998070225,
+          "wall_max_ms": 0.5273930000839755,
+          "max_abs_error": 0.0,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.664797997160349,
+          "wall_min_ms": 0.6627229959121905,
+          "wall_max_ms": 0.6763779965694994,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.5941869967500679,
+          "wall_min_ms": 0.5909009996685199,
+          "wall_max_ms": 0.6006990006426349,
+          "max_abs_error": 0.000118255615234375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5677279987139627,
+          "wall_min_ms": 0.5620570009341463,
+          "wall_max_ms": 0.5728969990741462,
+          "max_abs_error": 4.00543212890625e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5128359989612363,
+          "wall_min_ms": 0.5096699969726615,
+          "wall_max_ms": 0.5195089979679324,
+          "max_abs_error": 0.0,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5497449965332635,
+          "wall_min_ms": 0.5480620020534843,
+          "wall_max_ms": 0.5563770027947612,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5420599991339259,
+          "wall_min_ms": 0.5398569992394187,
+          "wall_max_ms": 0.5480120016727597,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5050429972470738,
+          "wall_min_ms": 0.5027680017519742,
+          "wall_max_ms": 0.5122150032548234,
+          "max_abs_error": 6.67572021484375e-06,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "standard5",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5415799969341606,
+          "wall_min_ms": 0.5384239993873052,
+          "wall_max_ms": 0.5592930028797127,
+          "max_abs_error": 8.392333984375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.8840719965519384,
+          "wall_min_ms": 0.8806749974610284,
+          "wall_max_ms": 0.8986879984149709,
+          "max_abs_error": 9.918212890625e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.611718998698052,
+          "wall_min_ms": 0.6041649976396002,
+          "wall_max_ms": 0.6303429981926456,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5630189989460632,
+          "wall_min_ms": 0.5603239987976849,
+          "wall_max_ms": 0.57342900254298,
+          "max_abs_error": 4.57763671875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5467390001285821,
+          "wall_min_ms": 0.5429119992186315,
+          "wall_max_ms": 0.5606949998764321,
+          "max_abs_error": 8.392333984375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.6603490037377924,
+          "wall_min_ms": 0.6253239989746362,
+          "wall_max_ms": 0.6772799970349297,
+          "max_abs_error": 9.918212890625e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5656739958794788,
+          "wall_min_ms": 0.5644619959639385,
+          "wall_max_ms": 0.5835870033479296,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5138589986017905,
+          "wall_min_ms": 0.509149998833891,
+          "wall_max_ms": 0.5210620001889765,
+          "max_abs_error": 8.106231689453125e-06,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "standard7",
+      "input_shape": [
+        1,
+        8,
+        32,
+        32
+      ],
+      "weight_shape": [
+        16,
+        8,
+        7,
+        7
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        3,
+        3
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5405280026025139,
+          "wall_min_ms": 0.5370209983084351,
+          "wall_max_ms": 0.5522999999811873,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.8632429962744936,
+          "wall_min_ms": 0.8531350031262264,
+          "wall_max_ms": 0.8838819994707592,
+          "max_abs_error": 0.000102996826171875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.5822339953738265,
+          "wall_min_ms": 0.5760929998359643,
+          "wall_max_ms": 0.589537994528655,
+          "max_abs_error": 0.0001068115234375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5530609996640123,
+          "wall_min_ms": 0.5491029951372184,
+          "wall_max_ms": 0.5604040052276105,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5376020053518005,
+          "wall_min_ms": 0.5349479979486205,
+          "wall_max_ms": 0.5506659945240244,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.6175399976200424,
+          "wall_min_ms": 0.6116089934948832,
+          "wall_max_ms": 0.6270980011322536,
+          "max_abs_error": 0.000102996826171875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5498950049513951,
+          "wall_min_ms": 0.5468890012707561,
+          "wall_max_ms": 0.55693799367873,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5121049980516545,
+          "wall_min_ms": 0.5078780013718642,
+          "wall_max_ms": 0.5277839954942465,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "depthwise3",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.559853004233446,
+          "wall_min_ms": 0.5300979973981157,
+          "wall_max_ms": 1.5132429980440065,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.5796200057375245,
+          "wall_min_ms": 0.5743700021412224,
+          "wall_max_ms": 0.5848690052516758,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.7069150015013292,
+          "wall_min_ms": 0.6748360028723255,
+          "wall_max_ms": 0.7113940009730868,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.6639549974352121,
+          "wall_min_ms": 0.6597970059374347,
+          "wall_max_ms": 0.6810569975641556,
+          "max_abs_error": 0.0001678466796875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5265619984129444,
+          "wall_min_ms": 0.5232359981164336,
+          "wall_max_ms": 0.5609360014204867,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.544495000212919,
+          "wall_min_ms": 0.5429020020528696,
+          "wall_max_ms": 0.5474700010381639,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5232959956629202,
+          "wall_min_ms": 0.5213030017330311,
+          "wall_max_ms": 0.5315309972502291,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5074170039733872,
+          "wall_min_ms": 0.5040600008214824,
+          "wall_max_ms": 0.517946005857084,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "depthwise5",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5539630001294427,
+          "wall_min_ms": 0.5257599987089634,
+          "wall_max_ms": 0.6184410012792796,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.5793789969175123,
+          "wall_min_ms": 0.5759230043622665,
+          "wall_max_ms": 0.6030330041539855,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.662662998365704,
+          "wall_min_ms": 0.6570830009877682,
+          "wall_max_ms": 0.6725209968863055,
+          "max_abs_error": 0.0001983642578125,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.6577940002898686,
+          "wall_min_ms": 0.6540070025948808,
+          "wall_max_ms": 0.6707479988108389,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5300379998516291,
+          "wall_min_ms": 0.5270830006338656,
+          "wall_max_ms": 0.5414690022007562,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5789990027551539,
+          "wall_min_ms": 0.5746009992435575,
+          "wall_max_ms": 0.587353999435436,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5491029951372184,
+          "wall_min_ms": 0.5471900003612973,
+          "wall_max_ms": 0.5605339974863455,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5068360042059794,
+          "wall_min_ms": 0.5056640002294444,
+          "wall_max_ms": 0.514560000738129,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "grouped35",
+      "input_shape": [
+        1,
+        16,
+        31,
+        29
+      ],
+      "weight_shape": [
+        32,
+        4,
+        3,
+        5
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 4,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.4973579998477362,
+          "wall_min_ms": 0.49333099741488695,
+          "wall_max_ms": 0.5038599992985837,
+          "max_abs_error": 8.58306884765625e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.569351002923213,
+          "wall_min_ms": 0.5636499990941957,
+          "wall_max_ms": 0.5831059970660135,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.535237995791249,
+          "wall_min_ms": 0.5333139997674152,
+          "wall_max_ms": 0.5466089933179319,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5226749999565072,
+          "wall_min_ms": 0.5213029944570735,
+          "wall_max_ms": 0.533253994944971,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.4957549972459674,
+          "wall_min_ms": 0.49403199955122545,
+          "wall_max_ms": 0.4977990029146895,
+          "max_abs_error": 8.58306884765625e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.528634998772759,
+          "wall_min_ms": 0.5232059993431903,
+          "wall_max_ms": 0.5390650039771572,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5203300024732016,
+          "wall_min_ms": 0.5185770060052164,
+          "wall_max_ms": 0.5239379970589653,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5050019972259179,
+          "wall_min_ms": 0.5023979974794202,
+          "wall_max_ms": 0.509920995682478,
+          "max_abs_error": 3.814697265625e-06,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "large3",
+      "input_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 2.2799889993621036,
+          "wall_min_ms": 2.24329099728493,
+          "wall_max_ms": 2.4704499955987558,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 8.325066999532282,
+          "wall_min_ms": 8.29634300316684,
+          "wall_max_ms": 8.39869199990062,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 6.7831499982276,
+          "wall_min_ms": 6.332118005957454,
+          "wall_max_ms": 6.998969001870137,
+          "max_abs_error": 0.001373291015625,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 1.604883000254631,
+          "wall_min_ms": 1.6027779929572716,
+          "wall_max_ms": 1.6403280023951083,
+          "max_abs_error": 0.00043487548828125,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 1.8457370024407282,
+          "wall_min_ms": 1.8336339999223128,
+          "wall_max_ms": 2.05825999728404,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 2.285128000949044,
+          "wall_min_ms": 2.273566002259031,
+          "wall_max_ms": 2.393266993749421,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 2.07395799952792,
+          "wall_min_ms": 2.0471089956117794,
+          "wall_max_ms": 2.291821001563221,
+          "max_abs_error": 0.00012969970703125,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.545778006198816,
+          "wall_min_ms": 0.5128359989612363,
+          "wall_max_ms": 0.5645219935104251,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "large5",
+      "input_shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "weight_shape": [
+        64,
+        32,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.8758670010138303,
+          "wall_min_ms": 0.8478649979224429,
+          "wall_max_ms": 0.8893220001482405,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 2.3512100015068427,
+          "wall_min_ms": 2.3341089981840923,
+          "wall_max_ms": 2.4278709970531054,
+          "max_abs_error": 0.0002899169921875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 1.467508998757694,
+          "wall_min_ms": 1.4513889982481487,
+          "wall_max_ms": 1.4874350017635152,
+          "max_abs_error": 0.0005340576171875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.736098998459056,
+          "wall_min_ms": 0.7106519988155924,
+          "wall_max_ms": 0.7617860028403811,
+          "max_abs_error": 0.000186920166015625,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.9448440032429062,
+          "wall_min_ms": 0.9189460033667274,
+          "wall_max_ms": 0.9506749993306585,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 1.277237999602221,
+          "wall_min_ms": 1.2145920045441017,
+          "wall_max_ms": 1.3280619969009422,
+          "max_abs_error": 0.0002899169921875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 1.06813100137515,
+          "wall_min_ms": 1.0472529975231737,
+          "wall_max_ms": 1.1629860018729232,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5055229994468391,
+          "wall_min_ms": 0.5035600042901933,
+          "wall_max_ms": 0.507356999150943,
+          "max_abs_error": 3.0517578125e-05,
+          "gpu": {}
+        }
+      ]
+    },
+    {
+      "name": "large1",
+      "input_shape": [
+        4,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 1.1916799994651228,
+          "wall_min_ms": 1.157466002041474,
+          "wall_max_ms": 1.2180080011603422,
+          "max_abs_error": 1.049041748046875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 2.55467499664519,
+          "wall_min_ms": 2.544406001106836,
+          "wall_max_ms": 2.562288995250128,
+          "max_abs_error": 2.86102294921875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 3.1080570042831823,
+          "wall_min_ms": 2.983386002597399,
+          "wall_max_ms": 3.1560659990645945,
+          "max_abs_error": 0.002471923828125,
+          "gpu": {}
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 2.1217460016487166,
+          "wall_min_ms": 2.0971009944332764,
+          "wall_max_ms": 2.1524730036617257,
+          "max_abs_error": 0.0011138916015625,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 1.1967890022788197,
+          "wall_min_ms": 1.1620349978329614,
+          "wall_max_ms": 1.2101139946025796,
+          "max_abs_error": 1.049041748046875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 1.1132450017612427,
+          "wall_min_ms": 1.105420000385493,
+          "wall_max_ms": 1.1231629978283308,
+          "max_abs_error": 2.86102294921875e-05,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.9252579984604381,
+          "wall_min_ms": 0.8934889992815442,
+          "wall_max_ms": 0.9724150004331023,
+          "max_abs_error": 0.00018310546875,
+          "gpu": {}
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5305789964040741,
+          "wall_min_ms": 0.5264420033199713,
+          "wall_max_ms": 0.5625080011668615,
+          "max_abs_error": 7.62939453125e-05,
+          "gpu": {}
+        }
+      ]
+    }
+  ]
+}

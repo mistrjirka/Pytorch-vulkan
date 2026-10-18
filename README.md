@@ -68,9 +68,9 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 83/83 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 83/83 passed |
-| Lavapipe software Vulkan | 82 passed, one hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 117/117 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 117/117 passed |
+| Lavapipe software Vulkan | 116 passed, one hardware-only test skipped |
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -78,7 +78,10 @@ correct saved statistics, storage-sharing `view`/`as_strided`,
 native single-axis FP32 sum, larger-logit log-softmax forward/backward,
 fused GEMM+bias for Linear layers, and **native Vulkan Conv2D forward,
 dInput, dWeight, dBias** with
-stride/padding/dilation/group variants. Other operations can fall back to CPU.
+stride/padding/dilation/group variants. Conv2D also accepts FP32 channels-last,
+transposed, sliced, offset and broadcast views via GPU packing. Other operations
+can fall back to CPU. See the [convolution backward and layout report](docs/convolution-backward-and-layouts.md)
+for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 
 The simple SGD example at `examples/linear_train.py` reduces MSE from
 4.6667 to 0.7864 in five steps.
@@ -88,14 +91,14 @@ The simple SGD example at `examples/linear_train.py` reduces MSE from
 The [18 October 2026 investigation](docs/performance-investigation-2026-10-18.md)
 profiles CPU fallbacks and Vulkan GPU activity, documents the optimizer,
 allocation and submission fixes, and explains why the remaining CUDA gap
-requires a new pipeline/descriptor cache and persistent GPU residency.
+motivated the now-implemented shared pipeline cache and experimental GPU residency.
 
 The opt-in `torch_vulkan.optim.AdamW` fuses optimizer state updates
 on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
 `torch.optim.AdamW`. Deferred command submission and mapped host memory are
 additional *experimental* environment-configured modes, disabled by default.
 
-### Current optimized FP32 training (experimental)
+### Earlier optimized MLP measurement (experimental)
 
 For the 1.87M-parameter XDNA2 MLP, batch 128 on the RTX 2080 Ti,
 optimized Vulkan now takes 4.614 ms inference and 17.166 ms for a
@@ -153,9 +156,10 @@ a closer-to-exact GELU further improved correctness.
 ## Limitations
 
 - **FP32 only for compute kernels.** BF16 and FP16 training are not supported.
-- Direct convolution uses a **correctness-first** scalar implementation,
-  not an optimized tensor-core or implicit-GEMM kernel. It will be slow for
-  large channel counts.
+- Conv2D selects general tiled/depthwise/reduction paths with scalar fallbacks.
+  It still lacks cuDNN's broader algorithm selection (such as Winograd), and
+  layout packing adds work. Conv2D supports 2D, nonempty FP32 configurations;
+  this does not imply layout/dtype coverage for every PyTorch operator.
 - Several loss operators, attention, some reductions, batchnorm backward,
   and other unsupported ops still use CPU fallback. Device residency is
   experimental and opt-in; not all workflows stay fully on GPU.

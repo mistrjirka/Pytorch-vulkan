@@ -147,6 +147,12 @@ py::dict cache_stats() {
   d["algo_misses"] = stats.algo_misses;
   d["seq_reuses"] = stats.seq_reuses;
   d["seq_creates"] = stats.seq_creates;
+  d["algo_evictions"] = stats.algo_evictions;
+  d["bound_algorithms"] = stats.bound_algorithms;
+  d["pipeline_hits"] = stats.pipeline_hits;
+  d["pipeline_misses"] = stats.pipeline_misses;
+  d["pipeline_evictions"] = stats.pipeline_evictions;
+  d["pipeline_entries"] = stats.pipeline_entries;
   return d;
 }
 

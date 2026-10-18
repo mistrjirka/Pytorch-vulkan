@@ -1,0 +1,1751 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 4,
+  "repeats": 9,
+  "resident": "0",
+  "deferred": "0",
+  "timestamps": "1",
+  "cases": [
+    {
+      "name": "tiny",
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "weight_shape": [
+        8,
+        3,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5448649972095154,
+          "wall_min_ms": 0.5209209994063713,
+          "wall_max_ms": 0.5533910007216036,
+          "max_abs_error": 0.0,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.01041422222222222,
+              "upload_ms": 0.003153777777777777,
+              "download_ms": 0.004689777777777776,
+              "host_eval_ms": 0.49151477777777763
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.5984650051686913,
+          "wall_min_ms": 0.5937050009379163,
+          "wall_max_ms": 0.6112990013207309,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.04454399999999998,
+              "upload_ms": 0.003445333333333333,
+              "download_ms": 0.003648,
+              "host_eval_ms": 0.5359634444444444
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.5792789961560629,
+          "wall_min_ms": 0.5735390004701912,
+          "wall_max_ms": 0.58750400057761,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.02424888888888889,
+              "upload_ms": 0.003544888888888889,
+              "download_ms": 0.003644444444444445,
+              "host_eval_ms": 0.5146666666666666
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5660140013787895,
+          "wall_min_ms": 0.5632899992633611,
+          "wall_max_ms": 0.5780270003015175,
+          "max_abs_error": 6.973743438720703e-06,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.017105777777777775,
+              "upload_ms": 0.003512888888888888,
+              "download_ms": 0.003793777777777777,
+              "host_eval_ms": 0.5070281111111111
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.548352996702306,
+          "wall_min_ms": 0.5415499981609173,
+          "wall_max_ms": 0.5610459993476979,
+          "max_abs_error": 0.0,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.010346666666666664,
+              "upload_ms": 0.0031715555555555555,
+              "download_ms": 0.004849777777777777,
+              "host_eval_ms": 0.5007097777777779
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5691400001524016,
+          "wall_min_ms": 0.5642120013362728,
+          "wall_max_ms": 0.5768150003859773,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.016771555555555553,
+              "upload_ms": 0.0034133333333333333,
+              "download_ms": 0.003975111111111111,
+              "host_eval_ms": 0.5060363333333332
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5622480020974763,
+          "wall_min_ms": 0.5590420041698962,
+          "wall_max_ms": 0.56981200032169,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_weight_reduce": {
+              "shader_ms": 0.00956444444444444,
+              "upload_ms": 0.0035555555555555557,
+              "download_ms": 0.003569777777777778,
+              "host_eval_ms": 0.5007343333333333
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5501150008058175,
+          "wall_min_ms": 0.5320720010786317,
+          "wall_max_ms": 0.5615159971057437,
+          "max_abs_error": 1.9073486328125e-06,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.006734222222222221,
+              "upload_ms": 0.003466666666666666,
+              "download_ms": 0.004266666666666665,
+              "host_eval_ms": 0.485929
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "pointwise",
+      "input_shape": [
+        2,
+        32,
+        32,
+        32
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.7466379975085147,
+          "wall_min_ms": 0.736810005037114,
+          "wall_max_ms": 0.7802499967510812,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.019836444444444434,
+              "upload_ms": 0.02706133333333333,
+              "download_ms": 0.16492800000000005,
+              "host_eval_ms": 0.6714805555555555
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.7646219964954071,
+          "wall_min_ms": 0.758590002078563,
+          "wall_max_ms": 0.7716239997535013,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.10409599999999997,
+              "upload_ms": 0.046364444444444444,
+              "download_ms": 0.08204444444444445,
+              "host_eval_ms": 0.6858895555555554
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.9992949999286793,
+          "wall_min_ms": 0.9940550007740967,
+          "wall_max_ms": 1.279491996683646,
+          "max_abs_error": 0.000213623046875,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.4134755555555555,
+              "upload_ms": 0.06443377777777777,
+              "download_ms": 0.003946666666666666,
+              "host_eval_ms": 0.9744607777777775
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.7038689946057275,
+          "wall_min_ms": 0.69777799944859,
+          "wall_max_ms": 0.7111029990483075,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.14221511111111113,
+              "upload_ms": 0.044113777777777766,
+              "download_ms": 0.0036657777777777787,
+              "host_eval_ms": 0.640264111111111
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.7612249974044971,
+          "wall_min_ms": 0.7410980033455417,
+          "wall_max_ms": 0.7701409995206632,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.020202666666666664,
+              "upload_ms": 0.027057777777777774,
+              "download_ms": 0.16508799999999996,
+              "host_eval_ms": 0.6819064444444444
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.6852250007796101,
+          "wall_min_ms": 0.6761379991075955,
+          "wall_max_ms": 0.6909149960847571,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.02642844444444444,
+              "upload_ms": 0.04619733333333334,
+              "download_ms": 0.0821226666666667,
+              "host_eval_ms": 0.6041985555555553
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.6349420000333339,
+          "wall_min_ms": 0.628831003268715,
+          "wall_max_ms": 0.6388190013240092,
+          "max_abs_error": 2.288818359375e-05,
+          "gpu": {
+            "conv2d_backward_weight_reduce": {
+              "shader_ms": 0.055114666666666666,
+              "upload_ms": 0.06478933333333331,
+              "download_ms": 0.00372622222222222,
+              "host_eval_ms": 0.5687297777777776
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5659539965563454,
+          "wall_min_ms": 0.5627089994959533,
+          "wall_max_ms": 0.5752020006184466,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.008771555555555552,
+              "upload_ms": 0.04405688888888889,
+              "download_ms": 0.00343111111111111,
+              "host_eval_ms": 0.5044
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "standard3",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5617869974230416,
+          "wall_min_ms": 0.5560259960475378,
+          "wall_max_ms": 0.5654339984175749,
+          "max_abs_error": 0.0,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.02731022222222221,
+              "upload_ms": 0.00926933333333334,
+              "download_ms": 0.027136,
+              "host_eval_ms": 0.5078974444444447
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.7050109998090193,
+          "wall_min_ms": 0.698318996001035,
+          "wall_max_ms": 0.71226400177693,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.15983644444444442,
+              "upload_ms": 0.014261333333333324,
+              "download_ms": 0.014492444444444481,
+              "host_eval_ms": 0.639299
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.6263760005822405,
+          "wall_min_ms": 0.6234300017240457,
+          "wall_max_ms": 0.6378569960361347,
+          "max_abs_error": 0.000118255615234375,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.09129955555555548,
+              "upload_ms": 0.017855999999999997,
+              "download_ms": 0.005482666666666667,
+              "host_eval_ms": 0.5651321111111112
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5901889962842688,
+          "wall_min_ms": 0.5881160032004118,
+          "wall_max_ms": 0.6049560033716261,
+          "max_abs_error": 4.00543212890625e-05,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.06503111111111116,
+              "upload_ms": 0.012725333333333342,
+              "download_ms": 0.003512888888888888,
+              "host_eval_ms": 0.5297835555555557
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5656040011672303,
+          "wall_min_ms": 0.5608959982055239,
+          "wall_max_ms": 0.5749709962401539,
+          "max_abs_error": 0.0,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.02715377777777777,
+              "upload_ms": 0.009269333333333352,
+              "download_ms": 0.02874311111111104,
+              "host_eval_ms": 0.5126362222222222
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5952690044068731,
+          "wall_min_ms": 0.5893179986742325,
+          "wall_max_ms": 0.6069000010029413,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.05044266666666666,
+              "upload_ms": 0.014289777777777759,
+              "download_ms": 0.013720888888888894,
+              "host_eval_ms": 0.5290732222222224
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5888970044907182,
+          "wall_min_ms": 0.5830059963045642,
+          "wall_max_ms": 0.8607990021118894,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.03796266666666667,
+              "upload_ms": 0.018983111111111117,
+              "download_ms": 0.005425777777777779,
+              "host_eval_ms": 0.5449567777777777
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5336949980119243,
+          "wall_min_ms": 0.5323720033629797,
+          "wall_max_ms": 0.544606002222281,
+          "max_abs_error": 6.67572021484375e-06,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.009418666666666662,
+              "upload_ms": 0.012942222222222213,
+              "download_ms": 0.003875555555555555,
+              "host_eval_ms": 0.4730432222222226
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "standard5",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5963910007267259,
+          "wall_min_ms": 0.593154996749945,
+          "wall_max_ms": 0.613051000982523,
+          "max_abs_error": 8.392333984375e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.058492444444444396,
+              "upload_ms": 0.011896888888888894,
+              "download_ms": 0.02638222222222206,
+              "host_eval_ms": 0.5421596666666662
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.9284639963880181,
+          "wall_min_ms": 0.9184549999190494,
+          "wall_max_ms": 0.9373799985041842,
+          "max_abs_error": 9.918212890625e-05,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.38018488888888885,
+              "upload_ms": 0.01663999999999995,
+              "download_ms": 0.013920000000000007,
+              "host_eval_ms": 0.8595641111111109
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.6502800024463795,
+          "wall_min_ms": 0.6464429970947094,
+          "wall_max_ms": 0.6676519988104701,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.10637155555555555,
+              "upload_ms": 0.017610666666666688,
+              "download_ms": 0.010631111111111103,
+              "host_eval_ms": 0.5853155555555563
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5964509982732125,
+          "wall_min_ms": 0.591361997066997,
+          "wall_max_ms": 0.6031130033079535,
+          "max_abs_error": 4.57763671875e-05,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.06464711111111107,
+              "upload_ms": 0.01281777777777778,
+              "download_ms": 0.0035662222222222206,
+              "host_eval_ms": 0.5334826666666671
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.6006180046824738,
+          "wall_min_ms": 0.596360994677525,
+          "wall_max_ms": 0.6048069990356453,
+          "max_abs_error": 8.392333984375e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.05863822222222215,
+              "upload_ms": 0.011807999999999992,
+              "download_ms": 0.02620799999999986,
+              "host_eval_ms": 0.5461760000000003
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.6708080036332831,
+          "wall_min_ms": 0.6678729987470433,
+          "wall_max_ms": 0.6741440010955557,
+          "max_abs_error": 9.918212890625e-05,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.12253866666666667,
+              "upload_ms": 0.016547555555555562,
+              "download_ms": 0.014375111111111054,
+              "host_eval_ms": 0.6050190000000006
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.6110980029916391,
+          "wall_min_ms": 0.6074920020182617,
+          "wall_max_ms": 0.6266569980653003,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.04776888888888889,
+              "upload_ms": 0.018933333333333333,
+              "download_ms": 0.010275555555555557,
+              "host_eval_ms": 0.5292625555555558
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.53517800552072,
+          "wall_min_ms": 0.532402002136223,
+          "wall_max_ms": 0.5850099987583235,
+          "max_abs_error": 8.106231689453125e-06,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.00920888888888889,
+              "upload_ms": 0.012600888888888884,
+              "download_ms": 0.003932444444444445,
+              "host_eval_ms": 0.48221566666666704
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "standard7",
+      "input_shape": [
+        1,
+        8,
+        32,
+        32
+      ],
+      "weight_shape": [
+        16,
+        8,
+        7,
+        7
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        3,
+        3
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5715049992431886,
+          "wall_min_ms": 0.5656240027747117,
+          "wall_max_ms": 0.5912109991186298,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.05087288888888884,
+              "upload_ms": 0.0070577777777777306,
+              "download_ms": 0.014222222222222334,
+              "host_eval_ms": 0.5197425555555574
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.8871969985193573,
+          "wall_min_ms": 0.8844029944157228,
+          "wall_max_ms": 0.9002309961942956,
+          "max_abs_error": 0.000102996826171875,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.35339733333333334,
+              "upload_ms": 0.009713777777777773,
+              "download_ms": 0.007306666666666671,
+              "host_eval_ms": 0.824085555555554
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.6078320002416149,
+          "wall_min_ms": 0.6041849992470816,
+          "wall_max_ms": 0.6201440046424977,
+          "max_abs_error": 0.0001068115234375,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.0752177777777779,
+              "upload_ms": 0.010591999999999983,
+              "download_ms": 0.006087111111111105,
+              "host_eval_ms": 0.5443557777777789
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5746199967688881,
+          "wall_min_ms": 0.5711640042136423,
+          "wall_max_ms": 0.5857509968336672,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.05274311111111116,
+              "upload_ms": 0.007935999999999992,
+              "download_ms": 0.003672888888888892,
+              "host_eval_ms": 0.5144117777777785
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5760440035373904,
+          "wall_min_ms": 0.5698019958799705,
+          "wall_max_ms": 0.7816420038579963,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.0508764444444445,
+              "upload_ms": 0.007175111111111108,
+              "download_ms": 0.013635555555555574,
+              "host_eval_ms": 0.5502546666666651
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.6507110010716133,
+          "wall_min_ms": 0.6436979965656064,
+          "wall_max_ms": 0.6587059979210608,
+          "max_abs_error": 0.000102996826171875,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.11299555555555557,
+              "upload_ms": 0.009603555555555539,
+              "download_ms": 0.007281777777777782,
+              "host_eval_ms": 0.5852268888888885
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5820440055686049,
+          "wall_min_ms": 0.577555998461321,
+          "wall_max_ms": 0.5910410036449321,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.036988444444444456,
+              "upload_ms": 0.011221333333333318,
+              "download_ms": 0.005845333333333332,
+              "host_eval_ms": 0.5070212222222226
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5338060000212863,
+          "wall_min_ms": 0.5314009977155365,
+          "wall_max_ms": 0.5442550027510151,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.009628444444444452,
+              "upload_ms": 0.007754666666666675,
+              "download_ms": 0.003868444444444443,
+              "host_eval_ms": 0.47225411111111154
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "depthwise3",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.7885849990998395,
+          "wall_min_ms": 0.7693799998378381,
+          "wall_max_ms": 1.7708190061966889,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {
+            "conv2d_depthwise": {
+              "shader_ms": 0.01443555555555555,
+              "upload_ms": 0.028359111111111113,
+              "download_ms": 0.18462577777777778,
+              "host_eval_ms": 0.8223366666666666
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.744484001188539,
+          "wall_min_ms": 0.7105110053089447,
+          "wall_max_ms": 0.7564260013168678,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.03204622222222239,
+              "upload_ms": 0.050858666666666684,
+              "download_ms": 0.09281777777777779,
+              "host_eval_ms": 0.6548764444444449
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.7951669977046549,
+          "wall_min_ms": 0.7829250025679357,
+          "wall_max_ms": 0.8052560006035492,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.1696675555555556,
+              "upload_ms": 0.07197511111111113,
+              "download_ms": 0.0034631111111110956,
+              "host_eval_ms": 0.7306385555555563
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.7255289965542033,
+          "wall_min_ms": 0.7208710012491792,
+          "wall_max_ms": 0.7409169993479736,
+          "max_abs_error": 0.0001678466796875,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.15865955555555564,
+              "upload_ms": 0.04907733333333329,
+              "download_ms": 0.0036479999999999967,
+              "host_eval_ms": 0.6622113333333333
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.7856500014895573,
+          "wall_min_ms": 0.758028996642679,
+          "wall_max_ms": 0.8568709963583387,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {
+            "conv2d_depthwise": {
+              "shader_ms": 0.014464000000000001,
+              "upload_ms": 0.02846222222222224,
+              "download_ms": 0.1850666666666666,
+              "host_eval_ms": 0.7081982222222227
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.7407180019072257,
+          "wall_min_ms": 0.7172740006353706,
+          "wall_max_ms": 0.9344950012746267,
+          "max_abs_error": 2.86102294921875e-06,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.03185422222222181,
+              "upload_ms": 0.05111111111111111,
+              "download_ms": 0.09263288888888882,
+              "host_eval_ms": 0.6792484444444438
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.6116090007708408,
+          "wall_min_ms": 0.6086440043873154,
+          "wall_max_ms": 0.6239819995244034,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {
+            "conv2d_backward_weight_reduce": {
+              "shader_ms": 0.025368888888888847,
+              "upload_ms": 0.07164088888888887,
+              "download_ms": 0.0034951111111111138,
+              "host_eval_ms": 0.5481926666666668
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5747510003857315,
+          "wall_min_ms": 0.5658739974023774,
+          "wall_max_ms": 0.5901699987589382,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.009255111111111127,
+              "upload_ms": 0.04894933333333334,
+              "download_ms": 0.003473777777777773,
+              "host_eval_ms": 0.5112111111111114
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "depthwise5",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.7951880033942871,
+          "wall_min_ms": 0.7877239986555651,
+          "wall_max_ms": 0.8048860036069527,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {
+            "conv2d_depthwise": {
+              "shader_ms": 0.01891200000000001,
+              "upload_ms": 0.029496888888888906,
+              "download_ms": 0.18573155555555548,
+              "host_eval_ms": 0.7129104444444442
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.7721250003669411,
+          "wall_min_ms": 0.7431919948430732,
+          "wall_max_ms": 0.7802800028002821,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.06541511111111101,
+              "upload_ms": 0.05104355555555548,
+              "download_ms": 0.09096177777777786,
+              "host_eval_ms": 0.6877657777777794
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.7815019998815842,
+          "wall_min_ms": 0.7512660013162531,
+          "wall_max_ms": 0.7880150005803443,
+          "max_abs_error": 0.0001983642578125,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.16112000000000018,
+              "upload_ms": 0.0718826666666667,
+              "download_ms": 0.004007111111111116,
+              "host_eval_ms": 0.7104580000000011
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.7300880024558865,
+          "wall_min_ms": 0.7258500045281835,
+          "wall_max_ms": 0.735708003048785,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.1589333333333333,
+              "upload_ms": 0.04909511111111101,
+              "download_ms": 0.00345599999999999,
+              "host_eval_ms": 0.6660194444444443
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.7930830033728853,
+          "wall_min_ms": 0.7651620035176165,
+          "wall_max_ms": 0.8005370036698878,
+          "max_abs_error": 5.7220458984375e-06,
+          "gpu": {
+            "conv2d_depthwise": {
+              "shader_ms": 0.019360000000000006,
+              "upload_ms": 0.029290666666666673,
+              "download_ms": 0.18601244444444434,
+              "host_eval_ms": 0.7065130000000003
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.7621370023116469,
+          "wall_min_ms": 0.742390999221243,
+          "wall_max_ms": 0.7706029937253334,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.06511288888888858,
+              "upload_ms": 0.051171555555555664,
+              "download_ms": 0.09095466666666674,
+              "host_eval_ms": 0.6789743333333322
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.6390189955709502,
+          "wall_min_ms": 0.6321370019577444,
+          "wall_max_ms": 0.6455420007114299,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {
+            "conv2d_backward_weight_reduce": {
+              "shader_ms": 0.04934400000000003,
+              "upload_ms": 0.0718791111111112,
+              "download_ms": 0.003864888888888893,
+              "host_eval_ms": 0.572848555555555
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5736189996241592,
+          "wall_min_ms": 0.5701619957108051,
+          "wall_max_ms": 0.5884760030312464,
+          "max_abs_error": 1.52587890625e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.009276444444444469,
+              "upload_ms": 0.04897777777777776,
+              "download_ms": 0.0036088888888888837,
+              "host_eval_ms": 0.5119337777777765
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "grouped35",
+      "input_shape": [
+        1,
+        16,
+        31,
+        29
+      ],
+      "weight_shape": [
+        32,
+        4,
+        3,
+        5
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 4,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 0.5316110036801547,
+          "wall_min_ms": 0.5288559987093322,
+          "wall_max_ms": 0.5378729983931407,
+          "max_abs_error": 8.58306884765625e-06,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.014944000000000044,
+              "upload_ms": 0.007637333333333373,
+              "download_ms": 0.010286222222222245,
+              "host_eval_ms": 0.48012399999999883
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 0.6025119946571067,
+          "wall_min_ms": 0.5992059959680773,
+          "wall_max_ms": 0.6093339979997836,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 0.0663644444444446,
+              "upload_ms": 0.007203555555555457,
+              "download_ms": 0.011932444444444338,
+              "host_eval_ms": 0.5373507777777777
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 0.56790799862938,
+          "wall_min_ms": 0.5642420001095161,
+          "wall_max_ms": 0.6179510019137524,
+          "max_abs_error": 5.340576171875e-05,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.03975822222222231,
+              "upload_ms": 0.010940444444444431,
+              "download_ms": 0.003850666666666681,
+              "host_eval_ms": 0.5090328888888899
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.5479210012708791,
+          "wall_min_ms": 0.5468889939947985,
+          "wall_max_ms": 0.5590119981206954,
+          "max_abs_error": 1.9073486328125e-05,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.027744000000000213,
+              "upload_ms": 0.00672000000000001,
+              "download_ms": 0.0033848888888888817,
+              "host_eval_ms": 0.48811877777777823
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 0.5282559941406362,
+          "wall_min_ms": 0.5260909965727478,
+          "wall_max_ms": 0.5385539989219978,
+          "max_abs_error": 8.58306884765625e-06,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.014784000000000082,
+              "upload_ms": 0.007697777777777803,
+              "download_ms": 0.010300444444444482,
+              "host_eval_ms": 0.4791020000000022
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 0.5612559980363585,
+          "wall_min_ms": 0.5593220048467629,
+          "wall_max_ms": 0.5704629948013462,
+          "max_abs_error": 1.1444091796875e-05,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.027914666666666754,
+              "upload_ms": 0.007239111111111122,
+              "download_ms": 0.012209777777777776,
+              "host_eval_ms": 0.49607466666666666
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 0.5514580043382011,
+          "wall_min_ms": 0.5494350043591112,
+          "wall_max_ms": 0.5646119971061125,
+          "max_abs_error": 7.62939453125e-06,
+          "gpu": {
+            "conv2d_backward_weight_reduce": {
+              "shader_ms": 0.02455111111111114,
+              "upload_ms": 0.011057777777777833,
+              "download_ms": 0.0039857777777777825,
+              "host_eval_ms": 0.4901314444444438
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.5299179974826984,
+          "wall_min_ms": 0.529136996192392,
+          "wall_max_ms": 0.5440949971671216,
+          "max_abs_error": 3.814697265625e-06,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.00783644444444446,
+              "upload_ms": 0.0066097777777778255,
+              "download_ms": 0.004209777777777775,
+              "host_eval_ms": 0.47078888888888787
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "large3",
+      "input_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 3.8094510018709116,
+          "wall_min_ms": 3.767834001337178,
+          "wall_max_ms": 3.864682999846991,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 1.4638080000000004,
+              "upload_ms": 0.18776533333333342,
+              "download_ms": 1.2807964444444446,
+              "host_eval_ms": 3.5158751111111113
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 9.459060005610809,
+          "wall_min_ms": 9.27514100476401,
+          "wall_max_ms": 9.64706699596718,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 7.522730666666667,
+              "upload_ms": 0.3449600000000001,
+              "download_ms": 0.6542364444444443,
+              "host_eval_ms": 9.211973666666669
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 5.64390799991088,
+          "wall_min_ms": 5.562616999668535,
+          "wall_max_ms": 5.704128998331726,
+          "max_abs_error": 0.001373291015625,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 4.316814222222222,
+              "upload_ms": 0.4808391111111113,
+              "download_ms": 0.09098311111111114,
+              "host_eval_ms": 5.477407111111109
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 1.7333490031887777,
+          "wall_min_ms": 1.7234010010724887,
+          "wall_max_ms": 1.7435080007999204,
+          "max_abs_error": 0.00043487548828125,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.7107413333333334,
+              "upload_ms": 0.322144,
+              "download_ms": 0.0027946666666666675,
+              "host_eval_ms": 1.597775222222222
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 3.4326559980399907,
+          "wall_min_ms": 3.342078998684883,
+          "wall_max_ms": 3.5010930005228147,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 1.0431217777777784,
+              "upload_ms": 0.18688000000000018,
+              "download_ms": 1.2753884444444437,
+              "host_eval_ms": 3.064674666666671
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 3.4268550007254817,
+          "wall_min_ms": 3.336016998218838,
+          "wall_max_ms": 3.7638669964508153,
+          "max_abs_error": 0.0002288818359375,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 1.5900622222222223,
+              "upload_ms": 0.3443626666666666,
+              "download_ms": 0.6561137777777777,
+              "host_eval_ms": 3.190452333333334
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 2.8130030041211285,
+          "wall_min_ms": 2.7881669957423583,
+          "wall_max_ms": 2.834943006746471,
+          "max_abs_error": 0.00012969970703125,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.9128959999999999,
+              "upload_ms": 0.4821795555555556,
+              "download_ms": 0.09068799999999999,
+              "host_eval_ms": 2.066831444444444
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 1.0422029954497702,
+          "wall_min_ms": 1.0348310024710372,
+          "wall_max_ms": 1.098136999644339,
+          "max_abs_error": 4.1961669921875e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.02507022222222223,
+              "upload_ms": 0.3223466666666666,
+              "download_ms": 0.0028088888888888916,
+              "host_eval_ms": 0.9138891111111115
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "large5",
+      "input_shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "weight_shape": [
+        64,
+        32,
+        5,
+        5
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 1.2996789955650456,
+          "wall_min_ms": 1.2888889978057705,
+          "wall_max_ms": 1.3195060018915683,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.38492799999999977,
+              "upload_ms": 0.060963555555555736,
+              "download_ms": 0.32975288888888976,
+              "host_eval_ms": 1.1947818888888895
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 2.7213830035179853,
+          "wall_min_ms": 2.6269689988112077,
+          "wall_max_ms": 2.7487940024002455,
+          "max_abs_error": 0.0002899169921875,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 1.8502897777777763,
+              "upload_ms": 0.09896533333333342,
+              "download_ms": 0.1645404444444445,
+              "host_eval_ms": 2.5772293333333334
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 1.6856910006026737,
+          "wall_min_ms": 1.643593997869175,
+          "wall_max_ms": 1.7699370000627823,
+          "max_abs_error": 0.0005340576171875,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 0.8835200000000012,
+              "upload_ms": 0.12377600000000023,
+              "download_ms": 0.06495999999999993,
+              "host_eval_ms": 1.5657011111111103
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 0.9337029987364076,
+          "wall_min_ms": 0.910470997041557,
+          "wall_max_ms": 0.9448540004086681,
+          "max_abs_error": 0.000186920166015625,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 0.2015751111111107,
+              "upload_ms": 0.08360533333333325,
+              "download_ms": 0.0030933333333333247,
+              "host_eval_ms": 0.7896007777777783
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 1.3807580035063438,
+          "wall_min_ms": 1.3704990051337518,
+          "wall_max_ms": 1.3920589990448207,
+          "max_abs_error": 0.00014495849609375,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.38745599999999947,
+              "upload_ms": 0.06093866666666652,
+              "download_ms": 0.3309582222222218,
+              "host_eval_ms": 1.2442456666666653
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 1.4550060004694387,
+          "wall_min_ms": 1.4273550041252747,
+          "wall_max_ms": 1.5101770040928386,
+          "max_abs_error": 0.0002899169921875,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.6085439999999992,
+              "upload_ms": 0.09899022222222215,
+              "download_ms": 0.16286933333333367,
+              "host_eval_ms": 1.3244612222222227
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 1.3026550004724413,
+          "wall_min_ms": 1.2915039988001809,
+          "wall_max_ms": 1.3251660056994297,
+          "max_abs_error": 9.1552734375e-05,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.3063217777777779,
+              "upload_ms": 0.12442666666666706,
+              "download_ms": 0.06527644444444435,
+              "host_eval_ms": 1.0079405555555543
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 0.6427869957406074,
+          "wall_min_ms": 0.6298230000538751,
+          "wall_max_ms": 0.6596680032089353,
+          "max_abs_error": 3.0517578125e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.00972088888888889,
+              "upload_ms": 0.08348444444444454,
+              "download_ms": 0.0028479999999999864,
+              "host_eval_ms": 0.5476741111111131
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "large1",
+      "input_shape": [
+        4,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        1,
+        1
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "measurements": [
+        {
+          "algorithm": "direct",
+          "phase": "forward",
+          "wall_median_ms": 4.116538002563175,
+          "wall_min_ms": 4.091591996257193,
+          "wall_max_ms": 4.349137998360675,
+          "max_abs_error": 1.049041748046875e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.2534186666666669,
+              "upload_ms": 0.32602666666666696,
+              "download_ms": 2.5630080000000013,
+              "host_eval_ms": 3.6396823333333383
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dinput",
+          "wall_median_ms": 4.560196997772437,
+          "wall_min_ms": 4.47385800362099,
+          "wall_max_ms": 4.628563998267055,
+          "max_abs_error": 2.86102294921875e-05,
+          "gpu": {
+            "conv2d_backward_input": {
+              "shader_ms": 1.8109617777777771,
+              "upload_ms": 0.6448284444444441,
+              "download_ms": 1.2782506666666673,
+              "host_eval_ms": 4.233810444444442
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dweight",
+          "wall_median_ms": 3.8592929995502345,
+          "wall_min_ms": 3.825902000244241,
+          "wall_max_ms": 4.011675002402626,
+          "max_abs_error": 0.002471923828125,
+          "gpu": {
+            "conv2d_backward_weight": {
+              "shader_ms": 2.3473315555555576,
+              "upload_ms": 0.9593671111111107,
+              "download_ms": 0.007267555555555521,
+              "host_eval_ms": 3.8002679999999978
+            }
+          }
+        },
+        {
+          "algorithm": "direct",
+          "phase": "dbias",
+          "wall_median_ms": 2.6432189988554455,
+          "wall_min_ms": 2.5860329988063313,
+          "wall_max_ms": 2.68807200336596,
+          "max_abs_error": 0.0011138916015625,
+          "gpu": {
+            "conv2d_backward_bias": {
+              "shader_ms": 1.4279786666666665,
+              "upload_ms": 0.6410062222222225,
+              "download_ms": 0.003221333333333323,
+              "host_eval_ms": 2.5582042222222188
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "forward",
+          "wall_median_ms": 4.139650998695288,
+          "wall_min_ms": 4.08492999849841,
+          "wall_max_ms": 4.219469003146514,
+          "max_abs_error": 1.049041748046875e-05,
+          "gpu": {
+            "conv2d_tiled": {
+              "shader_ms": 0.25363911111111215,
+              "upload_ms": 0.3263111111111111,
+              "download_ms": 2.5667306666666656,
+              "host_eval_ms": 3.629768555555548
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dinput",
+          "wall_median_ms": 3.0986499987193383,
+          "wall_min_ms": 3.036765003344044,
+          "wall_max_ms": 3.143952999380417,
+          "max_abs_error": 2.86102294921875e-05,
+          "gpu": {
+            "conv2d_backward_input_tiled": {
+              "shader_ms": 0.3760497777777761,
+              "upload_ms": 0.6446897777777783,
+              "download_ms": 1.2813297777777781,
+              "host_eval_ms": 2.786013666666665
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dweight",
+          "wall_median_ms": 1.8914009997388348,
+          "wall_min_ms": 1.8886559992097318,
+          "wall_max_ms": 2.2083459989516996,
+          "max_abs_error": 0.00018310546875,
+          "gpu": {
+            "conv2d_backward_weight_split": {
+              "shader_ms": 0.28511288888888864,
+              "upload_ms": 0.959936,
+              "download_ms": 0.007189333333333369,
+              "host_eval_ms": 1.7443466666666643
+            }
+          }
+        },
+        {
+          "algorithm": "auto",
+          "phase": "dbias",
+          "wall_median_ms": 1.2159949983470142,
+          "wall_min_ms": 1.1837349957204424,
+          "wall_max_ms": 1.2287880017538555,
+          "max_abs_error": 7.62939453125e-05,
+          "gpu": {
+            "conv2d_backward_bias_reduce": {
+              "shader_ms": 0.055655111111111114,
+              "upload_ms": 0.640945777777778,
+              "download_ms": 0.0028657777777777696,
+              "host_eval_ms": 1.1483542222222225
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

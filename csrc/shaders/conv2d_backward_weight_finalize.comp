@@ -1,0 +1,18 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Partial { float partial[]; };
+layout(set=0,binding=1) writeonly buffer GradWeight { float dw[]; };
+layout(push_constant) uniform Params {
+    uint n,cin,cout,h,w,kh,kw,oh,ow;
+    uint sh,sw,ph,pw,dh,dw,groups;
+} p;
+void main() {
+    uint idx=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+
+             gl_LocalInvocationID.x;
+    uint count=p.cout*(p.cin/p.groups)*p.kh*p.kw;
+    if(idx>=count) return;
+    uint splits=(p.n*p.oh*p.ow+255)/256;
+    float sum=0.0;
+    for(uint s=0;s<splits;++s) sum+=partial[s*count+idx];
+    dw[idx]=sum;
+}

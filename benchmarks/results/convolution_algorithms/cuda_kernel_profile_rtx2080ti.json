@@ -1,0 +1,300 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cu130",
+  "dtype": "float32",
+  "iterations": 5,
+  "cases": [
+    {
+      "case": "standard5",
+      "phase": "forward",
+      "kernels": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_128x64_relu_xregs_large_nn_v1",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.059065000000000055
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.002355000000000018
+        },
+        {
+          "name": "void cask__5x_cudnn::computeOffsetsKernel<false, false>(cask__5x_cudnn::ComputeOffsetsParams)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.001919799999999941
+        }
+      ],
+      "summed_kernel_ms": 0.06333980000000002
+    },
+    {
+      "case": "standard5",
+      "phase": "dinput",
+      "kernels": [
+        {
+          "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.020415800000000033
+        },
+        {
+          "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.0016126000000000202
+        }
+      ],
+      "summed_kernel_ms": 0.022028400000000052
+    },
+    {
+      "case": "standard5",
+      "phase": "dweight",
+      "kernels": [
+        {
+          "name": "void wgrad_alg0_engine<float, 128, 5, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.03006659999999997
+        },
+        {
+          "name": "Memset (Device)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.0015683999999999744
+        }
+      ],
+      "summed_kernel_ms": 0.03163499999999995
+    },
+    {
+      "case": "standard5",
+      "phase": "dbias",
+      "kernels": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.0048004000000002175
+        }
+      ],
+      "summed_kernel_ms": 0.0048004000000002175
+    },
+    {
+      "case": "large3",
+      "phase": "forward",
+      "kernels": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.09327219999999999
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.01526319999999996
+        },
+        {
+          "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.003417600000000039
+        }
+      ],
+      "summed_kernel_ms": 0.11195299999999998
+    },
+    {
+      "case": "large3",
+      "phase": "dinput",
+      "kernels": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.08342200000000008
+        },
+        {
+          "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.003199999999999955
+        }
+      ],
+      "summed_kernel_ms": 0.08662200000000003
+    },
+    {
+      "case": "large3",
+      "phase": "dweight",
+      "kernels": [
+        {
+          "name": "volta_sgemm_64x64_nt",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.10528439999999997
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradDelta4x4<float, float>(cudnn::winograd_nonfused::WinogradDeltaParams<float, float>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.03551919999999996
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradWgradOutputParams<float, float>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.011852199999999903
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradData4x4<float, float>(cudnn::winograd_nonfused::WinogradDataParams<float, float>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.011628399999999919
+        }
+      ],
+      "summed_kernel_ms": 0.16428419999999974
+    },
+    {
+      "case": "large3",
+      "phase": "dbias",
+      "kernels": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.008665200000000003
+        }
+      ],
+      "summed_kernel_ms": 0.008665200000000003
+    },
+    {
+      "case": "large5",
+      "phase": "forward",
+      "kernels": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_128x32_sliced1x4_ldg4_relu_exp_medium_nhwc_tn_v1",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.05253020000000006
+        },
+        {
+          "name": "void cudnn::engines_precompiled::nchwToNhwcKernel<float, float, float, false, true, (cudnnKernelDataType_t)0>(cudnn::engines_precompiled::nchw2nhwc_params_t<float>, float const*, float*)",
+          "calls_per_iteration": 2.0,
+          "ms_per_iteration": 0.005561799999999994
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.004044799999999986
+        },
+        {
+          "name": "void cudnn::engines_precompiled::nhwcToNchwKernel<float, float, float, true, false, (cudnnKernelDataType_t)0>(cudnn::engines_precompiled::nhwc2nchw_params_t<float>, float const*, float*)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.003142400000000044
+        },
+        {
+          "name": "void cask__5x_cudnn::computeOffsetsKernel<false, false>(cask__5x_cudnn::ComputeOffsetsParams)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.0018047999999999773
+        }
+      ],
+      "summed_kernel_ms": 0.06708400000000006
+    },
+    {
+      "case": "large5",
+      "phase": "dinput",
+      "kernels": [
+        {
+          "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, float2, float2, float2, float2, true, true, false, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2>)",
+          "calls_per_iteration": 9.0,
+          "ms_per_iteration": 0.24958500000000008
+        },
+        {
+          "name": "void fft2d_r2c_32x32<float, false, 0u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+          "calls_per_iteration": 9.0,
+          "ms_per_iteration": 0.1304798
+        },
+        {
+          "name": "void fft2d_c2r_32x32<float, false, false, 0u, false, false>(float*, float2 const*, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, float*, float*, int2, cudnnActivationStruct, int, int)",
+          "calls_per_iteration": 9.0,
+          "ms_per_iteration": 0.1075369999999998
+        },
+        {
+          "name": "void fft2d_r2c_32x32<float, false, 5u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.026815599999999995
+        }
+      ],
+      "summed_kernel_ms": 0.5144173999999999
+    },
+    {
+      "case": "large5",
+      "phase": "dweight",
+      "kernels": [
+        {
+          "name": "void wgrad_alg0_engine<float, 512, 6, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.12495620000000003
+        },
+        {
+          "name": "Memset (Device)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.001542399999999998
+        }
+      ],
+      "summed_kernel_ms": 0.12649860000000002
+    },
+    {
+      "case": "large5",
+      "phase": "dbias",
+      "kernels": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.010162999999999988
+        }
+      ],
+      "summed_kernel_ms": 0.010162999999999988
+    },
+    {
+      "case": "large1",
+      "phase": "forward",
+      "kernels": [
+        {
+          "name": "volta_sgemm_64x64_nn",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.04106820000000002
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.03352859999999998
+        }
+      ],
+      "summed_kernel_ms": 0.07459679999999999
+    },
+    {
+      "case": "large1",
+      "phase": "dinput",
+      "kernels": [
+        {
+          "name": "volta_sgemm_64x64_nt",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.03497579999999998
+        }
+      ],
+      "summed_kernel_ms": 0.03497579999999998
+    },
+    {
+      "case": "large1",
+      "phase": "dweight",
+      "kernels": [
+        {
+          "name": "void wgrad_alg0_engine<float, 128, 6, 8, 3, 3, 5, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.13264480000000003
+        },
+        {
+          "name": "Memset (Device)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.001881600000000026
+        }
+      ],
+      "summed_kernel_ms": 0.13452640000000007
+    },
+    {
+      "case": "large1",
+      "phase": "dbias",
+      "kernels": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "calls_per_iteration": 1.0,
+          "ms_per_iteration": 0.01893719999999994
+        }
+      ],
+      "summed_kernel_ms": 0.01893719999999994
+    }
+  ]
+}

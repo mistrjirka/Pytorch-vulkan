@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <map>
+#include <deque>
 
 namespace torch_vulkan {
 
@@ -41,6 +42,16 @@ public:
       const std::shared_ptr<kp::Algorithm>& algorithm,
       const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
       const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
+
+  // Two dependent kernels with a GPU-only intermediate and one fence.
+  // Unlike run_compute_batch (independent updates), this inserts a RAW barrier.
+  void run_compute_pair(
+      const std::shared_ptr<kp::Algorithm>& first,
+      const std::shared_ptr<kp::Algorithm>& second,
+      const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
+      const std::vector<std::shared_ptr<kp::Tensor>>& intermediate,
+      const std::vector<std::shared_ptr<kp::Tensor>>& outputs,
+      const std::string& profile_name);
 
   void run_compute_batch(
       const std::vector<std::shared_ptr<kp::Algorithm>>& algorithms,
@@ -77,9 +88,9 @@ public:
   // ---- Algorithm Cache (Phase 4) ----
   // Get a cached algorithm or create a new one. The cache key is built from
   // the shader name plus the raw data pointers of each tensor -- so the same
-  // algorithm object is returned when the exact same (shader, buffer set) is
-  // dispatched again. Push constants and workgroup are updated in-place on
-  // cache hits, avoiding the expensive VkPipeline + descriptor-set rebuild.
+  // algorithm object is returned when the exact same shader and Vulkan buffers
+  // are dispatched again. Immutable pipeline objects are shared separately by
+  // the pinned Kompute patch even if this binding-specific cache misses.
   //
   // IMPORTANT: the caller must NOT destroy the returned algorithm.
   // The cache owns it.
@@ -102,6 +113,12 @@ public:
     uint64_t algo_misses = 0;
     uint64_t seq_reuses = 0;
     uint64_t seq_creates = 0;
+    uint64_t algo_evictions = 0;
+    uint64_t bound_algorithms = 0;
+    uint64_t pipeline_hits = 0;
+    uint64_t pipeline_misses = 0;
+    uint64_t pipeline_evictions = 0;
+    uint64_t pipeline_entries = 0;
   };
   CacheStats cache_stats() const;
 
@@ -114,7 +131,8 @@ private:
   VulkanContext(const VulkanContext&) = delete;
   VulkanContext& operator=(const VulkanContext&) = delete;
 
-  // Build the cache key string from shader name + tensor raw data pointers.
+  // Binding-specific key based on actual VkBuffer identities, not mapped
+  // staging pointers. Pipeline caching itself is independent of this key.
   static std::string make_cache_key(
       const std::string& shader_name,
       const std::vector<std::shared_ptr<kp::Tensor>>& tensors);
@@ -130,6 +148,10 @@ private:
 
   // Algorithm cache: key -> cached algorithm
   std::unordered_map<std::string, std::shared_ptr<kp::Algorithm>> algo_cache_;
+  // Avoid retaining every historical tensor descriptor set indefinitely.
+  // In-flight OpAlgoDispatch objects own their algorithms independently.
+  std::deque<std::string> algo_cache_fifo_;
+  static constexpr size_t kMaxBoundAlgorithms = 512;
 
   // Sequence pool: reusable sequences
   std::vector<std::shared_ptr<kp::Sequence>> seq_pool_;

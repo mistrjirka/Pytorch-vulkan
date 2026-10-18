@@ -1,0 +1,22 @@
+#version 450
+// Materialize logical FP32 tensor order from up to four arbitrary nonnegative
+// strides, including channels-last, storage-offset and broadcast views.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Source { float src[]; };
+layout(set=0,binding=1) writeonly buffer Destination { float dst[]; };
+layout(push_constant) uniform Params {
+    uint count, offset;
+    uint d0,d1,d2,d3;
+    uint s0,s1,s2,s3;
+} p;
+void main() {
+    uint idx=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+
+             gl_LocalInvocationID.x;
+    if(idx>=p.count) return;
+    uint r=idx;
+    uint address=p.offset+(r%p.d3)*p.s3; r/=p.d3;
+    address+=(r%p.d2)*p.s2; r/=p.d2;
+    address+=(r%p.d1)*p.s1; r/=p.d1;
+    address+=r*p.s0;
+    dst[idx]=src[address];
+}

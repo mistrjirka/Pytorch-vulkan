@@ -1,0 +1,38 @@
+#version 450
+// One workgroup per weight, parallel spatial/batch reduction. No float atomics,
+// scratch workspace, or shape-specific assumptions; fixed reduction order.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer GradOut { float go[]; };
+layout(set=0,binding=2) writeonly buffer GradWeight { float dw[]; };
+layout(push_constant) uniform Params {
+    uint n,cin,cout,h,w,kh,kw,oh,ow;
+    uint sh,sw,ph,pw,dh,dw,groups;
+} p;
+shared float partial[128];
+void main() {
+    uint idx=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+    uint ci=p.cin/p.groups;
+    if(idx>=p.cout*ci*p.kh*p.kw) return;
+    uint kx=idx%p.kw, ky=(idx/p.kw)%p.kh;
+    uint c=(idx/(p.kw*p.kh))%ci, oc=idx/(p.kw*p.kh*ci);
+    uint ic=(oc/(p.cout/p.groups))*ci+c;
+    uint lane=gl_LocalInvocationID.x;
+    float sum=0.0;
+    uint spatial=p.oh*p.ow;
+    for(uint r=lane;r<p.n*spatial;r+=128) {
+        uint batch=r/spatial, pos=r%spatial;
+        int iy=int((pos/p.ow)*p.sh)-int(p.ph)+int(ky*p.dh);
+        int ix=int((pos%p.ow)*p.sw)-int(p.pw)+int(kx*p.dw);
+        if(iy>=0 && iy<int(p.h) && ix>=0 && ix<int(p.w))
+            sum+=x[((batch*p.cin+ic)*p.h+uint(iy))*p.w+uint(ix)]*
+                 go[(batch*p.cout+oc)*spatial+pos];
+    }
+    partial[lane]=sum;
+    barrier();
+    for(uint stride=64;stride>0;stride/=2) {
+        if(lane<stride) partial[lane]+=partial[lane+stride];
+        barrier();
+    }
+    if(lane==0) dw[idx]=partial[0];
+}

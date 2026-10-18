@@ -1,0 +1,616 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "warmup": 3,
+  "repeats": 7,
+  "dtype": "float32",
+  "cases": [
+    {
+      "name": "tiny",
+      "input_shape": [
+        1,
+        3,
+        16,
+        16
+      ],
+      "weight_shape": [
+        8,
+        3,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        8,
+        16,
+        16
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5243,
+          "min_ms": 0.5098,
+          "max_ms": 1.4951
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5204,
+          "min_ms": 0.5177,
+          "max_ms": 0.5415
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5123,
+          "min_ms": 0.5087,
+          "max_ms": 0.5159
+        }
+      ]
+    },
+    {
+      "name": "pointwise",
+      "input_shape": [
+        2,
+        32,
+        32,
+        32
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "output_shape": [
+        2,
+        64,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.7689,
+          "min_ms": 0.7582,
+          "max_ms": 1.8137
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.73,
+          "min_ms": 0.7235,
+          "max_ms": 0.7513
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.7396,
+          "min_ms": 0.7344,
+          "max_ms": 0.7505
+        }
+      ]
+    },
+    {
+      "name": "standard3",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        32,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5764,
+          "min_ms": 0.5615,
+          "max_ms": 1.3488
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5606,
+          "min_ms": 0.5571,
+          "max_ms": 0.5813
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5607,
+          "min_ms": 0.5536,
+          "max_ms": 0.5634
+        }
+      ]
+    },
+    {
+      "name": "standard5",
+      "input_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "weight_shape": [
+        32,
+        16,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        32,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5947,
+          "min_ms": 0.5877,
+          "max_ms": 0.616
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.6042,
+          "min_ms": 0.5919,
+          "max_ms": 0.6108
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5936,
+          "min_ms": 0.587,
+          "max_ms": 0.6019
+        }
+      ]
+    },
+    {
+      "name": "standard7",
+      "input_shape": [
+        1,
+        8,
+        32,
+        32
+      ],
+      "weight_shape": [
+        16,
+        8,
+        7,
+        7
+      ],
+      "output_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        3,
+        3
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5607,
+          "min_ms": 0.5561,
+          "max_ms": 1.6155
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5725,
+          "min_ms": 0.5656,
+          "max_ms": 0.5864
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.57,
+          "min_ms": 0.5645,
+          "max_ms": 0.582
+        }
+      ]
+    },
+    {
+      "name": "depthwise3",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        3,
+        3
+      ],
+      "output_shape": [
+        1,
+        64,
+        48,
+        48
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.771,
+          "min_ms": 0.7603,
+          "max_ms": 3.7023
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.7787,
+          "min_ms": 0.7765,
+          "max_ms": 0.7887
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.7646,
+          "min_ms": 0.7577,
+          "max_ms": 0.7725
+        },
+        {
+          "algo": "depthwise",
+          "median_ms": 0.7622,
+          "min_ms": 0.7542,
+          "max_ms": 0.8066
+        }
+      ]
+    },
+    {
+      "name": "depthwise5",
+      "input_shape": [
+        1,
+        32,
+        48,
+        48
+      ],
+      "weight_shape": [
+        64,
+        1,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        64,
+        48,
+        48
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 32,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.772,
+          "min_ms": 0.7576,
+          "max_ms": 0.8001
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.7974,
+          "min_ms": 0.7913,
+          "max_ms": 0.8008
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.7644,
+          "min_ms": 0.7611,
+          "max_ms": 0.7764
+        },
+        {
+          "algo": "depthwise",
+          "median_ms": 0.7647,
+          "min_ms": 0.7548,
+          "max_ms": 0.7688
+        }
+      ]
+    },
+    {
+      "name": "grouped35",
+      "input_shape": [
+        1,
+        16,
+        31,
+        29
+      ],
+      "weight_shape": [
+        32,
+        4,
+        3,
+        5
+      ],
+      "output_shape": [
+        1,
+        32,
+        16,
+        25
+      ],
+      "stride": [
+        2,
+        1
+      ],
+      "padding": [
+        1,
+        2
+      ],
+      "dilation": [
+        1,
+        2
+      ],
+      "groups": 4,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 0.5348,
+          "min_ms": 0.5242,
+          "max_ms": 1.4695
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 0.5275,
+          "min_ms": 0.5248,
+          "max_ms": 0.5364
+        },
+        {
+          "algo": "auto",
+          "median_ms": 0.5282,
+          "min_ms": 0.5236,
+          "max_ms": 0.5407
+        }
+      ]
+    },
+    {
+      "name": "large3",
+      "input_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        128,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 4.1528,
+          "min_ms": 4.1279,
+          "max_ms": 7.1744
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 3.7301,
+          "min_ms": 3.7148,
+          "max_ms": 3.7619
+        },
+        {
+          "algo": "auto",
+          "median_ms": 3.7632,
+          "min_ms": 3.7277,
+          "max_ms": 3.8061
+        }
+      ]
+    },
+    {
+      "name": "large5",
+      "input_shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "weight_shape": [
+        64,
+        32,
+        5,
+        5
+      ],
+      "output_shape": [
+        1,
+        64,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        2,
+        2
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 1.5113,
+          "min_ms": 1.5032,
+          "max_ms": 3.1857
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 1.5135,
+          "min_ms": 1.4957,
+          "max_ms": 1.521
+        },
+        {
+          "algo": "auto",
+          "median_ms": 1.4991,
+          "min_ms": 1.4951,
+          "max_ms": 1.5227
+        }
+      ]
+    },
+    {
+      "name": "large1",
+      "input_shape": [
+        4,
+        64,
+        64,
+        64
+      ],
+      "weight_shape": [
+        128,
+        64,
+        1,
+        1
+      ],
+      "output_shape": [
+        4,
+        128,
+        64,
+        64
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        0,
+        0
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "results": [
+        {
+          "algo": "direct",
+          "median_ms": 4.7939,
+          "min_ms": 4.7195,
+          "max_ms": 10.1138
+        },
+        {
+          "algo": "tiled",
+          "median_ms": 4.2384,
+          "min_ms": 4.1937,
+          "max_ms": 4.3839
+        },
+        {
+          "algo": "auto",
+          "median_ms": 4.2865,
+          "min_ms": 4.2336,
+          "max_ms": 4.3334
+        }
+      ]
+    }
+  ]
+}
