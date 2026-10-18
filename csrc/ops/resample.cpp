@@ -10,7 +10,7 @@ at::Tensor resample_axis(const at::Tensor& x,int64_t axis,int64_t input,int64_t 
  TORCH_CHECK(std::isfinite(scale)&&scale>=0&&scale*output<INT32_MAX/4,"resampling coordinate overflow");
  auto shape=x.sizes().vec();shape[axis]=backward?input:output;auto out=at::empty(shape,x.options());if(!out.numel())return out;
  uint64_t inner=1;for(int d=axis+1;d<x.dim();d++)inner*=x.size(d);auto src=packed(x);
- run("resample_axis",{base(src)},{base(out)},{u32(out.numel()),u32(input),u32(output),u32(inner),bits(float(scale)),uint32_t(align),mode,uint32_t(backward)},(out.numel()+127)/128);return out;
+ run("resample_axis",{base(src)},{write_base(out)},{u32(out.numel()),u32(input),u32(output),u32(inner),bits(float(scale)),uint32_t(align),mode,uint32_t(backward)},(out.numel()+127)/128);return out;
 }
 at::Tensor resize(const at::Tensor& x,c10::SymIntArrayRef output,c10::SymIntArrayRef input,bool align,const std::vector<std::optional<double>>& scales,uint32_t mode,bool backward){
  int spatial=scales.size();TORCH_CHECK(x.dim()==spatial+2&&output.size()==spatial,"resampling input/output rank mismatch");std::vector<int64_t> shape;

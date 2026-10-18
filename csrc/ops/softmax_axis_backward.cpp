@@ -20,7 +20,7 @@ at::Tensor backward(
   const auto axis=dim<0?dim+ndim:dim;
   TORCH_CHECK(axis>=0 && axis<ndim,"Vulkan softmax backward: invalid dimension");
   if(!can_pack_view(grad) || !can_pack_view(out))
-    return at::_softmax_backward_data(grad.cpu(),out.cpu(),dim,input_dtype).to(out.device());
+    return at::_softmax_backward_data(native::cpu_fallback_tensor(grad,__func__),native::cpu_fallback_tensor(out,__func__),dim,input_dtype).to(out.device());
 
   auto dx=at::empty(out.sizes(),out.options());
   if(!out.numel())return dx;
@@ -33,7 +33,7 @@ at::Tensor backward(
   TORCH_CHECK(outer*inner*uint64_t(axis_size)<=UINT32_MAX,
               "Vulkan softmax backward: indexing exceeds uint32");
   auto g=packed(grad),y=packed(out);
-  run("softmax_axis_backward",{base(g),base(y)},{base(dx)},
+  run("softmax_axis_backward",{base(g),base(y)},{write_base(dx)},
       {u32(outer),u32(axis_size),u32(inner)},outer*inner,512);
   return dx;
 }

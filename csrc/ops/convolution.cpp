@@ -39,7 +39,7 @@ static TensorBuffer buffer(const at::Tensor& t) {
   TORCH_CHECK(t.is_contiguous() && t.storage_offset() == 0,
               "Vulkan convolution currently requires contiguous, unoffset tensors");
   TORCH_CHECK(t.scalar_type() == at::kFloat, "Vulkan convolution supports FP32 only");
-  return VulkanAllocator::instance().get_kompute_tensor(t.data_ptr());
+  return VulkanAllocator::instance().get_kompute_tensor(const_cast<void*>(t.const_data_ptr()));
 }
 
 struct ConvParams {

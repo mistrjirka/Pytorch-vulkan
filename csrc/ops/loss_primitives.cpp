@@ -52,22 +52,22 @@ std::vector<uint32_t> unary_params(const at::Tensor& x,uint32_t op,float scalar=
 }
 at::Tensor unary(const at::Tensor& x,uint32_t op,float scalar=0) {
   auto out=at::empty(x.sizes(),x.options());
-  if(x.numel())run("loss_unary",{base(x)},{base(out)},unary_params(x,op,scalar),
+  if(x.numel())run("loss_unary",{base(x)},{write_base(out)},unary_params(x,op,scalar),
                   (x.numel()+127)/128);
   return out;
 }
 at::Tensor sigmoid_native(const at::Tensor& x) {
-  return supported(x)?unary(x,0):at::sigmoid(x.cpu()).to(x.device());
+  return supported(x)?unary(x,0):at::sigmoid(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor abs_native(const at::Tensor& x) {
-  return supported(x)?unary(x,1):at::abs(x.cpu()).to(x.device());
+  return supported(x)?unary(x,1):at::abs(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor sgn_native(const at::Tensor& x) {
-  return supported(x)?unary(x,2):at::sgn(x.cpu()).to(x.device());
+  return supported(x)?unary(x,2):at::sgn(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor div_scalar(const at::Tensor& x,const at::Scalar& scalar) {
   if(!supported(x) || at::result_type(x,scalar)!=at::kFloat)
-    return at::div(x.cpu(),scalar).to(x.device());
+    return at::div(native::cpu_fallback_tensor(x,__func__),scalar).to(x.device());
   return unary(x,3,scalar.toFloat());
 }
 // CPU zero-dimensional scalar tensors are legal ATen arithmetic operands.
@@ -89,15 +89,15 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
   if(at::result_type(aa,bb)!=at::kFloat ||
      (!aa.device().is_cpu() && !supported(aa)) ||
      (!bb.device().is_cpu() && !supported(bb))) {
-    if(op==0)return at::sub(aa.cpu(),bb.cpu(),alpha).to(dev);
-    if(op==1)return at::div(aa.cpu(),bb.cpu()).to(dev);
-    return at::sigmoid_backward(aa.cpu(),bb.cpu()).to(dev);
+    if(op==0)return at::sub(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__),alpha).to(dev);
+    if(op==1)return at::div(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
+    return at::sigmoid_backward(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
   }
   auto a=device_scalar(aa,bb),b=device_scalar(bb,aa);
   if(!supported(a) || !supported(b)) {
-    if(op==0)return at::sub(aa.cpu(),bb.cpu(),alpha).to(dev);
-    if(op==1)return at::div(aa.cpu(),bb.cpu()).to(dev);
-    return at::sigmoid_backward(aa.cpu(),bb.cpu()).to(dev);
+    if(op==0)return at::sub(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__),alpha).to(dev);
+    if(op==1)return at::div(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
+    return at::sigmoid_backward(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
   }
   const auto shape=at::infer_size(a.sizes(),b.sizes());
   uint64_t count=1;
@@ -111,9 +111,9 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
     }
   }
   if(!fits) {
-    if(op==0)return at::sub(aa.cpu(),bb.cpu(),alpha).to(dev);
-    if(op==1)return at::div(aa.cpu(),bb.cpu()).to(dev);
-    return at::sigmoid_backward(aa.cpu(),bb.cpu()).to(dev);
+    if(op==0)return at::sub(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__),alpha).to(dev);
+    if(op==1)return at::div(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
+    return at::sigmoid_backward(native::cpu_fallback_tensor(aa,__func__),native::cpu_fallback_tensor(bb,__func__)).to(dev);
   }
   auto out=at::empty(shape,a.options());
   if(!out.numel())return out;
@@ -126,7 +126,7 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
     p[13+d]=d<int(shape.size()) && ad>=0 && a.size(ad)!=1?u32(a.stride(ad)):0;
     p[21+d]=d<int(shape.size()) && bd>=0 && b.size(bd)!=1?u32(b.stride(bd)):0;
   }
-  run("loss_binary",{base(a),base(b)},{base(out)},p,(out.numel()+127)/128);
+  run("loss_binary",{base(a),base(b)},{write_base(out)},p,(out.numel()+127)/128);
   return out;
 }
 at::Tensor sub_tensor(const at::Tensor& a,const at::Tensor& b,const at::Scalar& alpha) {
@@ -143,7 +143,7 @@ at::Tensor sigmoid_backward_native(const at::Tensor& grad,const at::Tensor& out)
 // Preserve storage aliases and original overlap semantics on unsupported views.
 at::Tensor& mutate_cpu(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::Scalar& alpha=1) {
   auto flat=x.as_strided({int64_t(x.storage().nbytes()/x.element_size())},{1},0);
-  auto storage=flat.cpu();
+  auto storage=native::cpu_fallback_tensor(flat,__func__);
   auto view=storage.as_strided(x.sizes(),x.strides(),x.storage_offset());
   if(op==0)view.fill_(scalar);
   else if(op==1)view.div_(scalar);
@@ -171,14 +171,21 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
     for(int d=0;d<8;++d) {if(p[12+d]==0)p[4+d]=1;count*=p[4+d];}
     p[0]=u32(count);
   }
-  run("loss_mutate",{base(x)},{base(x)},p,(uint64_t(p[0])+127)/128);
+  run("loss_mutate",{base(x)},{write_base(x)},p,(uint64_t(p[0])+127)/128);
   return x;
 }
 at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {
+ if(x.scalar_type()==at::kBool){
+  if(!x.numel())return x;
+  auto shape=x.sizes().vec();for(int d=0;d<x.dim();d++)if(!x.stride(d))shape[d]=1;
+  auto distinct=x.as_strided(shape,x.strides(),x.storage_offset());
+  distinct.copy_(at::scalar_tensor(s,at::TensorOptions().dtype(at::kBool)).to(x.device()));return x;
+ }
+
  if((x.scalar_type()==at::kInt||x.scalar_type()==at::kLong)&&can_pack_view(x)){
   at::assert_no_internal_overlap(x);if(!x.numel())return x;uint64_t value=x.scalar_type()==at::kInt?uint32_t(s.toInt()):uint64_t(s.toLong());
   std::vector<uint32_t> p={u32(x.numel()),u32(x.storage_offset()),uint32_t(x.element_size()/4),uint32_t(value),uint32_t(value>>32)};p.resize(21,0);std::fill(p.begin()+5,p.begin()+13,1);for(int d=0;d<x.dim();d++){p[5+d]=u32(x.size(d));p[13+d]=u32(x.stride(d));}
-  run("integer_fill",{base(x,x.scalar_type())},{base(x,x.scalar_type())},p,(x.numel()+127)/128);return x;
+  run("integer_fill",{base(x,x.scalar_type())},{write_base(x,x.scalar_type())},p,(x.numel()+127)/128);return x;
  }
 if(x.scalar_type()==at::kComplexFloat)return complex_fill(x,s);return mutate(x,s,0);}
 at::Tensor& zero_native(at::Tensor& x) {return fill_scalar(x,0);}
@@ -217,15 +224,15 @@ at::Tensor& mutate_tensor(at::Tensor& x,const at::Tensor& other,uint32_t op,
     }
     const bool shared=x.storage().is_alias_of(other.storage());
     if(!shared || same_mapping || at::get_overlap_status(x,other)==at::MemOverlapStatus::No) {
-      if(x.numel())run("loss_binary",{base(x),base(other)},{base(x)},p,(x.numel()+127)/128);
+      if(x.numel())run("loss_binary",{base(x),base(other)},{write_base(x)},p,(x.numel()+127)/128);
       return x;
     }
   }
   auto flat=x.as_strided({int64_t(x.storage().nbytes()/x.element_size())},{1},0);
-  auto storage=flat.cpu();
+  auto storage=native::cpu_fallback_tensor(flat,__func__);
   auto view=storage.as_strided(x.sizes(),x.strides(),x.storage_offset());
   auto rhs=x.scalar_type()==other.scalar_type() && x.storage().is_alias_of(other.storage())?
-      storage.as_strided(other.sizes(),other.strides(),other.storage_offset()):other.cpu();
+      storage.as_strided(other.sizes(),other.strides(),other.storage_offset()):native::cpu_fallback_tensor(other,__func__);
   if(op==1)view.div_(rhs);
   else if(op==2)view.sub_(rhs,alpha);
   else view.mul_(rhs);
@@ -250,11 +257,11 @@ at::Tensor& mul_scalar_(at::Tensor& x,const at::Scalar& other) {
 
 std::tuple<at::Tensor,at::Tensor> log_sigmoid_forward(const at::Tensor& x) {
   if(!supported(x)) {
-    auto r=at::log_sigmoid_forward(x.cpu());
+    auto r=at::log_sigmoid_forward(native::cpu_fallback_tensor(x,__func__));
     return {std::get<0>(r).to(x.device()),std::get<1>(r).to(x.device())};
   }
   auto out=at::empty(x.sizes(),x.options()),buffer=at::empty(x.sizes(),x.options());
-  if(x.numel())run("loss_log_sigmoid",{base(x)},{base(out),base(buffer)},
+  if(x.numel())run("loss_log_sigmoid",{base(x)},{write_base(out),write_base(buffer)},
                   unary_params(x,0),(x.numel()+127)/128);
   return {out,buffer};
 }
@@ -262,11 +269,11 @@ at::Tensor log_sigmoid_backward(const at::Tensor& grad,const at::Tensor& x,
                                 const at::Tensor& buffer) {
   if(!supported(x) || !supported(grad) || !supported(buffer) ||
      x.sizes()!=grad.sizes() || x.sizes()!=buffer.sizes())
-    return at::log_sigmoid_backward(grad.cpu(),x.cpu(),buffer.cpu()).to(x.device());
+    return at::log_sigmoid_backward(native::cpu_fallback_tensor(grad,__func__),native::cpu_fallback_tensor(x,__func__),native::cpu_fallback_tensor(buffer,__func__)).to(x.device());
   auto a=packed(x),g=packed(grad),b=packed(buffer);
   auto out=at::empty(x.sizes(),x.options());
   if(x.numel())run("loss_log_sigmoid_backward",{base(g),base(a),base(b)},
-                  {base(out)},{u32(x.numel())},(x.numel()+127)/128);
+                  {write_base(out)},{u32(x.numel())},(x.numel()+127)/128);
   return out;
 }
 bool all_dimensions(const at::Tensor& x,at::OptionalIntArrayRef dims) {
@@ -284,7 +291,7 @@ bool all_dimensions(const at::Tensor& x,at::OptionalIntArrayRef dims) {
 at::Tensor mean_dim(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keepdim,
                      std::optional<at::ScalarType> dtype) {
   if(!supported(x) || dtype.value_or(x.scalar_type())!=at::kFloat)
-    return at::mean(x.cpu(),dims,keepdim,dtype).to(x.device());
+    return at::mean(native::cpu_fallback_tensor(x,__func__),dims,keepdim,dtype).to(x.device());
   if(!all_dimensions(x,dims))return reduce_fp32(x,dims,keepdim,true);
   auto out=at::empty(keepdim?std::vector<int64_t>(x.dim(),1):std::vector<int64_t>{},x.options());
   if(!x.numel()) {fill_scalar(out,std::numeric_limits<float>::quiet_NaN());return out;}
@@ -293,7 +300,7 @@ at::Tensor mean_dim(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keepdi
   while(true) {
     const uint32_t groups=(uint64_t(count)+1023)/1024;
     auto next=groups==1?out:at::empty({int64_t(groups)},x.options());
-    run("loss_mean_reduce",{base(current)},{base(next)},
+    run("loss_mean_reduce",{base(current)},{write_base(next)},
         {count,bits(groups==1?1.0f/float(x.numel()):1.0f)},groups,128*4);
     if(groups==1)break;
     current=next;count=groups;

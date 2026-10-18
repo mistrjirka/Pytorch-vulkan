@@ -63,6 +63,6 @@ void main() {
     }
 
     if (row < params.M && col < params.N) {
-        c[row * params.N + col] = params.alpha * sum + params.beta * bias[col];
+        c[row * params.N + col] = params.alpha * sum + (params.beta == 0.0 ? 0.0 : params.beta * bias[col]);
     }
 }

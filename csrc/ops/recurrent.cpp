@@ -14,7 +14,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> lstm(const at::Tensor& input,const 
  if(ib&&ib->defined()){check(*ib,cx);TORCH_CHECK(ib->dim()==1&&ib->numel()==input.size(1),"LSTM input bias shape mismatch");bi=packed(*ib);}
  if(hb&&hb->defined()){check(*hb,cx);TORCH_CHECK(hb->dim()==1&&hb->numel()==input.size(1),"LSTM hidden bias shape mismatch");bh=packed(*hb);}
  if(h.numel())run("lstm_cell",{base(packed(input)),base(packed(hidden)),base(packed(cx)),optional_buffer(bi),optional_buffer(bh)},
-  {base(h),base(c),base(ws)},{u32(cx.numel()),u32(cx.size(1)),uint32_t(bi.defined()),uint32_t(bh.defined())},(h.numel()+127)/128);
+  {write_base(h),write_base(c),write_base(ws)},{u32(cx.numel()),u32(cx.size(1)),uint32_t(bi.defined()),uint32_t(bh.defined())},(h.numel()+127)/128);
  return {h,c,ws};
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor> lstm_backward(const std::optional<at::Tensor>& gh,const std::optional<at::Tensor>& gc,
@@ -25,7 +25,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> lstm_backward(const std::optional<a
  if(gc&&gc->defined()){check(*gc,cx);TORCH_CHECK(gc->sizes()==cx.sizes(),"LSTM cell gradient shape mismatch");c=packed(*gc);}
  auto gates=at::empty(ws.sizes(),ws.options()),dx=at::empty_like(cx);
  if(cx.numel())run("lstm_cell_backward",{optional_buffer(h),optional_buffer(c),base(packed(cx)),base(packed(cy)),base(packed(ws))},
-  {base(gates),base(dx)},{u32(cx.numel()),u32(cx.size(1)),uint32_t(h.defined()),uint32_t(c.defined())},(cx.numel()+127)/128);
+  {write_base(gates),write_base(dx)},{u32(cx.numel()),u32(cx.size(1)),uint32_t(h.defined()),uint32_t(c.defined())},(cx.numel()+127)/128);
  at::Tensor db;if(has_bias)db=gates.sum(0);
  return {gates,dx,db};
 }

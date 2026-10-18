@@ -93,7 +93,7 @@ void main() {
             uint row = wg_row + local_row * THREAD_M + i;
             uint col = wg_col + local_col * THREAD_N + j;
             if (row < params.M && col < params.N) {
-                c[row * params.N + col] = params.alpha * acc[i][j] + params.beta * bias[col];
+                c[row * params.N + col] = params.alpha * acc[i][j] + (params.beta == 0.0 ? 0.0 : params.beta * bias[col]);
             }
         }
     }

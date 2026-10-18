@@ -40,7 +40,7 @@ Buffer buf(const at::Tensor& t){return t.defined()&&t.numel()?base(t):VulkanAllo
 void execute(Geometry g,uint32_t mode,const at::Tensor& x,const at::Tensor& w,const at::Tensor& grad,const at::Tensor& bias,at::Tensor& out) {
  if(!out.numel())return;
  g.p[23]=mode;g.p[24]=u32(out.numel());g.p[25]=bias.defined();
- run("convolution_nd",{buf(x),buf(w),buf(grad),buf(bias)},{base(out)},g.p,(out.numel()+127)/128);
+ run("convolution_nd",{buf(x),buf(w),buf(grad),buf(bias)},{write_base(out)},g.p,(out.numel()+127)/128);
 }
 }
 at::Tensor convolution_nd(const at::Tensor& x,const at::Tensor& w,const std::optional<at::Tensor>& bias,

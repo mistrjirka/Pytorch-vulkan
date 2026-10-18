@@ -10,15 +10,15 @@ std::vector<uint32_t> parameters(const at::Tensor& x,const at::Tensor& grid,int6
 }
 template<int Spatial> at::Tensor forward(const at::Tensor& x,const at::Tensor& grid,int64_t mode,int64_t padding,bool align){
  auto p=parameters(x,grid,mode,padding,align,Spatial);auto shape=x.sizes().vec();for(int a=0;a<Spatial;a++)shape[a+2]=grid.size(a+1);auto out=at::empty(shape,x.options());if(!out.numel())return out;
- auto input=packed(x),g=packed(grid);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);run("grid_sample_general",{base(input),base(g),dummy},{base(out)},p,(out.numel()+127)/128);return out;
+ auto input=packed(x),g=packed(grid);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);run("grid_sample_general",{base(input),base(g),dummy},{write_base(out)},p,(out.numel()+127)/128);return out;
 }
 template<int Spatial> std::tuple<at::Tensor,at::Tensor> backward(const at::Tensor& grad,const at::Tensor& x,const at::Tensor& grid,int64_t mode,int64_t padding,bool align,std::array<bool,2> mask){
  auto p=parameters(x,grid,mode,padding,align,Spatial);auto expected=x.sizes().vec();for(int a=0;a<Spatial;a++)expected[a+2]=grid.size(a+1);TORCH_CHECK(grad.device()==x.device()&&grad.scalar_type()==at::kFloat&&grad.sizes()==at::IntArrayRef(expected),"grid sample gradient mismatch");
  auto dx=mask[0]?at::empty(x.sizes(),x.options()):at::Tensor(),dg=at::empty(grid.sizes(),grid.options());
  if(!grad.numel()){if(dx.defined())dx.zero_();dg.zero_();return {dx,dg};}
  auto input=packed(x),g=packed(grid),go=packed(grad);std::vector<Buffer> buffers={base(input),base(g),base(go)};
- if(dx.defined()&&dx.numel()){p[12]=1;run("grid_sample_general",buffers,{base(dx)},p,(dx.numel()+127)/128);}
- if(dg.numel()){p[12]=2;run("grid_sample_general",buffers,{base(dg)},p,(dg.numel()/Spatial+127)/128);}return {dx,dg};
+ if(dx.defined()&&dx.numel()){p[12]=1;run("grid_sample_general",buffers,{write_base(dx)},p,(dx.numel()+127)/128);}
+ if(dg.numel()){p[12]=2;run("grid_sample_general",buffers,{write_base(dg)},p,(dg.numel()/Spatial+127)/128);}return {dx,dg};
 }
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("grid_sampler_2d",&forward<2>);m.impl("grid_sampler_3d",&forward<3>);m.impl("grid_sampler_2d_backward",&backward<2>);m.impl("grid_sampler_3d_backward",&backward<3>);}

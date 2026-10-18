@@ -104,6 +104,14 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/padding.cpp
   csrc/ops/grid_sample.cpp
   csrc/ops/sparse_coo.cpp
+  csrc/ops/out_adapters.cpp
+  csrc/ops/factories.cpp
+  csrc/ops/reduction_general.cpp
+  csrc/ops/svd.cpp
+  csrc/ops/bitwise.cpp
+  csrc/ops/views.cpp
+  csrc/ops/comparison.cpp
+  csrc/ops/device_copy.cpp
   csrc/ops/integer_ops.cpp
   csrc/ops/order_statistics.cpp
   csrc/ops/indexing.cpp

@@ -11,7 +11,7 @@ using namespace native;
 at::Tensor complex_unary(const at::Tensor& x,const at::Scalar& value,uint32_t mode){
  TORCH_CHECK(x.scalar_type()==at::kComplexFloat&&can_pack_view(x),"Vulkan complex operation requires packable complex64");auto out=at::empty(x.sizes(),x.options());if(!out.numel())return out;
  auto z=value.toComplexFloat();auto input=packed(x,at::kComplexFloat);auto in=base(input,at::kComplexFloat);
- run("complex_unary",{in},{base(out,at::kComplexFloat)},{u32(x.numel()),mode,bits(z.real()),bits(z.imag())},(out.numel()+127)/128);return out;
+ run("complex_unary",{in},{write_base(out,at::kComplexFloat)},{u32(x.numel()),mode,bits(z.real()),bits(z.imag())},(out.numel()+127)/128);return out;
 }
 at::Tensor complex_conj(const at::Tensor& x){return complex_unary(x,0,2);}
 std::vector<int64_t> axes(const at::Tensor& x,at::IntArrayRef dim){
@@ -21,7 +21,7 @@ std::vector<int64_t> axes(const at::Tensor& x,at::IntArrayRef dim){
 at::Tensor finish(const at::Tensor& x,int64_t axis,int64_t length,bool real,float scale){
  auto shape=x.sizes().vec();shape[axis]=length;auto out=at::empty(shape,x.options().dtype(real?at::kFloat:at::kComplexFloat));if(!out.numel())return out;
  uint64_t inner=1;for(int d=axis+1;d<x.dim();d++)inner*=x.size(d);
- run("fft_finish",{base(x,at::kComplexFloat)},{base(out,out.scalar_type())},{u32(out.numel()),u32(x.size(axis)),u32(length),u32(inner),uint32_t(real),bits(scale)},(out.numel()+127)/128);return out;
+ run("fft_finish",{base(x,at::kComplexFloat)},{write_base(out,out.scalar_type())},{u32(out.numel()),u32(x.size(axis)),u32(length),u32(inner),uint32_t(real),bits(scale)},(out.numel()+127)/128);return out;
 }
 at::Tensor transform(const at::Tensor& source,int64_t axis,bool inverse,int64_t real_length=0){
  TORCH_CHECK((source.scalar_type()==at::kFloat||source.scalar_type()==at::kComplexFloat)&&can_pack_view(source),"FFT requires packable FP32/complex64");
@@ -32,14 +32,14 @@ at::Tensor transform(const at::Tensor& source,int64_t axis,bool inverse,int64_t 
  uint32_t mode=real_length?2:(source.is_complex()?1:0);
  if((n&(n-1))==0){
   uint32_t log=0;while((uint64_t(1)<<log)<uint64_t(n))log++;
-  run("fft_prepare",{base(x,x.scalar_type())},{base(out,at::kComplexFloat)},
+  run("fft_prepare",{base(x,x.scalar_type())},{write_base(out,at::kComplexFloat)},
    {u32(out.numel()),u32(n),u32(inner),u32(x.size(axis)),mode,log},(out.numel()+127)/128);
   for(uint32_t stage=1;stage<=log;stage++){
-   auto next=at::empty_like(out);run("fft_butterfly",{base(out,at::kComplexFloat)},{base(next,at::kComplexFloat)},
+   auto next=at::empty_like(out);run("fft_butterfly",{base(out,at::kComplexFloat)},{write_base(next,at::kComplexFloat)},
     {u32(out.numel()),u32(n),u32(inner),1u<<stage,uint32_t(inverse)},(out.numel()+127)/128);out=next;
   }
  }else{
-  run("fft_direct",{base(x,x.scalar_type())},{base(out,at::kComplexFloat)},
+  run("fft_direct",{base(x,x.scalar_type())},{write_base(out,at::kComplexFloat)},
    {u32(out.numel()),u32(n),u32(inner),u32(x.size(axis)),mode,uint32_t(inverse)},(out.numel()+127)/128);
  }
  return out;
@@ -64,7 +64,7 @@ at::Tensor complex_binary(const at::Tensor& x,const at::Tensor& y,uint32_t mode,
  auto device=x.is_cpu()?y.device():x.device();TORCH_CHECK(device.type()==c10::DeviceType::PrivateUse1&&(x.device()==device||(x.is_cpu()&&x.dim()==0))&&(y.device()==device||(y.is_cpu()&&y.dim()==0)),"complex operation device mismatch");
  auto shape=at::infer_size_dimvector(x.sizes(),y.sizes());auto out=at::empty(shape,x.options().device(device).dtype(at::kComplexFloat));if(!out.numel())return out;
  auto a=x.is_cpu()?x.to(device):x,b=y.is_cpu()?y.to(device):y;a=packed(a.expand(shape),a.scalar_type());b=packed(b.expand(shape),b.scalar_type());auto scalar=alpha.toComplexFloat();
- run("complex_binary",{base(a,a.scalar_type()),base(b,b.scalar_type())},{base(out,at::kComplexFloat)},{u32(out.numel()),uint32_t(a.is_complex()),uint32_t(b.is_complex()),mode,bits(scalar.real()),bits(scalar.imag())},(out.numel()+127)/128);return out;
+ run("complex_binary",{base(a,a.scalar_type()),base(b,b.scalar_type())},{write_base(out,at::kComplexFloat)},{u32(out.numel()),uint32_t(a.is_complex()),uint32_t(b.is_complex()),mode,bits(scalar.real()),bits(scalar.imag())},(out.numel()+127)/128);return out;
 }
 at::Tensor complex_scale(const at::Tensor& x,const at::Scalar& scale){return complex_unary(x,scale,0);}
 at::Tensor& complex_fill(at::Tensor& x,const at::Scalar& value){auto z=value.toComplexFloat();auto view=at::view_as_real(x);view.select(-1,0).fill_(z.real());view.select(-1,1).fill_(z.imag());return x;}

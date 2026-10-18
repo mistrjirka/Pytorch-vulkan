@@ -1,5 +1,6 @@
 #include "vulkan_allocator.h"
 #include "vulkan_context.h"
+#include "ops/native_utils.h"
 #include <c10/core/Device.h>
 #include <c10/util/Exception.h>
 #include <cstring>
@@ -182,7 +183,11 @@ void VulkanAllocator::mark_host_dirty(void* ptr) {
 }
 
 void VulkanAllocator::copy_data(void* dest, const void* src, std::size_t count) const {
-  std::memcpy(dest, src, count);
+  if(!count || dest==src)return;
+  auto& allocator=VulkanAllocator::instance();
+  auto input=allocator.get_kompute_tensor(const_cast<void*>(src));
+  auto output=allocator.get_kompute_tensor(dest);
+  ops::native::run("copy_storage",{input},{output},{ops::native::u32((count+3)/4)},(count+511)/512);
 }
 
 std::shared_ptr<kp::TensorT<float>> VulkanAllocator::get_kompute_tensor(void* ptr) {

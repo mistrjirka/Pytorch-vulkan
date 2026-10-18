@@ -13,7 +13,7 @@ at::Tensor addcdiv_native(const at::Tensor& x,const at::Tensor& a,const at::Tens
 at::Tensor& output(at::Tensor& out,const at::Tensor& result){TORCH_CHECK(out.device()==result.device()&&out.scalar_type()==result.scalar_type(),"optimizer output device/dtype mismatch");at::assert_no_internal_overlap(out);at::native::resize_output(out,result.sizes());out.copy_(result);return out;}
 at::Tensor extrema(const at::Tensor& x,const at::Tensor& y,bool minimum){
  fp32(x);fp32(y);TORCH_CHECK(x.device()==y.device(),"extrema device mismatch");auto shape=at::infer_size_dimvector(x.sizes(),y.sizes());auto out=at::empty(shape,x.options());if(!out.numel())return out;
- auto a=native::packed(x.expand(shape)),b=native::packed(y.expand(shape));native::run("extrema_fp32",{native::base(a),native::base(b)},{native::base(out)},{native::u32(out.numel()),uint32_t(minimum)},(out.numel()+127)/128);return out;
+ auto a=native::packed(x.expand(shape)),b=native::packed(y.expand(shape));native::run("extrema_fp32",{native::base(a),native::base(b)},{native::write_base(out)},{native::u32(out.numel()),uint32_t(minimum)},(out.numel()+127)/128);return out;
 }
 at::Tensor maximum_native(const at::Tensor& x,const at::Tensor& y){return extrema(x,y,false);}
 at::Tensor minimum_native(const at::Tensor& x,const at::Tensor& y){return extrema(x,y,true);}

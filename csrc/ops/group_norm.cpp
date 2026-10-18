@@ -47,7 +47,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> cpu_forward(
     const std::optional<at::Tensor>& bias,
     c10::SymInt n, c10::SymInt c, c10::SymInt hw,
     int64_t groups, double eps) {
-  auto cpu=at::native_group_norm(x.cpu(),cpu_option(weight),cpu_option(bias),
+  auto cpu=at::native_group_norm(native::cpu_fallback_tensor(x,__func__),cpu_option(weight),cpu_option(bias),
                                  n.expect_int(),c.expect_int(),hw.expect_int(),groups,eps);
   return {std::get<0>(cpu).to(x.device()),std::get<1>(cpu).to(x.device()),
           std::get<2>(cpu).to(x.device())};
@@ -60,7 +60,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> cpu_backward(
     c10::SymInt n, c10::SymInt c, c10::SymInt hw,
     int64_t groups, std::array<bool,3> mask) {
   auto result=at::native_group_norm_backward(
-      grad.cpu(),x.cpu(),mean.cpu(),rstd.cpu(),cpu_option(weight),
+      native::cpu_fallback_tensor(grad,__func__),native::cpu_fallback_tensor(x,__func__),native::cpu_fallback_tensor(mean,__func__),native::cpu_fallback_tensor(rstd,__func__),cpu_option(weight),
       n.expect_int(),c.expect_int(),hw.expect_int(),groups,mask);
   return {std::get<0>(result).defined()?std::get<0>(result).to(x.device()):at::Tensor{},
           std::get<1>(result).defined()?std::get<1>(result).to(x.device()):at::Tensor{},
@@ -98,7 +98,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> forward(
   auto mean=at::empty({n,group},x.options());
   auto rstd=at::empty({n,group},x.options());
   run("group_norm_forward",{base(packed_x),base(packed_w),base(packed_b)},
-      {base(out),base(mean),base(rstd)},
+      {write_base(out),write_base(mean),write_base(rstd)},
       {u32(n),u32(c),u32(hw),u32(group),bits(static_cast<float>(eps)),
        uint32_t(weight && weight->defined()),uint32_t(bias && bias->defined())},
       uint64_t(n)*group,1024);
@@ -138,7 +138,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> backward(
     auto wc=weight && weight->defined()?packed(*weight):xc;
     dx=at::empty(x.sizes(),x.options());
     run("group_norm_backward_input",
-        {base(gc),base(xc),base(mc),base(rc),base(wc)},{base(dx)},
+        {base(gc),base(xc),base(mc),base(rc),base(wc)},{write_base(dx)},
         {u32(n),u32(c),u32(hw),u32(group),uint32_t(weight && weight->defined())},
         uint64_t(n)*group,1024);
   }
@@ -147,7 +147,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> backward(
     auto gw=at::empty({c},x.options());
     auto gb=at::empty({c},x.options());
     run("group_norm_backward_affine",
-        {base(gc),base(xc),base(mc),base(rc)},{base(gw),base(gb)},
+        {base(gc),base(xc),base(mc),base(rc)},{write_base(gw),write_base(gb)},
         {u32(n),u32(c),u32(hw),u32(group)},(uint64_t(c)+127)/128);
     if(mask[1])dw=gw;
     if(mask[2])db=gb;

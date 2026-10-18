@@ -54,7 +54,7 @@ std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,const at::Tens
     const std::optional<at::Tensor>& weight,int64_t reduction,c10::SymInt ignore_index) {
   const auto ignore=ignore_index.expect_int();
   if(!eligible(input,target,weight)) {
-    auto [out,total]=at::nll_loss_forward(input.cpu(),target.cpu(),cpu_weight(weight),reduction,ignore);
+    auto [out,total]=at::nll_loss_forward(native::cpu_fallback_tensor(input,__func__),native::cpu_fallback_tensor(target,__func__),cpu_weight(weight),reduction,ignore);
     return {out.to(input.device()),total.to(input.device())};
   }
   validate(input,target,weight,reduction,ignore);
@@ -64,7 +64,7 @@ std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,const at::Tens
   auto total=at::empty({},input.options());
   const auto p=params(input,weight,reduction,ignore);
   run("nll_loss_forward",{base(x),base(t,at::kLong),base(w)},
-      {base(out),base(total)},p,reduction==0 && input.dim()==2?(input.size(0)+127)/128:1,1024);
+      {write_base(out),write_base(total)},p,reduction==0 && input.dim()==2?(input.size(0)+127)/128:1,1024);
   return {out,total};
 }
 at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,const at::Tensor& target,
@@ -72,7 +72,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,const at::Ten
   const auto ignore=ignore_index.expect_int();
   if(!eligible(input,target,weight) || grad.scalar_type()!=at::kFloat || total_weight.scalar_type()!=at::kFloat ||
      !can_pack_view(grad) || !can_pack_view(total_weight))
-    return at::nll_loss_backward(grad.cpu(),input.cpu(),target.cpu(),cpu_weight(weight),reduction,ignore,total_weight.cpu()).to(input.device());
+    return at::nll_loss_backward(native::cpu_fallback_tensor(grad,__func__),native::cpu_fallback_tensor(input,__func__),native::cpu_fallback_tensor(target,__func__),cpu_weight(weight),reduction,ignore,native::cpu_fallback_tensor(total_weight,__func__)).to(input.device());
   validate(input,target,weight,reduction,ignore);
   TORCH_CHECK(total_weight.numel()==1,"nll_loss_backward: total_weight must be scalar");
   TORCH_CHECK(reduction==0 && input.dim()==2 ? (grad.dim()==1 && grad.numel()==input.size(0)) : (grad.dim()<=1 && grad.numel()==1),"nll_loss_backward: gradient shape mismatch");
@@ -80,7 +80,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,const at::Ten
   auto w=weight && weight->defined()?packed(*weight):g;
   auto out=at::empty(input.sizes(),input.options());
   run("nll_loss_backward",{base(g),base(t,at::kLong),base(w),base(total)},
-      {base(out)},params(input,weight,reduction,ignore),(input.numel()+127)/128);
+      {write_base(out)},params(input,weight,reduction,ignore),(input.numel()+127)/128);
   return out;
 }
 } // namespace

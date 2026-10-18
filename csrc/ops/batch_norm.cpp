@@ -91,7 +91,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_backward(
   if(mask[2])db=at::empty({c},input.options());
   uint32_t flags=mask[0]|(mask[1]<<1)|(mask[2]<<2)|(present(weight)<<3);
   run("batch_norm_backward",{base(x),base(g),w.defined()?base(w):dummy,base(*mean),base(*inv)},
-      {mask[0]?base(dx):dummy,mask[1]?base(dw):dummy,mask[2]?base(db):dummy},
+      {mask[0]?write_base(dx):dummy,mask[1]?write_base(dw):dummy,mask[2]?write_base(db):dummy},
       {u32(input.size(0)),u32(c),u32(s),uint32_t(training),flags,
        u32(mean->storage_offset()),u32(mean->stride(0)),u32(inv->storage_offset()),u32(inv->stride(0)),bits(float(eps))},c,1536);
   return {dx,dw,db};

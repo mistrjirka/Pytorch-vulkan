@@ -18,13 +18,13 @@ at::Tensor reduce_fp32(const at::Tensor& self,at::OptionalIntArrayRef dim,bool k
  std::vector<uint32_t> p(21,0);p[0]=u32(out.numel());p[1]=u32(reduced);p[2]=mask;p[3]=mean;p[4]=parallel;
  std::fill(p.begin()+5,p.begin()+13,1);
  for(int64_t d=0;d<self.dim();d++){p[5+d]=u32(self.size(d));p[13+d]=u32(x.stride(d));}
- run("reduce_axes",{base(x)},{base(out)},p,parallel?out.numel():(out.numel()+127)/128,512);return out;
+ run("reduce_axes",{base(x)},{write_base(out)},p,parallel?out.numel():(out.numel()+127)/128,512);return out;
 }
 namespace {
 at::Tensor sum_dim(const at::Tensor& x,at::OptionalIntArrayRef dim,bool keepdim,std::optional<at::ScalarType> dtype){
  if((integer_type(x.scalar_type())||x.scalar_type()==at::kBool)&&integer_type(dtype.value_or(at::kLong)))return integer_sum(x,dim,keepdim,dtype);
  const auto* flag=std::getenv("TORCH_VULKAN_NATIVE_SUM");
- if((flag&&!std::strcmp(flag,"0"))||x.scalar_type()!=at::kFloat||dtype.value_or(x.scalar_type())!=at::kFloat||!native::can_pack_view(x))return at::sum(x.cpu(),dim,keepdim,dtype).to(x.device());
+ if((flag&&!std::strcmp(flag,"0"))||x.scalar_type()!=at::kFloat||dtype.value_or(x.scalar_type())!=at::kFloat||!native::can_pack_view(x))return at::sum(native::cpu_fallback_tensor(x,__func__),dim,keepdim,dtype).to(x.device());
  return reduce_fp32(x,dim,keepdim,false);
 }
 at::Tensor sum_all(const at::Tensor& x,std::optional<at::ScalarType> dtype){return sum_dim(x,std::nullopt,false,dtype);}

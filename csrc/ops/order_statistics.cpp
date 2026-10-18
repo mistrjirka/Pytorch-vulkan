@@ -11,7 +11,7 @@ std::tuple<at::Tensor,at::Tensor> sort_native(const at::Tensor& x,int64_t raw,bo
  auto values=at::empty(x.sizes(),x.options()),indices=at::empty(x.sizes(),x.options().dtype(at::kLong));
  if(x.numel()){
   uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);
-  run("sort_axis",{base(packed(x))},{base(values),base(indices,at::kLong)},
+  run("sort_axis",{base(packed(x))},{write_base(values),write_base(indices,at::kLong)},
    {u32(x.numel()),u32(x.dim()?x.size(d):1),u32(inner),uint32_t(descending)},(x.numel()+127)/128);
  }return {values,indices};
 }
@@ -29,20 +29,20 @@ std::tuple<at::Tensor,at::Tensor> topk_native(const at::Tensor& x,c10::SymInt k_
 at::Tensor scan_native(const at::Tensor& x,int64_t raw,std::optional<at::ScalarType> dtype){
  int64_t d=axis(x,raw);TORCH_CHECK(x.scalar_type()==at::kFloat&&dtype.value_or(at::kFloat)==at::kFloat&&can_pack_view(x),"Vulkan cumsum requires packable FP32 input/output");
  auto out=at::empty(x.sizes(),x.options());if(!x.numel())return out;uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);
- int64_t n=x.dim()?x.size(d):1,rows=x.numel()/n;run("scan_axis",{base(packed(x))},{base(out)},{u32(rows),u32(n),u32(inner)},rows,516);return out;
+ int64_t n=x.dim()?x.size(d):1,rows=x.numel()/n;run("scan_axis",{base(packed(x))},{write_base(out)},{u32(rows),u32(n),u32(inner)},rows,516);return out;
 }
 at::Tensor flip_native(const at::Tensor& x,at::IntArrayRef dims){
  TORCH_CHECK((x.scalar_type()==at::kFloat||x.scalar_type()==at::kLong||x.scalar_type()==at::kInt)&&can_pack_view(x),"Vulkan flip supports FP32/int32/int64");
  uint32_t mask=0;for(auto raw:dims){auto d=axis(x,raw);TORCH_CHECK(!(mask&(1u<<d)),"flip duplicate dim");mask|=1u<<d;}
  auto out=at::empty(x.sizes(),x.options());if(out.numel()){
   std::vector<uint32_t> p={u32(x.numel()),mask,uint32_t(x.element_size()/4)};p.resize(11,1);for(int d=0;d<x.dim();d++)p[3+d]=u32(x.size(d));
-  run("flip",{base(packed(x,x.scalar_type()),x.scalar_type())},{base(out,out.scalar_type())},p,(out.numel()+127)/128);
+  run("flip",{base(packed(x,x.scalar_type()),x.scalar_type())},{write_base(out,out.scalar_type())},p,(out.numel()+127)/128);
  }return out;
 }
 at::Tensor triangle(const at::Tensor& x,int64_t diagonal,bool upper){
  TORCH_CHECK(x.dim()>=2&&can_pack_view(x),"triangular requires packable rank>=2 tensor");auto out=at::empty(x.sizes(),x.options());if(!out.numel())return out;
  diagonal=std::clamp<int64_t>(diagonal,INT32_MIN,INT32_MAX);
- run("triangular",{base(packed(x,x.scalar_type()),x.scalar_type())},{base(out,out.scalar_type())},
+ run("triangular",{base(packed(x,x.scalar_type()),x.scalar_type())},{write_base(out,out.scalar_type())},
   {u32(x.numel()),u32(x.size(-2)),u32(x.size(-1)),uint32_t(x.element_size()/4),uint32_t(x.scalar_type()==at::kBool),uint32_t(int32_t(diagonal)),uint32_t(upper)},(x.numel()+(x.scalar_type()==at::kBool?511:127))/(x.scalar_type()==at::kBool?512:128));return out;
 }
 at::Tensor tril_native(const at::Tensor& x,int64_t d){return triangle(x,d,false);}

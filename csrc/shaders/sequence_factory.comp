@@ -1,0 +1,13 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,words,mode,a,b,lo,hi,step_lo,step_hi;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ if(p.words!=0){uint hi,lo;umulExtended(i,p.step_lo,hi,lo);hi+=i*p.step_hi;uint result=lo+p.lo;hi+=p.hi+uint(result<lo);y[i*p.words]=result;if(p.words==2)y[i*2+1]=hi;}
+ else {float a=uintBitsToFloat(p.a),b=uintBitsToFloat(p.b),v;
+  if(p.mode==0)v=fma(float(i),b,a);
+  else if(p.count==1)v=a;
+  else {float step=(b-a)/float(p.count-1);v=i<p.count/2?fma(float(i),step,a):fma(-float(p.count-1-i),step,b);}
+  y[i]=floatBitsToUint(v);
+ }
+}

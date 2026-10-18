@@ -54,7 +54,7 @@ std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,at::IntArrayRe
   auto indices=at::empty(shape,input.options().dtype(at::kLong));
   if(out.numel()) {
     auto x=packed(input);
-    run("max_pool2d_forward",{base(x)},{base(out),base(indices,at::kLong)},p.push(),(out.numel()+127)/128);
+    run("max_pool2d_forward",{base(x)},{write_base(out),write_base(indices,at::kLong)},p.push(),(out.numel()+127)/128);
   }
   return {out,indices};
 }
@@ -71,7 +71,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,at::IntArrayR
   if(out.numel()) {
     // Backward uses the saved indices; it never recomputes maxima from input.
     auto g=packed(grad),idx=packed(indices,at::kLong);
-    run("max_pool2d_backward",{base(g),base(idx,at::kLong)},{base(out)},p.push(),(out.numel()+127)/128);
+    run("max_pool2d_backward",{base(g),base(idx,at::kLong)},{write_base(out)},p.push(),(out.numel()+127)/128);
   }
   return out;
 }

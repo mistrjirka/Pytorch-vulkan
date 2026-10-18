@@ -35,7 +35,7 @@ at::Tensor upsample(const at::Tensor& input,c10::SymIntArrayRef size,
   auto out=at::empty({input.size(0),input.size(1),size[0].expect_int(),size[1].expect_int()},input.options());
   if(out.numel()){
     auto x=packed(input);
-    run("upsample_nearest2d",{base(x)},{base(out)},p,(out.numel()+127)/128);
+    run("upsample_nearest2d",{base(x)},{write_base(out)},p,(out.numel()+127)/128);
   }
   return out;
 }
@@ -50,7 +50,7 @@ at::Tensor backward(const at::Tensor& grad,c10::SymIntArrayRef size,c10::SymIntA
   auto out=at::empty(shape,grad.options());
   if(out.numel()){
     auto g=packed(grad);
-    run("upsample_nearest2d",{base(g)},{base(out)},p,(out.numel()+127)/128);
+    run("upsample_nearest2d",{base(g)},{write_base(out)},p,(out.numel()+127)/128);
   }
   return out;
 }

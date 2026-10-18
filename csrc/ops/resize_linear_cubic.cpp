@@ -19,17 +19,17 @@ std::vector<uint32_t> params(at::IntArrayRef in,c10::SymIntArrayRef size,bool al
  return {u32(planes),u32(in[2]),u32(in[3]),u32(oh),u32(ow),uint32_t(backward),uint32_t(cubic),uint32_t(align),bits(scale(in[2],oh,sh)),bits(scale(in[3],ow,sw))};
 }
 template<bool Cubic> at::Tensor forward(const at::Tensor& input,c10::SymIntArrayRef size,bool align,std::optional<double> sh,std::optional<double> sw){
- if(input.scalar_type()!=at::kFloat || !can_pack_view(input))return (Cubic?at::upsample_bicubic2d_symint(input.cpu(),size,align,sh,sw):at::upsample_bilinear2d_symint(input.cpu(),size,align,sh,sw)).to(input.device());
+ if(input.scalar_type()!=at::kFloat || !can_pack_view(input))return (Cubic?at::upsample_bicubic2d_symint(native::cpu_fallback_tensor(input,__func__),size,align,sh,sw):at::upsample_bilinear2d_symint(native::cpu_fallback_tensor(input,__func__),size,align,sh,sw)).to(input.device());
  auto p=params(input.sizes(),size,align,sh,sw,Cubic,false);
  auto out=at::empty({input.size(0),input.size(1),int64_t(p[3]),int64_t(p[4])},input.options());
- if(out.numel()){auto x=packed(input);run("resize_linear_cubic",{base(x)},{base(out)},p,(out.numel()+127)/128);}return out;
+ if(out.numel()){auto x=packed(input);run("resize_linear_cubic",{base(x)},{write_base(out)},p,(out.numel()+127)/128);}return out;
 }
 template<bool Cubic> at::Tensor backward(const at::Tensor& grad,c10::SymIntArrayRef size,c10::SymIntArrayRef input_size,bool align,std::optional<double> sh,std::optional<double> sw){
- if(grad.scalar_type()!=at::kFloat || !can_pack_view(grad))return (Cubic?at::upsample_bicubic2d_backward_symint(grad.cpu(),size,input_size,align,sh,sw):at::upsample_bilinear2d_backward_symint(grad.cpu(),size,input_size,align,sh,sw)).to(grad.device());
+ if(grad.scalar_type()!=at::kFloat || !can_pack_view(grad))return (Cubic?at::upsample_bicubic2d_backward_symint(native::cpu_fallback_tensor(grad,__func__),size,input_size,align,sh,sw):at::upsample_bilinear2d_backward_symint(native::cpu_fallback_tensor(grad,__func__),size,input_size,align,sh,sw)).to(grad.device());
  std::vector<int64_t> shape;for(auto d:input_size)shape.push_back(d.expect_int());
  auto p=params(shape,size,align,sh,sw,Cubic,true);
  TORCH_CHECK(grad.sizes()==at::IntArrayRef(std::vector<int64_t>{shape[0],shape[1],p[3],p[4]}),"Vulkan resize gradient shape mismatch");
- auto out=at::empty(shape,grad.options());if(out.numel()){auto g=packed(grad);run("resize_linear_cubic",{base(g)},{base(out)},p,(out.numel()+127)/128);}return out;
+ auto out=at::empty(shape,grad.options());if(out.numel()){auto g=packed(grad);run("resize_linear_cubic",{base(g)},{write_base(out)},p,(out.numel()+127)/128);}return out;
 }
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){

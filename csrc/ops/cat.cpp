@@ -17,7 +17,7 @@ at::Tensor cat(const at::ITensorListRef& tensor_list,int64_t dim) {
   }
   // Preserve dtype promotion and higher-rank behavior through the old CPU path.
   if(!native_supported) {
-    std::vector<at::Tensor> cpu;for(const auto& t:tensors)cpu.push_back(t.cpu());
+    std::vector<at::Tensor> cpu;for(const auto& t:tensors)cpu.push_back(native::cpu_fallback_tensor(t,__func__));
     return at::cat(cpu,dim).to(device);
   }
   const auto skipped=[](const at::Tensor& t){return t.dim()==1 && t.numel()==0;};
@@ -46,7 +46,7 @@ at::Tensor cat(const at::ITensorListRef& tensor_list,int64_t dim) {
       auto x=packed(t);
       // Each dispatch writes a disjoint region of the destination. The full
       // result stays allocated through all dispatches and deferred completion.
-      run("cat_copy",{base(x)},{base(out)},
+      run("cat_copy",{base(x)},{write_base(out)},
           {u32(t.numel()),u32(inner),u32(t.size(dim)),u32(shape[dim]),u32(offset)},(t.numel()+127)/128);
     }
     offset+=t.size(dim);

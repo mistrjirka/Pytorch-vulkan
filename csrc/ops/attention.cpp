@@ -19,7 +19,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> attention_forward(const at::Tensor&
  auto p=params(query,key,value,mask,drop,causal,scale,0,state);auto out=at::empty({query.size(0),query.size(1),value.size(2)},query.options()),lse=at::empty({query.size(0),query.size(1)},query.options());
  if(!lse.numel())return {out,lse,rng};if(!out.numel()){lse.zero_();return {out,lse,rng};}if(!key.size(1)){out.zero_();lse.fill_(-INFINITY);return {out,lse,rng};}
  auto q=packed(query),k=packed(key),v=packed(value),m=mask.numel()?packed(mask,mask.scalar_type()):at::Tensor();auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);
- run("sdpa_training",{base(q),base(k),base(v),m.defined()?base(m,m.scalar_type()):dummy,dummy,dummy,dummy},{base(out),base(lse)},p,lse.numel(),2048);return {out,lse,rng};
+ run("sdpa_training",{base(q),base(k),base(v),m.defined()?base(m,m.scalar_type()):dummy,dummy,dummy,dummy},{write_base(out),write_base(lse)},p,lse.numel(),2048);return {out,lse,rng};
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> attention_backward(const at::Tensor& grad,const at::Tensor& query,const at::Tensor& key,const at::Tensor& value,const at::Tensor& mask,const at::Tensor& output,const at::Tensor& logsum,double drop,bool causal,double scale,const at::Tensor& rng){
  TORCH_CHECK(rng.device().is_cpu()&&rng.scalar_type()==at::kLong&&rng.numel()==4&&rng.is_contiguous(),"Invalid attention RNG metadata");at::IntArrayRef state(rng.const_data_ptr<int64_t>(),4);
@@ -28,7 +28,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> attention_backward(const
  if(!query.numel()||!key.numel()||!value.numel()){dq.zero_();dk.zero_();dv.zero_();dm.zero_();return {dq,dk,dv,dm};}
  auto q=packed(query),k=packed(key),v=packed(value),g=packed(grad),o=packed(output),l=packed(logsum),m=mask.numel()?packed(mask,mask.scalar_type()):at::Tensor();auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);
  std::vector<Buffer> inputs={base(q),base(k),base(v),m.defined()?base(m,m.scalar_type()):dummy,base(g),base(o),base(l)};
- run("sdpa_training",inputs,{base(dq),base(dm)},p,query.size(0)*query.size(1),2048);p[5]=2;run("sdpa_training",inputs,{base(dk),base(dv)},p,key.size(0)*key.size(1),2048);return {dq,dk,dv,dm};
+ run("sdpa_training",inputs,{write_base(dq),write_base(dm)},p,query.size(0)*query.size(1),2048);p[5]=2;run("sdpa_training",inputs,{write_base(dk),write_base(dv)},p,key.size(0)*key.size(1),2048);return {dq,dk,dv,dm};
 }
 }
 TORCH_LIBRARY_FRAGMENT(torch_vulkan,m){m.def("attention_forward(Tensor q, Tensor k, Tensor v, Tensor mask, float dropout, bool causal, float scale) -> (Tensor, Tensor, Tensor)");m.def("attention_backward(Tensor grad, Tensor q, Tensor k, Tensor v, Tensor mask, Tensor output, Tensor lse, float dropout, bool causal, float scale, Tensor state) -> (Tensor, Tensor, Tensor, Tensor)");}

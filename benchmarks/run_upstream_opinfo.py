@@ -77,10 +77,19 @@ def worker(args):
             op_token = name[len(family)+1:].split('_vulkan')[0]
             selected.append({'id': node, 'family': family, 'operator': op_names.get(op_token, op_token),
                              'dtype': name.split('_vulkan')[-1].lstrip('_') or 'test-defined'})
+    # HEAD alone does not identify an in-progress build. Preserve content hashes
+    # so intermediate sweeps cannot be mistaken for tests of the previous commit.
+    root = Path(__file__).resolve().parents[1]
+    source_files = sorted([root/'CMakeLists.txt'] + [p for folder in ('csrc', 'torch_vulkan')
+        for p in (root/folder).rglob('*') if p.suffix in ('.cpp', '.h', '.comp', '.spv', '.py', '.glsl')])
+    source_hashes = {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
     manifest = dict(torch=torch.__version__, torch_git=torch.version.git_version,
         backend_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         extension_sha256=hashlib.sha256(Path(vk._C.__file__).read_bytes()).hexdigest(),
         device=vk.device_name(), source_sha256=SOURCE_SHA256, opinfo_entries=len(op_db),
+        working_tree_dirty=bool(subprocess.check_output(['git','status','--porcelain'],text=True).strip()),
+        backend_source_sha256=hashlib.sha256(json.dumps(source_hashes,sort_keys=True).encode()).hexdigest(),
+        backend_source_files=source_hashes,
         bypass_device_restrictions=True, selected=selected, excluded=excluded)
     (args.out/'inventory.json').write_text(json.dumps(manifest,indent=2)+'\n')
     if args.collect: return

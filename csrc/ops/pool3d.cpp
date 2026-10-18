@@ -27,7 +27,7 @@ std::tuple<at::Tensor,at::Tensor> dispatch(const at::Tensor& input,const at::Ten
  auto shape=shape_input.sizes().vec();if(!p[20])for(int a=0;a<3;a++)shape[shape.size()-3+a]=p[4+a];auto out=at::empty(shape,input.options());auto arg=p[19]&&!p[20]?at::empty(shape,input.options().dtype(at::kLong)):at::Tensor();
  if(out.numel()){
   auto x=packed(input),idx=indices.defined()?packed(indices,at::kLong):at::Tensor();auto dummy=VulkanAllocator::instance().constant_float_buffer(2,0);
-  run("pool3d_general",{base(x),idx.defined()?base(idx,at::kLong):dummy},{base(out),arg.defined()?base(arg,at::kLong):dummy},p,(out.numel()+127)/128);
+  run("pool3d_general",{base(x),idx.defined()?base(idx,at::kLong):dummy},{write_base(out),arg.defined()?write_base(arg,at::kLong):dummy},p,(out.numel()+127)/128);
  }return {out,arg};
 }
 at::Tensor avg_forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> divisor){return std::get<0>(dispatch(x,x,{},parameters(x,k,s,p,{1},ceil,false,include,divisor,{},false)));}

@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {uint a[];};
+layout(binding=1) readonly buffer B {uint b[];};
+layout(binding=2) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,words,op;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;for(uint w=0;w<p.words;w++){uint pos=i*p.words+w;y[pos]=p.op==0?a[pos]&b[pos]:p.op==1?a[pos]|b[pos]:a[pos]^b[pos];}}

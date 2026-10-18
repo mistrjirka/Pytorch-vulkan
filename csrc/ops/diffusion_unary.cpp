@@ -20,7 +20,7 @@ bool eligible(const at::Tensor& x) {
 }
 
 at::Tensor cpu_unary(const at::Tensor& x,uint32_t op) {
-  auto a=x.cpu();
+  auto a=native::cpu_fallback_tensor(x,__func__);
   at::Tensor result;
   switch(op) {
     case 0: result=at::silu(a); break;
@@ -46,13 +46,13 @@ at::Tensor unary(const at::Tensor& x,uint32_t op) {
     push[3+d]=d<x.dim()?u32(x.size(d)):1;
     push[11+d]=d<x.dim()?u32(x.stride(d)):0;
   }
-  run("diffusion_unary",{base(x)},{base(out)},push,
+  run("diffusion_unary",{base(x)},{write_base(out)},push,
       (uint64_t(x.numel())+127)/128);
   return out;
 }
 
 at::Tensor cpu_backward(const at::Tensor& grad,const at::Tensor& x,uint32_t op) {
-  auto g=grad.cpu(),a=x.cpu();
+  auto g=native::cpu_fallback_tensor(grad,__func__),a=native::cpu_fallback_tensor(x,__func__);
   return (op==0?at::silu_backward(g,a):at::tanh_backward(g,a)).to(x.device());
 }
 
@@ -74,7 +74,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& x,uint32_t op) {
     push[20+d]=d<x.dim()?u32(x.stride(d)):0;
   }
   run("diffusion_unary_backward",{base(grad),base(x)},
-      {base(result)},push,(uint64_t(x.numel())+127)/128);
+      {write_base(result)},push,(uint64_t(x.numel())+127)/128);
   return result;
 }
 

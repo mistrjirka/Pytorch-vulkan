@@ -1,6 +1,7 @@
 #include "../execution_audit.h"
 #include "fft.h"
 #include "integer_ops.h"
+#include "device_copy.h"
 #include <ATen/Functions.h>
 #include <ATen/EmptyTensor.h>
 #include <ATen/MemoryOverlap.h>
@@ -68,7 +69,7 @@ static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
 // Helper: get existing Kompute tensor from a Vulkan PyTorch tensor (no copy!)
 static std::shared_ptr<kp::TensorT<float>> get_kp_tensor(const at::Tensor& t) {
   auto& alloc = VulkanAllocator::instance();
-  return alloc.get_kompute_tensor(t.data_ptr());
+  return alloc.get_kompute_tensor(const_cast<void*>(t.const_data_ptr()));
 }
 
 // Helper: sync a Vulkan tensor's host data to device
@@ -360,7 +361,7 @@ static std::optional<at::Tensor> cpu_scalar_binary(
   auto out=at::empty(tensor.sizes(),tensor.options());
   if(out.numel()) {
     auto input=native::packed(tensor);
-    native::run("scalar_binary",{native::base(input)},{native::base(out)},
+    native::run("scalar_binary",{native::base(input)},{native::write_base(out)},
         {native::u32(out.numel()),multiply?2u:(right?0u:1u),
          native::bits(scalar.item<float>()),native::bits(alpha)},(out.numel()+127)/128);
   }
@@ -442,10 +443,14 @@ at::Tensor vulkan_to_copy(
       if(target_dtype==self.scalar_type()){
         auto result=at::empty_like(self,self.options(),memory_format);result.copy_(self);return result;
       }
+      if(device_copy_supported(self.scalar_type())&&device_copy_supported(target_dtype)){
+        auto result=at::empty_like(self,self.options().dtype(target_dtype),memory_format);
+        copy_on_device(result,self);return result;
+      }
       if(self.scalar_type()==at::kBool&&target_dtype==at::kFloat){
         auto result=at::empty_like(self,self.options().dtype(at::kFloat),memory_format);
         if(self.numel()){auto input=native::packed(self,at::kBool);auto output=result.is_contiguous()?result:at::empty(self.sizes(),result.options());
-          native::run("bool_to_float",{native::base(input,at::kBool)},{native::base(output)},{native::u32(self.numel())},(self.numel()+127)/128);
+          native::run("bool_to_float",{native::base(input,at::kBool)},{native::write_base(output)},{native::u32(self.numel())},(self.numel()+127)/128);
           if(!result.is_contiguous())result.copy_(output);
         }return result;
       }
@@ -473,10 +478,12 @@ at::Tensor vulkan_to_copy(
 // copy_ — in-place copy
 at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_blocking) {
   if(self.device()==src.device() && self.scalar_type()==src.scalar_type() &&
-     self.data_ptr()==src.data_ptr() && self.sizes()==src.sizes() && self.strides()==src.strides() && self.is_conj()==src.is_conj() && self.is_neg()==src.is_neg())return self;
+     self.const_data_ptr()==src.const_data_ptr() && self.sizes()==src.sizes() && self.strides()==src.strides() && self.is_conj()==src.is_conj() && self.is_neg()==src.is_neg())return self;
   // Check aliases before host mirrors wrap the same bytes in separate storages.
   at::assert_no_internal_overlap(self);
   at::assert_no_partial_overlap(self,src);
+  if(self.numel())self.mutable_data_ptr();
+  if(copy_on_device(self,src))return self;
   if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device()==self.device()&&self.scalar_type()==at::kFloat&&src.scalar_type()==at::kBool){
     auto converted=vulkan_to_copy(src,at::kFloat,std::nullopt,std::nullopt,std::nullopt,false,std::nullopt);
     return vulkan_copy_(self,converted,non_blocking);
@@ -499,7 +506,7 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
       p[2]=native::u32(input.storage_offset());p[3]=native::u32(self.storage_offset());
       std::fill(p.begin()+4,p.begin()+12,1);
       for(int d=0;d<self.dim();d++){p[4+d]=native::u32(self.size(d));p[12+d]=native::u32(input.stride(d));p[20+d]=native::u32(self.stride(d));}
-      native::run("native_copy_strided",{native::base(input,input.scalar_type()),native::base(self,self.scalar_type())},{native::base(self,self.scalar_type())},p,(self.numel()+127)/128);
+      native::run("native_copy_strided",{native::base(input,input.scalar_type()),native::base(self,self.scalar_type())},{native::write_base(self,self.scalar_type())},p,(self.numel()+127)/128);
       return self;
     }
   }
@@ -524,7 +531,7 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
         const auto dtype=input.scalar_type();
         native::run(dtype==at::kBool?"native_pack_bool":dtype==at::kLong?"native_pack_int64":
                         dtype==at::kInt?"native_pack_int32":"native_pack",
-            {native::base(input,dtype)},{native::base(self,dtype)},p,
+            {native::base(input,dtype)},{native::write_base(self,dtype)},p,
             (input.numel()+(dtype==at::kBool?511:127))/(dtype==at::kBool?512:128));
         return self;
       }
@@ -603,7 +610,7 @@ at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_floa
   const int64_t axis=dim<0 ? dim+rank : dim;
   TORCH_CHECK(axis>=0 && axis<rank,"Vulkan softmax: dimension out of range");
   if(!native::can_pack_view(self))
-    return at::_softmax(self.cpu(),dim,half_to_float).to(self.device());
+    return at::_softmax(native::cpu_fallback_tensor(self,__func__),dim,half_to_float).to(self.device());
   auto output=at::empty(self.sizes(),self.options());
   if(!self.numel())return output;
   const int64_t axis_size=self.dim()?self.size(axis):1;
@@ -615,7 +622,7 @@ at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_floa
   TORCH_CHECK(outer*inner*uint64_t(axis_size)<=UINT32_MAX,
               "Vulkan softmax: indexing exceeds uint32");
   const auto input=native::packed(self);
-  native::run("softmax_axis",{native::base(input)},{native::base(output)},
+  native::run("softmax_axis",{native::base(input)},{native::write_base(output)},
       {native::u32(outer),native::u32(axis_size),native::u32(inner)},outer*inner,512);
   return output;
 }
@@ -726,18 +733,18 @@ at::Tensor vulkan_embedding(const at::Tensor& weight, const at::Tensor& indices,
   if (!indices.numel()) return output;
   if (!native::can_pack_view(weight) || !native::can_pack_view(indices) ||
       output.numel()>UINT32_MAX || output.nbytes()>native::device_limits().maxStorageBufferRange)
-    return at::embedding(weight.cpu(),indices.cpu(),padding_idx,scale_grad_by_freq,sparse).to(weight.device());
+    return at::embedding(native::cpu_fallback_tensor(weight,__func__),native::cpu_fallback_tensor(indices,__func__),padding_idx,scale_grad_by_freq,sparse).to(weight.device());
   auto idx=native::packed(indices,indices.scalar_type());
   const uint32_t words=indices.scalar_type()==at::kLong?2:1;
   const uint32_t groups=std::min<int64_t>(256,(idx.numel()+4095)/4096);
   auto invalid=at::empty({groups},weight.options());
-  native::run("embedding_validate",{native::base(idx,idx.scalar_type())},{native::base(invalid)},
+  native::run("embedding_validate",{native::base(idx,idx.scalar_type())},{native::write_base(invalid)},
       {native::u32(idx.numel()),native::u32(weight.size(0)),words},groups,512);
   auto status=groups==1?invalid:invalid.sum();
   TORCH_CHECK_INDEX(status.cpu().item<float>()==0, "embedding: index out of range in self");
   if (!output.numel()) return output;
   auto w=native::packed(weight);
-  native::run("embedding",{native::base(w),native::base(idx,idx.scalar_type())},{native::base(output)},
+  native::run("embedding",{native::base(w),native::base(idx,idx.scalar_type())},{native::write_base(output)},
       {native::u32(output.numel()),native::u32(weight.size(1)),words},(output.numel()+127)/128);
   return output;
 }
@@ -799,6 +806,17 @@ at::Tensor vulkan_addmm(
     const at::Scalar& beta,
     const at::Scalar& alpha) {
 
+  TORCH_CHECK(mat1.dim()==2 && mat2.dim()==2, "addmm: mat1 and mat2 must be matrices");
+  TORCH_CHECK(mat1.size(1)==mat2.size(0), "addmm: matrix shapes cannot be multiplied");
+  TORCH_CHECK(self.device()==mat1.device() && self.device()==mat2.device(),
+              "addmm: all tensors must be on the same device");
+  TORCH_CHECK(self.scalar_type()==mat1.scalar_type() && self.scalar_type()==mat2.scalar_type(),
+              "addmm: all tensors must have the same dtype");
+  const std::vector<int64_t> shape={mat1.size(0),mat2.size(1)};
+  const auto bias=self.expand(shape); // Validate broadcasting even when beta is zero.
+  if(!mat1.size(0) || !mat2.size(1))return at::empty(shape,mat1.options());
+  if(!mat1.size(1))return beta.toFloat()==0 ? at::zeros(shape,mat1.options()) : mul_scalar(bias,beta);
+
   // Set TORCH_VULKAN_FUSE_ADDMM=0 for controlled A/B comparisons.
   const auto* fuse_flag=std::getenv("TORCH_VULKAN_FUSE_ADDMM");
   const bool fuse_bias=!(fuse_flag && std::strcmp(fuse_flag,"0")==0);
@@ -812,18 +830,10 @@ at::Tensor vulkan_addmm(
     return addmm_bias_vulkan(self,mat1,mat2,beta.toFloat(),alpha.toFloat());
 
   auto product = torch_vulkan::ops::mm(mat1, mat2);
-
-  if (alpha.toFloat() != 1.0f) {
-    auto alpha_t = at::full({1}, alpha.toFloat(), product.options());
-    product = mul_tensor(product, contiguous_for_kernel(alpha_t.expand_as(product)));
-  }
-
-  auto bias = self;
-  if (self.dim() == 1) {
-    bias = contiguous_for_kernel(self.unsqueeze(0).expand_as(product));
-  }
-
-  return add_tensor(bias, product, beta);
+  if (alpha.toFloat()!=1.0f) product=mul_scalar(product,alpha);
+  // beta == 0 must not propagate NaN/Inf from the ignored bias.
+  if (beta.toFloat()==0.0f) return product;
+  return add_tensor(product, bias, beta);
 }
 
 
@@ -891,7 +901,8 @@ static at::Tensor vulkan_view(const at::Tensor& tensor,
 
 // aten::t — matrix transpose (2D only)
 at::Tensor vulkan_t(const at::Tensor& self) {
-  TORCH_CHECK(self.dim() == 2, "t: only 2D tensors");
+  TORCH_CHECK(self.dim() <= 2, "t() expects a tensor with <= 2 dimensions, but self is ", self.dim(), "D");
+  if(self.dim()<2)return alias_with_strides(self,self.sym_sizes(),self.sym_strides(),self.sym_storage_offset());
   // This is a true PyTorch view; no CPU memory traversal or GPU transfer.
   const std::vector<c10::SymInt> shape = {self.sym_size(1), self.sym_size(0)};
   const std::vector<c10::SymInt> stride = {self.sym_stride(1), self.sym_stride(0)};

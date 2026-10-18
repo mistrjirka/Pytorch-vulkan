@@ -42,15 +42,15 @@ void dispatch(const at::Tensor& x,const at::Tensor& out,const at::Scalar& value,
     p[20]=uint32_t(delta);p[21]=uint32_t(delta>>32);
   } else { p[20]=bits(value.toFloat());p[21]=bits(alpha.toFloat()); }
   run(integer?"scalar_add_int64":"scalar_add_float",{base(x,x.scalar_type())},
-      {base(out,out.scalar_type())},p,(x.numel()+127)/128);
+      {write_base(out,out.scalar_type())},p,(x.numel()+127)/128);
 }
 at::Tensor add_scalar(const at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {
-  if(!supported(x,value,false))return at::add(x.cpu(),value,alpha).to(x.device());
+  if(!supported(x,value,false))return at::add(native::cpu_fallback_tensor(x,__func__),value,alpha).to(x.device());
   auto out=at::empty(x.sizes(),x.options());dispatch(x,out,value,alpha,false);return out;
 }
 at::Tensor& add_scalar_(at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {
   if(!supported(x,value,true)) {
-    auto cpu=x.cpu();cpu.add_(value,alpha);x.copy_(cpu);return x;
+    auto cpu=native::cpu_fallback_tensor(x,__func__);cpu.add_(value,alpha);x.copy_(cpu);return x;
   }
   dispatch(x,x,value,alpha,true);return x;
 }
@@ -120,11 +120,11 @@ at::Tensor& add_tensor_(at::Tensor& x,const at::Tensor& other,const at::Scalar& 
     // before its own write. Ambiguous different mappings retain the CPU path.
     const bool shared=x.storage().is_alias_of(other.storage());
     if(!shared || same_mapping || at::get_overlap_status(x,other)==at::MemOverlapStatus::No) {
-      if(x.numel())run("tensor_add_inplace",{base(x),base(other)},{base(x)},p,(x.numel()+127)/128);
+      if(x.numel())run("tensor_add_inplace",{base(x),base(other)},{write_base(x)},p,(x.numel()+127)/128);
       return x;
     }
   }
-  auto cpu=x.cpu();cpu.add_(other.cpu(),alpha);x.copy_(cpu);return x;
+  auto cpu=native::cpu_fallback_tensor(x,__func__);cpu.add_(native::cpu_fallback_tensor(other,__func__),alpha);x.copy_(cpu);return x;
 }
 } // namespace
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {

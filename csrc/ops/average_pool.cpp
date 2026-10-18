@@ -26,22 +26,22 @@ std::vector<uint32_t> params(const at::Tensor& x,at::IntArrayRef kernel,at::IntA
 }
 at::Tensor dispatch(const at::Tensor& input,const at::Tensor& shape_input,const std::vector<uint32_t>& p){
  auto shape=shape_input.sizes().vec();if(!p[12]){shape[shape.size()-2]=p[3];shape.back()=p[4];}
- auto out=at::empty(shape,input.options());if(out.numel()){auto x=packed(input);run("average_pool2d",{base(x)},{base(out)},p,p[14]?out.numel():(out.numel()+127)/128,512);}return out;
+ auto out=at::empty(shape,input.options());if(out.numel()){auto x=packed(input);run("average_pool2d",{base(x)},{write_base(out)},p,p[14]?out.numel():(out.numel()+127)/128,512);}return out;
 }
 at::Tensor forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> d){
- if(x.scalar_type()!=at::kFloat||!can_pack_view(x))return at::avg_pool2d(x.cpu(),k,s,p,ceil,include,d).to(x.device());
+ if(x.scalar_type()!=at::kFloat||!can_pack_view(x))return at::avg_pool2d(native::cpu_fallback_tensor(x,__func__),k,s,p,ceil,include,d).to(x.device());
  return dispatch(x,x,params(x,k,s,p,ceil,include,d,{},false,false));
 }
 at::Tensor backward(const at::Tensor& g,const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> d){
- if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::avg_pool2d_backward(g.cpu(),x.cpu(),k,s,p,ceil,include,d).to(x.device());
+ if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::avg_pool2d_backward(native::cpu_fallback_tensor(g,__func__),native::cpu_fallback_tensor(x,__func__),k,s,p,ceil,include,d).to(x.device());
  auto q=params(x,k,s,p,ceil,include,d,{},false,true);auto shape=x.sizes().vec();shape[shape.size()-2]=q[3];shape.back()=q[4];TORCH_CHECK(g.device()==x.device()&&g.sizes()==at::IntArrayRef(shape),"Vulkan pooling gradient mismatch");return dispatch(g,x,q);
 }
 at::Tensor adaptive_forward(const at::Tensor& x,at::IntArrayRef size){
- if(x.scalar_type()!=at::kFloat||!can_pack_view(x)||(size.size()==2&&(size[0]==0||size[1]==0)))return at::_adaptive_avg_pool2d(x.cpu(),size).to(x.device());
+ if(x.scalar_type()!=at::kFloat||!can_pack_view(x)||(size.size()==2&&(size[0]==0||size[1]==0)))return at::_adaptive_avg_pool2d(native::cpu_fallback_tensor(x,__func__),size).to(x.device());
  return dispatch(x,x,params(x,{},{},{},false,false,{},size,true,false));
 }
 at::Tensor adaptive_backward(const at::Tensor& g,const at::Tensor& x){
- if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::_adaptive_avg_pool2d_backward(g.cpu(),x.cpu()).to(x.device());
+ if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::_adaptive_avg_pool2d_backward(native::cpu_fallback_tensor(g,__func__),native::cpu_fallback_tensor(x,__func__)).to(x.device());
  TORCH_CHECK(g.dim()==x.dim()&&g.device()==x.device()&&g.size(-3)==x.size(-3)&&(x.dim()==3||g.size(0)==x.size(0)),"Vulkan adaptive pooling gradient mismatch");
  return dispatch(g,x,params(x,{},{},{},false,false,{},g.sizes().slice(g.dim()-2),true,true));
 }

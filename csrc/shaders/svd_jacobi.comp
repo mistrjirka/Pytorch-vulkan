@@ -1,0 +1,47 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) buffer Z {float z[];};
+layout(binding=2) buffer V {float v[];};
+layout(binding=3) writeonly buffer U {float u[];};
+layout(binding=4) buffer S {float s[];};
+layout(binding=5) writeonly buffer VH {float vh[];};
+layout(binding=6) buffer Status {uint status;};
+layout(push_constant) uniform P {uint m,n,k,l,qcols,full,uv;}p;
+void main(){if(gl_LocalInvocationID.x!=0)return;uint batch=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+ uint ab=batch*p.m*p.n,zb=batch*p.l*p.qcols,vb=batch*p.k*p.k,sb=batch*p.k;
+ float scale=0;for(uint i=0;i<p.m*p.n;i++){float val=a[ab+i];if(isnan(val)||isinf(val)){atomicOr(status,1);return;}scale=max(scale,abs(val));}
+ for(uint i=0;i<p.l;i++)for(uint j=0;j<p.k;j++)z[zb+i*p.qcols+j]=scale==0?0:a[ab+(p.m>=p.n?i*p.n+j:j*p.n+i)]/scale;
+ for(uint i=0;i<p.k;i++)for(uint j=0;j<p.k;j++)v[vb+i*p.k+j]=float(i==j);
+ bool converged=false;
+ for(uint sweep=0;sweep<128;sweep++){bool changed=false;
+  for(uint c=0;c<p.k;c++)for(uint d=c+1;d<p.k;d++){
+   float aa=0,bb=0,abdot=0;for(uint i=0;i<p.l;i++){float x=z[zb+i*p.qcols+c],y=z[zb+i*p.qcols+d];aa+=x*x;bb+=y*y;abdot+=x*y;}
+   if(abs(abdot)<=1e-6*sqrt(aa)*sqrt(bb)||aa==0||bb==0)continue;changed=true;
+   float theta=(bb-aa)/(2*abdot);float t=abs(theta)>1e10?abdot/(bb-aa):(theta>=0?1.0:-1.0)/(abs(theta)+sqrt(1+theta*theta));float cs=inversesqrt(1+t*t),sn=cs*t;
+   for(uint i=0;i<p.l;i++){float x=z[zb+i*p.qcols+c],y=z[zb+i*p.qcols+d];z[zb+i*p.qcols+c]=cs*x-sn*y;z[zb+i*p.qcols+d]=sn*x+cs*y;}
+   for(uint i=0;i<p.k;i++){float x=v[vb+i*p.k+c],y=v[vb+i*p.k+d];v[vb+i*p.k+c]=cs*x-sn*y;v[vb+i*p.k+d]=sn*x+cs*y;}
+  }
+  if(!changed){converged=true;break;}
+ }
+ if(!converged){atomicOr(status,2);return;}
+ for(uint c=0;c<p.k;c++){float norm=0;for(uint i=0;i<p.l;i++){float val=z[zb+i*p.qcols+c];norm+=val*val;}s[sb+c]=sqrt(norm);}
+ for(uint c=0;c<p.k;c++){uint best=c;for(uint j=c+1;j<p.k;j++)if(s[sb+j]>s[sb+best])best=j;
+  if(best!=c){float tmp=s[sb+c];s[sb+c]=s[sb+best];s[sb+best]=tmp;
+   for(uint i=0;i<p.l;i++){tmp=z[zb+i*p.qcols+c];z[zb+i*p.qcols+c]=z[zb+i*p.qcols+best];z[zb+i*p.qcols+best]=tmp;}
+   for(uint i=0;i<p.k;i++){tmp=v[vb+i*p.k+c];v[vb+i*p.k+c]=v[vb+i*p.k+best];v[vb+i*p.k+best]=tmp;}
+  }
+ }
+ if(p.uv!=0){
+  for(uint c=0;c<p.qcols;c++){
+   if(c<p.k&&s[sb+c]>1e-20){for(uint i=0;i<p.l;i++)z[zb+i*p.qcols+c]/=s[sb+c];}
+   else {uint axis=0;float best=-1;for(uint i=0;i<p.l;i++){float residual=1;for(uint j=0;j<c;j++){float q=z[zb+i*p.qcols+j];residual-=q*q;}if(residual>best){best=residual;axis=i;}}for(uint i=0;i<p.l;i++)z[zb+i*p.qcols+c]=float(i==axis);}
+   for(uint pass=0;pass<2;pass++)for(uint j=0;j<c;j++){float proj=0;for(uint i=0;i<p.l;i++)proj+=z[zb+i*p.qcols+j]*z[zb+i*p.qcols+c];for(uint i=0;i<p.l;i++)z[zb+i*p.qcols+c]-=proj*z[zb+i*p.qcols+j];}
+   float norm=0;for(uint i=0;i<p.l;i++){float q=z[zb+i*p.qcols+c];norm+=q*q;}float inv=inversesqrt(norm);for(uint i=0;i<p.l;i++)z[zb+i*p.qcols+c]*=inv;
+  }
+  uint uc=p.full!=0?p.m:p.k,vr=p.full!=0?p.n:p.k;
+  for(uint i=0;i<p.m;i++)for(uint j=0;j<uc;j++)u[batch*p.m*uc+i*uc+j]=p.m>=p.n?z[zb+i*p.qcols+j]:v[vb+i*p.k+j];
+  for(uint i=0;i<vr;i++)for(uint j=0;j<p.n;j++)vh[batch*vr*p.n+i*p.n+j]=p.m>=p.n?v[vb+j*p.k+i]:z[zb+j*p.qcols+i];
+ }
+ for(uint c=0;c<p.k;c++)s[sb+c]*=scale;
+}

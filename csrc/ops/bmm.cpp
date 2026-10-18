@@ -31,7 +31,7 @@ at::Tensor bmm(const at::Tensor& a,const at::Tensor& b) {
      (uint64_t(m)+15)/16<=l.maxComputeWorkGroupCount[1] &&
      (uint64_t(n)+15)/16<=l.maxComputeWorkGroupCount[0] &&
      uint64_t(batch)*uint64_t(m)*uint64_t(n)<=UINT32_MAX;
-  if(!can_dispatch)return at::bmm(a.cpu(),b.cpu()).to(a.device());
+  if(!can_dispatch)return at::bmm(native::cpu_fallback_tensor(a,__func__),native::cpu_fallback_tensor(b,__func__)).to(a.device());
 
   auto out=at::empty({batch,m,n},a.options());
   if(k==0) {

@@ -1,5 +1,6 @@
 #pragma once
 #include "../vulkan_context.h"
+#include "../execution_audit.h"
 #include "../vulkan_allocator.h"
 #include <ATen/Functions.h>
 #include <algorithm>
@@ -13,6 +14,14 @@ inline bool batch_norm_resize_enabled() {
   const char* flag=std::getenv("TORCH_VULKAN_DISABLE_BN_RESIZE");
   return !flag || std::strcmp(flag,"1")!=0;
 }
+// Inline CPU implementations must obey the same strict gate as dispatcher fallback.
+// Explicit user transfers and scalar validation/status downloads do not use this.
+inline at::Tensor cpu_fallback_tensor(const at::Tensor& t,const char* operation) {
+  audit::fallback_calls.fetch_add(1);
+  TORCH_CHECK(!std::getenv("TORCH_VULKAN_FORBID_CPU_FALLBACK"),
+              "CPU fallback forbidden: Vulkan inline::",operation);
+  return t.cpu();
+}
 using Buffer = std::shared_ptr<kp::Tensor>;
 inline uint32_t u32(int64_t v) {
   TORCH_CHECK(v>=0 && v<=UINT32_MAX,"Vulkan native operator indexing exceeds uint32");
@@ -23,6 +32,11 @@ inline Buffer base(const at::Tensor& t,at::ScalarType dtype=at::kFloat) {
   TORCH_CHECK(t.device().type()==c10::DeviceType::PrivateUse1 && t.scalar_type()==dtype,
               "Vulkan native operator tensor device/dtype mismatch");
   return VulkanAllocator::instance().get_kompute_tensor(t.storage().data_ptr().get());
+}
+// Mutable access triggers PyTorch copy-on-write before a shader can write.
+inline Buffer write_base(const at::Tensor& t,at::ScalarType dtype=at::kFloat) {
+  t.mutable_data_ptr();
+  return base(t,dtype);
 }
 // A process selects one physical device before constructing VulkanContext.
 // Its immutable limits can be shared by all native operators and dispatches.
@@ -63,6 +77,7 @@ inline bool can_pack_view(const at::Tensor& src) {
      (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong && src.scalar_type()!=at::kInt && src.scalar_type()!=at::kComplexFloat && src.scalar_type()!=at::kBool) ||
      src.dim()>8 || src.numel()>UINT32_MAX || src.storage_offset()<0 ||
      uint64_t(src.storage_offset())>UINT32_MAX) return false;
+  if(!src.numel())return true;
   const auto& limits=device_limits();
   if(src.storage().nbytes()>limits.maxStorageBufferRange ||
      limits.maxComputeWorkGroupInvocations<128 || limits.maxComputeWorkGroupSize[0]<128 ||
@@ -81,7 +96,10 @@ inline bool can_pack_view(const at::Tensor& src) {
 }
 inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
   TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kComplexFloat || dtype==at::kBool,"Vulkan native packing supports FP32/complex64/int32/int64/bool");
-  base(src,dtype); // Validate device and dtype even on the no-copy path.
+  TORCH_CHECK(src.device().type()==c10::DeviceType::PrivateUse1 && src.scalar_type()==dtype,
+              "Vulkan native operator tensor device/dtype mismatch");
+  if(!src.numel())return at::empty(src.sizes(),src.options());
+  base(src,dtype);
   if(src.is_contiguous() && src.storage_offset()==0) return src;
   TORCH_CHECK(src.dim()<=8,"Vulkan native packing supports at most 8 dimensions");
   std::vector<uint32_t> p(18,0); p[0]=u32(src.numel());p[1]=u32(src.storage_offset());

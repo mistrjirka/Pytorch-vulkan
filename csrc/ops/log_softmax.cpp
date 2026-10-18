@@ -41,7 +41,7 @@ static at::Tensor log_softmax_native(const at::Tensor& input,
   const auto cols=static_cast<uint32_t>(input.size(-1));
   auto result=at::empty(input.sizes(),input.options());
   auto& alloc=VulkanAllocator::instance();
-  auto src=alloc.get_kompute_tensor(input.data_ptr());
+  auto src=alloc.get_kompute_tensor(const_cast<void*>(input.const_data_ptr()));
   auto dst=alloc.get_kompute_tensor(result.data_ptr());
   auto& ctx=VulkanContext::instance();
   auto algo=ctx.get_or_create_algorithm("log_softmax",
@@ -69,8 +69,8 @@ static at::Tensor log_softmax_backward_native(
   const auto cols=static_cast<uint32_t>(output.size(-1));
   auto result=at::empty(output.sizes(),output.options());
   auto& alloc=VulkanAllocator::instance();
-  auto grad=alloc.get_kompute_tensor(grad_output.data_ptr());
-  auto logp=alloc.get_kompute_tensor(output.data_ptr());
+  auto grad=alloc.get_kompute_tensor(const_cast<void*>(grad_output.const_data_ptr()));
+  auto logp=alloc.get_kompute_tensor(const_cast<void*>(output.const_data_ptr()));
   auto dst=alloc.get_kompute_tensor(result.data_ptr());
   auto& ctx=VulkanContext::instance();
   auto algo=ctx.get_or_create_algorithm("log_softmax_backward",

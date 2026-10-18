@@ -69,7 +69,7 @@ void dispatch(const at::Tensor& x,const at::Tensor* grad,const at::Scalar& slope
   const bool partial=!out.is_contiguous() || out.storage_offset()!=0 ||
       out.storage().nbytes()!=uint64_t(out.numel())*sizeof(float);
   run("leaky_relu_native",{base(input),base(gradient),partial?base(out):base(input)},
-      {base(out)},p,(out.numel()+127)/128);
+      {write_base(out)},p,(out.numel()+127)/128);
 }
 at::Tensor forward(const at::Tensor& x,const at::Scalar& slope) {
   if(!supported(x))return Fallback<at::_ops::leaky_relu>::call(x,slope);

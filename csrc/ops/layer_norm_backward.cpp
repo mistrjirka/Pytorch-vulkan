@@ -14,7 +14,7 @@ static at::Tensor contiguous_for_native_layer_norm(const at::Tensor& src) {
   if (src.is_contiguous() && src.storage_offset() == 0) return src;
   // Pack readable views on GPU without introducing a host boundary.
   if(native::can_pack_view(src))return native::packed(src);
-  return src.cpu().contiguous().to(src.device());
+  return native::cpu_fallback_tensor(src,__func__).contiguous().to(src.device());
 }
 
 static TensorBuffer buffer(const at::Tensor& t) {
@@ -22,7 +22,7 @@ static TensorBuffer buffer(const at::Tensor& t) {
               t.scalar_type() == at::kFloat && t.is_contiguous() &&
               t.storage_offset() == 0,
               "Vulkan layer_norm_backward requires contiguous FP32 Vulkan tensors");
-  return VulkanAllocator::instance().get_kompute_tensor(t.data_ptr());
+  return VulkanAllocator::instance().get_kompute_tensor(const_cast<void*>(t.const_data_ptr()));
 }
 static void dispatch(const std::string& shader,
                      const std::vector<TensorBuffer>& inputs,

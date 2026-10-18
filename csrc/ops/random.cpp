@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "device_copy.h"
 #include "../vulkan_generator.h"
 #include <ATen/MemoryOverlap.h>
 #include <torch/library.h>
@@ -15,9 +16,17 @@ at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const st
  auto probability=probs.defined()?base(probs):VulkanAllocator::instance().constant_float_buffer(1,0);
  bool partial=out.storage_offset()!=0||!out.is_contiguous()||out.storage().nbytes()!=uint64_t(out.numel())*out.element_size();
  auto previous=partial?base(out):VulkanAllocator::instance().constant_float_buffer(1,0);
- run("random_fill",{probability,previous},{base(out)},p,(out.numel()+127)/128);return out;
+ run("random_fill",{probability,previous},{write_base(out)},p,(out.numel()+127)/128);return out;
 }
 at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> to,std::optional<at::Generator> generator){
+ if(out.scalar_type()==at::kBool||out.scalar_type()==at::kFloat){
+  at::assert_no_internal_overlap(out);
+  if(out.scalar_type()==at::kBool){TORCH_CHECK(from>=0&&from<=1,"from is out of bounds for bool");TORCH_CHECK(!to||(*to>=1&&*to<=2),"to - 1 is out of bounds for bool");}
+  auto upper=to;
+  if(!upper && !(out.scalar_type()==at::kFloat&&from==INT64_MIN))upper=out.scalar_type()==at::kBool?2:16777217;
+  auto integers=at::empty(out.sizes(),out.options().dtype(at::kLong));
+  integer_random(integers,from,upper,generator);copy_on_device(out,integers);return out;
+ }
  TORCH_CHECK((out.scalar_type()==at::kInt||out.scalar_type()==at::kLong)&&can_pack_view(out),"Vulkan integer RNG supports int32/int64 output");at::assert_no_internal_overlap(out);
  __int128 upper=to?__int128(*to):(out.scalar_type()==at::kInt?__int128(INT32_MAX)+1:__int128(INT64_MAX)+1);
  TORCH_CHECK(upper>from,"random_ expects from < to");if(out.scalar_type()==at::kInt)TORCH_CHECK(from>=INT32_MIN&&upper<=__int128(INT32_MAX)+1,"random range exceeds int32");
@@ -25,7 +34,7 @@ at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> t
  uint64_t span=uint64_t(range),bitsmask=uint64_t(mask),first=uint64_t(from);auto state=random_state(generator,out.numel());
  std::vector<uint32_t> p={u32(out.numel()),uint32_t(out.element_size()/4),u32(out.storage_offset()),state[0],state[1],state[2],state[3],uint32_t(first),uint32_t(first>>32),uint32_t(span),uint32_t(span>>32),uint32_t(bitsmask),uint32_t(bitsmask>>32)};p.resize(29,0);std::fill(p.begin()+13,p.begin()+21,1);for(int d=0;d<out.dim();d++){p[13+d]=u32(out.size(d));p[21+d]=u32(out.stride(d));}
  bool partial=out.storage_offset()!=0||!out.is_contiguous()||out.storage().nbytes()!=uint64_t(out.numel())*out.element_size();auto previous=partial?base(out,out.scalar_type()):VulkanAllocator::instance().constant_float_buffer(1,0);
- run("random_integer",{previous},{base(out,out.scalar_type())},p,(out.numel()+127)/128);return out;
+ run("random_integer",{previous},{write_base(out,out.scalar_type())},p,(out.numel()+127)/128);return out;
 }
 at::Tensor& integer_random_to(at::Tensor& out,int64_t to,std::optional<at::Generator> generator){return integer_random(out,0,to,generator);}
 at::Tensor& integer_random_default(at::Tensor& out,std::optional<at::Generator> generator){return integer_random(out,0,std::nullopt,generator);}
@@ -41,12 +50,12 @@ std::tuple<at::Tensor,at::Tensor> dropout(const at::Tensor& x,double p,std::opti
  TORCH_CHECK(p>=0&&p<=1,"dropout probability must be in [0,1]");TORCH_CHECK(x.scalar_type()==at::kFloat&&can_pack_view(x),"Vulkan dropout requires packable FP32 input");
  auto y=at::empty(x.sizes(),x.options()),mask=at::empty(x.sizes(),x.options().dtype(at::kBool));if(!x.numel())return {y,mask};
  double keep=train.value_or(true)?1-p:1;auto state=keep>0&&keep<1?random_state(std::nullopt,(x.numel()+3)/4):std::array<uint32_t,4>{};
- auto a=packed(x);run("dropout",{base(a)},{base(y),base(mask,at::kBool)},
+ auto a=packed(x);run("dropout",{base(a)},{write_base(y),write_base(mask,at::kBool)},
   {u32(x.numel()),bits(float(keep)),state[0],state[1],state[2],state[3]},(x.numel()+511)/512);return {y,mask};
 }
 at::Tensor dropout_backward(const at::Tensor& grad,const at::Tensor& mask,double scale){
  TORCH_CHECK(grad.sizes()==mask.sizes()&&grad.device()==mask.device()&&grad.scalar_type()==at::kFloat&&mask.scalar_type()==at::kBool&&can_pack_view(grad)&&can_pack_view(mask),"dropout backward: invalid tensors");
- auto out=at::empty(grad.sizes(),grad.options());if(out.numel())run("dropout_backward",{base(packed(grad)),base(packed(mask,at::kBool),at::kBool)},{base(out)},{u32(out.numel()),bits(float(scale))},(out.numel()+127)/128);return out;
+ auto out=at::empty(grad.sizes(),grad.options());if(out.numel())run("dropout_backward",{base(packed(grad)),base(packed(mask,at::kBool),at::kBool)},{write_base(out)},{u32(out.numel()),bits(float(scale))},(out.numel()+127)/128);return out;
 }
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("random_.from",&integer_random);m.impl("random_.to",&integer_random_to);m.impl("random_",&integer_random_default);m.impl("uniform_",&uniform);m.impl("normal_",&normal);m.impl("bernoulli_.float",&bernoulli_scalar);m.impl("bernoulli_.Tensor",&bernoulli_tensor);m.impl("bernoulli",&bernoulli);m.impl("native_dropout",&dropout);m.impl("native_dropout_backward",&dropout_backward);}

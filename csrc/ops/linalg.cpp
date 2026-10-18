@@ -22,7 +22,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> lu_factor(const at::Tensor& a,bool 
  auto piv=at::empty(pivshape,a.options().dtype(at::kInt)),info=at::empty(batch,a.options().dtype(at::kInt));
  if(!info.numel())return {lu,piv,info};
  if(!k){info.zero_();return {lu,piv,info};}
- run("lu_factor",{base(packed(a))},{base(lu),base(piv,at::kInt),base(info,at::kInt)},
+ run("lu_factor",{base(packed(a))},{write_base(lu),write_base(piv,at::kInt),write_base(info,at::kInt)},
   {u32(info.numel()),u32(m),u32(n),uint32_t(pivot)},info.numel(),8);
  if(check_errors)check_info(info,"torch.linalg.lu_factor_ex",a.dim()==2);return {lu,piv,info};
 }
@@ -33,8 +33,8 @@ at::Tensor lu_solve(const at::Tensor& lu,const at::Tensor& piv,const at::Tensor&
  auto rhs=left?b:b.transpose(-2,-1);auto lb=lu.sizes().slice(0,lu.dim()-2),bb=rhs.sizes().slice(0,rhs.dim()-2);auto shape=at::infer_size_dimvector(lb,bb);auto ls=shape,ps=shape,bs=shape;ls.push_back(n);ls.push_back(n);ps.push_back(n);bs.push_back(n);bs.push_back(rhs.size(-1));
  auto out=at::empty(bs,b.options());if(!out.numel())return left?out:out.transpose(-2,-1);
  auto l=packed(lu.expand(ls)),p=packed(piv.expand(ps),at::kInt),r=packed(rhs.expand(bs));int64_t cols=rhs.size(-1),batch=out.numel()/(n*cols);
- auto flags=at::empty({std::min<int64_t>(256,(p.numel()+4095)/4096)},lu.options());run("lu_validate",{base(p,at::kInt)},{base(flags)},{u32(p.numel()),u32(n)},flags.numel(),4);TORCH_CHECK((flags.numel()==1?flags:flags.sum()).cpu().item<float>()==0,"LU pivot index out of range");
- run("lu_solve",{base(l),base(p,at::kInt),base(r)},{base(out)},
+ auto flags=at::empty({std::min<int64_t>(256,(p.numel()+4095)/4096)},lu.options());run("lu_validate",{base(p,at::kInt)},{write_base(flags)},{u32(p.numel()),u32(n)},flags.numel(),4);TORCH_CHECK((flags.numel()==1?flags:flags.sum()).cpu().item<float>()==0,"LU pivot index out of range");
+ run("lu_solve",{base(l),base(p,at::kInt),base(r)},{write_base(out)},
   {u32(batch),u32(n),u32(cols),uint32_t(left?adjoint:!adjoint)},(batch*cols+127)/128);
  return left?out:out.transpose(-2,-1);
 }

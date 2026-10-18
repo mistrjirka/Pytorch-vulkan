@@ -1,0 +1,13 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "philox.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) buffer Y {uvec2 y[];};
+layout(push_constant) uniform P {uint count,seedlo,seedhi,offsetlo,offsethi;}p;
+void main(){if(gl_LocalInvocationID.x!=0)return;
+ for(uint i=0;i<p.count;i++)y[i]=uvec2(i,0);
+ for(uint i=p.count-1;i>0;i--){uint span=i+1,threshold=(0u-span)%span,attempt=0,v,low=p.offsetlo+i;
+  do{v=philox_counter(uvec2(p.seedlo,p.seedhi),uvec4(low,p.offsethi+uint(low<p.offsetlo),attempt++,0)).x;}while(v<threshold);
+  uint j=v%span;uvec2 tmp=y[j];y[j]=y[i];y[i]=tmp;
+ }
+}

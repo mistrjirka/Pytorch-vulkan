@@ -1,0 +1,6 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint words;} p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.words)y[i]=x[i];}
