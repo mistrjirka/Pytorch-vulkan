@@ -1,0 +1,5335 @@
+{
+  "backend_commit": "863fc0b8a809de27f0975339a49d4cd8c8ee66f7",
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "source_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+  "extension_sha256": "c569d905b7790b5349815df3eb0986cd18048ee3d7acfd30284f17db02f3e8e9",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "opinfo_registry_entries": 703,
+  "selected_cases": 8696,
+  "generated_cases_outside_scope": 24078,
+  "excluded_reasons": {
+    "other dtype": 976,
+    "other test family": 17494,
+    "non-core class (FakeTensor, math-bit dtypes, or metadata)": 5608
+  },
+  "raw_outcomes": {
+    "passed": 1432,
+    "error": 6721,
+    "expected_failure": 102,
+    "skipped": 436,
+    "unexpected_success": 4,
+    "timeout": 1
+  },
+  "resolved_outcomes": {
+    "passed": 1433,
+    "error": 6721,
+    "expected_failure": 102,
+    "skipped": 436,
+    "unexpected_success": 4
+  },
+  "failures_by_category": {
+    "forbidden_fallback": 5999,
+    "error": 132,
+    "numerical_comparison": 2,
+    "rng_dtype_rejection": 469,
+    "error_message_contract": 17,
+    "missing_expected_exception": 1,
+    "upstream_cuda_only_feature": 35,
+    "timeout": 1,
+    "copy_on_write_contract": 66
+  },
+  "first_missing_dispatches": {
+    "aten::eq.Tensor_out": 1772,
+    "aten::_linalg_svd.U": 357,
+    "aten::randperm.generator_out": 188,
+    "aten::_index_put_impl_": 176,
+    "aten::arange.start_out": 96,
+    "aten::norm.out": 90,
+    "aten::set_.source_Tensor": 82,
+    "aten::linalg_vector_norm.out": 81,
+    "aten::amax.out": 63,
+    "aten::dot": 52,
+    "aten::unfold": 47,
+    "aten::linspace.out": 44,
+    "aten::index_reduce.out": 44,
+    "aten::polygamma.out": 42,
+    "aten::roll": 39,
+    "aten::_unique2": 38,
+    "aten::pow.Tensor_Tensor_out": 37,
+    "aten::equal": 28,
+    "aten::mul.out": 28,
+    "aten::isnan": 27,
+    "aten::erf.out": 27,
+    "aten::elu.out": 27,
+    "aten::hardtanh": 25,
+    "aten::addmv.out": 25,
+    "aten::index.Tensor_out": 24,
+    "aten::linalg_ldl_factor_ex.out": 24,
+    "aten::linalg_cross.out": 23,
+    "aten::amin.out": 23,
+    "aten::rsub.Tensor": 22,
+    "aten::linalg_cholesky_ex.L": 22,
+    "aten::mm.out": 22,
+    "aten::vdot": 22,
+    "aten::ne.Tensor_out": 22,
+    "aten::ne.Scalar_out": 21,
+    "aten::cumprod.out": 21,
+    "aten::max_unpool2d": 21,
+    "aten::std_mean.correction": 21,
+    "aten::std.correction": 21,
+    "aten::adaptive_max_pool2d.out": 20,
+    "aten::upsample_nearest1d.out": 20,
+    "aten::round.decimals_out": 20,
+    "aten::logical_not.out": 19,
+    "aten::expm1.out": 19,
+    "aten::sign.out": 18,
+    "aten::log1p.out": 18,
+    "aten::log.out": 18,
+    "aten::max": 18,
+    "aten::_efficientzerotensor": 18,
+    "aten::ge.Tensor_out": 16,
+    "aten::abs.out": 16,
+    "aten::logspace.out": 16,
+    "aten::any.all_out": 16,
+    "aten::argmax.out": 16,
+    "aten::argmin.out": 16,
+    "aten::gt.Tensor_out": 16,
+    "aten::lt.Tensor_out": 16,
+    "aten::linalg_qr.out": 16,
+    "aten::atan2.out": 15,
+    "aten::fmax.out": 15,
+    "aten::fmin.out": 15,
+    "aten::xlogy.OutTensor": 15,
+    "aten::cat.out": 15,
+    "aten::clamp.Tensor_out": 15,
+    "aten::special_erfcx.out": 15,
+    "aten::trunc.out": 15,
+    "aten::complex.out": 14,
+    "aten::hypot.out": 14,
+    "aten::nextafter.out": 14,
+    "aten::reciprocal.out": 14,
+    "aten::signbit.out": 13,
+    "aten::clamp_min.out": 13,
+    "aten::kthvalue.values": 13,
+    "aten::lu_unpack.out": 13,
+    "aten::min": 13,
+    "aten::sqrt.out": 13,
+    "aten::neg.out": 13,
+    "aten::acos.out": 13,
+    "aten::acosh.out": 13,
+    "aten::asin.out": 13,
+    "aten::asinh.out": 13,
+    "aten::atan.out": 13,
+    "aten::atanh.out": 13,
+    "aten::ceil.out": 13,
+    "aten::cosh.out": 13,
+    "aten::digamma.out": 13,
+    "aten::erfc.out": 13,
+    "aten::erfinv.out": 13,
+    "aten::exp2.out": 13,
+    "aten::floor.out": 13,
+    "aten::i0.out": 13,
+    "aten::lgamma.out": 13,
+    "aten::log10.out": 13,
+    "aten::log2.out": 13,
+    "aten::round.out": 13,
+    "aten::sinh.out": 13,
+    "aten::special_i1.out": 13,
+    "aten::special_i1e.out": 13,
+    "aten::special_ndtri.out": 13,
+    "aten::tan.out": 13,
+    "aten::set_.source_Storage": 13,
+    "aten::baddbmm.out": 12,
+    "aten::copysign.out": 12,
+    "aten::_cummax_helper": 12,
+    "aten::_cummin_helper": 12,
+    "aten::pow.Scalar_out": 12,
+    "aten::_logcumsumexp": 12,
+    "aten::masked_scatter_": 12,
+    "aten::masked_select": 12,
+    "aten::max.dim_max": 12,
+    "aten::min.dim_min": 12,
+    "aten::special_xlog1py.out": 12,
+    "aten::take": 12,
+    "aten::trace": 12,
+    "aten::aminmax.out": 12,
+    "aten::frexp.Tensor_out": 12,
+    "aten::nansum": 12,
+    "aten::softplus.out": 12,
+    "aten::_fft_c2r.out": 12,
+    "aten::igamma.out": 11,
+    "aten::igammac.out": 11,
+    "aten::index_fill_.int_Scalar": 11,
+    "aten::linalg_householder_product": 11,
+    "aten::logaddexp2.out": 11,
+    "aten::logaddexp.out": 11,
+    "aten::masked_fill_.Scalar": 11,
+    "aten::median": 11,
+    "aten::mode": 11,
+    "aten::nanmedian": 11,
+    "aten::channel_shuffle": 11,
+    "aten::hardshrink.out": 11,
+    "aten::huber_loss": 11,
+    "aten::softshrink.out": 11,
+    "aten::polar.out": 11,
+    "aten::renorm.out": 11,
+    "aten::angle": 11,
+    "aten::clamp_max.Tensor_out": 11,
+    "aten::clamp_min.Tensor_out": 11,
+    "aten::logit": 11,
+    "aten::nan_to_num.out": 11,
+    "aten::sinc.out": 11,
+    "aten::special_entr.out": 11,
+    "aten::special_log_ndtr.out": 11,
+    "aten::cumsum.out": 10,
+    "aten::linalg_matrix_sqrth": 10,
+    "aten::linalg_solve_triangular": 10,
+    "aten::linalg_matrix_exp": 10,
+    "aten::binary_cross_entropy": 10,
+    "aten::glu.out": 10,
+    "aten::hardswish": 10,
+    "aten::upsample_linear1d.out": 10,
+    "aten::_upsample_nearest_exact1d.out": 10,
+    "aten::max_unpool3d": 10,
+    "aten::multi_margin_loss": 10,
+    "aten::multilabel_margin_loss_forward": 10,
+    "aten::im2col": 10,
+    "aten::_native_batch_norm_legit": 10,
+    "aten::frac.out": 10,
+    "aten::le.Tensor_out": 10,
+    "aten::linalg_lu.out": 10,
+    "aten::threshold.out": 10,
+    "aten::prod": 10,
+    "aten::special_bessel_j0.out": 10,
+    "aten::special_bessel_j1.out": 10,
+    "aten::special_spherical_bessel_j0.out": 10,
+    "aten::special_zeta.out": 10,
+    "aten::_batch_norm_with_update": 9,
+    "aten::segment_reduce": 9,
+    "aten::bucketize.Tensor": 9,
+    "aten::_cdist_forward": 9,
+    "aten::isin.Tensor_Tensor_out": 9,
+    "aten::nanmedian.dim_values": 9,
+    "aten::nll_loss2d_forward": 9,
+    "aten::_ctc_loss": 9,
+    "aten::geqrf": 9,
+    "aten::_to_sparse_csr": 9,
+    "aten::_scaled_dot_product_flash_attention_for_cpu": 9,
+    "aten::unique_consecutive": 9,
+    "aten::addbmm": 9,
+    "aten::count_nonzero.dim_IntList": 9,
+    "aten::fractional_max_pool2d.output": 9,
+    "aten::fractional_max_pool3d.output": 9,
+    "aten::hardsigmoid.out": 9,
+    "aten::mish.out": 9,
+    "aten::_prelu_kernel": 9,
+    "aten::rrelu_with_noise": 9,
+    "aten::smooth_l1_loss.out": 9,
+    "aten::index_copy.out": 8,
+    "aten::histc": 8,
+    "aten::geometric_": 8,
+    "aten::_histogramdd_bin_edges": 8,
+    "aten::nonzero": 8,
+    "aten::hash_tensor.out": 8,
+    "aten::heaviside.out": 8,
+    "aten::isposinf.out": 8,
+    "aten::logical_or.out": 8,
+    "aten::logical_xor.out": 8,
+    "aten::_pdist_forward": 8,
+    "aten::searchsorted.Tensor": 8,
+    "aten::special_airy_ai.out": 8,
+    "aten::special_bessel_y0.out": 8,
+    "aten::special_bessel_y1.out": 8,
+    "aten::special_chebyshev_polynomial_t.out": 8,
+    "aten::special_chebyshev_polynomial_u.out": 8,
+    "aten::special_chebyshev_polynomial_v.out": 8,
+    "aten::special_chebyshev_polynomial_w.out": 8,
+    "aten::special_hermite_polynomial_h.out": 8,
+    "aten::special_hermite_polynomial_he.out": 8,
+    "aten::special_i0e.out": 8,
+    "aten::special_laguerre_polynomial_l.out": 8,
+    "aten::special_legendre_polynomial_p.out": 8,
+    "aten::special_modified_bessel_i0.out": 8,
+    "aten::special_modified_bessel_i1.out": 8,
+    "aten::special_modified_bessel_k0.out": 8,
+    "aten::special_modified_bessel_k1.out": 8,
+    "aten::special_scaled_modified_bessel_k0.out": 8,
+    "aten::special_scaled_modified_bessel_k1.out": 8,
+    "aten::special_shifted_chebyshev_polynomial_t.out": 8,
+    "aten::special_shifted_chebyshev_polynomial_u.out": 8,
+    "aten::special_shifted_chebyshev_polynomial_v.out": 8,
+    "aten::special_shifted_chebyshev_polynomial_w.out": 8,
+    "aten::_fft_c2c.out": 8,
+    "aten::_fft_r2c.out": 8,
+    "aten::cauchy_": 7,
+    "aten::exponential_": 7,
+    "aten::log_normal_": 7,
+    "aten::histogram.bin_ct": 7,
+    "aten::normal.Tensor_Tensor": 7,
+    "aten::bitwise_or.Tensor_out": 6,
+    "aten::bitwise_xor.Tensor_out": 6,
+    "aten::floor_divide": 6,
+    "aten::linalg_polar.out": 6,
+    "aten::multinomial": 6,
+    "aten::conj_physical.out": 6,
+    "aten::gcd.out": 4,
+    "aten::triu_indices": 4,
+    "aten::addmm.out": 4,
+    "aten::bitwise_left_shift.Tensor_out": 3,
+    "aten::bitwise_right_shift.Tensor_out": 3,
+    "aten::_log_softmax.out": 3,
+    "aten::linalg_lstsq.out": 2,
+    "aten::lcm.out": 2,
+    "aten::add.out": 2,
+    "aten::bmm.out": 2,
+    "aten::cos.out": 2,
+    "aten::exp.out": 2,
+    "aten::linalg_lu_factor_ex.out": 2,
+    "aten::mean.out": 2,
+    "aten::native_batch_norm.out": 2,
+    "aten::avg_pool2d.out": 2,
+    "aten::avg_pool3d.out": 2,
+    "aten::log_sigmoid_forward.output": 2,
+    "aten::rsqrt.out": 2,
+    "aten::sgn.out": 2,
+    "aten::sigmoid.out": 2,
+    "aten::sin.out": 2,
+    "aten::_softmax.out": 2,
+    "aten::pow.Tensor_Scalar_out": 2,
+    "aten::sub.out": 2,
+    "aten::tanh.out": 2,
+    "aten::topk.values": 2,
+    "aten::tril_indices": 2,
+    "aten::var.correction_out": 2,
+    "aten::unfold_backward": 2,
+    "aten::normal.Tensor_float": 2,
+    "aten::bernoulli.out": 1,
+    "aten::masked_fill_.Tensor": 1,
+    "aten::masked_select.out": 1,
+    "aten::ormqr": 1,
+    "aten::take.out": 1,
+    "aten::all.all_out": 1,
+    "aten::bitwise_and.Tensor_out": 1,
+    "aten::bitwise_not.out": 1,
+    "aten::isneginf.out": 1,
+    "aten::prod.int_out": 1,
+    "aten::gelu.out": 1,
+    "aten::_scaled_mm_v2.out": 1,
+    "aten::any.out": 1,
+    "aten::silu.out": 1,
+    "aten::embedding_renorm_": 1
+  },
+  "by_family": {
+    "test_0d_tensor_with_python_scalar": {
+      "passed": 1,
+      "error": 4
+    },
+    "test_backward": {
+      "error": 532,
+      "skipped": 6,
+      "expected_failure": 3
+    },
+    "test_compare_cpu": {
+      "passed": 219,
+      "error": 313,
+      "expected_failure": 19,
+      "skipped": 62,
+      "unexpected_success": 2
+    },
+    "test_cow_input": {
+      "error": 666,
+      "skipped": 2,
+      "passed": 10
+    },
+    "test_errors": {
+      "passed": 165,
+      "error": 59,
+      "unexpected_success": 2
+    },
+    "test_errors_sparse": {
+      "error": 5,
+      "passed": 15
+    },
+    "test_forward_ad": {
+      "error": 499,
+      "skipped": 176,
+      "expected_failure": 3
+    },
+    "test_non_standard_bool_values": {
+      "error": 340,
+      "skipped": 11
+    },
+    "test_noncontiguous_samples": {
+      "error": 1080,
+      "expected_failure": 7,
+      "skipped": 57,
+      "passed": 2
+    },
+    "test_operator": {
+      "error": 652,
+      "skipped": 21,
+      "passed": 1,
+      "expected_failure": 4
+    },
+    "test_out": {
+      "passed": 293,
+      "error": 697,
+      "expected_failure": 22,
+      "skipped": 29
+    },
+    "test_out_requires_grad_error": {
+      "error": 183,
+      "passed": 92,
+      "skipped": 6,
+      "expected_failure": 1
+    },
+    "test_out_warning": {
+      "passed": 296,
+      "error": 704,
+      "expected_failure": 24,
+      "skipped": 28
+    },
+    "test_reduction_ops_reduce": {
+      "passed": 17,
+      "error": 10
+    },
+    "test_variant_consistency_eager": {
+      "passed": 105,
+      "error": 517,
+      "skipped": 36,
+      "expected_failure": 19,
+      "timeout": 1
+    },
+    "test_view_replay": {
+      "error": 460,
+      "passed": 216,
+      "skipped": 2
+    }
+  },
+  "by_dtype": {
+    "bool": {
+      "error": 340,
+      "skipped": 11
+    },
+    "float32": {
+      "passed": 936,
+      "error": 5129,
+      "expected_failure": 75,
+      "skipped": 375,
+      "unexpected_success": 2,
+      "timeout": 1
+    },
+    "int64": {
+      "passed": 3,
+      "error": 474,
+      "skipped": 22,
+      "expected_failure": 3
+    },
+    "test-defined": {
+      "passed": 493,
+      "error": 778,
+      "unexpected_success": 2,
+      "expected_failure": 24,
+      "skipped": 28
+    }
+  },
+  "by_operator_variant": {
+    "H": {
+      "passed": 4,
+      "error": 8
+    },
+    "T": {
+      "passed": 5,
+      "error": 8
+    },
+    "__getitem__": {
+      "error": 12
+    },
+    "__radd__": {
+      "passed": 5,
+      "error": 8
+    },
+    "__rand__": {
+      "passed": 3,
+      "error": 3
+    },
+    "__rdiv__": {
+      "error": 12,
+      "passed": 1
+    },
+    "__rmatmul__": {
+      "error": 11
+    },
+    "__rmod__": {
+      "error": 11,
+      "passed": 1
+    },
+    "__rmul__": {
+      "passed": 5,
+      "error": 8
+    },
+    "__ror__": {
+      "error": 5,
+      "passed": 1
+    },
+    "__rpow__": {
+      "error": 11,
+      "passed": 1
+    },
+    "__rsub__": {
+      "error": 11,
+      "passed": 1
+    },
+    "__rxor__": {
+      "error": 5,
+      "passed": 1
+    },
+    "_batch_norm_with_update": {
+      "error": 9,
+      "expected_failure": 2
+    },
+    "_chunk_cat": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "_native_batch_norm_legit": {
+      "expected_failure": 1,
+      "error": 10
+    },
+    "_refs.T": {
+      "passed": 3
+    },
+    "_refs._conversions.bfloat16": {
+      "passed": 3
+    },
+    "_refs._conversions.bool": {
+      "passed": 3
+    },
+    "_refs._conversions.byte": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.cdouble": {
+      "passed": 3
+    },
+    "_refs._conversions.cfloat": {
+      "passed": 3
+    },
+    "_refs._conversions.chalf": {
+      "passed": 3
+    },
+    "_refs._conversions.char": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.complex": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs._conversions.double": {
+      "passed": 3
+    },
+    "_refs._conversions.float": {
+      "passed": 3
+    },
+    "_refs._conversions.half": {
+      "passed": 3
+    },
+    "_refs._conversions.int": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.long": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.polar": {
+      "error": 3
+    },
+    "_refs._conversions.short": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.abs": {
+      "error": 2
+    },
+    "_refs.acos": {
+      "error": 2
+    },
+    "_refs.acosh": {
+      "error": 2
+    },
+    "_refs.add": {
+      "error": 2
+    },
+    "_refs.addcdiv": {
+      "error": 3
+    },
+    "_refs.addcmul": {
+      "error": 3
+    },
+    "_refs.addr": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.alias_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.all": {
+      "error": 2
+    },
+    "_refs.allclose": {
+      "error": 2
+    },
+    "_refs.amax": {
+      "error": 2
+    },
+    "_refs.amin": {
+      "error": 2
+    },
+    "_refs.any": {
+      "error": 2
+    },
+    "_refs.arange": {
+      "error": 3
+    },
+    "_refs.as_strided": {
+      "passed": 3
+    },
+    "_refs.as_strided.partial_views": {
+      "expected_failure": 1,
+      "passed": 2
+    },
+    "_refs.as_strided_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.as_strided_scatter": {
+      "passed": 3
+    },
+    "_refs.asin": {
+      "error": 2
+    },
+    "_refs.asinh": {
+      "error": 2
+    },
+    "_refs.atan": {
+      "error": 2
+    },
+    "_refs.atan2": {
+      "error": 3
+    },
+    "_refs.atanh": {
+      "error": 2
+    },
+    "_refs.atleast_1d": {
+      "passed": 3
+    },
+    "_refs.atleast_2d": {
+      "passed": 3
+    },
+    "_refs.atleast_3d": {
+      "passed": 3
+    },
+    "_refs.bitwise_and": {
+      "error": 2
+    },
+    "_refs.bitwise_left_shift": {
+      "skipped": 1,
+      "error": 2
+    },
+    "_refs.bitwise_not": {
+      "error": 2
+    },
+    "_refs.bitwise_or": {
+      "error": 2
+    },
+    "_refs.bitwise_right_shift": {
+      "skipped": 1,
+      "error": 2
+    },
+    "_refs.bitwise_xor": {
+      "error": 2
+    },
+    "_refs.block_diag": {
+      "passed": 3
+    },
+    "_refs.broadcast_shapes": {
+      "passed": 2
+    },
+    "_refs.broadcast_tensors": {
+      "passed": 2
+    },
+    "_refs.broadcast_to": {
+      "passed": 2
+    },
+    "_refs.bucketize": {
+      "error": 3
+    },
+    "_refs.cat": {
+      "error": 2
+    },
+    "_refs.cauchy": {
+      "skipped": 3
+    },
+    "_refs.ceil": {
+      "error": 2
+    },
+    "_refs.chunk": {
+      "passed": 3
+    },
+    "_refs.clamp": {
+      "error": 2
+    },
+    "_refs.clamp_max": {
+      "error": 2
+    },
+    "_refs.clamp_min": {
+      "error": 2
+    },
+    "_refs.clone": {
+      "passed": 2
+    },
+    "_refs.column_stack": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.conj": {
+      "passed": 2
+    },
+    "_refs.conj_physical": {
+      "error": 2
+    },
+    "_refs.constant_pad_nd": {
+      "passed": 3
+    },
+    "_refs.contiguous": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.copysign": {
+      "error": 3
+    },
+    "_refs.cos": {
+      "error": 2
+    },
+    "_refs.cosh": {
+      "error": 2
+    },
+    "_refs.count_nonzero": {
+      "error": 2
+    },
+    "_refs.cumprod": {
+      "error": 2,
+      "expected_failure": 1
+    },
+    "_refs.cumsum": {
+      "error": 2,
+      "expected_failure": 1
+    },
+    "_refs.deg2rad": {
+      "error": 2
+    },
+    "_refs.diag": {
+      "error": 2
+    },
+    "_refs.diag_embed": {
+      "error": 3
+    },
+    "_refs.diagonal": {
+      "passed": 3
+    },
+    "_refs.diagonal_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.diagonal_scatter": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.digamma": {
+      "error": 2
+    },
+    "_refs.div.floor_rounding": {
+      "error": 3
+    },
+    "_refs.div.no_rounding_mode": {
+      "error": 3
+    },
+    "_refs.div.trunc_rounding": {
+      "error": 3
+    },
+    "_refs.dot": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.dsplit": {
+      "passed": 3
+    },
+    "_refs.dstack": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.empty": {
+      "skipped": 3
+    },
+    "_refs.empty_like": {
+      "skipped": 3
+    },
+    "_refs.empty_strided": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.eq": {
+      "error": 2
+    },
+    "_refs.equal": {
+      "error": 2
+    },
+    "_refs.erf": {
+      "error": 2
+    },
+    "_refs.erfc": {
+      "error": 2
+    },
+    "_refs.erfinv": {
+      "error": 2
+    },
+    "_refs.exp": {
+      "error": 2
+    },
+    "_refs.exp2": {
+      "error": 2
+    },
+    "_refs.expand": {
+      "passed": 3
+    },
+    "_refs.expand_as": {
+      "passed": 3
+    },
+    "_refs.expand_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.expm1": {
+      "error": 2
+    },
+    "_refs.exponential": {
+      "skipped": 3
+    },
+    "_refs.eye": {
+      "error": 3
+    },
+    "_refs.fft.fft": {
+      "error": 2
+    },
+    "_refs.fft.fft2": {
+      "error": 2
+    },
+    "_refs.fft.fftn": {
+      "error": 2
+    },
+    "_refs.fft.fftshift": {
+      "error": 3
+    },
+    "_refs.fft.hfft": {
+      "error": 2
+    },
+    "_refs.fft.hfft2": {
+      "error": 2
+    },
+    "_refs.fft.hfftn": {
+      "error": 2
+    },
+    "_refs.fft.ifft": {
+      "error": 2
+    },
+    "_refs.fft.ifft2": {
+      "error": 2
+    },
+    "_refs.fft.ifftn": {
+      "error": 2
+    },
+    "_refs.fft.ifftshift": {
+      "error": 3
+    },
+    "_refs.fft.ihfft": {
+      "error": 2
+    },
+    "_refs.fft.ihfft2": {
+      "error": 2
+    },
+    "_refs.fft.ihfftn": {
+      "error": 2
+    },
+    "_refs.fft.irfft": {
+      "error": 2
+    },
+    "_refs.fft.irfft2": {
+      "error": 2
+    },
+    "_refs.fft.irfftn": {
+      "error": 2
+    },
+    "_refs.fft.rfft": {
+      "error": 2
+    },
+    "_refs.fft.rfft2": {
+      "error": 2
+    },
+    "_refs.fft.rfftn": {
+      "error": 2
+    },
+    "_refs.fill": {
+      "error": 2
+    },
+    "_refs.flatten": {
+      "passed": 2
+    },
+    "_refs.flip": {
+      "passed": 3
+    },
+    "_refs.fliplr": {
+      "passed": 3
+    },
+    "_refs.flipud": {
+      "passed": 3
+    },
+    "_refs.float_power": {
+      "error": 2
+    },
+    "_refs.floor": {
+      "error": 2
+    },
+    "_refs.floor_divide": {
+      "error": 2
+    },
+    "_refs.fmax": {
+      "error": 3
+    },
+    "_refs.fmin": {
+      "error": 3
+    },
+    "_refs.fmod": {
+      "error": 2
+    },
+    "_refs.frac": {
+      "error": 2
+    },
+    "_refs.frexp": {
+      "error": 2
+    },
+    "_refs.gcd": {
+      "error": 2
+    },
+    "_refs.ge": {
+      "error": 2
+    },
+    "_refs.geometric": {
+      "skipped": 3
+    },
+    "_refs.gt": {
+      "error": 2
+    },
+    "_refs.heaviside": {
+      "error": 2
+    },
+    "_refs.hsplit": {
+      "passed": 3
+    },
+    "_refs.hstack": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.hypot": {
+      "error": 3
+    },
+    "_refs.i0": {
+      "error": 2
+    },
+    "_refs.igamma": {
+      "error": 3
+    },
+    "_refs.igammac": {
+      "error": 3
+    },
+    "_refs.imag": {
+      "passed": 1
+    },
+    "_refs.index_add": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.index_copy": {
+      "error": 3
+    },
+    "_refs.index_fill": {
+      "error": 3
+    },
+    "_refs.index_select": {
+      "error": 3
+    },
+    "_refs.isclose": {
+      "error": 2
+    },
+    "_refs.isfinite": {
+      "error": 2
+    },
+    "_refs.isinf": {
+      "error": 2
+    },
+    "_refs.isnan": {
+      "error": 2
+    },
+    "_refs.isneginf": {
+      "error": 2
+    },
+    "_refs.isposinf": {
+      "error": 2
+    },
+    "_refs.isreal": {
+      "error": 2
+    },
+    "_refs.istft": {
+      "error": 1
+    },
+    "_refs.item": {
+      "skipped": 2
+    },
+    "_refs.lcm": {
+      "error": 2
+    },
+    "_refs.le": {
+      "error": 2
+    },
+    "_refs.lerp": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.lgamma": {
+      "error": 2
+    },
+    "_refs.linalg.cross": {
+      "error": 2
+    },
+    "_refs.linalg.diagonal": {
+      "passed": 3
+    },
+    "_refs.linalg.matrix_norm": {
+      "error": 3
+    },
+    "_refs.linalg.norm": {
+      "error": 3
+    },
+    "_refs.linalg.svd": {
+      "error": 3
+    },
+    "_refs.linalg.svdvals": {
+      "error": 3
+    },
+    "_refs.linalg.vecdot": {
+      "error": 2
+    },
+    "_refs.linalg.vector_norm": {
+      "error": 3
+    },
+    "_refs.linspace": {
+      "error": 3
+    },
+    "_refs.linspace.tensor_overload": {
+      "error": 3
+    },
+    "_refs.log": {
+      "error": 2
+    },
+    "_refs.log10": {
+      "error": 2
+    },
+    "_refs.log1p": {
+      "error": 2
+    },
+    "_refs.log2": {
+      "error": 2
+    },
+    "_refs.log_normal": {
+      "skipped": 3
+    },
+    "_refs.log_softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.logaddexp": {
+      "error": 3
+    },
+    "_refs.logaddexp2": {
+      "error": 3
+    },
+    "_refs.logical_and": {
+      "error": 2
+    },
+    "_refs.logical_not": {
+      "error": 2
+    },
+    "_refs.logical_or": {
+      "error": 2
+    },
+    "_refs.logical_xor": {
+      "error": 2
+    },
+    "_refs.logspace": {
+      "error": 3
+    },
+    "_refs.logspace.tensor_overload": {
+      "error": 3
+    },
+    "_refs.logsumexp": {
+      "error": 3
+    },
+    "_refs.lt": {
+      "error": 2
+    },
+    "_refs.masked_fill": {
+      "passed": 3
+    },
+    "_refs.maximum": {
+      "error": 2
+    },
+    "_refs.mean": {
+      "error": 2
+    },
+    "_refs.meshgrid.list_of_tensors": {
+      "passed": 3
+    },
+    "_refs.meshgrid.variadic_tensors": {
+      "passed": 2
+    },
+    "_refs.minimum": {
+      "error": 2
+    },
+    "_refs.movedim": {
+      "passed": 3
+    },
+    "_refs.mul": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nan_to_num": {
+      "error": 2
+    },
+    "_refs.narrow": {
+      "passed": 3
+    },
+    "_refs.narrow_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.native_group_norm": {
+      "passed": 2
+    },
+    "_refs.native_layer_norm": {
+      "passed": 2
+    },
+    "_refs.ne": {
+      "error": 2
+    },
+    "_refs.neg": {
+      "error": 2
+    },
+    "_refs.new_empty": {
+      "skipped": 3
+    },
+    "_refs.new_empty_strided": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.new_full": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.new_ones": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.new_zeros": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.nextafter": {
+      "error": 3
+    },
+    "_refs.nn.functional.alpha_dropout": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.nn.functional.celu": {
+      "error": 2
+    },
+    "_refs.nn.functional.channel_shuffle": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.dropout": {
+      "skipped": 3
+    },
+    "_refs.nn.functional.elu": {
+      "error": 2
+    },
+    "_refs.nn.functional.gelu": {
+      "error": 2
+    },
+    "_refs.nn.functional.glu": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.group_norm": {
+      "passed": 2
+    },
+    "_refs.nn.functional.hardshrink": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.hardsigmoid": {
+      "passed": 2
+    },
+    "_refs.nn.functional.hardtanh": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.hinge_embedding_loss": {
+      "error": 3
+    },
+    "_refs.nn.functional.huber_loss": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.l1_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.layer_norm": {
+      "passed": 2
+    },
+    "_refs.nn.functional.leaky_relu": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.nn.functional.log_softmax.with_dtype": {
+      "passed": 3
+    },
+    "_refs.nn.functional.margin_ranking_loss": {
+      "error": 3
+    },
+    "_refs.nn.functional.mish": {
+      "error": 2
+    },
+    "_refs.nn.functional.mse_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.nll_loss": {
+      "error": 3
+    },
+    "_refs.nn.functional.pairwise_distance": {
+      "error": 2
+    },
+    "_refs.nn.functional.pdist": {
+      "error": 2
+    },
+    "_refs.nn.functional.pixel_shuffle": {
+      "passed": 3
+    },
+    "_refs.nn.functional.pixel_unshuffle": {
+      "passed": 3
+    },
+    "_refs.nn.functional.poisson_nll_loss": {
+      "error": 3
+    },
+    "_refs.nn.functional.prelu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.relu": {
+      "error": 2
+    },
+    "_refs.nn.functional.relu6": {
+      "error": 3
+    },
+    "_refs.nn.functional.selu": {
+      "error": 2
+    },
+    "_refs.nn.functional.smooth_l1_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.nn.functional.softmin.with_dtype": {
+      "error": 3
+    },
+    "_refs.nn.functional.softplus": {
+      "error": 2
+    },
+    "_refs.nn.functional.softshrink": {
+      "error": 3
+    },
+    "_refs.nn.functional.tanhshrink": {
+      "passed": 2
+    },
+    "_refs.nn.functional.threshold": {
+      "error": 2
+    },
+    "_refs.nn.functional.triplet_margin_loss": {
+      "error": 3
+    },
+    "_refs.norm": {
+      "error": 3
+    },
+    "_refs.normal": {
+      "skipped": 3
+    },
+    "_refs.normal.number_mean": {
+      "skipped": 3
+    },
+    "_refs.normal_.in_place": {
+      "skipped": 3
+    },
+    "_refs.ones": {
+      "error": 3
+    },
+    "_refs.permute": {
+      "passed": 2
+    },
+    "_refs.permute_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.positive": {
+      "passed": 2
+    },
+    "_refs.pow": {
+      "error": 2
+    },
+    "_refs.prod": {
+      "expected_failure": 1,
+      "error": 1
+    },
+    "_refs.rad2deg": {
+      "error": 2
+    },
+    "_refs.randn": {
+      "error": 3
+    },
+    "_refs.ravel": {
+      "passed": 2
+    },
+    "_refs.real": {
+      "passed": 2
+    },
+    "_refs.reciprocal": {
+      "error": 2
+    },
+    "_refs.remainder": {
+      "error": 2
+    },
+    "_refs.renorm": {
+      "error": 3
+    },
+    "_refs.repeat": {
+      "passed": 3
+    },
+    "_refs.reshape": {
+      "passed": 3
+    },
+    "_refs.reshape_as": {
+      "passed": 3
+    },
+    "_refs.roll": {
+      "passed": 2
+    },
+    "_refs.rot90": {
+      "passed": 3
+    },
+    "_refs.round": {
+      "error": 2
+    },
+    "_refs.rsqrt": {
+      "error": 2
+    },
+    "_refs.rsub": {
+      "passed": 3
+    },
+    "_refs.select_scatter": {
+      "error": 3
+    },
+    "_refs.sgn": {
+      "error": 2
+    },
+    "_refs.sigmoid": {
+      "error": 2
+    },
+    "_refs.sign": {
+      "error": 2
+    },
+    "_refs.signbit": {
+      "error": 2
+    },
+    "_refs.sin": {
+      "error": 2
+    },
+    "_refs.sinc": {
+      "error": 2
+    },
+    "_refs.sinh": {
+      "error": 2
+    },
+    "_refs.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.special.bessel_j0": {
+      "error": 2
+    },
+    "_refs.special.bessel_j1": {
+      "error": 2
+    },
+    "_refs.special.entr": {
+      "error": 2
+    },
+    "_refs.special.erfcx": {
+      "error": 2
+    },
+    "_refs.special.i0e": {
+      "error": 2
+    },
+    "_refs.special.i1": {
+      "error": 2
+    },
+    "_refs.special.i1e": {
+      "error": 2
+    },
+    "_refs.special.log_ndtr": {
+      "error": 2
+    },
+    "_refs.special.log_softmax.with_dtype": {
+      "passed": 3
+    },
+    "_refs.special.logit": {
+      "error": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_1": {
+      "error": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_3": {
+      "error": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_5": {
+      "error": 2
+    },
+    "_refs.special.ndtr": {
+      "error": 2
+    },
+    "_refs.special.ndtri": {
+      "error": 2
+    },
+    "_refs.special.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.special.spherical_bessel_j0": {
+      "error": 2
+    },
+    "_refs.special.xlog1py": {
+      "error": 3
+    },
+    "_refs.special.zeta": {
+      "expected_failure": 1,
+      "error": 2
+    },
+    "_refs.split_with_sizes": {
+      "passed": 3
+    },
+    "_refs.sqrt": {
+      "error": 2
+    },
+    "_refs.square": {
+      "error": 2
+    },
+    "_refs.squeeze": {
+      "passed": 2
+    },
+    "_refs.squeeze.multiple": {
+      "passed": 2
+    },
+    "_refs.squeeze_copy": {
+      "error": 2
+    },
+    "_refs.stack": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.std": {
+      "error": 2
+    },
+    "_refs.std_mean": {
+      "passed": 3
+    },
+    "_refs.stft": {
+      "error": 3
+    },
+    "_refs.sub": {
+      "error": 2
+    },
+    "_refs.sum": {
+      "expected_failure": 1,
+      "error": 1
+    },
+    "_refs.sum_to_size": {
+      "passed": 3
+    },
+    "_refs.t": {
+      "passed": 3
+    },
+    "_refs.t_copy": {
+      "error": 3
+    },
+    "_refs.take_along_dim": {
+      "error": 3
+    },
+    "_refs.tan": {
+      "error": 2
+    },
+    "_refs.tanh": {
+      "error": 2
+    },
+    "_refs.tensor_split": {
+      "passed": 2
+    },
+    "_refs.to": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.trace": {
+      "passed": 3
+    },
+    "_refs.transpose": {
+      "passed": 2
+    },
+    "_refs.transpose_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.tril": {
+      "error": 3
+    },
+    "_refs.tril_indices": {
+      "error": 2
+    },
+    "_refs.triu": {
+      "error": 3
+    },
+    "_refs.triu_indices": {
+      "error": 2
+    },
+    "_refs.true_divide": {
+      "error": 3
+    },
+    "_refs.trunc": {
+      "error": 2
+    },
+    "_refs.unbind": {
+      "passed": 2
+    },
+    "_refs.unbind_copy": {
+      "error": 2
+    },
+    "_refs.unflatten": {
+      "passed": 3
+    },
+    "_refs.unfold": {
+      "passed": 3
+    },
+    "_refs.unfold_copy": {
+      "error": 3
+    },
+    "_refs.unsqueeze": {
+      "passed": 3
+    },
+    "_refs.unsqueeze_copy": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.var": {
+      "error": 2
+    },
+    "_refs.var_mean": {
+      "passed": 3
+    },
+    "_refs.vdot": {
+      "error": 3
+    },
+    "_refs.view": {
+      "passed": 3
+    },
+    "_refs.view_as": {
+      "passed": 3
+    },
+    "_refs.view_as_complex": {
+      "passed": 3
+    },
+    "_refs.view_copy": {
+      "error": 2
+    },
+    "_refs.vsplit": {
+      "passed": 3
+    },
+    "_refs.vstack": {
+      "passed": 1,
+      "error": 2
+    },
+    "_refs.where": {
+      "error": 2
+    },
+    "_refs.xlogy": {
+      "error": 3
+    },
+    "_refs.zeros": {
+      "error": 3
+    },
+    "_segment_reduce.lengths": {
+      "error": 9,
+      "skipped": 1
+    },
+    "_segment_reduce.offsets": {
+      "error": 9,
+      "skipped": 1
+    },
+    "_softmax_backward_data": {
+      "passed": 5,
+      "error": 5
+    },
+    "_unsafe_masked_index": {
+      "error": 12
+    },
+    "_unsafe_masked_index_put_accumulate": {
+      "error": 12
+    },
+    "_upsample_bilinear2d_aa": {
+      "passed": 5,
+      "error": 5
+    },
+    "abs": {
+      "error": 9,
+      "passed": 2
+    },
+    "acos": {
+      "error": 12
+    },
+    "acosh": {
+      "error": 12
+    },
+    "add": {
+      "passed": 4,
+      "error": 10
+    },
+    "addbmm": {
+      "error": 9,
+      "expected_failure": 1,
+      "skipped": 1
+    },
+    "addcdiv": {
+      "error": 10,
+      "expected_failure": 1
+    },
+    "addcmul": {
+      "error": 11,
+      "expected_failure": 1
+    },
+    "addmm": {
+      "error": 11,
+      "passed": 1
+    },
+    "addmm.decomposed": {
+      "error": 11,
+      "passed": 1
+    },
+    "addmv": {
+      "error": 12
+    },
+    "addr": {
+      "passed": 3,
+      "error": 9,
+      "skipped": 1
+    },
+    "alias_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "all": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "allclose": {
+      "error": 7,
+      "skipped": 1
+    },
+    "amax": {
+      "error": 14
+    },
+    "amin": {
+      "error": 14
+    },
+    "aminmax": {
+      "error": 14
+    },
+    "angle": {
+      "error": 12
+    },
+    "any": {
+      "error": 10,
+      "skipped": 1
+    },
+    "arange": {
+      "error": 8,
+      "passed": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "argmax": {
+      "error": 9,
+      "skipped": 1
+    },
+    "argmin": {
+      "error": 9,
+      "skipped": 1
+    },
+    "argsort": {
+      "error": 10,
+      "skipped": 1
+    },
+    "argwhere": {
+      "error": 9,
+      "skipped": 1
+    },
+    "as_strided": {
+      "passed": 3,
+      "error": 6,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "as_strided.partial_views": {
+      "expected_failure": 4,
+      "skipped": 1,
+      "passed": 3,
+      "error": 4
+    },
+    "as_strided_copy": {
+      "passed": 3,
+      "error": 7,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "as_strided_scatter": {
+      "passed": 5,
+      "error": 5,
+      "skipped": 3
+    },
+    "asin": {
+      "error": 12
+    },
+    "asinh": {
+      "error": 12
+    },
+    "atan": {
+      "error": 12
+    },
+    "atan2": {
+      "error": 13,
+      "passed": 1
+    },
+    "atanh": {
+      "error": 12
+    },
+    "atleast_1d": {
+      "passed": 4,
+      "error": 8
+    },
+    "atleast_2d": {
+      "passed": 4,
+      "error": 8
+    },
+    "atleast_3d": {
+      "passed": 4,
+      "error": 8
+    },
+    "baddbmm": {
+      "error": 12
+    },
+    "bernoulli": {
+      "skipped": 1,
+      "error": 7,
+      "expected_failure": 2,
+      "passed": 2
+    },
+    "bfloat16": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "bincount": {
+      "error": 4
+    },
+    "bitwise_and": {
+      "passed": 1,
+      "error": 4
+    },
+    "bitwise_left_shift": {
+      "skipped": 1,
+      "passed": 1,
+      "error": 3
+    },
+    "bitwise_not": {
+      "error": 4
+    },
+    "bitwise_or": {
+      "passed": 1,
+      "error": 4
+    },
+    "bitwise_right_shift": {
+      "skipped": 1,
+      "passed": 1,
+      "error": 3
+    },
+    "bitwise_xor": {
+      "passed": 1,
+      "error": 4
+    },
+    "block_diag": {
+      "passed": 5,
+      "error": 7
+    },
+    "bmm": {
+      "passed": 3,
+      "error": 9
+    },
+    "bmm.triton_optimized": {
+      "skipped": 8
+    },
+    "bool": {
+      "passed": 4,
+      "error": 6,
+      "skipped": 1
+    },
+    "broadcast_shapes": {
+      "skipped": 3,
+      "passed": 5
+    },
+    "broadcast_tensors": {
+      "error": 8,
+      "passed": 3
+    },
+    "broadcast_to": {
+      "error": 9,
+      "passed": 2
+    },
+    "bucketize": {
+      "error": 10,
+      "skipped": 1
+    },
+    "byte": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "cartesian_prod": {
+      "passed": 5,
+      "error": 7
+    },
+    "cat": {
+      "error": 11,
+      "passed": 2
+    },
+    "cauchy": {
+      "skipped": 2,
+      "error": 7,
+      "expected_failure": 1
+    },
+    "cdist": {
+      "error": 9,
+      "skipped": 1
+    },
+    "cdouble": {
+      "passed": 4,
+      "error": 8
+    },
+    "ceil": {
+      "error": 11
+    },
+    "cfloat": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "chalf": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "char": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "cholesky_inverse": {
+      "error": 10,
+      "expected_failure": 1
+    },
+    "cholesky_solve": {
+      "error": 11
+    },
+    "chunk": {
+      "passed": 3,
+      "error": 9
+    },
+    "clamp": {
+      "error": 11
+    },
+    "clamp_max": {
+      "unexpected_success": 1,
+      "error": 12
+    },
+    "clamp_min": {
+      "unexpected_success": 1,
+      "error": 12
+    },
+    "clone": {
+      "error": 8,
+      "passed": 3
+    },
+    "column_stack": {
+      "passed": 4,
+      "error": 9
+    },
+    "combinations": {
+      "error": 12
+    },
+    "complex": {
+      "error": 12
+    },
+    "conj": {
+      "error": 8,
+      "passed": 3
+    },
+    "conj_physical": {
+      "error": 10,
+      "passed": 2
+    },
+    "constant_pad_nd": {
+      "passed": 5,
+      "error": 7
+    },
+    "contiguous": {
+      "error": 9,
+      "passed": 3
+    },
+    "copysign": {
+      "error": 13,
+      "passed": 1
+    },
+    "corrcoef": {
+      "error": 11
+    },
+    "cos": {
+      "error": 10,
+      "passed": 2
+    },
+    "cosh": {
+      "error": 12
+    },
+    "count_nonzero": {
+      "error": 10,
+      "skipped": 1
+    },
+    "cov": {
+      "error": 12
+    },
+    "cross": {
+      "error": 12
+    },
+    "cummax": {
+      "error": 13
+    },
+    "cummin": {
+      "error": 13
+    },
+    "cumprod": {
+      "error": 11,
+      "expected_failure": 1
+    },
+    "cumsum": {
+      "passed": 3,
+      "error": 8,
+      "expected_failure": 1
+    },
+    "cumulative_trapezoid": {
+      "passed": 5,
+      "error": 6
+    },
+    "deg2rad": {
+      "error": 12
+    },
+    "diag": {
+      "passed": 3,
+      "error": 10
+    },
+    "diag_embed": {
+      "passed": 5,
+      "error": 8
+    },
+    "diagflat": {
+      "error": 8,
+      "passed": 3
+    },
+    "diagonal": {
+      "passed": 4,
+      "error": 9
+    },
+    "diagonal_copy": {
+      "passed": 5,
+      "error": 9
+    },
+    "diagonal_scatter": {
+      "passed": 4,
+      "error": 8
+    },
+    "diff": {
+      "passed": 3,
+      "error": 10
+    },
+    "digamma": {
+      "error": 12
+    },
+    "dist": {
+      "error": 10
+    },
+    "div.floor_rounding": {
+      "error": 13,
+      "passed": 1
+    },
+    "div.no_rounding_mode": {
+      "error": 14,
+      "passed": 1
+    },
+    "div.trunc_rounding": {
+      "error": 13,
+      "passed": 1
+    },
+    "dot": {
+      "error": 13
+    },
+    "double": {
+      "passed": 4,
+      "error": 8
+    },
+    "dsplit": {
+      "passed": 4,
+      "error": 9
+    },
+    "dstack": {
+      "passed": 5,
+      "error": 9
+    },
+    "einsum": {
+      "passed": 5,
+      "error": 6
+    },
+    "empty": {
+      "skipped": 9,
+      "passed": 2
+    },
+    "empty_like": {
+      "skipped": 6,
+      "passed": 4,
+      "error": 1
+    },
+    "empty_permuted": {
+      "skipped": 9,
+      "passed": 3
+    },
+    "empty_strided": {
+      "skipped": 7,
+      "passed": 4
+    },
+    "eq": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "equal": {
+      "error": 9,
+      "skipped": 1
+    },
+    "erf": {
+      "error": 12
+    },
+    "erfc": {
+      "error": 12
+    },
+    "erfinv": {
+      "error": 12
+    },
+    "exp": {
+      "error": 10,
+      "passed": 2
+    },
+    "exp2": {
+      "error": 12
+    },
+    "expand": {
+      "passed": 3,
+      "error": 9
+    },
+    "expand_as": {
+      "passed": 3,
+      "error": 9
+    },
+    "expand_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "expm1": {
+      "error": 12
+    },
+    "exponential": {
+      "skipped": 2,
+      "error": 7,
+      "expected_failure": 1
+    },
+    "eye": {
+      "error": 5,
+      "skipped": 4,
+      "expected_failure": 1,
+      "passed": 2
+    },
+    "fft.fft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.fft2": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.fftn": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.fftshift": {
+      "error": 12
+    },
+    "fft.hfft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.hfft2": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.hfftn": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.ifft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.ifft2": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.ifftn": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.ifftshift": {
+      "error": 12
+    },
+    "fft.ihfft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.ihfft2": {
+      "passed": 4,
+      "error": 7,
+      "expected_failure": 2
+    },
+    "fft.ihfftn": {
+      "passed": 4,
+      "error": 7,
+      "expected_failure": 2
+    },
+    "fft.irfft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.irfft2": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.irfftn": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.rfft": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.rfft2": {
+      "passed": 4,
+      "error": 9
+    },
+    "fft.rfftn": {
+      "passed": 4,
+      "error": 9
+    },
+    "fill": {
+      "error": 8,
+      "passed": 3
+    },
+    "flatten": {
+      "error": 9,
+      "passed": 2
+    },
+    "flip": {
+      "passed": 4,
+      "error": 8
+    },
+    "fliplr": {
+      "passed": 5,
+      "error": 8
+    },
+    "flipud": {
+      "passed": 5,
+      "error": 8
+    },
+    "float": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "float_power": {
+      "passed": 1,
+      "error": 12
+    },
+    "floor": {
+      "error": 11
+    },
+    "floor_divide": {
+      "passed": 1,
+      "error": 8,
+      "skipped": 1
+    },
+    "fmax": {
+      "error": 13,
+      "passed": 1
+    },
+    "fmin": {
+      "error": 13,
+      "passed": 1
+    },
+    "fmod": {
+      "passed": 1,
+      "error": 11
+    },
+    "frac": {
+      "error": 10
+    },
+    "frexp": {
+      "error": 10
+    },
+    "full": {
+      "error": 6,
+      "passed": 3,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "full_like": {
+      "error": 6,
+      "passed": 4,
+      "skipped": 1
+    },
+    "gather": {
+      "error": 14
+    },
+    "gcd": {
+      "passed": 1,
+      "error": 3
+    },
+    "ge": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "geometric": {
+      "skipped": 2,
+      "error": 8,
+      "expected_failure": 1
+    },
+    "geqrf": {
+      "error": 7,
+      "expected_failure": 1,
+      "skipped": 1
+    },
+    "gradient": {
+      "passed": 6,
+      "error": 6
+    },
+    "grid_sampler_2d": {
+      "passed": 5,
+      "error": 4,
+      "skipped": 1
+    },
+    "grid_sampler_3d": {
+      "passed": 5,
+      "error": 4,
+      "skipped": 1
+    },
+    "gt": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "half": {
+      "passed": 4,
+      "error": 7,
+      "skipped": 1
+    },
+    "hash_tensor": {
+      "error": 9,
+      "skipped": 1
+    },
+    "heaviside": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "histc": {
+      "error": 8,
+      "skipped": 1
+    },
+    "histogram": {
+      "error": 7,
+      "skipped": 1
+    },
+    "histogramdd": {
+      "error": 8,
+      "skipped": 1
+    },
+    "hsplit": {
+      "passed": 4,
+      "error": 9
+    },
+    "hstack": {
+      "passed": 5,
+      "error": 9
+    },
+    "hypot": {
+      "error": 11,
+      "passed": 1
+    },
+    "i0": {
+      "error": 12
+    },
+    "igamma": {
+      "error": 8,
+      "passed": 1,
+      "skipped": 1
+    },
+    "igammac": {
+      "error": 8,
+      "passed": 1,
+      "skipped": 1
+    },
+    "imag": {
+      "passed": 1
+    },
+    "index_add": {
+      "passed": 2,
+      "error": 12
+    },
+    "index_copy": {
+      "error": 13
+    },
+    "index_fill": {
+      "error": 12
+    },
+    "index_put": {
+      "error": 12
+    },
+    "index_reduce.amax": {
+      "error": 11,
+      "skipped": 1
+    },
+    "index_reduce.amin": {
+      "error": 11,
+      "skipped": 1
+    },
+    "index_reduce.mean": {
+      "error": 11,
+      "skipped": 1
+    },
+    "index_reduce.prod": {
+      "error": 11,
+      "skipped": 1
+    },
+    "index_select": {
+      "passed": 4,
+      "error": 10
+    },
+    "inner": {
+      "error": 12
+    },
+    "int": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "isclose": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "isfinite": {
+      "error": 9,
+      "skipped": 1
+    },
+    "isin": {
+      "error": 9,
+      "skipped": 1
+    },
+    "isinf": {
+      "error": 6,
+      "passed": 3,
+      "skipped": 1
+    },
+    "isnan": {
+      "error": 9,
+      "skipped": 1
+    },
+    "isneginf": {
+      "error": 8,
+      "skipped": 1,
+      "passed": 1
+    },
+    "isposinf": {
+      "error": 9,
+      "skipped": 1
+    },
+    "isreal": {
+      "error": 6,
+      "passed": 3,
+      "skipped": 1
+    },
+    "istft": {
+      "error": 1
+    },
+    "item": {
+      "passed": 5,
+      "error": 2,
+      "skipped": 3,
+      "expected_failure": 1
+    },
+    "jiterator_2inputs_2outputs": {
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_4inputs_with_extra_args": {
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_binary": {
+      "passed": 1,
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_binary_return_by_ref": {
+      "passed": 1,
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_unary": {
+      "error": 8,
+      "skipped": 2
+    },
+    "kron": {
+      "passed": 3,
+      "error": 10
+    },
+    "kthvalue": {
+      "error": 13
+    },
+    "lcm": {
+      "passed": 1,
+      "error": 3
+    },
+    "ldexp": {
+      "error": 13,
+      "passed": 1
+    },
+    "le": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "lerp": {
+      "passed": 3,
+      "error": 8
+    },
+    "lgamma": {
+      "error": 12
+    },
+    "linalg.cholesky": {
+      "error": 11
+    },
+    "linalg.cholesky_ex": {
+      "error": 11
+    },
+    "linalg.cond": {
+      "error": 11
+    },
+    "linalg.cross": {
+      "passed": 1,
+      "error": 11
+    },
+    "linalg.det": {
+      "error": 11
+    },
+    "linalg.diagonal": {
+      "passed": 5,
+      "error": 8
+    },
+    "linalg.eig": {
+      "error": 11
+    },
+    "linalg.eigh": {
+      "error": 11
+    },
+    "linalg.eigvals": {
+      "error": 11
+    },
+    "linalg.eigvalsh": {
+      "error": 11
+    },
+    "linalg.householder_product": {
+      "error": 11
+    },
+    "linalg.inv": {
+      "error": 11
+    },
+    "linalg.inv_ex": {
+      "error": 11
+    },
+    "linalg.ldl_factor": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.ldl_factor_ex": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.ldl_solve": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.lstsq": {
+      "error": 10,
+      "skipped": 2
+    },
+    "linalg.lstsq.grad_oriented": {
+      "error": 11
+    },
+    "linalg.lu": {
+      "expected_failure": 1,
+      "error": 10
+    },
+    "linalg.lu_factor": {
+      "expected_failure": 1,
+      "error": 10
+    },
+    "linalg.lu_factor_ex": {
+      "unexpected_success": 1,
+      "error": 7,
+      "passed": 3
+    },
+    "linalg.lu_solve": {
+      "error": 11
+    },
+    "linalg.matrix_norm": {
+      "error": 11
+    },
+    "linalg.matrix_power": {
+      "error": 10,
+      "passed": 1
+    },
+    "linalg.matrix_rank": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.matrix_rank.hermitian": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.matrix_sqrth": {
+      "error": 10
+    },
+    "linalg.multi_dot": {
+      "passed": 4,
+      "skipped": 2,
+      "error": 6
+    },
+    "linalg.norm": {
+      "error": 11
+    },
+    "linalg.norm.subgradients_at_zero": {
+      "error": 11
+    },
+    "linalg.pinv": {
+      "error": 11
+    },
+    "linalg.pinv.hermitian": {
+      "error": 11
+    },
+    "linalg.pinv.singular": {
+      "skipped": 10
+    },
+    "linalg.polar": {
+      "error": 11
+    },
+    "linalg.qr": {
+      "error": 11
+    },
+    "linalg.slogdet": {
+      "error": 11
+    },
+    "linalg.solve": {
+      "error": 11
+    },
+    "linalg.solve_ex": {
+      "error": 11
+    },
+    "linalg.solve_triangular": {
+      "error": 11
+    },
+    "linalg.svd": {
+      "error": 11
+    },
+    "linalg.svdvals": {
+      "error": 11
+    },
+    "linalg.tensorinv": {
+      "error": 10
+    },
+    "linalg.tensorsolve": {
+      "error": 7,
+      "passed": 3
+    },
+    "linalg.vander": {
+      "error": 10
+    },
+    "linalg.vecdot": {
+      "error": 10
+    },
+    "linalg.vector_norm": {
+      "error": 11
+    },
+    "linspace": {
+      "error": 8,
+      "passed": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "linspace.tensor_overload": {
+      "error": 8,
+      "passed": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "log": {
+      "error": 12
+    },
+    "log10": {
+      "error": 12
+    },
+    "log1p": {
+      "error": 12
+    },
+    "log2": {
+      "error": 12
+    },
+    "log_normal": {
+      "skipped": 2,
+      "error": 7,
+      "expected_failure": 1
+    },
+    "log_softmax": {
+      "passed": 3,
+      "error": 8
+    },
+    "log_softmax.with_dtype": {
+      "passed": 3,
+      "error": 10
+    },
+    "logaddexp": {
+      "error": 11,
+      "passed": 1
+    },
+    "logaddexp2": {
+      "error": 11
+    },
+    "logcumsumexp": {
+      "error": 12
+    },
+    "logdet": {
+      "error": 10
+    },
+    "logical_and": {
+      "passed": 2,
+      "error": 8,
+      "skipped": 1
+    },
+    "logical_not": {
+      "error": 8,
+      "skipped": 2
+    },
+    "logical_or": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "logical_xor": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "logit": {
+      "error": 12
+    },
+    "logspace": {
+      "error": 8,
+      "passed": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "logspace.tensor_overload": {
+      "error": 8,
+      "passed": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "logsumexp": {
+      "error": 13,
+      "passed": 1
+    },
+    "long": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "lt": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "lu": {
+      "error": 9,
+      "expected_failure": 2
+    },
+    "lu_solve": {
+      "error": 11
+    },
+    "lu_unpack": {
+      "error": 11
+    },
+    "mH": {
+      "passed": 3,
+      "error": 9
+    },
+    "mT": {
+      "passed": 4,
+      "error": 8
+    },
+    "masked.amax": {
+      "error": 10
+    },
+    "masked.amin": {
+      "error": 10
+    },
+    "masked.argmax": {
+      "error": 8,
+      "skipped": 1
+    },
+    "masked.argmin": {
+      "error": 8,
+      "skipped": 1
+    },
+    "masked.cumprod": {
+      "error": 11
+    },
+    "masked.cumsum": {
+      "error": 11
+    },
+    "masked.log_softmax": {
+      "error": 8,
+      "passed": 2
+    },
+    "masked.logaddexp": {
+      "error": 10
+    },
+    "masked.logsumexp": {
+      "error": 11
+    },
+    "masked.mean": {
+      "error": 7,
+      "passed": 2
+    },
+    "masked.median": {
+      "error": 10
+    },
+    "masked.norm": {
+      "error": 10
+    },
+    "masked.normalize": {
+      "error": 10
+    },
+    "masked.prod": {
+      "error": 9,
+      "passed": 2
+    },
+    "masked.softmax": {
+      "error": 8,
+      "passed": 2
+    },
+    "masked.softmin": {
+      "error": 8,
+      "passed": 2
+    },
+    "masked.std": {
+      "error": 8,
+      "passed": 2
+    },
+    "masked.sum": {
+      "error": 9,
+      "passed": 2
+    },
+    "masked.var": {
+      "error": 8,
+      "passed": 2
+    },
+    "masked_fill": {
+      "error": 13
+    },
+    "masked_scatter": {
+      "error": 13
+    },
+    "masked_select": {
+      "error": 14
+    },
+    "matmul": {
+      "error": 11,
+      "expected_failure": 1
+    },
+    "matrix_exp": {
+      "error": 10
+    },
+    "max.binary": {
+      "passed": 4,
+      "error": 10
+    },
+    "max.reduction_no_dim": {
+      "error": 13,
+      "passed": 1
+    },
+    "max.reduction_with_dim": {
+      "error": 13,
+      "passed": 1
+    },
+    "max_pool2d_with_indices_backward": {
+      "passed": 2,
+      "error": 5,
+      "skipped": 1,
+      "expected_failure": 1,
+      "timeout": 1
+    },
+    "maximum": {
+      "passed": 3,
+      "error": 10
+    },
+    "mean": {
+      "passed": 4,
+      "error": 8
+    },
+    "median": {
+      "error": 11,
+      "passed": 1
+    },
+    "meshgrid.list_of_tensors": {
+      "passed": 5,
+      "error": 7
+    },
+    "meshgrid.variadic_tensors": {
+      "error": 8,
+      "passed": 3
+    },
+    "min.binary": {
+      "passed": 4,
+      "error": 10
+    },
+    "min.reduction_no_dim": {
+      "error": 13,
+      "passed": 1
+    },
+    "min.reduction_with_dim": {
+      "error": 13,
+      "passed": 1
+    },
+    "minimum": {
+      "passed": 3,
+      "error": 10
+    },
+    "mm": {
+      "passed": 3,
+      "error": 9
+    },
+    "mode": {
+      "error": 12,
+      "expected_failure": 1
+    },
+    "movedim": {
+      "passed": 4,
+      "error": 9
+    },
+    "msort": {
+      "error": 13
+    },
+    "mul": {
+      "passed": 4,
+      "error": 11
+    },
+    "mul_layout0": {
+      "error": 1
+    },
+    "mul_layout1": {
+      "error": 1
+    },
+    "mul_layout2": {
+      "error": 1
+    },
+    "mul_layout3": {
+      "error": 1
+    },
+    "mul_layout4": {
+      "error": 1
+    },
+    "multinomial": {
+      "skipped": 3,
+      "error": 6,
+      "expected_failure": 1
+    },
+    "mv": {
+      "error": 12
+    },
+    "mvlgamma.mvlgamma_p_1": {
+      "error": 11
+    },
+    "mvlgamma.mvlgamma_p_3": {
+      "error": 11
+    },
+    "mvlgamma.mvlgamma_p_5": {
+      "error": 11
+    },
+    "nan_to_num": {
+      "error": 12
+    },
+    "nanmean": {
+      "error": 10
+    },
+    "nanmedian": {
+      "error": 11
+    },
+    "nanquantile": {
+      "error": 11
+    },
+    "nansum": {
+      "error": 13
+    },
+    "narrow": {
+      "passed": 3,
+      "error": 7,
+      "expected_failure": 3
+    },
+    "narrow_copy": {
+      "passed": 4,
+      "error": 8,
+      "expected_failure": 2
+    },
+    "native_batch_norm": {
+      "unexpected_success": 1,
+      "error": 7,
+      "passed": 3
+    },
+    "native_dropout_backward": {
+      "error": 11,
+      "skipped": 1
+    },
+    "native_group_norm": {
+      "error": 7,
+      "passed": 2
+    },
+    "native_layer_norm": {
+      "error": 7,
+      "passed": 2,
+      "skipped": 1
+    },
+    "ne": {
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "neg": {
+      "passed": 3,
+      "error": 9
+    },
+    "new_empty": {
+      "skipped": 7,
+      "passed": 3,
+      "error": 1
+    },
+    "new_empty_strided": {
+      "skipped": 7,
+      "passed": 3,
+      "error": 1
+    },
+    "new_full": {
+      "error": 7,
+      "passed": 3,
+      "skipped": 1
+    },
+    "new_ones": {
+      "error": 7,
+      "passed": 3,
+      "skipped": 1
+    },
+    "new_zeros": {
+      "error": 7,
+      "passed": 3,
+      "skipped": 1
+    },
+    "nextafter": {
+      "error": 11,
+      "passed": 1
+    },
+    "nn.functional.adaptive_avg_pool1d": {
+      "passed": 6,
+      "error": 5
+    },
+    "nn.functional.adaptive_avg_pool2d": {
+      "passed": 6,
+      "error": 5
+    },
+    "nn.functional.adaptive_avg_pool3d": {
+      "passed": 6,
+      "error": 5
+    },
+    "nn.functional.adaptive_max_pool1d": {
+      "error": 10,
+      "passed": 1
+    },
+    "nn.functional.adaptive_max_pool2d": {
+      "error": 10,
+      "passed": 1
+    },
+    "nn.functional.adaptive_max_pool3d": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.alpha_dropout": {
+      "error": 7,
+      "passed": 3
+    },
+    "nn.functional.avg_pool1d": {
+      "passed": 6,
+      "error": 6
+    },
+    "nn.functional.avg_pool2d": {
+      "passed": 5,
+      "error": 8
+    },
+    "nn.functional.avg_pool3d": {
+      "passed": 5,
+      "error": 8
+    },
+    "nn.functional.batch_norm": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.batch_norm.without_cudnn": {
+      "skipped": 1
+    },
+    "nn.functional.bilinear": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.binary_cross_entropy": {
+      "error": 10
+    },
+    "nn.functional.binary_cross_entropy_with_logits": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.celu": {
+      "error": 9
+    },
+    "nn.functional.channel_shuffle": {
+      "error": 12
+    },
+    "nn.functional.conv1d": {
+      "passed": 4,
+      "error": 8
+    },
+    "nn.functional.conv2d": {
+      "passed": 4,
+      "error": 8
+    },
+    "nn.functional.conv3d": {
+      "skipped": 1,
+      "error": 8,
+      "passed": 3
+    },
+    "nn.functional.conv_transpose1d": {
+      "error": 7,
+      "passed": 3
+    },
+    "nn.functional.conv_transpose2d": {
+      "error": 7,
+      "passed": 3
+    },
+    "nn.functional.conv_transpose3d": {
+      "error": 7,
+      "passed": 3
+    },
+    "nn.functional.cosine_embedding_loss": {
+      "error": 12
+    },
+    "nn.functional.cosine_similarity": {
+      "error": 10
+    },
+    "nn.functional.cross_entropy": {
+      "error": 8,
+      "passed": 2
+    },
+    "nn.functional.ctc_loss": {
+      "error": 9,
+      "skipped": 1
+    },
+    "nn.functional.dropout": {
+      "skipped": 1,
+      "error": 6,
+      "passed": 3
+    },
+    "nn.functional.dropout2d": {
+      "skipped": 1,
+      "error": 6,
+      "passed": 3
+    },
+    "nn.functional.dropout3d": {
+      "skipped": 1,
+      "error": 7,
+      "passed": 2
+    },
+    "nn.functional.elu": {
+      "error": 9
+    },
+    "nn.functional.embedding": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "nn.functional.embedding_bag": {
+      "error": 6,
+      "passed": 2,
+      "skipped": 2
+    },
+    "nn.functional.feature_alpha_dropout.with_train": {
+      "skipped": 1,
+      "error": 6,
+      "passed": 3
+    },
+    "nn.functional.feature_alpha_dropout.without_train": {
+      "passed": 4,
+      "error": 8
+    },
+    "nn.functional.fractional_max_pool2d": {
+      "skipped": 1,
+      "error": 9
+    },
+    "nn.functional.fractional_max_pool3d": {
+      "skipped": 1,
+      "error": 9
+    },
+    "nn.functional.gaussian_nll_loss": {
+      "error": 8,
+      "expected_failure": 3
+    },
+    "nn.functional.gelu": {
+      "error": 9,
+      "skipped": 1,
+      "passed": 1
+    },
+    "nn.functional.glu": {
+      "error": 10
+    },
+    "nn.functional.grid_sample": {
+      "error": 5,
+      "passed": 4,
+      "skipped": 1
+    },
+    "nn.functional.group_norm": {
+      "passed": 3,
+      "error": 7
+    },
+    "nn.functional.hardshrink": {
+      "error": 11
+    },
+    "nn.functional.hardsigmoid": {
+      "error": 9
+    },
+    "nn.functional.hardswish": {
+      "error": 10
+    },
+    "nn.functional.hardtanh": {
+      "error": 11,
+      "passed": 1
+    },
+    "nn.functional.hinge_embedding_loss": {
+      "error": 10,
+      "passed": 1
+    },
+    "nn.functional.huber_loss": {
+      "error": 11
+    },
+    "nn.functional.instance_norm": {
+      "error": 10
+    },
+    "nn.functional.interpolate.area": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.interpolate.bicubic": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.interpolate.bilinear": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.interpolate.linear": {
+      "error": 10
+    },
+    "nn.functional.interpolate.nearest": {
+      "error": 10
+    },
+    "nn.functional.interpolate.nearest-exact": {
+      "error": 10
+    },
+    "nn.functional.interpolate.trilinear": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.kl_div": {
+      "error": 8,
+      "passed": 2
+    },
+    "nn.functional.l1_loss": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.layer_norm": {
+      "error": 7,
+      "passed": 2
+    },
+    "nn.functional.leaky_relu": {
+      "passed": 4,
+      "error": 6
+    },
+    "nn.functional.linear": {
+      "error": 10,
+      "expected_failure": 1,
+      "passed": 1
+    },
+    "nn.functional.linear_cross_entropy": {
+      "error": 8,
+      "passed": 3
+    },
+    "nn.functional.linear_cross_entropy.chunked": {
+      "error": 9,
+      "passed": 1,
+      "skipped": 1
+    },
+    "nn.functional.linear_cross_entropy.chunked_none": {
+      "error": 8,
+      "passed": 1,
+      "skipped": 2
+    },
+    "nn.functional.local_response_norm": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.logsigmoid": {
+      "error": 8,
+      "passed": 2
+    },
+    "nn.functional.margin_ranking_loss": {
+      "error": 11,
+      "passed": 1
+    },
+    "nn.functional.max_pool1d": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.max_pool2d": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.max_pool3d": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.max_unpool1d": {
+      "error": 11
+    },
+    "nn.functional.max_unpool1d.grad": {
+      "error": 10
+    },
+    "nn.functional.max_unpool2d": {
+      "error": 10,
+      "skipped": 1
+    },
+    "nn.functional.max_unpool2d.grad": {
+      "error": 10
+    },
+    "nn.functional.max_unpool3d": {
+      "error": 10,
+      "skipped": 1
+    },
+    "nn.functional.max_unpool3d.grad": {
+      "error": 10
+    },
+    "nn.functional.mish": {
+      "error": 9
+    },
+    "nn.functional.mse_loss": {
+      "error": 5,
+      "passed": 4
+    },
+    "nn.functional.multi_head_attention_forward": {
+      "skipped": 4,
+      "error": 6
+    },
+    "nn.functional.multi_margin_loss": {
+      "error": 10,
+      "skipped": 1
+    },
+    "nn.functional.multilabel_margin_loss": {
+      "error": 10,
+      "skipped": 1
+    },
+    "nn.functional.multilabel_soft_margin_loss": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.nll_loss": {
+      "error": 8,
+      "passed": 2
+    },
+    "nn.functional.normalize": {
+      "error": 11
+    },
+    "nn.functional.one_hot": {
+      "error": 3
+    },
+    "nn.functional.pad.circular": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.pad.constant": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.pad.reflect": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.pad.replicate": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.pad.replicate_negative": {
+      "passed": 5,
+      "error": 6
+    },
+    "nn.functional.pairwise_distance": {
+      "error": 10
+    },
+    "nn.functional.pdist": {
+      "error": 8,
+      "skipped": 1
+    },
+    "nn.functional.pixel_shuffle": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.pixel_unshuffle": {
+      "passed": 5,
+      "error": 7
+    },
+    "nn.functional.poisson_nll_loss": {
+      "error": 11,
+      "passed": 1
+    },
+    "nn.functional.prelu": {
+      "passed": 1,
+      "error": 9
+    },
+    "nn.functional.relu": {
+      "error": 6,
+      "passed": 4
+    },
+    "nn.functional.relu6": {
+      "error": 11
+    },
+    "nn.functional.rms_norm": {
+      "passed": 4,
+      "error": 6
+    },
+    "nn.functional.rrelu": {
+      "skipped": 1,
+      "passed": 1,
+      "error": 9
+    },
+    "nn.functional.scaled_dot_product_attention": {
+      "skipped": 3,
+      "passed": 4,
+      "error": 3
+    },
+    "nn.functional.selu": {
+      "error": 9
+    },
+    "nn.functional.silu": {
+      "error": 6,
+      "passed": 3
+    },
+    "nn.functional.silu.complex": {
+      "passed": 1
+    },
+    "nn.functional.smooth_l1_loss": {
+      "error": 9
+    },
+    "nn.functional.soft_margin_loss": {
+      "error": 11
+    },
+    "nn.functional.softmin": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.softmin.with_dtype": {
+      "error": 11
+    },
+    "nn.functional.softplus": {
+      "error": 10
+    },
+    "nn.functional.softshrink": {
+      "error": 11,
+      "passed": 1
+    },
+    "nn.functional.softsign": {
+      "error": 6,
+      "passed": 4
+    },
+    "nn.functional.tanhshrink": {
+      "error": 6,
+      "passed": 4
+    },
+    "nn.functional.threshold": {
+      "error": 10
+    },
+    "nn.functional.triplet_margin_loss": {
+      "error": 12
+    },
+    "nn.functional.triplet_margin_with_distance_loss": {
+      "error": 12
+    },
+    "nn.functional.unfold": {
+      "error": 11
+    },
+    "nn.functional.upsample_bilinear": {
+      "passed": 5,
+      "error": 5
+    },
+    "nn.functional.upsample_nearest": {
+      "error": 10
+    },
+    "nonzero": {
+      "error": 8,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "nonzero_static": {
+      "error": 8,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "norm": {
+      "error": 11
+    },
+    "norm.fro": {
+      "error": 11
+    },
+    "norm.inf": {
+      "error": 11
+    },
+    "norm.nuc": {
+      "error": 11
+    },
+    "normal": {
+      "skipped": 2,
+      "error": 7,
+      "expected_failure": 2
+    },
+    "normal.in_place": {
+      "skipped": 3,
+      "error": 3,
+      "passed": 3,
+      "expected_failure": 1
+    },
+    "normal.number_mean": {
+      "skipped": 7,
+      "passed": 1,
+      "error": 3
+    },
+    "ones": {
+      "error": 6,
+      "passed": 3,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "ones_like": {
+      "error": 6,
+      "passed": 4,
+      "skipped": 1
+    },
+    "ormqr": {
+      "error": 10,
+      "expected_failure": 1,
+      "skipped": 1
+    },
+    "outer": {
+      "passed": 3,
+      "error": 10
+    },
+    "pca_lowrank": {
+      "skipped": 1,
+      "error": 9
+    },
+    "permute": {
+      "error": 9,
+      "passed": 2
+    },
+    "permute_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "pinverse": {
+      "error": 10
+    },
+    "polar": {
+      "error": 11,
+      "passed": 1
+    },
+    "polygamma.polygamma_n_0": {
+      "error": 12
+    },
+    "polygamma.polygamma_n_1": {
+      "skipped": 7,
+      "error": 5
+    },
+    "polygamma.polygamma_n_2": {
+      "skipped": 7,
+      "error": 5
+    },
+    "polygamma.polygamma_n_3": {
+      "skipped": 7,
+      "error": 5
+    },
+    "polygamma.polygamma_n_4": {
+      "skipped": 7,
+      "error": 5
+    },
+    "positive": {
+      "error": 7,
+      "passed": 3
+    },
+    "pow": {
+      "passed": 1,
+      "error": 11
+    },
+    "prod": {
+      "error": 11,
+      "passed": 1
+    },
+    "put": {
+      "error": 12
+    },
+    "quantile": {
+      "error": 11
+    },
+    "rad2deg": {
+      "error": 12
+    },
+    "rand_like": {
+      "skipped": 2,
+      "error": 5,
+      "passed": 2
+    },
+    "randint": {
+      "error": 5,
+      "skipped": 3,
+      "expected_failure": 3
+    },
+    "randint_like": {
+      "skipped": 2,
+      "error": 9
+    },
+    "randn": {
+      "error": 3,
+      "skipped": 2,
+      "expected_failure": 2,
+      "passed": 2
+    },
+    "randn_like": {
+      "skipped": 2,
+      "error": 5,
+      "passed": 2
+    },
+    "randn_like_layout0": {
+      "passed": 1
+    },
+    "randn_like_layout1": {
+      "passed": 1
+    },
+    "randn_like_layout2": {
+      "passed": 1
+    },
+    "randn_like_layout3": {
+      "passed": 1
+    },
+    "randn_like_layout4": {
+      "passed": 1
+    },
+    "ravel": {
+      "error": 9,
+      "passed": 2
+    },
+    "real": {
+      "error": 7,
+      "passed": 4
+    },
+    "reciprocal": {
+      "error": 12
+    },
+    "remainder": {
+      "passed": 1,
+      "error": 11
+    },
+    "renorm": {
+      "error": 11,
+      "passed": 1
+    },
+    "repeat": {
+      "error": 9,
+      "passed": 2
+    },
+    "repeat_interleave": {
+      "error": 10,
+      "passed": 2
+    },
+    "reshape": {
+      "passed": 4,
+      "error": 9
+    },
+    "reshape_as": {
+      "passed": 4,
+      "error": 9
+    },
+    "resize_": {
+      "passed": 4,
+      "error": 5,
+      "skipped": 2
+    },
+    "resize_as_": {
+      "passed": 4,
+      "error": 5,
+      "skipped": 2
+    },
+    "resolve_conj": {
+      "passed": 4,
+      "error": 8
+    },
+    "resolve_neg": {
+      "passed": 4,
+      "error": 8
+    },
+    "roll": {
+      "error": 12
+    },
+    "rot90": {
+      "passed": 5,
+      "error": 8
+    },
+    "round": {
+      "error": 11
+    },
+    "round.decimals_0": {
+      "error": 10
+    },
+    "round.decimals_3": {
+      "skipped": 5,
+      "error": 5
+    },
+    "round.decimals_neg_3": {
+      "skipped": 5,
+      "error": 5
+    },
+    "rsqrt": {
+      "error": 10,
+      "passed": 2
+    },
+    "rsub": {
+      "error": 11,
+      "passed": 1
+    },
+    "scalar_tensor": {
+      "error": 3,
+      "skipped": 4,
+      "passed": 4
+    },
+    "scatter": {
+      "error": 14
+    },
+    "scatter_add": {
+      "error": 14
+    },
+    "scatter_reduce.amax": {
+      "error": 13
+    },
+    "scatter_reduce.amin": {
+      "error": 13
+    },
+    "scatter_reduce.mean": {
+      "error": 12
+    },
+    "scatter_reduce.prod": {
+      "error": 12,
+      "skipped": 1
+    },
+    "scatter_reduce.sum": {
+      "error": 13
+    },
+    "searchsorted": {
+      "error": 8,
+      "skipped": 1
+    },
+    "select": {
+      "passed": 3,
+      "error": 9
+    },
+    "select_scatter": {
+      "passed": 4,
+      "error": 8
+    },
+    "sgn": {
+      "error": 10,
+      "passed": 2
+    },
+    "short": {
+      "skipped": 2,
+      "error": 6,
+      "passed": 3
+    },
+    "sigmoid": {
+      "error": 10,
+      "passed": 2
+    },
+    "sign": {
+      "error": 12
+    },
+    "signal.windows.bartlett": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.blackman": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.cosine": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.exponential": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.gaussian": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.general_cosine": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.general_hamming": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.hamming": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.hann": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.kaiser": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signal.windows.nuttall": {
+      "passed": 3,
+      "skipped": 3,
+      "error": 3
+    },
+    "signbit": {
+      "error": 9,
+      "skipped": 1
+    },
+    "sin": {
+      "error": 10,
+      "passed": 2
+    },
+    "sinc": {
+      "error": 12
+    },
+    "sinh": {
+      "error": 12
+    },
+    "slice": {
+      "passed": 4,
+      "error": 8
+    },
+    "slice_scatter": {
+      "passed": 3,
+      "error": 10
+    },
+    "softmax": {
+      "passed": 3,
+      "error": 8
+    },
+    "softmax.with_dtype": {
+      "error": 13
+    },
+    "sort": {
+      "error": 13
+    },
+    "sparse.mm.reduce": {
+      "error": 5,
+      "skipped": 5
+    },
+    "sparse.sampled_addmm": {
+      "error": 4,
+      "skipped": 7
+    },
+    "special.airy_ai": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.bessel_j0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.bessel_j1": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.bessel_y0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.bessel_y1": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_t": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_u": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_v": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_w": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.entr": {
+      "error": 12
+    },
+    "special.erfcx": {
+      "error": 12
+    },
+    "special.hermite_polynomial_h": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.hermite_polynomial_he": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.i0e": {
+      "error": 12
+    },
+    "special.i1": {
+      "error": 12
+    },
+    "special.i1e": {
+      "error": 12
+    },
+    "special.laguerre_polynomial_l": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.legendre_polynomial_p": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.log_ndtr": {
+      "error": 12
+    },
+    "special.modified_bessel_i0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_i1": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_k0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_k1": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.ndtr": {
+      "error": 12
+    },
+    "special.ndtri": {
+      "error": 12
+    },
+    "special.polygamma.special_polygamma_n_0": {
+      "error": 12
+    },
+    "special.scaled_modified_bessel_k0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.scaled_modified_bessel_k1": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_t": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_u": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_v": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_w": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "special.spherical_bessel_j0": {
+      "error": 9,
+      "skipped": 1
+    },
+    "special.xlog1py": {
+      "error": 13,
+      "passed": 1
+    },
+    "special.zeta": {
+      "expected_failure": 1,
+      "passed": 1,
+      "error": 9,
+      "skipped": 1
+    },
+    "split": {
+      "passed": 3,
+      "error": 9
+    },
+    "split.list_args": {
+      "passed": 3,
+      "error": 9
+    },
+    "split_with_sizes": {
+      "passed": 3,
+      "error": 9
+    },
+    "split_with_sizes_copy": {
+      "passed": 3,
+      "error": 9,
+      "expected_failure": 1
+    },
+    "sqrt": {
+      "error": 10,
+      "passed": 2
+    },
+    "square": {
+      "error": 10,
+      "passed": 2
+    },
+    "squeeze": {
+      "error": 9,
+      "passed": 2
+    },
+    "squeeze.multiple": {
+      "error": 9,
+      "passed": 2
+    },
+    "squeeze_copy": {
+      "error": 9,
+      "passed": 3
+    },
+    "stack": {
+      "passed": 4,
+      "error": 9
+    },
+    "std": {
+      "error": 11
+    },
+    "std.unbiased": {
+      "error": 10,
+      "passed": 1
+    },
+    "std_mean": {
+      "error": 11
+    },
+    "std_mean.unbiased": {
+      "error": 10,
+      "passed": 1
+    },
+    "stft": {
+      "passed": 4,
+      "error": 6
+    },
+    "sub": {
+      "passed": 3,
+      "error": 9
+    },
+    "sum": {
+      "error": 8,
+      "passed": 4
+    },
+    "sum_layout0": {
+      "passed": 1
+    },
+    "sum_layout1": {
+      "passed": 1
+    },
+    "sum_layout2": {
+      "passed": 1
+    },
+    "sum_layout3": {
+      "passed": 1
+    },
+    "sum_layout4": {
+      "passed": 1
+    },
+    "sum_to_size": {
+      "passed": 5,
+      "error": 8
+    },
+    "svd": {
+      "error": 11
+    },
+    "svd_lowrank": {
+      "skipped": 2,
+      "error": 8
+    },
+    "t": {
+      "error": 11,
+      "passed": 2
+    },
+    "t_copy": {
+      "error": 13,
+      "passed": 1
+    },
+    "take": {
+      "error": 14
+    },
+    "take_along_dim": {
+      "error": 13
+    },
+    "tan": {
+      "error": 12
+    },
+    "tanh": {
+      "error": 10,
+      "passed": 2
+    },
+    "tensor_split": {
+      "error": 6,
+      "passed": 2,
+      "expected_failure": 3
+    },
+    "tensordot": {
+      "error": 11,
+      "passed": 1
+    },
+    "tile": {
+      "error": 9,
+      "passed": 2
+    },
+    "to": {
+      "error": 10,
+      "passed": 2
+    },
+    "to_sparse": {
+      "passed": 4,
+      "error": 3,
+      "skipped": 5
+    },
+    "topk": {
+      "passed": 3,
+      "error": 9
+    },
+    "torch._scaled_mm": {
+      "error": 1
+    },
+    "torch._scaled_mm_v2": {
+      "error": 1
+    },
+    "torch.ops.aten._efficient_attention_forward": {
+      "skipped": 1
+    },
+    "torch.ops.aten._flash_attention_forward": {
+      "skipped": 1
+    },
+    "torch.ops.aten._safe_softmax.default": {
+      "error": 12
+    },
+    "torch.ops.aten._scaled_dot_product_flash_attention_for_cpu": {
+      "error": 9,
+      "skipped": 1
+    },
+    "trace": {
+      "error": 12
+    },
+    "transpose": {
+      "error": 9,
+      "passed": 2
+    },
+    "transpose_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "trapezoid": {
+      "passed": 5,
+      "error": 6
+    },
+    "trapz": {
+      "passed": 5,
+      "error": 6
+    },
+    "triangular_solve": {
+      "error": 10,
+      "expected_failure": 1
+    },
+    "tril": {
+      "passed": 3,
+      "error": 11
+    },
+    "tril_indices": {
+      "skipped": 1,
+      "error": 2
+    },
+    "triu": {
+      "passed": 3,
+      "error": 11
+    },
+    "triu_indices": {
+      "skipped": 1,
+      "error": 2
+    },
+    "true_divide": {
+      "error": 13,
+      "passed": 1
+    },
+    "trunc": {
+      "error": 11
+    },
+    "unbind": {
+      "passed": 3,
+      "error": 9
+    },
+    "unbind_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "unflatten": {
+      "passed": 3,
+      "error": 9
+    },
+    "unfold": {
+      "error": 12
+    },
+    "unfold_copy": {
+      "error": 13
+    },
+    "uniform": {
+      "skipped": 2,
+      "error": 4,
+      "passed": 3,
+      "expected_failure": 1
+    },
+    "unique": {
+      "skipped": 2,
+      "error": 9
+    },
+    "unique_consecutive": {
+      "error": 10,
+      "skipped": 1
+    },
+    "unravel_index": {
+      "error": 3
+    },
+    "unsafe_chunk": {
+      "passed": 4,
+      "error": 8
+    },
+    "unsafe_split": {
+      "passed": 4,
+      "error": 8
+    },
+    "unsqueeze": {
+      "passed": 3,
+      "error": 9
+    },
+    "unsqueeze_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "var": {
+      "error": 8,
+      "passed": 3
+    },
+    "var.unbiased": {
+      "passed": 5,
+      "error": 6
+    },
+    "var_mean": {
+      "passed": 6,
+      "error": 5
+    },
+    "var_mean.unbiased": {
+      "passed": 6,
+      "error": 5
+    },
+    "vdot": {
+      "error": 13
+    },
+    "view": {
+      "passed": 4,
+      "error": 9
+    },
+    "view_as": {
+      "passed": 4,
+      "error": 9
+    },
+    "view_as_complex": {
+      "passed": 4,
+      "expected_failure": 1,
+      "error": 5
+    },
+    "view_as_real": {
+      "passed": 1
+    },
+    "view_copy": {
+      "passed": 4,
+      "error": 9
+    },
+    "vsplit": {
+      "passed": 4,
+      "error": 9
+    },
+    "vstack": {
+      "passed": 4,
+      "error": 10
+    },
+    "where": {
+      "error": 13
+    },
+    "xlogy": {
+      "error": 13,
+      "passed": 1
+    },
+    "zero_": {
+      "passed": 4,
+      "error": 8
+    },
+    "zeros": {
+      "error": 6,
+      "passed": 3,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "zeros_like": {
+      "error": 6,
+      "passed": 4,
+      "skipped": 1
+    },
+    "zeros_like_layout0": {
+      "passed": 1
+    },
+    "zeros_like_layout1": {
+      "passed": 1
+    },
+    "zeros_like_layout2": {
+      "passed": 1
+    },
+    "zeros_like_layout3": {
+      "passed": 1
+    },
+    "zeros_like_layout4": {
+      "passed": 1
+    }
+  },
+  "timeout_recheck": [
+    {
+      "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_max_pool2d_with_indices_backward_vulkan_float32",
+      "family": "test_variant_consistency_eager",
+      "operator": "max_pool2d_with_indices_backward",
+      "dtype": "float32",
+      "status": "passed",
+      "details": [],
+      "execution": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "seconds": 35.713863372802734
+    }
+  ],
+  "independent_reproductions": {
+    "rtx-reproductions": {
+      "backend_commit": "863fc0b8a809de27f0975339a49d4cd8c8ee66f7",
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "torch": "2.14.1+cpu",
+      "cases": {
+        "addmm_scaled_matrix_bias": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.0073469877243042,
+              1.1526530981063843,
+              1.2979592084884644
+            ],
+            [
+              1.4506123065948486,
+              1.605714201927185,
+              1.7608163356781006
+            ]
+          ],
+          "expected": [
+            [
+              0.23673470318317413,
+              0.2775510549545288,
+              0.3183673620223999
+            ],
+            [
+              0.3959183692932129,
+              0.485714316368103,
+              0.5755102634429932
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 6 / 6 (100.0%)\nGreatest absolute difference: 1.1853060722351074 at index (1, 2) (up to 1e-05 allowed)\nGreatest relative difference: 3.2551724910736084 at index (0, 0) (up to 0.0001 allowed)"
+        },
+        "addmm_beta_one_control": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469387531280518
+            ]
+          ],
+          "expected": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469388723373413
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "empty_inner_mm": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "transpose_vector": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "t: only 2D tensors"
+        },
+        "empty_uniform": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [],
+            []
+          ],
+          "expected": [
+            [],
+            []
+          ],
+          "vulkan_status": "passed"
+        },
+        "bool_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "float_integer_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "advanced_indexing": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::index.Tensor_out(Tensor self, Tensor?[] indices, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "tensor_equality": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::eq.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "partial_view_storage_offset": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "upstream_partial_view_cpu_reference": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 80,
+            "host_read_calls": 1,
+            "host_read_max_bytes": 80
+          },
+          "actual": [
+            [
+              5.0,
+              7.0
+            ],
+            [
+              6.0,
+              8.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 4 / 4 (100.0%)\nGreatest absolute difference: 5.0 at index (0, 0) (up to 1e-05 allowed)\nGreatest relative difference: inf at index (0, 0) (up to 0.0001 allowed)"
+        }
+      }
+    },
+    "v100-reproductions": {
+      "backend_commit": "863fc0b8a809de27f0975339a49d4cd8c8ee66f7",
+      "device": "Tesla V100-SXM2-32GB",
+      "torch": "2.14.1+cpu",
+      "cases": {
+        "addmm_scaled_matrix_bias": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.0073469877243042,
+              1.1526530981063843,
+              1.2979592084884644
+            ],
+            [
+              1.4506123065948486,
+              1.605714201927185,
+              1.7608163356781006
+            ]
+          ],
+          "expected": [
+            [
+              0.23673470318317413,
+              0.2775510549545288,
+              0.3183673620223999
+            ],
+            [
+              0.3959183692932129,
+              0.485714316368103,
+              0.5755102634429932
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 6 / 6 (100.0%)\nGreatest absolute difference: 1.1853060722351074 at index (1, 2) (up to 1e-05 allowed)\nGreatest relative difference: 3.2551724910736084 at index (0, 0) (up to 0.0001 allowed)"
+        },
+        "addmm_beta_one_control": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469387531280518
+            ]
+          ],
+          "expected": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469388723373413
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "empty_inner_mm": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "transpose_vector": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "t: only 2D tensors"
+        },
+        "empty_uniform": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [],
+            []
+          ],
+          "expected": [
+            [],
+            []
+          ],
+          "vulkan_status": "passed"
+        },
+        "bool_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "float_integer_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "advanced_indexing": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::index.Tensor_out(Tensor self, Tensor?[] indices, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "tensor_equality": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::eq.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "partial_view_storage_offset": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "upstream_partial_view_cpu_reference": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 80,
+            "host_read_calls": 1,
+            "host_read_max_bytes": 80
+          },
+          "actual": [
+            [
+              5.0,
+              7.0
+            ],
+            [
+              6.0,
+              8.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 4 / 4 (100.0%)\nGreatest absolute difference: 5.0 at index (0, 0) (up to 1e-05 allowed)\nGreatest relative difference: inf at index (0, 0) (up to 0.0001 allowed)"
+        }
+      }
+    },
+    "lavapipe-reproductions": {
+      "backend_commit": "863fc0b8a809de27f0975339a49d4cd8c8ee66f7",
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "torch": "2.14.1+cpu",
+      "cases": {
+        "addmm_scaled_matrix_bias": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.0073469877243042,
+              1.1526530981063843,
+              1.2979592084884644
+            ],
+            [
+              1.4506123065948486,
+              1.605714201927185,
+              1.7608163356781006
+            ]
+          ],
+          "expected": [
+            [
+              0.23673470318317413,
+              0.2775510549545288,
+              0.3183673620223999
+            ],
+            [
+              0.3959183692932129,
+              0.485714316368103,
+              0.5755102634429932
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 6 / 6 (100.0%)\nGreatest absolute difference: 1.1853060722351074 at index (1, 2) (up to 1e-05 allowed)\nGreatest relative difference: 3.2551724910736084 at index (0, 0) (up to 0.0001 allowed)"
+        },
+        "addmm_beta_one_control": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469387531280518
+            ]
+          ],
+          "expected": [
+            [
+              1.036734700202942,
+              1.1918368339538574,
+              1.3469387292861938
+            ],
+            [
+              1.5387755632400513,
+              1.7428570985794067,
+              1.9469388723373413
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "empty_inner_mm": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "transpose_vector": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "t: only 2D tensors"
+        },
+        "empty_uniform": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [],
+            []
+          ],
+          "expected": [
+            [],
+            []
+          ],
+          "vulkan_status": "passed"
+        },
+        "bool_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "float_integer_rng": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "Vulkan integer RNG supports int32/int64 output"
+        },
+        "advanced_indexing": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::index.Tensor_out(Tensor self, Tensor?[] indices, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "tensor_equality": {
+          "cpu_status": "passed",
+          "vulkan_status": "error",
+          "error": "CPU fallback forbidden: aten::eq.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+        },
+        "partial_view_storage_offset": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 0,
+            "host_read_calls": 0,
+            "host_read_max_bytes": 0
+          },
+          "actual": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "passed"
+        },
+        "upstream_partial_view_cpu_reference": {
+          "cpu_status": "passed",
+          "execution": {
+            "cpu_fallback_calls": 0,
+            "host_read_bytes": 80,
+            "host_read_calls": 1,
+            "host_read_max_bytes": 80
+          },
+          "actual": [
+            [
+              5.0,
+              7.0
+            ],
+            [
+              6.0,
+              8.0
+            ]
+          ],
+          "expected": [
+            [
+              0.0,
+              2.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ],
+          "vulkan_status": "mismatch",
+          "error": "Tensor-likes are not close!\n\nMismatched elements: 4 / 4 (100.0%)\nGreatest absolute difference: 5.0 at index (0, 0) (up to 1e-05 allowed)\nGreatest relative difference: inf at index (0, 0) (up to 0.0001 allowed)"
+        }
+      }
+    }
+  },
+  "interpretation": [
+    "Counts are generated test cases, not distinct supported operators or sample inputs.",
+    "Each upstream case can stop on its first failing sample; unvisited samples are not passes.",
+    "Upstream skips/xfails are retained. No tolerance or sample-input rewrites were made.",
+    "FP32-tagged cases can explicitly request other dtypes. Test-defined cases can exercise several dtypes.",
+    "Failures may originate in sample generation, comparison helpers, target ops, or composite infrastructure.",
+    "Host-read counters include explicit comparison downloads; this suite does not measure numeric GPU residency.",
+    "Suite completion exit code is not a claim that all tests passed.",
+    "This is selected test_ops coverage, not all PyTorch tests or a complete finite-difference gradcheck suite."
+  ]
+}

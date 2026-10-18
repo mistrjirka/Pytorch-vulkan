@@ -1,0 +1,54 @@
+[Oct 18 2026 21:32:31] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+[Oct 18 2026 21:32:31] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: Using a target size (torch.Size([5])) that is different to the input size (torch.Size([5, 4])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/definitions/sparse.py:384: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:49.)
+  .to_sparse(layout=layout)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/_prims_common/__init__.py:2017: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  if a.size() < required_length:
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_utils.py:18: UserWarning: dropout2d: Received a 3D input to dropout2d and assuming that channel-wise 1D dropout behavior is desired - input is interpreted as shape (N, C, L), where C is the channel dim. This behavior will change in a future release to interpret the input as one without a batch dimension, i.e. shape (C, H, W). To maintain the 1D channel-wise dropout behavior, please switch to using dropout1d instead.
+  output = op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_bilinear` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_nearest` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: A window was not provided. A rectangular window will be applied.Please provide the same window used by stft to make the inversion lossless.To suppress this warning and use a rectangular window, explicitly set `window=torch.ones(n_fft, device=<device>)`. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/SpectralOps.cpp:1054.)
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_utils.py:18: UserWarning: dropout2d: Received a 3D input to dropout2d and assuming that channel-wise 1D dropout behavior is desired - input is interpreted as shape (N, C, L), where C is the channel dim. This behavior will change in a future release to interpret the input as one without a batch dimension, i.e. shape (C, H, W). To maintain the 1D channel-wise dropout behavior, please switch to using dropout1d instead.
+  output = op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_bilinear` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_nearest` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+[Oct 18 2026 21:32:31] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_utils.py:18: UserWarning: dropout2d: Received a 3D input to dropout2d and assuming that channel-wise 1D dropout behavior is desired - input is interpreted as shape (N, C, L), where C is the channel dim. This behavior will change in a future release to interpret the input as one without a batch dimension, i.e. shape (C, H, W). To maintain the 1D channel-wise dropout behavior, please switch to using dropout1d instead.
+  output = op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_bilinear` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: `nn.functional.upsample_nearest` is deprecated. Use `nn.functional.interpolate` instead.
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/functional.py:680: UserWarning: A window was not provided. A rectangular window will be applied,which is known to cause spectral leakage. Other windows such as torch.hann_window or torch.hamming_window are recommended to reduce spectral leakage.To suppress this warning and use a rectangular window, explicitly set `window=torch.ones(n_fft, device=<device>)`. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/SpectralOps.cpp:854.)
+  return _VF.stft(  # type: ignore[attr-defined]
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/autograd/graph.py:1072: UserWarning: aten::var: an autograd kernel was not registered to the Autograd key(s) but we are trying to backprop through it. This may lead to silently incorrect behavior. This behavior is deprecated and will be removed in a future version of PyTorch. If your operator is differentiable, please ensure you have registered an autograd kernel to the correct Autograd key (e.g. DispatchKey::Autograd, DispatchKey::CompositeImplicitAutograd). If your operator is not differentiable, or to squash this warning and use the previous behavior, please register torch::CppFunction::makeFallthrough() to DispatchKey::Autograd. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/autograd_not_implemented_fallback.cpp:76.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_methods_invocations.py:19750: UserWarning: ComplexHalf support is experimental and many operators don't support it yet. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/EmptyTensor.cpp:54.)
+  op=lambda x, *args, **kwargs: x.chalf(*args, **kwargs),
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:859: UserWarning: Using torch.cross without specifying the dim arg is deprecated.
+Please either pass the dim explicitly or simply use torch.linalg.cross.
+The default value of dim will change to agree with that of linalg.cross in a future release. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Cross.cpp:63.)
+  gradcheck_wrapper: Callable = lambda op, *args, **kwargs: op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:859: UserWarning: `nn.functional.upsample_bilinear` is deprecated. Use `nn.functional.interpolate` instead.
+  gradcheck_wrapper: Callable = lambda op, *args, **kwargs: op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:859: UserWarning: `nn.functional.upsample_nearest` is deprecated. Use `nn.functional.interpolate` instead.
+  gradcheck_wrapper: Callable = lambda op, *args, **kwargs: op(*args, **kwargs)
+/workspace/pytorch-opinfo-5c488690/test/test_ops.py:2151: UserWarning: `nn.functional.upsample_bilinear` is deprecated. Use `nn.functional.interpolate` instead.
+  results_raw = op.get_op()(*args, **kwargs)
+/workspace/pytorch-opinfo-5c488690/test/test_ops.py:2151: UserWarning: `nn.functional.upsample_nearest` is deprecated. Use `nn.functional.interpolate` instead.
+  results_raw = op.get_op()(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/core.py:1263: UserWarning: Using padding='same' with even kernel lengths and odd dilation may require a zero-padded copy of the input be created (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Convolution.cpp:1104.)
+  return self.op(*args, **kwargs)
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/functional.py:680: UserWarning: stft with return_complex=False is deprecated. In a future pytorch release, stft will return complex tensors for all inputs, and return_complex=False will raise an error.
+Note: you can still call torch.view_as_real on the complex output to recover the old return format. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/SpectralOps.cpp:893.)
+  return _VF.stft(  # type: ignore[attr-defined]

@@ -1,5 +1,9 @@
 # FP32 coverage completion
 
+> **Subsequent upstream audit:** [OpInfo testing at this revision](upstream-opinfo-audit-863fc0b.md)
+> found missing dispatches and an `addmm` scaling bug beyond these selected tests.
+> This report records the narrower feature milestone, not general FP32 correctness.
+
 This completes the single-device FP32 gaps identified by the
 [CUDA universality audit](cuda-universality-audit-b80a1f6.md), within the operator
 contracts below. FP16/BF16/AMP and multi-GPU remain deferred. This is a tested

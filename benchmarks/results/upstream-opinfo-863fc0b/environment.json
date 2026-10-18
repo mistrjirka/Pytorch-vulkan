@@ -1,0 +1,20 @@
+{
+  "versions": {
+    "torch": "2.14.1+cpu",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "hypothesis": "6.170.1",
+    "expecttest": "0.3.0"
+  },
+  "installed_test_sha256": {
+    "torch/testing/_internal/common_device_type.py": "93df3364110b03bcd3589b92bb3065811875fe2815f1dad33e57135e0015c9ab",
+    "torch/testing/_internal/common_methods_invocations.py": "64b34059b2889759f8596fe72488f30fbaaa21c1b8e4b875d4f5e3d8c5892475",
+    "torch/testing/_internal/opinfo/core.py": "6f6e8e2b5bdf8f71c5b8188529aac73feae82345092c137f6970d8db30debd4a",
+    "torch/testing/_internal/common_utils.py": "7d4599f122765b848e51f7ae4b4bcef5e11962fd2ffe52edc99aaa37af82f1e5"
+  },
+  "audit_script_sha256": {
+    "benchmarks/run_upstream_opinfo.py": "e34b4f7bf9c5251db225b0fbee1a046eb1bfca7f504d1418c08f379efa5191c5",
+    "benchmarks/probe_opinfo_findings.py": "6351640f793e7804e20e58b0cd0d0bcc1b6e2586fac79bba9d53b39cf7024f16",
+    "benchmarks/summarize_upstream_opinfo.py": "8700971cd4d85866b7613717b034d11e2599a165c53d987ba7627a151120fa80"
+  }
+}

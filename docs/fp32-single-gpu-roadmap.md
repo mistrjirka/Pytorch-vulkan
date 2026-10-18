@@ -1,5 +1,10 @@
 # FP32 single-GPU coverage
 
+The [upstream OpInfo audit](upstream-opinfo-audit-863fc0b.md) reopens general
+correctness work: shared comparison/factory dispatches, `addmm` scaling, vector
+transpose, indexed writes, and storage/composite contracts remain unresolved.
+The selected feature milestone below must be read with those findings.
+
 The target is general FP32 compute on one Vulkan device. FP16/BF16/AMP and
 multi-GPU execution are deferred. Integer indices and boolean masks are included
 because FP32 networks need them.

@@ -64,6 +64,12 @@ to load.
 
 ## Verified functionality (October 18, 2026)
 
+**Broader correctness audit:** the [upstream OpInfo sweep](docs/upstream-opinfo-audit-863fc0b.md)
+found substantial missing dispatches and a confirmed `addmm` scaling bug. After
+one timeout recheck, 1,433 of 8,696 selected cases pass; 6,721 error, with skips
+and expected-failure outcomes reported separately. The feature-completion results
+below are narrower and do not establish general FP32 conformance.
+
 The [FP32 completion report](docs/fp32-coverage-completion.md) records the current
 full regression matrix, strict CPU-fallback/host-read checks, seven additional
 feature networks and fresh matched CUDA measurements. The audited FP32 gaps now
