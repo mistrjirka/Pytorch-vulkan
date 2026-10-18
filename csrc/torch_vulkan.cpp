@@ -20,6 +20,11 @@
 #include <ATen/detail/PrivateUse1HooksInterface.h>
 
 namespace torch_vulkan {
+namespace ops {
+std::map<std::string,uint64_t> conv_dispatch_stats();
+void clear_conv_dispatch_cache();
+}
+
 
 // DeviceGuard integration — tells PyTorch how to manage Vulkan device context
 struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
@@ -186,6 +191,8 @@ py::dict gpu_timing_stats() {
 }
 
 PYBIND11_MODULE(_C, m) {
+  m.def("_conv_dispatch_stats", &ops::conv_dispatch_stats);
+  m.def("_clear_conv_dispatch_cache", &ops::clear_conv_dispatch_cache);
   m.def("_set_shader_dir", &set_shader_dir);
   m.def("_device_name", &device_name);
   m.def("_is_available", &is_available);

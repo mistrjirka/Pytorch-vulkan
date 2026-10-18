@@ -99,6 +99,15 @@ for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 The simple SGD example at `examples/linear_train.py` reduces MSE from
 4.6667 to 0.7864 in five steps.
 
+### General convolution selection
+
+Convolution now selects from explicit capability/workspace-checked candidates
+for forward and each gradient. Three shared tile configurations preserve exact
+runtime filter dimensions, including 10x10 and 11x11. Optional
+`TORCH_VULKAN_CONV_AUTOTUNE=1` measures and caches choices by operator geometry
+and device; it is disabled by default because small workloads can regress.
+See [candidate dispatch, validation and matched CUDA measurements](docs/convolution-candidate-dispatch.md).
+
 ### Performance investigation and experimental optimizations
 
 The [18 October 2026 investigation](docs/performance-investigation-2026-10-18.md)

@@ -1,0 +1,5 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#define CONV_TM 16
+#define CONV_TN 16
+#include "conv2d_backward_input_tiled_body.glsl"

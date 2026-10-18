@@ -1,0 +1,107 @@
+{
+  "backend": "cuda",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "torch_version": "2.14.1+cu130",
+  "cuda_version": "13.0",
+  "model": "style_net",
+  "scale": "medium",
+  "input_shape": [
+    1,
+    3,
+    36,
+    36
+  ],
+  "parameters": 2403651,
+  "dtype": "float32",
+  "optimizer": "standard",
+  "warmup": 8,
+  "repeats": 15,
+  "threads": 8,
+  "vulkan_controls": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_CONV_ALGO": "default",
+    "TORCH_VULKAN_CONV_BACKWARD_ALGO": "default",
+    "TORCH_VULKAN_CONV_TILE": "default",
+    "TORCH_VULKAN_CONV_AUTOTUNE": "default",
+    "TORCH_VULKAN_CONV_WORKSPACE_MB": "default",
+    "TORCH_VULKAN_DISABLE_BN_RESIZE": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_POOL": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_CAT": "default",
+    "TORCH_VULKAN_GPU_PACK_VIEWS": "default",
+    "TORCH_VULKAN_DISABLE_SCALAR_BINARY": "default",
+    "TORCH_VULKAN_DISABLE_FENCE_POOL": "default",
+    "TORCH_VULKAN_ZERO_REUSED_BUFFERS": "default",
+    "TORCH_VULKAN_ADAMW_FORCE_SYNC": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_SCALAR_ADD": "default"
+  },
+  "modes": {
+    "inference": {
+      "median_ms": 1.539,
+      "min_ms": 1.52,
+      "max_ms": 1.656,
+      "samples_ms": [
+        1.624,
+        1.656,
+        1.614,
+        1.603,
+        1.526,
+        1.541,
+        1.52,
+        1.535,
+        1.522,
+        1.537,
+        1.538,
+        1.599,
+        1.548,
+        1.539,
+        1.534
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          1,
+          3,
+          36,
+          36
+        ],
+        "mean": -0.0168322566896677,
+        "rms": 0.09292379021644592
+      }
+    },
+    "training": {
+      "median_ms": 12.214,
+      "min_ms": 9.718,
+      "max_ms": 12.286,
+      "samples_ms": [
+        9.766,
+        9.718,
+        11.788,
+        12.204,
+        12.214,
+        12.212,
+        12.24,
+        12.218,
+        12.286,
+        12.219,
+        12.125,
+        12.251,
+        12.175,
+        12.215,
+        12.245
+      ],
+      "first_loss": 0.7122873067855835,
+      "first_output": {
+        "shape": [
+          1,
+          3,
+          36,
+          36
+        ],
+        "mean": -0.1664477437734604,
+        "rms": 0.46054527163505554
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

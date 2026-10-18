@@ -1,5 +1,5 @@
 #version 450
-layout(local_size_x = 256) in;
+layout(local_size_x = 128) in;
 layout(set = 0, binding = 0) readonly buffer Input { float input_data[]; };
 layout(set = 0, binding = 1) readonly buffer GradOut { float grad_out[]; };
 layout(set = 0, binding = 2) writeonly buffer GradWeight { float grad_weight[]; };
@@ -8,7 +8,12 @@ layout(push_constant) uniform Params {
     uint sh, sw, ph, pw, dh, dw, groups;
 } p;
 void main() {
-    uint idx = gl_GlobalInvocationID.x;
+    // Flatten a two-dimensional dispatch; reject padded groups before the
+    // element-index multiplication so near-uint32-limit tensors cannot wrap.
+    uint output_count = p.cout*(p.cin/p.groups)*p.kh*p.kw;
+    uint group_index = gl_WorkGroupID.y*gl_NumWorkGroups.x+gl_WorkGroupID.x;
+    if (group_index >= output_count/128 + uint(output_count%128 != 0)) return;
+    uint idx = (group_index*128+gl_LocalInvocationID.x);
     uint cin_group = p.cin / p.groups;
     uint count = p.cout * cin_group * p.kh * p.kw;
     if (idx >= count) return;

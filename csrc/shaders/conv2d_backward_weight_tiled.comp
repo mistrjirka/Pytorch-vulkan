@@ -1,49 +1,5 @@
 #version 450
-// dW = dY * im2col(X)^T. Gather only one shared tile at a time.
-// Split the batch/spatial reduction into 256-element chunks; a separate
-// deterministic reduction combines partials (no float atomics required).
-layout(local_size_x=16,local_size_y=8) in;
-layout(set=0,binding=0) readonly buffer Input { float x[]; };
-layout(set=0,binding=1) readonly buffer GradOut { float go[]; };
-layout(set=0,binding=2) writeonly buffer GradWeight { float out_data[]; };
-layout(push_constant) uniform Params {
-    uint n,cin,cout,h,w,kh,kw,oh,ow;
-    uint sh,sw,ph,pw,dh,dw,groups;
-} p;
-shared float a[8*16];
-shared float b[16*16];
-void main() {
-    uint lx=gl_LocalInvocationID.x, ly=gl_LocalInvocationID.y;
-    uint ci=p.cin/p.groups, co=p.cout/p.groups;
-    uint cols=ci*p.kh*p.kw, tiles=(co+7)/8;
-    uint group=gl_WorkGroupID.y/tiles;
-    uint m=(gl_WorkGroupID.y%tiles)*8+ly, oc=group*co+m;
-    uint col=gl_WorkGroupID.x*16+lx;
-    uint ic=group*ci+col/(p.kh*p.kw);
-    uint ky=(col/p.kw)%p.kh, kx=col%p.kw;
-    uint spatial=p.oh*p.ow, total=p.n*spatial;
-    uint split=gl_WorkGroupID.z;
-    float acc=0.0;
-    for(uint k0=split*256;k0<min(total,(split+1)*256);k0+=16) {
-        uint ka=k0+lx;
-        a[ly*16+lx]=(m<co && ka<total) ?
-            go[((ka/spatial)*p.cout+oc)*spatial+ka%spatial] : 0.0;
-        for(uint r=0;r<2;++r) {
-            uint kb=k0+r*8+ly;
-            float bv=0.0;
-            if(col<cols && kb<total) {
-                uint pos=kb%spatial;
-                int iy=int((pos/p.ow)*p.sh)-int(p.ph)+int(ky*p.dh);
-                int ix=int((pos%p.ow)*p.sw)-int(p.pw)+int(kx*p.dw);
-                if(iy>=0 && iy<int(p.h) && ix>=0 && ix<int(p.w))
-                    bv=x[(((kb/spatial)*p.cin+ic)*p.h+uint(iy))*p.w+uint(ix)];
-            }
-            b[(r*8+ly)*16+lx]=bv;
-        }
-        barrier();
-        for(uint k=0;k<16;++k) acc+=a[ly*16+k]*b[k*16+lx];
-        barrier();
-    }
-    if(m<co && col<cols)
-        out_data[(split*p.cout+oc)*cols+col]=acc;
-}
+#extension GL_GOOGLE_include_directive : require
+#define CONV_TM 8
+#define CONV_TN 16
+#include "conv2d_backward_weight_tiled_body.glsl"

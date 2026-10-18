@@ -133,3 +133,13 @@ def manual_seed_all(seed: int) -> None:
 
 
 torch._register_device_module("vulkan", sys.modules[__name__])
+
+
+def conv_dispatch_stats() -> dict:
+    """Convolution plan-cache counters and selections by phase/implementation."""
+    return _C._conv_dispatch_stats()
+
+
+def clear_conv_dispatch_cache() -> None:
+    """Reset optional convolution tuning choices and their counters."""
+    _C._clear_conv_dispatch_cache()

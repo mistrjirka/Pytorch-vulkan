@@ -1,5 +1,7 @@
 # CUDA and llama.cpp Vulkan universality audit
 
+> **Historical audit:** this document records the implementation at the initial review. Its tensor-address pipeline-cache, scalar-only convolution, and rejected-layout findings have since been addressed. The current candidate registry, tile reuse, optional tuning and remaining coverage limits are documented in [General convolution candidate dispatch](convolution-candidate-dispatch.md). Recommendations and source references below are retained as the original audit trail.
+
 **Date:** 2026-10-18
 **Project:** [mistrjirka/Pytorch-vulkan](https://github.com/mistrjirka/Pytorch-vulkan)
 **Sources reviewed:** PyTorch CUDA convolution (snapshot `9664c41ccfc87a9661cb2b177985131948306876`), llama.cpp Vulkan (`5aeac37a35b44fde4bdffaec9159f2fcb253b622`), and our current native `PrivateUse1` implementation.

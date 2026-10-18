@@ -1,0 +1,1298 @@
+{
+  "backend": "vulkan",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "revision": "8506c1f1b91a494c923d0aa6728034c5716d9726",
+  "worktree_dirty": true,
+  "convolution_source_sha256": "c9529e4f2828ee394e32754be646286de8b5d64447725d815beac55fcbd809db",
+  "dtype": "float32",
+  "reference": "CPU float64 accumulation -> float32",
+  "seed": 2026,
+  "warmup": 8,
+  "repeats": 15,
+  "threads": 8,
+  "atol": 0.005,
+  "rtol": 0.0005,
+  "cuda_tf32": false,
+  "cudnn_benchmark": false,
+  "cudnn_deterministic": false,
+  "vulkan_tile": "tall",
+  "env": {
+    "TORCH_VULKAN_PROFILE_TIMESTAMPS": "1",
+    "TORCH_VULKAN_CONV_ALGO": "tiled",
+    "TORCH_VULKAN_CONV_BACKWARD_ALGO": "optimized",
+    "TORCH_VULKAN_CONV_TILE": "tall",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "timing_notes": [
+    "Wall: allocation + dispatch + synchronization, including backend-internal transfers; excludes reference and explicit .cpu() download.",
+    "First call may include compilation/tuning; exclude it from steady-state speedups.",
+    "CUDA events are separate device intervals, including possible launch gaps.",
+    "Vulkan timestamp availability depends on execution path.",
+    "Each backward output mask requests only one gradient; not a full training step."
+  ],
+  "cases": [
+    {
+      "name": "filter10x10",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        10,
+        10
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        32,
+        16,
+        10,
+        10
+      ],
+      "output_shape": [
+        1,
+        32,
+        41,
+        44
+      ],
+      "input_sha256": "3fd57fdbd14a16098b04edacaa92c9deb5dfc5767bd59482166df09e46f8d1a3",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 7.79812900145771,
+          "wall": {
+            "median_ms": 0.42781999945873395,
+            "min_ms": 0.42268000106560066,
+            "max_ms": 0.4321569940657355,
+            "samples_ms": [
+              0.42708899854915217,
+              0.4287710034986958,
+              0.4295730032026768,
+              0.42686799861257896,
+              0.4304649992263876,
+              0.4299540014471859,
+              0.4278600026736967,
+              0.423882003815379,
+              0.42268000106560066,
+              0.4284609967726283,
+              0.42485399899305776,
+              0.4321569940657355,
+              0.4273890008335002,
+              0.4236820022924803,
+              0.42781999945873395
+            ]
+          },
+          "parity": {
+            "max_abs_error": 6.67572021484375e-06,
+            "rms_error": 6.408903258376939e-07,
+            "reference_max_abs": 5.7643656730651855
+          },
+          "vulkan_gpu": {
+            "conv2d_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.2188138666666667,
+              "upload_ms_per_invocation": 0.03357013333333335,
+              "download_ms_per_invocation": 0.07286186666666668,
+              "host_eval_ms_per_invocation": 0.39167686666666673
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_forward_tiled_tall": 1,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_forward_tiled_tall": 9,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_forward_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_forward_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dinput": {
+          "first_call_ms": 3.7993930018274114,
+          "wall": {
+            "median_ms": 0.6195280002430081,
+            "min_ms": 0.5877079966012388,
+            "max_ms": 0.6279040026129223,
+            "samples_ms": [
+              0.6224039971129969,
+              0.6279040026129223,
+              0.6227139965631068,
+              0.6181059943628497,
+              0.6216830006451346,
+              0.6209809944266453,
+              0.6195280002430081,
+              0.6190370040712878,
+              0.6192579967319034,
+              0.6176040042191744,
+              0.5941909985267557,
+              0.5877079966012388,
+              0.6203099983395077,
+              0.6166430030134507,
+              0.6232549931155518
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.3828277587890625e-05,
+            "rms_error": 1.3154407121714503e-06,
+            "reference_max_abs": 5.642302989959717
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_input_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.43491200000000024,
+              "upload_ms_per_invocation": 0.037785599999999996,
+              "download_ms_per_invocation": 0.026208000000000002,
+              "host_eval_ms_per_invocation": 0.5654204
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 1,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 9,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dinput_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dinput_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dweight": {
+          "first_call_ms": 5.39555699651828,
+          "wall": {
+            "median_ms": 0.4349730006651953,
+            "min_ms": 0.4055580066051334,
+            "max_ms": 0.4440400007297285,
+            "samples_ms": [
+              0.4349730006651953,
+              0.4440400007297285,
+              0.43282900151098147,
+              0.43703700066544116,
+              0.411189001169987,
+              0.41261199658038095,
+              0.4083940002601594,
+              0.41047800186788663,
+              0.4109680012334138,
+              0.4055580066051334,
+              0.43764900328824297,
+              0.435745001595933,
+              0.43962199561065063,
+              0.43692700273822993,
+              0.4358549995231442
+            ]
+          },
+          "parity": {
+            "max_abs_error": 7.62939453125e-05,
+            "rms_error": 1.1133630504461222e-05,
+            "reference_max_abs": 182.11854553222656
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_weight_split_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.21323520000000004,
+              "upload_ms_per_invocation": 0.034796799999999996,
+              "download_ms_per_invocation": 0.06301653333333333,
+              "host_eval_ms_per_invocation": 0.36876959999999986
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 1,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 9,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dweight_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dweight_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dbias": {
+          "first_call_ms": 1.4611110018449835,
+          "wall": {
+            "median_ms": 0.14730600378243253,
+            "min_ms": 0.11783100489992648,
+            "max_ms": 0.1574749985593371,
+            "samples_ms": [
+              0.1522050006315112,
+              0.15082200116012245,
+              0.1476460020057857,
+              0.14670500240754336,
+              0.14666499919258058,
+              0.15170400001807138,
+              0.14730600378243253,
+              0.1574749985593371,
+              0.14993100194260478,
+              0.14786599786020815,
+              0.1469449998694472,
+              0.14596300025004894,
+              0.11917200026800856,
+              0.11783100489992648,
+              0.11823100066976622
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.049041748046875e-05,
+            "rms_error": 4.699562604484928e-06,
+            "reference_max_abs": 114.32722473144531
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_bias_reduce": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.0083328,
+              "upload_ms_per_invocation": 0.022188799999999995,
+              "download_ms_per_invocation": 0.0034815999999999996,
+              "host_eval_ms_per_invocation": 0.0956402
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 1,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 9,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dbias_reduce": 1
+            },
+            "steady_state_delta": {
+              "selected_dbias_reduce": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        }
+      }
+    },
+    {
+      "name": "filter11x11",
+      "shape": [
+        1,
+        16,
+        40,
+        43
+      ],
+      "cout": 32,
+      "kernel": [
+        11,
+        11
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        5,
+        5
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        32,
+        16,
+        11,
+        11
+      ],
+      "output_shape": [
+        1,
+        32,
+        40,
+        43
+      ],
+      "input_sha256": "dc5c619a9bf7cde31c0b04b07062838d1c221ff088fdf3a2cad8c269d38af472",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 1.351255996269174,
+          "wall": {
+            "median_ms": 0.45667399535886943,
+            "min_ms": 0.42556499829515815,
+            "max_ms": 0.4609520037774928,
+            "samples_ms": [
+              0.46060099703026935,
+              0.45667399535886943,
+              0.45466000301530585,
+              0.45755500468658283,
+              0.4556219937512651,
+              0.4609520037774928,
+              0.42556499829515815,
+              0.45808600407326594,
+              0.4534780018730089,
+              0.4513340027187951,
+              0.4599899984896183,
+              0.42904200381599367,
+              0.45698399480897933,
+              0.4541989983408712,
+              0.46007000491954386
+            ]
+          },
+          "parity": {
+            "max_abs_error": 7.212162017822266e-06,
+            "rms_error": 7.075959954028604e-07,
+            "reference_max_abs": 6.107693195343018
+          },
+          "vulkan_gpu": {
+            "conv2d_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.25918506666666646,
+              "upload_ms_per_invocation": 0.03664213333333334,
+              "download_ms_per_invocation": 0.056537600000000056,
+              "host_eval_ms_per_invocation": 0.4171017333333333
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 24,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 25,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 33,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_forward_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_forward_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dinput": {
+          "first_call_ms": 0.7807700021658093,
+          "wall": {
+            "median_ms": 0.7092859959811904,
+            "min_ms": 0.6814739972469397,
+            "max_ms": 0.7254969968926162,
+            "samples_ms": [
+              0.7132129976525903,
+              0.7140250017982908,
+              0.7109490034054033,
+              0.7079030037857592,
+              0.7066309990477748,
+              0.6843099981779233,
+              0.7064109959173948,
+              0.7121109956642613,
+              0.7078529961290769,
+              0.7078840062604286,
+              0.7254969968926162,
+              0.7148469958337955,
+              0.6814739972469397,
+              0.7092859959811904,
+              0.7198759994935244
+            ]
+          },
+          "parity": {
+            "max_abs_error": 1.2874603271484375e-05,
+            "rms_error": 1.4105492013344113e-06,
+            "reference_max_abs": 5.4726691246032715
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_input_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.5239338666666666,
+              "upload_ms_per_invocation": 0.04029013333333332,
+              "download_ms_per_invocation": 0.024699733333333345,
+              "host_eval_ms_per_invocation": 0.6560798666666668
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 24,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 25,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 33,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dinput_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dinput_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dweight": {
+          "first_call_ms": 3.4862980028265156,
+          "wall": {
+            "median_ms": 0.47327399806817994,
+            "min_ms": 0.4449719999684021,
+            "max_ms": 0.47894500312395394,
+            "samples_ms": [
+              0.47458699555136263,
+              0.47660100244684145,
+              0.473455002065748,
+              0.47081000229809433,
+              0.4775729976245202,
+              0.47327399806817994,
+              0.4478069968172349,
+              0.4449719999684021,
+              0.4678249970311299,
+              0.47372599510708824,
+              0.47533900215057656,
+              0.4709409986389801,
+              0.47894500312395394,
+              0.44773700210498646,
+              0.4725440012407489
+            ]
+          },
+          "parity": {
+            "max_abs_error": 6.866455078125e-05,
+            "rms_error": 1.0845905030191886e-05,
+            "reference_max_abs": 162.67340087890625
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_weight_split_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.24141440000000003,
+              "upload_ms_per_invocation": 0.03382186666666668,
+              "download_ms_per_invocation": 0.07138986666666662,
+              "host_eval_ms_per_invocation": 0.4114551333333332
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 24,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 25,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 33,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dweight_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dweight_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dbias": {
+          "first_call_ms": 0.174224995134864,
+          "wall": {
+            "median_ms": 0.11581600119825453,
+            "min_ms": 0.11385299876565114,
+            "max_ms": 0.12509400403359905,
+            "samples_ms": [
+              0.11886200081789866,
+              0.1171690018964,
+              0.12509400403359905,
+              0.11907199950655922,
+              0.11613700189627707,
+              0.11581600119825453,
+              0.11490500037325546,
+              0.11601699952734634,
+              0.11499500396894291,
+              0.11574599921004847,
+              0.11573600204428658,
+              0.12210800196044147,
+              0.11451399768702686,
+              0.1139129963121377,
+              0.11385299876565114
+            ]
+          },
+          "parity": {
+            "max_abs_error": 7.62939453125e-06,
+            "rms_error": 4.187623994410109e-06,
+            "reference_max_abs": 87.26480865478516
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_bias_reduce": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.0077354666666666645,
+              "upload_ms_per_invocation": 0.021454933333333318,
+              "download_ms_per_invocation": 0.003643733333333334,
+              "host_eval_ms_per_invocation": 0.07014500000000007
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 24,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 25,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 33,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dbias_reduce": 1
+            },
+            "steady_state_delta": {
+              "selected_dbias_reduce": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        }
+      }
+    },
+    {
+      "name": "conv3x3_large",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "cout": 64,
+      "kernel": [
+        3,
+        3
+      ],
+      "stride": [
+        1,
+        1
+      ],
+      "padding": [
+        1,
+        1
+      ],
+      "dilation": [
+        1,
+        1
+      ],
+      "groups": 1,
+      "weight_shape": [
+        64,
+        32,
+        3,
+        3
+      ],
+      "output_shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "input_sha256": "3b02751c88177629da7f06c27b999db59bd81f8cf946946dc8100312b4ae4a5d",
+      "measurements": {
+        "forward": {
+          "first_call_ms": 3.1666900031268597,
+          "wall": {
+            "median_ms": 1.122888999816496,
+            "min_ms": 1.0984640030073933,
+            "max_ms": 1.1400910007068887,
+            "samples_ms": [
+              1.1245019995840266,
+              1.1284299980616197,
+              1.1160360008943826,
+              1.1238709994358942,
+              1.1215670019737445,
+              1.1297620003460906,
+              1.1400910007068887,
+              1.1224979971302673,
+              1.1193829996045679,
+              1.1285099972155876,
+              1.1300030018901452,
+              1.119802996981889,
+              1.122888999816496,
+              1.0984640030073933,
+              1.1193819955224171
+            ]
+          },
+          "parity": {
+            "max_abs_error": 3.0994415283203125e-06,
+            "rms_error": 3.016444892024095e-07,
+            "reference_max_abs": 6.411968231201172
+          },
+          "vulkan_gpu": {
+            "conv2d_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.28075306666666694,
+              "upload_ms_per_invocation": 0.09112533333333328,
+              "download_ms_per_invocation": 0.6472341333333332,
+              "host_eval_ms_per_invocation": 1.084966266666666
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 48,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 49,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 57,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_forward_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_forward_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dinput": {
+          "first_call_ms": 2.9801319979014806,
+          "wall": {
+            "median_ms": 1.0876730011659674,
+            "min_ms": 1.0516159964026883,
+            "max_ms": 1.0940449938061647,
+            "samples_ms": [
+              1.0940449938061647,
+              1.0803400000440888,
+              1.0928030023933388,
+              1.0853389976546168,
+              1.0876730011659674,
+              1.0867219971260056,
+              1.0791370004881173,
+              1.0924719972535968,
+              1.0832249972736463,
+              1.0846680015674792,
+              1.090850004402455,
+              1.0913209989666939,
+              1.0516159964026883,
+              1.090359000954777,
+              1.09332400461426
+            ]
+          },
+          "parity": {
+            "max_abs_error": 8.58306884765625e-06,
+            "rms_error": 5.934436798697625e-07,
+            "reference_max_abs": 6.5827789306640625
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_input_tiled_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.4628885333333334,
+              "upload_ms_per_invocation": 0.17086933333333343,
+              "download_ms_per_invocation": 0.3327573333333333,
+              "host_eval_ms_per_invocation": 1.0333211333333334
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 48,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 49,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 57,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dinput_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dinput_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dweight": {
+          "first_call_ms": 4.208438003843185,
+          "wall": {
+            "median_ms": 0.7349439983954653,
+            "min_ms": 0.707943007000722,
+            "max_ms": 0.7386400029645301,
+            "samples_ms": [
+              0.7098869973560795,
+              0.7364260018221103,
+              0.7368070000666194,
+              0.7374190026894212,
+              0.733581000531558,
+              0.7363370023085736,
+              0.7349439983954653,
+              0.7182730041677132,
+              0.7347430000663735,
+              0.7086840050760657,
+              0.707943007000722,
+              0.7386400029645301,
+              0.733961998776067,
+              0.7364960038103163,
+              0.7365570054389536
+            ]
+          },
+          "parity": {
+            "max_abs_error": 0.0001373291015625,
+            "rms_error": 2.7315177273699628e-05,
+            "reference_max_abs": 384.82147216796875
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_weight_split_tall": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.3497685333333331,
+              "upload_ms_per_invocation": 0.24418133333333333,
+              "download_ms_per_invocation": 0.015449599999999997,
+              "host_eval_ms_per_invocation": 0.6710713333333336
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 48,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 49,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 57,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 72,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dweight_tiled_tall": 1
+            },
+            "steady_state_delta": {
+              "selected_dweight_tiled_tall": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        },
+        "dbias": {
+          "first_call_ms": 1.3709729973925278,
+          "wall": {
+            "median_ms": 0.30396899819606915,
+            "min_ms": 0.2729300031205639,
+            "max_ms": 0.3108809978584759,
+            "samples_ms": [
+              0.3066829958697781,
+              0.2789210047922097,
+              0.3108809978584759,
+              0.30565099586965516,
+              0.30396899819606915,
+              0.30386799335246906,
+              0.3050300001632422,
+              0.30224499641917646,
+              0.27919199783355,
+              0.30410899489652365,
+              0.3029460058314726,
+              0.3084069976466708,
+              0.3059820010093972,
+              0.27597600274020806,
+              0.2729300031205639
+            ]
+          },
+          "parity": {
+            "max_abs_error": 4.38690185546875e-05,
+            "rms_error": 1.5363899317779417e-05,
+            "reference_max_abs": 219.05426025390625
+          },
+          "vulkan_gpu": {
+            "conv2d_backward_bias_reduce": {
+              "samples": 15,
+              "shader_ms_per_invocation": 0.023014399999999983,
+              "upload_ms_per_invocation": 0.16351786666666673,
+              "download_ms_per_invocation": 0.003195733333333332,
+              "host_eval_ms_per_invocation": 0.24849793333333334
+            }
+          },
+          "dispatch": {
+            "before": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 48,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 72,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_first_call": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 49,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 72,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "before_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 57,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 72,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "after_steady_state": {
+              "candidates_timed": 0,
+              "entries": 0,
+              "evictions": 0,
+              "hits": 0,
+              "misses": 0,
+              "selected_dbias_reduce": 72,
+              "selected_dinput_tiled_tall": 72,
+              "selected_dweight_tiled_tall": 72,
+              "selected_forward_tiled_tall": 72,
+              "tunes": 0
+            },
+            "first_call_delta": {
+              "selected_dbias_reduce": 1
+            },
+            "steady_state_delta": {
+              "selected_dbias_reduce": 15
+            }
+          },
+          "vulkan_timestamp_status": "available"
+        }
+      }
+    }
+  ],
+  "dispatch_final": {
+    "candidates_timed": 0,
+    "entries": 0,
+    "evictions": 0,
+    "hits": 0,
+    "misses": 0,
+    "selected_dbias_reduce": 72,
+    "selected_dinput_tiled_tall": 72,
+    "selected_dweight_tiled_tall": 72,
+    "selected_forward_tiled_tall": 72,
+    "tunes": 0
+  }
+}

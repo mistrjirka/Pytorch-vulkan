@@ -1,0 +1,26 @@
+{
+  "rtx": {
+    "exit_code": 0,
+    "summary": [
+      "422 passed, 3 warnings in 12.34s"
+    ]
+  },
+  "v100": {
+    "exit_code": 0,
+    "summary": [
+      "422 passed, 3 warnings in 11.34s"
+    ]
+  },
+  "lavapipe": {
+    "exit_code": 0,
+    "summary": [
+      "421 passed, 1 skipped, 3 warnings in 10.64s"
+    ]
+  },
+  "resident": {
+    "exit_code": 0,
+    "summary": [
+      "422 passed, 3 warnings in 12.63s"
+    ]
+  }
+}

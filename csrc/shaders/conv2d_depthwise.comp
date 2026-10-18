@@ -3,7 +3,7 @@
 // General FP32 depthwise Conv2D with an arbitrary integer channel multiplier.
 // Groups == input channels. Kernel width/height, stride, padding and dilation
 // are runtime parameters, so the same SPIR-V covers 1x1 through 7x7 and more.
-layout(local_size_x=256,local_size_y=1,local_size_z=1) in;
+layout(local_size_x=128,local_size_y=1,local_size_z=1) in;
 layout(set=0,binding=0) readonly buffer Input { float x[]; };
 layout(set=0,binding=1) readonly buffer Weight { float w[]; };
 layout(set=0,binding=2) readonly buffer Bias { float b[]; };
@@ -13,7 +13,12 @@ layout(push_constant) uniform Params {
   uint sh,sw,ph,pw,dh,dw,groups;
 } p;
 void main() {
-  uint id=gl_GlobalInvocationID.x;
+    // Flatten a two-dimensional dispatch; reject padded groups before the
+    // element-index multiplication so near-uint32-limit tensors cannot wrap.
+    uint output_count = p.n*p.cout*p.oh*p.ow;
+    uint group_index = gl_WorkGroupID.y*gl_NumWorkGroups.x+gl_WorkGroupID.x;
+    if (group_index >= output_count/128 + uint(output_count%128 != 0)) return;
+  uint id=(group_index*128+gl_LocalInvocationID.x);
   uint sp=p.oh*p.ow;
   if (id >= p.n*p.cout*sp) return;
   uint position=id%sp;

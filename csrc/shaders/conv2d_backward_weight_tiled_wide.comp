@@ -1,0 +1,5 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#define CONV_TM 8
+#define CONV_TN 32
+#include "conv2d_backward_weight_tiled_body.glsl"

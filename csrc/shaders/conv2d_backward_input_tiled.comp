@@ -1,55 +1,5 @@
 #version 450
-// Implicit GEMM dX: [Cin/group, Cout/group*KH*KW] times gathered dY.
-// No explicit zero insertion or im2col workspace, including stride/dilation.
-layout(local_size_x=16,local_size_y=8) in;
-layout(set=0,binding=0) readonly buffer GradOut { float go[]; };
-layout(set=0,binding=1) readonly buffer Weight { float weight[]; };
-layout(set=0,binding=2) writeonly buffer GradInput { float dx[]; };
-layout(push_constant) uniform Params {
-    uint n,cin,cout,h,w,kh,kw,oh,ow;
-    uint sh,sw,ph,pw,dh,dw,groups;
-} p;
-shared float a[8*16];
-shared float b[16*16];
-void main() {
-    uint lx=gl_LocalInvocationID.x, ly=gl_LocalInvocationID.y;
-    uint ci=p.cin/p.groups, co=p.cout/p.groups;
-    uint tiles=(ci+7)/8;
-    uint group=gl_WorkGroupID.y/tiles;
-    uint c=(gl_WorkGroupID.y%tiles)*8+ly;
-    uint spatial=gl_WorkGroupID.x*16+lx;
-    uint batch=spatial/(p.h*p.w), pos=spatial%(p.h*p.w);
-    uint iy=pos/p.w, ix=pos%p.w;
-    uint total=co*p.kh*p.kw;
-    float acc=0.0;
-    for(uint k0=0;k0<total;k0+=16) {
-        uint ka=k0+lx;
-        float av=0.0;
-        if(c<ci && ka<total) {
-            uint oc=group*co+ka/(p.kh*p.kw);
-            av=weight[(oc*ci+c)*p.kh*p.kw+ka%(p.kh*p.kw)];
-        }
-        a[ly*16+lx]=av;
-        for(uint r=0;r<2;++r) {
-            uint kb=k0+r*8+ly;
-            float bv=0.0;
-            if(batch<p.n && kb<total) {
-                uint oc=group*co+kb/(p.kh*p.kw);
-                uint rem=kb%(p.kh*p.kw);
-                int yh=int(iy)+int(p.ph)-int((rem/p.kw)*p.dh);
-                int xw=int(ix)+int(p.pw)-int((rem%p.kw)*p.dw);
-                if(yh>=0 && xw>=0 && yh%int(p.sh)==0 && xw%int(p.sw)==0) {
-                    uint oy=uint(yh)/p.sh, ox=uint(xw)/p.sw;
-                    if(oy<p.oh && ox<p.ow)
-                        bv=go[((batch*p.cout+oc)*p.oh+oy)*p.ow+ox];
-                }
-            }
-            b[(r*8+ly)*16+lx]=bv;
-        }
-        barrier();
-        for(uint k=0;k<16;++k) acc+=a[ly*16+k]*b[k*16+lx];
-        barrier();
-    }
-    if(c<ci && batch<p.n)
-        dx[(batch*p.cin+group*ci+c)*p.h*p.w+pos]=acc;
-}
+#extension GL_GOOGLE_include_directive : require
+#define CONV_TM 8
+#define CONV_TN 16
+#include "conv2d_backward_input_tiled_body.glsl"
