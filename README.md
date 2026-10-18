@@ -68,9 +68,9 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 214/214 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 214/214 passed |
-| Lavapipe software Vulkan | 213 passed, one hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 324/324 passed |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 324/324 passed |
+| Lavapipe software Vulkan | 323 passed, one hardware-only test skipped |
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -82,7 +82,13 @@ stride/padding/dilation/group variants. Conv2D also accepts FP32 channels-last,
 transposed, sliced, offset and broadcast views via GPU packing. Native FP32
 BatchNorm training/evaluation and nearest-neighbor 2D resize include backward
 and strided-view support. See the [BatchNorm and resize report](docs/batch-norm-and-nearest-resize.md)
-for semantics, matched A/B timings and remaining CUDA gaps. Other operations
+for semantics, matched A/B timings and remaining CUDA gaps. Native FP32 max-pool
+forward/backward, concatenation and arithmetic view packing now cover general
+layouts. Completed-fence reuse removes repeated driver allocation overhead.
+The [pooling, layout and fence report](docs/pooling-layouts-and-fences.md) records
+U-Net inference improving from 39.20 to 3.32 ms and full training from 86.38 to
+17.20 ms, compared with CUDA at 1.08/9.48 ms on the same RTX 2080 Ti. Those
+measurements use opt-in residency, deferred submission and fused AdamW. Other operations
 can fall back to CPU. See the [convolution backward and layout report](docs/convolution-backward-and-layouts.md)
 for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 
@@ -163,7 +169,7 @@ a closer-to-exact GELU further improved correctness.
   It still lacks cuDNN's broader algorithm selection (such as Winograd), and
   layout packing adds work. Conv2D supports 2D, nonempty FP32 configurations;
   this does not imply layout/dtype coverage for every PyTorch operator.
-- Several loss operators, attention, some reductions, pooling,
+- Several loss operators, attention, some reductions, pooling families other than max-pool2d,
   and other unsupported ops still use CPU fallback. Device residency is
   experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.

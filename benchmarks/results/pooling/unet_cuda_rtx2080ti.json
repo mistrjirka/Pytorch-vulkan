@@ -1,0 +1,101 @@
+{
+  "backend": "cuda",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "torch_version": "2.14.1+cu130",
+  "cuda_version": "13.0",
+  "model": "unet",
+  "scale": "medium",
+  "input_shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "parameters": 472833,
+  "dtype": "float32",
+  "optimizer": "standard",
+  "warmup": 8,
+  "repeats": 15,
+  "threads": 8,
+  "vulkan_controls": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_CONV_ALGO": "default",
+    "TORCH_VULKAN_CONV_BACKWARD_ALGO": "default",
+    "TORCH_VULKAN_DISABLE_BN_RESIZE": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_POOL": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_CAT": "default",
+    "TORCH_VULKAN_GPU_PACK_VIEWS": "default",
+    "TORCH_VULKAN_DISABLE_SCALAR_BINARY": "default",
+    "TORCH_VULKAN_DISABLE_FENCE_POOL": "default"
+  },
+  "modes": {
+    "inference": {
+      "median_ms": 1.083,
+      "min_ms": 1.075,
+      "max_ms": 1.149,
+      "samples_ms": [
+        1.088,
+        1.089,
+        1.083,
+        1.08,
+        1.076,
+        1.081,
+        1.084,
+        1.149,
+        1.104,
+        1.089,
+        1.082,
+        1.079,
+        1.083,
+        1.075,
+        1.094
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.08970028907060623,
+        "rms": 0.08991298079490662
+      }
+    },
+    "training": {
+      "median_ms": 9.48,
+      "min_ms": 8.47,
+      "max_ms": 9.571,
+      "samples_ms": [
+        8.47,
+        8.477,
+        9.271,
+        9.571,
+        9.532,
+        9.51,
+        9.44,
+        9.505,
+        9.457,
+        9.539,
+        9.522,
+        9.48,
+        9.47,
+        9.467,
+        9.533
+      ],
+      "first_loss": 0.7050257325172424,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.11960466206073761,
+        "rms": 0.3529641628265381
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

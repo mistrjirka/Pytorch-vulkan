@@ -1,0 +1,12 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params { uint count,inner,src_axis,dst_axis,offset; } p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint block=p.src_axis*p.inner;
+  uint dst=(i/block*p.dst_axis+p.offset)*p.inner+i%block;
+  y[dst]=x[i];
+}

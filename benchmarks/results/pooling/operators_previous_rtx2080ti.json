@@ -1,0 +1,873 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {
+    "TORCH_VULKAN_DISABLE_SCALAR_BINARY": "1",
+    "TORCH_VULKAN_GPU_PACK_VIEWS": "0",
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_DISABLE_NATIVE_CAT": "1",
+    "TORCH_VULKAN_DISABLE_NATIVE_POOL": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "results": [
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 4.650140006560832,
+      "range_ms": [
+        4.571654004394077,
+        4.698668999481015
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 2.0,
+          "self_cpu_ms": 0.21344500000000033,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.035631666666666936,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0034803333333340257,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.003308666666666947,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 4.2367989999999995,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0031889999999993963,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.04296633333333314,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 7.152867001423147,
+      "range_ms": [
+        7.138099994335789,
+        7.173084995883983
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 2.0,
+          "self_cpu_ms": 0.04229233333333286,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.033104000000002715,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0028213333333339204,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0029690000000006573,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 4.0,
+          "self_cpu_ms": 6.9694423333333315,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0020239999999994325,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.04064166666666733,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012123333333323293,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02959800000000056,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 48.626454001350794,
+      "range_ms": [
+        46.51573100272799,
+        48.93956199521199
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 2.0,
+          "self_cpu_ms": 5.339664000000017,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.35446199999999073,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00642499999999806,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.008869666666664368,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 40.82136033333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 2.0,
+          "self_cpu_ms": 0.004124999999992724,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.13420133333333553,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 54.12740600149846,
+      "range_ms": [
+        50.908894001622684,
+        55.348784000671
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 2.0,
+          "self_cpu_ms": 0.7155026666666624,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.13241133333332988,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.004798666666669306,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.005701666666671978,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 4.0,
+          "self_cpu_ms": 52.32039366666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012319999999914823,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11736733333333783,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002404999999998836,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.05294766666667177,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.23240000155055895,
+      "range_ms": [
+        0.22634800552623346,
+        0.2387510030530393
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 2.0,
+          "self_cpu_ms": 0.02414166666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.005342666666666664,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0015396666666666666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0016566666666666852,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 0.18661866666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0016493333333333264,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.006211666666666701,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.3455989935901016,
+      "range_ms": [
+        0.33831600012490526,
+        0.3561289995559491
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 2.0,
+          "self_cpu_ms": 0.01798666666666664,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.006021000000000044,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0019703333333333907,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0022713333333331887,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 4.0,
+          "self_cpu_ms": 0.3155986666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0004606666666666873,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0007316666666667023,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.004995666666666655,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.033632000850047916,
+      "range_ms": [
+        0.03232999733882025,
+        0.03471400123089552
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 2.0,
+          "self_cpu_ms": 0.014182666666666682,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.0035269999999999963,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0014863333333333438,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.0016116666666666456,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 0.013789333333333341,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0013519999999999945,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0050700000000000025,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.03623699740273878,
+      "range_ms": [
+        0.03462399763520807,
+        0.04597500083036721
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 2.0,
+          "self_cpu_ms": 0.014046333333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.0031856666666666626,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0017796666666666898,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0020576666666666387,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 4.0,
+          "self_cpu_ms": 0.018811333333333343,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00015700000000000121,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0006143333333333392,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0028919999999999957,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 5.193413999222685,
+      "range_ms": [
+        5.1178040012018755,
+        5.219573002250399
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 2.0,
+          "self_cpu_ms": 0.056230666666668185,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.03398900000000025,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0019846666666653618,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.002136666666666997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 5.026479,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::narrow",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002758666666666007,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::slice",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0010750000000001212,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0007546666666667079,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0011086666666663709,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.034810999999999995,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 2.7070060023106635,
+      "range_ms": [
+        2.6255150005454198,
+        3.8720510056009516
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03746600000000028,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::expand",
+          "calls": 1.0,
+          "self_cpu_ms": 0.002163999999999883,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0024446666666666297,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.002240333333332719,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 2.0,
+          "self_cpu_ms": 1.4279749999999998,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.046468333333334014,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::contiguous",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0007743333333335158,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::clone",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0028990000000001905,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0008656666666665084,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03687099999999979,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 19.354802003363147,
+      "range_ms": [
+        19.15343000291614,
+        19.74982299725525
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 2.0,
+          "self_cpu_ms": 0.17318033333333127,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 4.0,
+          "self_cpu_ms": 0.11093833333333006,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_cpu",
+          "calls": 2.0,
+          "self_cpu_ms": 0.00267133333333004,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 3.0,
+          "self_cpu_ms": 0.003199666666669752,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 3.0,
+          "self_cpu_ms": 18.195324666666668,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::narrow",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0016333333333362436,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::slice",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0013723333333340026,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0012893333333316454,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_copy_from_and_resize",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0013456666666679666,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11748399999999917,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 4.577925996272825,
+      "range_ms": [
+        3.5766349974437617,
+        5.560882993449923
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03951233333333342,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::expand",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0020943333333332628,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0023443333333332344,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::contiguous",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0014719999999998285,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::clone",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0031490000000004557,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty_like",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0017236666666658967,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 5.0,
+          "self_cpu_ms": 0.176961666666668,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 2.0,
+          "self_cpu_ms": 0.7550729999999997,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::to",
+          "calls": 4.0,
+          "self_cpu_ms": 0.0027843333333331657,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 2.0,
+          "self_cpu_ms": 0.17226533333333324,
+          "device_ms": 0.0
+        }
+      ]
+    }
+  ]
+}

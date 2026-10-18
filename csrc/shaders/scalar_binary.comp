@@ -1,0 +1,12 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params { uint count,op; float scalar,alpha; } p;
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(i>=p.count)return;
+ if(p.op==2)y[i]=x[i]*p.scalar;
+ else if(p.op==0)y[i]=x[i]+p.alpha*p.scalar;
+ else y[i]=p.scalar+p.alpha*x[i];
+}

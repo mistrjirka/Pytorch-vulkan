@@ -1,0 +1,101 @@
+{
+  "backend": "vulkan",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "torch_version": "2.14.1+cpu",
+  "cuda_version": null,
+  "model": "unet",
+  "scale": "medium",
+  "input_shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "parameters": 472833,
+  "dtype": "float32",
+  "optimizer": "vulkan_fused",
+  "warmup": 8,
+  "repeats": 15,
+  "threads": 8,
+  "vulkan_controls": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_CONV_ALGO": "default",
+    "TORCH_VULKAN_CONV_BACKWARD_ALGO": "default",
+    "TORCH_VULKAN_DISABLE_BN_RESIZE": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_POOL": "1",
+    "TORCH_VULKAN_DISABLE_NATIVE_CAT": "1",
+    "TORCH_VULKAN_GPU_PACK_VIEWS": "0",
+    "TORCH_VULKAN_DISABLE_SCALAR_BINARY": "1",
+    "TORCH_VULKAN_DISABLE_FENCE_POOL": "1"
+  },
+  "modes": {
+    "inference": {
+      "median_ms": 39.202,
+      "min_ms": 37.836,
+      "max_ms": 39.963,
+      "samples_ms": [
+        39.619,
+        39.802,
+        39.751,
+        39.963,
+        38.974,
+        39.186,
+        39.158,
+        37.836,
+        38.764,
+        39.082,
+        39.204,
+        39.202,
+        39.139,
+        39.263,
+        39.225
+      ],
+      "first_loss": null,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.08970028907060623,
+        "rms": 0.08991298079490662
+      }
+    },
+    "training": {
+      "median_ms": 86.383,
+      "min_ms": 82.389,
+      "max_ms": 119.701,
+      "samples_ms": [
+        84.086,
+        89.487,
+        86.383,
+        84.868,
+        84.977,
+        85.283,
+        83.911,
+        84.861,
+        82.389,
+        92.201,
+        111.787,
+        108.927,
+        112.924,
+        115.197,
+        119.701
+      ],
+      "first_loss": 0.7050257325172424,
+      "first_output": {
+        "shape": [
+          1,
+          1,
+          64,
+          64
+        ],
+        "mean": 0.11960465461015701,
+        "rms": 0.3529641032218933
+      }
+    }
+  },
+  "zoo_commit": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed"
+}

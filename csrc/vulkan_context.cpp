@@ -74,7 +74,7 @@ void VulkanContext::run_compute(
     const bool timed = gpu_timing_enabled() &&
         (shader=="mm" || shader=="mm_register" ||
          shader=="addmm" || shader=="addmm_register" ||
-         shader.rfind("conv2d_",0)==0 || shader.rfind("batch_norm_",0)==0);
+         shader.rfind("conv2d_",0)==0 || shader.rfind("batch_norm_",0)==0 || shader.rfind("max_pool2d_",0)==0);
     auto seq = timed ? timed_sequence() : mgr_->sequence();
     seq->record<kp::OpTensorSyncDevice>(inputs);
     seq->record<kp::OpAlgoDispatch>(algo);

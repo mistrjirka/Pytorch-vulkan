@@ -8,6 +8,7 @@
 #include "../vulkan_allocator.h"
 #include "../vulkan_engine.h"
 #include "../vulkan_context.h"
+#include "native_utils.h"
 #include <ATen/core/op_registration/op_registration.h>
 #include <ATen/native/CPUFallback.h>
 #include <torch/library.h>
@@ -39,12 +40,19 @@ static at::Tensor host_mirror(const at::Tensor& src) {
 
 static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
   // A view with nonzero offset is NOT the base Kompute allocation, and a
-  // strided view must not be consumed as a flat SPIR-V buffer. Materialize
-  // through the host mirror until native strided kernels exist.
+  // strided view must not be consumed as a flat SPIR-V buffer. Pack supported
+  // layouts on GPU; retain the existing host path for other dtypes/ranks.
   if (src.device().type() != c10::DeviceType::PrivateUse1)
     return src.contiguous();
   if (src.is_contiguous() && src.storage_offset() == 0)
     return src;
+  static const bool gpu_pack=[](){
+    const char* flag=std::getenv("TORCH_VULKAN_GPU_PACK_VIEWS");
+    return !flag || std::strcmp(flag,"0")!=0;
+  }();
+  if(gpu_pack && src.numel()>0 && src.dim()<=8 &&
+      (src.scalar_type()==at::kFloat || src.scalar_type()==at::kLong))
+    return native::packed(src,src.scalar_type());
   return host_mirror(src).contiguous().to(src.device());
 }
 
@@ -302,9 +310,38 @@ static std::pair<at::Tensor, at::Tensor> broadcast_binary_operands(
   return {contiguous_for_kernel(ea), contiguous_for_kernel(eb)};
 }
 
+// Python numbers enter the Tensor overload as zero-dimensional CPU tensors.
+// Keep them as push constants; expanding them on CPU both loses wrapped-scalar
+// dtype promotion and allocates/copies an entire tensor for one number.
+static std::optional<at::Tensor> cpu_scalar_binary(
+    const at::Tensor& a,const at::Tensor& b,float alpha,bool multiply) {
+  static const bool enabled=[](){
+    const char* flag=std::getenv("TORCH_VULKAN_DISABLE_SCALAR_BINARY");
+    return !flag || std::strcmp(flag,"1")!=0;
+  }();
+  if(!enabled)return std::nullopt;
+  const bool right=b.device().is_cpu() && b.dim()==0 &&
+      a.device().type()==c10::DeviceType::PrivateUse1;
+  const bool left=a.device().is_cpu() && a.dim()==0 &&
+      b.device().type()==c10::DeviceType::PrivateUse1;
+  if(!right && !left)return std::nullopt;
+  const auto& tensor=right?a:b;
+  const auto& scalar=right?b:a;
+  if(tensor.scalar_type()!=at::kFloat || at::result_type(a,b)!=at::kFloat)return std::nullopt;
+  auto out=at::empty(tensor.sizes(),tensor.options());
+  if(out.numel()) {
+    auto input=native::packed(tensor);
+    native::run("scalar_binary",{native::base(input)},{native::base(out)},
+        {native::u32(out.numel()),multiply?2u:(right?0u:1u),
+         native::bits(scalar.item<float>()),native::bits(alpha)},(out.numel()+127)/128);
+  }
+  return out;
+}
+
 // aten::add.Tensor — alpha scaling with arbitrary compatible broadcasting.
 at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
                       const at::Scalar& alpha) {
+  if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
   auto [a, b] = broadcast_binary_operands(self, other);
   TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan add: tensor too large");
   const uint32_t n = static_cast<uint32_t>(a.numel());
@@ -316,6 +353,7 @@ at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
 
 // aten::mul.Tensor — elementwise multiplication with arbitrary broadcasting.
 at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
+  if(auto out=cpu_scalar_binary(self,other,1.0f,true))return *out;
   auto [a, b] = broadcast_binary_operands(self, other);
   TORCH_CHECK(a.numel() <= UINT32_MAX, "Vulkan mul: tensor too large");
   const uint32_t n = static_cast<uint32_t>(a.numel());

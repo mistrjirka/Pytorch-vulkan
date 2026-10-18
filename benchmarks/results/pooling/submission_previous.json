@@ -1,0 +1,26 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "record_ms": 0.05755099846282974,
+  "synchronize_ms": 0.48661000255378895,
+  "total_ms": 0.5437199943116866,
+  "range_ms": [
+    0.5119769994053058,
+    0.5552469956455752
+  ],
+  "samples": 50,
+  "warmup": 10,
+  "torch": "2.14.1+cpu",
+  "fence_pool": false,
+  "cache": {
+    "algo_hits": 59,
+    "algo_misses": 1,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 0,
+    "bound_algorithms": 1,
+    "pipeline_hits": 0,
+    "pipeline_misses": 1,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 1
+  }
+}

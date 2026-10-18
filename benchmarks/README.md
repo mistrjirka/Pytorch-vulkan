@@ -1,5 +1,9 @@
 # Benchmarking and model-zoo smoke tests
 
+[Native pooling, layouts and fence reuse](../docs/pooling-layouts-and-fences.md)
+contains the latest U-Net A/B, matched CUDA operator profiles, and submission
+API measurements.
+
 **[Latest matched CUDA/Vulkan optimization analysis](../docs/cuda-vulkan-bottleneck-analysis.md)**
 documents kernel timestamps, profiler evidence, GPU-resident training and
 direct before/after comparisons on the same RTX 2080 Ti.

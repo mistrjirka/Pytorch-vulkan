@@ -1,0 +1,425 @@
+{
+  "backend": "vulkan",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cpu",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "results": [
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.1215250013046898,
+      "range_ms": [
+        0.12023200542898849,
+        0.13839599705534056
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.04584433333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.024735333333333328,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.10083599772769958,
+      "range_ms": [
+        0.09974500426324084,
+        0.12869700003648177
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.021572999999999995,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.028602666666666658,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 0.4574859995045699,
+      "range_ms": [
+        0.4260679997969419,
+        0.47088100109249353
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02359000000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.33794166666666664,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 0.2639579979586415,
+      "range_ms": [
+        0.2357159974053502,
+        0.27694200252881274
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.022805333333333302,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11565733333333336,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.07249399641295895,
+      "range_ms": [
+        0.07154200284276158,
+        0.08230200182879344
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02199400000000001,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0026749999999999973,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.07383699994534254,
+      "range_ms": [
+        0.07301499863388017,
+        0.08059899846557528
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02109233333333331,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0025646666666666817,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.06975900032557547,
+      "range_ms": [
+        0.06849700002931058,
+        0.07223300053738058
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.021325999999999987,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 2.0,
+          "self_cpu_ms": 0.0018936666666666752,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.06990900146774948,
+      "range_ms": [
+        0.06911800301168114,
+        0.08026800060179085
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.021567,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0013056666666666672,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 0.09526599751552567,
+      "range_ms": [
+        0.09322199912276119,
+        0.12269700528122485
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 1.0,
+          "self_cpu_ms": 0.022819000000000006,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.028599333333333338,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 0.13002999912714586,
+      "range_ms": [
+        0.128387997392565,
+        0.14150200149742886
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03747266666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::expand",
+          "calls": 1.0,
+          "self_cpu_ms": 0.001589666666666659,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0017899999999999967,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.04337333333333335,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.20731300173792988,
+      "range_ms": [
+        0.1801329999580048,
+        0.21707099949708208
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 1.0,
+          "self_cpu_ms": 0.027129999999999963,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11076466666666668,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.2684159990167245,
+      "range_ms": [
+        0.26591200003167614,
+        0.3116469961241819
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03378833333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::expand",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0015423333333333318,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::as_strided",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0018103333333333515,
+          "device_ms": 0.0
+        },
+        {
+          "name": "aten::empty",
+          "calls": 3.0,
+          "self_cpu_ms": 0.16641166666666662,
+          "device_ms": 0.0
+        }
+      ]
+    }
+  ]
+}

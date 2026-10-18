@@ -65,6 +65,15 @@ if(NOT kompute_FOUND)
       message(FATAL_ERROR "Kompute descriptor patch failed: ${KOMPUTE_DESCRIPTORS_ERR}")
     endif()
     message(STATUS "${KOMPUTE_DESCRIPTORS_OUT}")
+    execute_process(
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/patch_fence_pool.py" "${kompute_SOURCE_DIR}"
+      RESULT_VARIABLE KOMPUTE_FENCES_RC
+      OUTPUT_VARIABLE KOMPUTE_FENCES_OUT
+      ERROR_VARIABLE KOMPUTE_FENCES_ERR)
+    if(NOT KOMPUTE_FENCES_RC EQUAL 0)
+      message(FATAL_ERROR "Kompute fence patch failed: ${KOMPUTE_FENCES_ERR}")
+    endif()
+    message(STATUS "${KOMPUTE_FENCES_OUT}")
     add_subdirectory("${kompute_SOURCE_DIR}" "${kompute_BINARY_DIR}")
     set(KOMPUTE_LIBRARY kompute)
     set(KOMPUTE_INCLUDE_DIR "")
@@ -77,6 +86,8 @@ add_library(torch_vulkan_C SHARED
   csrc/vulkan_context.cpp
   csrc/vulkan_allocator.cpp
   csrc/ops/mm.cpp
+  csrc/ops/cat.cpp
+  csrc/ops/pooling.cpp
   csrc/ops/upsample.cpp
   csrc/ops/batch_norm.cpp
   csrc/ops/convolution.cpp
@@ -115,3 +126,13 @@ set_target_properties(torch_vulkan_C PROPERTIES
   PREFIX ""
   SUFFIX ".${Python3_SOABI}.so"
 )
+
+option(TORCH_VULKAN_BUILD_RUNTIME_TESTS "Build bundled Kompute lifecycle regression tests" OFF)
+if(TORCH_VULKAN_BUILD_RUNTIME_TESTS)
+  if(NOT TARGET kompute OR NOT EXISTS "${kompute_SOURCE_DIR}/src/include/kompute/FencePool.hpp")
+    message(FATAL_ERROR "Runtime tests require the bundled patched Kompute")
+  endif()
+  find_package(Threads REQUIRED)
+  add_executable(test_fence_pool tests/cpp/test_fence_pool.cpp)
+  target_link_libraries(test_fence_pool PRIVATE kompute Vulkan::Vulkan Threads::Threads)
+endif()

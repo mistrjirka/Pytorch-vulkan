@@ -19,9 +19,9 @@ inline uint32_t u32(int64_t v) {
   return static_cast<uint32_t>(v);
 }
 inline uint32_t bits(float v) { uint32_t r; std::memcpy(&r,&v,4); return r; }
-inline Buffer base(const at::Tensor& t) {
-  TORCH_CHECK(t.device().type()==c10::DeviceType::PrivateUse1 && t.scalar_type()==at::kFloat,
-              "Vulkan native operator requires FP32 Vulkan tensors");
+inline Buffer base(const at::Tensor& t,at::ScalarType dtype=at::kFloat) {
+  TORCH_CHECK(t.device().type()==c10::DeviceType::PrivateUse1 && t.scalar_type()==dtype,
+              "Vulkan native operator tensor device/dtype mismatch");
   return VulkanAllocator::instance().get_kompute_tensor(t.storage().data_ptr().get());
 }
 inline kp::Workgroup grid(uint64_t groups) {
@@ -50,8 +50,9 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
   if(ctx.can_enqueue(bindings)) ctx.enqueue_compute(algo,bindings,outputs);
   else ctx.run_compute(algo,shader,inputs,outputs);
 }
-inline at::Tensor packed(const at::Tensor& src) {
-  base(src); // Validate device and dtype even on the no-copy path.
+inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
+  TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong,"Vulkan native packing supports FP32/int64");
+  base(src,dtype); // Validate device and dtype even on the no-copy path.
   if(src.is_contiguous() && src.storage_offset()==0) return src;
   TORCH_CHECK(src.dim()<=8,"Vulkan native packing supports at most 8 dimensions");
   std::vector<uint32_t> p(18,0); p[0]=u32(src.numel());p[1]=u32(src.storage_offset());
@@ -63,7 +64,8 @@ inline at::Tensor packed(const at::Tensor& src) {
   }
   TORCH_CHECK(last<=UINT32_MAX,"Vulkan native view indexing overflow");
   auto out=at::empty(src.sizes(),src.options());
-  if(src.numel())run("native_pack",{base(src)},{base(out)},p,(src.numel()+127)/128);
+  if(src.numel())run(dtype==at::kLong?"native_pack_int64":"native_pack",
+      {base(src,dtype)},{base(out,dtype)},p,(src.numel()+127)/128);
   return out;
 }
 } // namespace torch_vulkan::ops::native

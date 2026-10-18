@@ -1,0 +1,24 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+// Two 32-bit words preserve ATen int64 storage without shaderInt64 support.
+layout(set=0,binding=2) writeonly buffer Indices { uvec2 indices[]; };
+layout(push_constant) uniform Params { uint planes,ih,iw,oh,ow; int kh,kw,sh,sw,ph,pw,dh,dw; } p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.planes*p.oh*p.ow)return;
+  uint plane=i/(p.oh*p.ow);
+  int hs=int((i/p.ow)%p.oh)*p.sh-p.ph,ws=int(i%p.ow)*p.sw-p.pw;
+  int he=min(hs+(p.kh-1)*p.dh+1,int(p.ih)),we=min(ws+(p.kw-1)*p.dw+1,int(p.iw));
+  if(hs<0)hs+=((-hs+p.dh-1)/p.dh)*p.dh;
+  if(ws<0)ws+=((-ws+p.dw-1)/p.dw)*p.dw;
+  float best=uintBitsToFloat(0xff800000u);
+  uint index=uint(hs)*p.iw+uint(ws);
+  for(int h=hs;h<he;h+=p.dh)for(int w=ws;w<we;w+=p.dw) {
+    uint at=uint(h)*p.iw+uint(w);float v=x[plane*p.ih*p.iw+at];
+    // Equal maxima retain the first index; each NaN replaces the previous one.
+    if(v>best || isnan(v)){best=v;index=at;}
+  }
+  y[i]=best;indices[i]=uvec2(index,0);
+}

@@ -1,0 +1,25 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Grad { float g[]; };
+layout(set=0,binding=1) readonly buffer Indices { uvec2 indices[]; };
+layout(set=0,binding=2) writeonly buffer Output { float dx[]; };
+layout(push_constant) uniform Params { uint planes,ih,iw,oh,ow; int kh,kw,sh,sw,ph,pw,dh,dw; } p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.planes*p.ih*p.iw)return;
+  uint plane=i/(p.ih*p.iw),index=i%(p.ih*p.iw);
+  int h=int(index/p.iw)+p.ph,w=int(index%p.iw)+p.pw;
+  int hb=max(0,(h-(p.kh-1)*p.dh+p.sh-1)/p.sh),he=min(int(p.oh)-1,h/p.sh);
+  int wb=max(0,(w-(p.kw-1)*p.dw+p.sw-1)/p.sw),we=min(int(p.ow)-1,w/p.sw);
+  float sum=0.0;
+  // Gather instead of atomic scatter: overlapping windows are deterministic.
+  for(int oh=hb;oh<=he;++oh){
+    if((h-oh*p.sh)%p.dh!=0)continue;
+    for(int ow=wb;ow<=we;++ow){
+      if((w-ow*p.sw)%p.dw!=0)continue;
+      uint o=(plane*p.oh+uint(oh))*p.ow+uint(ow);
+      if(indices[o].x==index && indices[o].y==0)sum+=g[o];
+    }
+  }
+  dx[i]=sum;
+}

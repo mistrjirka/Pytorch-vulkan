@@ -1,0 +1,685 @@
+{
+  "backend": "cuda",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "torch": "2.14.1+cu130",
+  "dtype": "float32",
+  "warmup": 5,
+  "repeats": 15,
+  "env": {},
+  "results": [
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.026788999093696475,
+      "range_ms": [
+        0.025838002329692245,
+        0.037710000469814986
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.03699866666666647,
+          "device_ms": 0.003520000000000058
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.41732600000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01980333333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_forward_nchw<float, int>(int, float const*, long, long, long, int, int, int, int, int, int, int, int, int, int, float*, long*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.003520000000000058
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0059276666666667095,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        1,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.044182001147419214,
+      "range_ms": [
+        0.0429399951826781,
+        0.057987002946902066
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01685466666666662,
+          "device_ms": 0.007488000000000133
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00350933333333334,
+          "device_ms": 0.0015680000000000594
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.007023666666666637,
+          "device_ms": 0.0015680000000000594
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4050523333333333,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.01595900000000006,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0015680000000000594
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_backward_nchw<float, float, int>(float const*, long const*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, float*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.005920000000000073
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0037170000000000983,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 0.05327800317900255,
+      "range_ms": [
+        0.052898001740686595,
+        0.05495199729921296
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.025076666666666674,
+          "device_ms": 0.029321666666666638
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4340919999999999,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.011060000000000021,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_forward_nchw<float, int>(int, float const*, long, long, long, int, int, int, int, int, int, int, int, int, int, float*, long*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.029321666666666638
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.012987666666666654,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        64,
+        64,
+        64
+      ],
+      "median_ms": 0.06949899398023263,
+      "range_ms": [
+        0.06880799628561363,
+        0.07087200356181711
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01677799999999998,
+          "device_ms": 0.040853333333333394
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0037503333333333633,
+          "device_ms": 0.0030720000000000404
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.008322000000000003,
+          "device_ms": 0.0030720000000000404
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.18511233333333332,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.11460833333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0030720000000000404
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_backward_nchw<float, float, int>(float const*, long const*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, float*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.03778133333333335
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.022227666666666663,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.036296994949225336,
+      "range_ms": [
+        0.03594600275391713,
+        0.03755900252144784
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.020207333333333282,
+          "device_ms": 0.004063666666666753
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.53118,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09274833333333345,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_forward_nchw<float, int>(int, float const*, long, long, long, int, int, int, int, int, int, int, int, int, int, float*, long*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.004063666666666753
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0033426666666665976,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        2,
+        7,
+        19,
+        23
+      ],
+      "median_ms": 0.04422199708642438,
+      "range_ms": [
+        0.043539999751374125,
+        0.04541400267044082
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01736866666666674,
+          "device_ms": 0.005216333333333448
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0035733333333333424,
+          "device_ms": 0.00144033333333338
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00797499999999991,
+          "device_ms": 0.00144033333333338
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.36535333333333336,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.09363999999999988,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.00144033333333338
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_backward_nchw<float, float, int>(float const*, long const*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, float*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0037760000000000675
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0034796666666667684,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_forward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.0358260003849864,
+      "range_ms": [
+        0.03532499977154657,
+        0.04633599746739492
+      ],
+      "max_abs_errors": [
+        0.0,
+        0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices",
+          "calls": 1.0,
+          "self_cpu_ms": 0.02013066666666676,
+          "device_ms": 0.0027196666666667777
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.47561933333333334,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.09100833333333329,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_forward_nchw<float, int>(int, float const*, long, long, long, int, int, int, int, int, int, int, int, int, int, float*, long*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0027196666666667777
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0034366666666665728,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "max_pool2d_backward",
+      "shape": [
+        3,
+        7,
+        9
+      ],
+      "median_ms": 0.044372005504556,
+      "range_ms": [
+        0.04392100527184084,
+        0.061793994973413646
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::max_pool2d_with_indices_backward",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01668100000000004,
+          "device_ms": 0.003839333333333419
+        },
+        {
+          "name": "aten::zero_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.00345300000000005,
+          "device_ms": 0.001365000000000085
+        },
+        {
+          "name": "aten::fill_",
+          "calls": 1.0,
+          "self_cpu_ms": 0.008289333333333237,
+          "device_ms": 0.001365000000000085
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.4215026666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2.0,
+          "self_cpu_ms": 0.09317166666666678,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<float>, std::array<char*, 1ul>, false>(int, at::native::FillFunctor<float>, std::array<char*, 1ul>)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.001365000000000085
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::max_pool_backward_nchw<float, float, int>(float const*, long const*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, float*)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.002474333333333334
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.003523333333333388,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 0.02605800546007231,
+      "range_ms": [
+        0.025507004465907812,
+        0.0362069986294955
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017225333333333388,
+          "device_ms": 0.0027093333333333856
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.2803716666666667,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.108003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy_vectorized<at::native::(anonymous namespace)::OpaqueType<4u>, unsigned int, 2, 128, 1, 16, 4>(char*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<at::native::(anonymous namespace)::OpaqueType<4u>, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.0027093333333333856
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0031890000000000026,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        1,
+        64,
+        32,
+        32
+      ],
+      "median_ms": 0.026358000468462706,
+      "range_ms": [
+        0.026048001018352807,
+        0.028472997655626386
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.017773000000000063,
+          "device_ms": 0.002484999999999976
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.342757,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.11347666666666661,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.002484999999999976
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0032789999999999204,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "cat_channels",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.025847999495454133,
+      "range_ms": [
+        0.025266999728046358,
+        0.037007994251325727
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::cat",
+          "calls": 1.0,
+          "self_cpu_ms": 0.016340333333333356,
+          "device_ms": 0.005685333333333309
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.17201866666666665,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.10554233333333335,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy_vectorized<at::native::(anonymous namespace)::OpaqueType<4u>, unsigned int, 2, 128, 1, 16, 4>(char*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<at::native::(anonymous namespace)::OpaqueType<4u>, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.005685333333333309
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0032593333333332643,
+          "device_ms": 0.0
+        }
+      ]
+    },
+    {
+      "name": "add_offset_broadcast",
+      "shape": [
+        2,
+        32,
+        64,
+        64
+      ],
+      "median_ms": 0.026529000024311244,
+      "range_ms": [
+        0.026077999791596085,
+        0.02740099444054067
+      ],
+      "max_abs_errors": [
+        0.0
+      ],
+      "gpu_timing_per_call": {},
+      "operators": [
+        {
+          "name": "aten::add",
+          "calls": 1.0,
+          "self_cpu_ms": 0.01648033333333338,
+          "device_ms": 0.00457566666666662
+        },
+        {
+          "name": "Activity Buffer Request",
+          "calls": 0.3333333333333333,
+          "self_cpu_ms": 0.17490300000000003,
+          "device_ms": 0.0
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1.0,
+          "self_cpu_ms": 0.10012800000000001,
+          "device_ms": 0.0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 1.0,
+          "self_cpu_ms": 0.0,
+          "device_ms": 0.00457566666666662
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 1.3333333333333333,
+          "self_cpu_ms": 0.0033423333333332723,
+          "device_ms": 0.0
+        }
+      ]
+    }
+  ]
+}

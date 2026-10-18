@@ -9,7 +9,7 @@ def layout(x,kind,device):
     if kind=='channels_last': return x.to(device).contiguous(memory_format=torch.channels_last)
     if kind=='transpose': return x.transpose(-1,-2).contiguous().to(device).transpose(-1,-2)
     if kind=='slice':
-        storage=torch.zeros((*x.shape[:-1],x.shape[-1]*2+3))
+        storage=torch.zeros((*x.shape[:-1],x.shape[-1]*2+3),dtype=x.dtype)
         storage[...,1:1+2*x.shape[-1]:2]=x
         return storage.to(device)[...,1:1+2*x.shape[-1]:2]
     if kind=='broadcast': return x[:1].to(device).expand(x.shape)
