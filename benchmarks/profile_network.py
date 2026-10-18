@@ -131,6 +131,8 @@ def main():
         profile_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         zoo_revision=subprocess.check_output(['git', '-C', str(args.zoo), 'rev-parse', 'HEAD'], text=True).strip(),
         gpu=gpu, backend=args.backend, model=args.model, dtype='float32',
+        backend_package_path=str(Path(torch_vulkan.__file__).resolve()) if args.backend == 'vulkan' else None,
+        backend_extension_sha256=hashlib.sha256(Path(torch_vulkan._C.__file__).read_bytes()).hexdigest() if args.backend == 'vulkan' else None,
         finite_leaky_composite=args.finite_leaky_composite,
         shape=CONFIG[args.model][args.scale], torch=torch.__version__,
         initial_state_sha256=state_hash.hexdigest(), input_sha256=input_hash,

@@ -1,4 +1,6 @@
 #include <ATen/Functions.h>
+#include <ATen/EmptyTensor.h>
+#include <ATen/MemoryOverlap.h>
 #include <ATen/ops/from_blob.h>
 #include <ATen/NativeFunctions.h>
 #include <ATen/InferSize.h>
@@ -418,6 +420,36 @@ at::Tensor vulkan_to_copy(
 
 // copy_ — in-place copy
 at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_blocking) {
+  if(self.device()==src.device() && self.scalar_type()==src.scalar_type() &&
+     self.data_ptr()==src.data_ptr() && self.sizes()==src.sizes() && self.strides()==src.strides())return self;
+  // Check aliases before host mirrors wrap the same bytes in separate storages.
+  at::assert_no_internal_overlap(self);
+  at::assert_no_partial_overlap(self,src);
+  // General device copy into an entire contiguous allocation. Strided sources
+  // use the existing pack shader; dtype casts, aliases and partial destinations
+  // retain CPU's established copy semantics below.
+  if(self.device().type()==c10::DeviceType::PrivateUse1 && src.device()==self.device() &&
+     self.scalar_type()==src.scalar_type() && self.is_contiguous() &&
+     self.storage_offset()==0 && self.numel()>0 &&
+     self.storage().nbytes()==uint64_t(self.numel())*self.element_size() &&
+     !self.storage().is_alias_of(src.storage()) && native::can_pack_view(self)) {
+    const auto shape=at::infer_size(self.sizes(),src.sizes());
+    if(at::IntArrayRef(shape)==self.sizes()) {
+      const auto input=src.sizes()==self.sizes()?src:src.expand(self.sizes());
+      if(native::can_pack_view(input)) {
+        std::vector<uint32_t> p(18,0);
+        p[0]=native::u32(input.numel());p[1]=native::u32(input.storage_offset());
+        std::fill(p.begin()+2,p.begin()+10,1);
+        for(int64_t d=0;d<input.dim();++d) {
+          p[2+d]=native::u32(input.size(d));p[10+d]=native::u32(input.stride(d));
+        }
+        const auto dtype=input.scalar_type();
+        native::run(dtype==at::kLong?"native_pack_int64":"native_pack",
+            {native::base(input,dtype)},{native::base(self,dtype)},p,(input.numel()+127)/128);
+        return self;
+      }
+    }
+  }
   // A Vulkan allocation is represented by a mapped host mirror. CPU's
   // stride-aware copy correctly handles offsets, permutations and casting.
   // Inputs are synchronized to the GPU by the next shader submission.
@@ -477,6 +509,19 @@ at::Tensor empty_memory_format(
   return tensor;
 }
 
+// Allocate arbitrary ATen strided storage directly; the generic helper validates
+// sizes/strides and overflow and uses the backend allocator without a CPU tensor.
+at::Tensor empty_strided_native(
+    c10::SymIntArrayRef size,c10::SymIntArrayRef stride,
+    std::optional<at::ScalarType> dtype,std::optional<at::Layout> layout,
+    std::optional<at::Device> device,std::optional<bool> pin_memory) {
+  TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided,"Vulkan empty_strided requires strided layout");
+  TORCH_CHECK(!pin_memory.value_or(false),"Vulkan empty_strided does not support pinned memory");
+  return at::Tensor(at::detail::empty_strided_symint_generic(size,stride,
+      &VulkanAllocator::instance(),c10::DispatchKeySet(c10::DispatchKey::PrivateUse1),
+      c10::dtype_or_default(dtype)));
+}
+
 // aten::_softmax — row-wise softmax via softmax.spv
 // Phase 4: cached algorithm for repeated softmax on same-sized buffers
 at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_float) {
@@ -522,7 +567,6 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     const std::optional<at::Tensor>& bias_opt,
     double eps) {
 
-  VulkanContext::instance().synchronize();
   TORCH_CHECK(input.dtype() == at::kFloat, "layer_norm: only float32");
   TORCH_CHECK(eps >= 0.0, "layer_norm: epsilon must be nonnegative");
   TORCH_CHECK(!normalized_shape.empty() &&
@@ -560,8 +604,10 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   // Affine parameters already live in the backend allocator. Reuse their
   // VkBuffers instead of allocating/copying temporary buffers on every call.
   std::shared_ptr<kp::TensorT<float>> w_tensor, b_tensor;
+  at::Tensor w_keep, b_keep; // Keep packed allocator storage alive through enqueue.
   if (weight_opt.has_value() && weight_opt->defined()) {
-    const auto w = contiguous_for_kernel(*weight_opt);
+    w_keep = contiguous_for_kernel(*weight_opt);
+    const auto& w = w_keep;
     TORCH_CHECK(w.dtype() == at::kFloat && w.numel() == row_size,
                 "layer_norm: invalid weight");
     w_tensor = get_kp_tensor(w);
@@ -569,7 +615,8 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     w_tensor = mgr.tensor(std::vector<float>(row_size, 1.0f));
   }
   if (bias_opt.has_value() && bias_opt->defined()) {
-    const auto b = contiguous_for_kernel(*bias_opt);
+    b_keep = contiguous_for_kernel(*bias_opt);
+    const auto& b = b_keep;
     TORCH_CHECK(b.dtype() == at::kFloat && b.numel() == row_size,
                 "layer_norm: invalid bias");
     b_tensor = get_kp_tensor(b);
@@ -584,7 +631,6 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   auto algorithm = ctx.get_or_create_algorithm(
       "layer_norm", {in_tensor, w_tensor, b_tensor, out_tensor, mean_tensor, rstd_tensor},
       kp::Workgroup({nr, 1, 1}), std::vector<uint32_t>{nr, rs, eps_bits});
-  ctx.synchronize();
   ctx.run_compute(algorithm, "layer_norm", {in_tensor,w_tensor,b_tensor}, {out_tensor,mean_tensor,rstd_tensor});
   return std::make_tuple(output, mean, rstd);
 }
@@ -745,16 +791,6 @@ at::Tensor mul_scalar(const at::Tensor& self, const at::Scalar& other) {
   return elementwise_unary(self, "scalar_mul", {n, bits});
 }
 
-// aten::div.Tensor — elementwise divide (a / b)
-at::Tensor div_tensor(const at::Tensor& self, const at::Tensor& other) {
-  // For scalar-like divisors, use scalar path
-  if (other.numel() == 1) {
-    float divisor = other.item<float>();
-    return mul_scalar(self, at::Scalar(1.0f / divisor));
-  }
-  // General case: compute reciprocal and multiply
-  TORCH_CHECK(false, "div.Tensor: only scalar-like divisor supported for now");
-}
 
 // The old fused scaled-dot-product-attention code was removed because it
 // disagreed with PyTorch for common head layouts and had no backward rule.
@@ -899,6 +935,7 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("relu", &relu);
   m.impl("threshold_backward", &threshold_backward);
   m.impl("empty.memory_format", &empty_memory_format);
+  m.impl("empty_strided", &empty_strided_native);
   m.impl("_softmax", &vulkan_softmax);
   m.impl("native_layer_norm", &vulkan_layer_norm);
   m.impl("_to_copy", &vulkan_to_copy);
@@ -910,7 +947,7 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("embedding", &vulkan_embedding);
   m.impl("addmm", &vulkan_addmm);
   m.impl("mul.Scalar", &mul_scalar);
-  m.impl("div.Tensor", &div_tensor);
+  // General division is registered by loss_primitives.cpp.
   // The old custom SDPA shader is not accurate for all head layouts and has
   // no Autograd implementation. Do not register it: dispatch through the
   // correctness-first CPU fallback until a tested forward+backward exists.

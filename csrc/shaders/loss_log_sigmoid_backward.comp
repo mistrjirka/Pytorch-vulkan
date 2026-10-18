@@ -1,0 +1,15 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Grad { float g[]; };
+layout(set=0,binding=1) readonly buffer Input { float x[]; };
+layout(set=0,binding=2) readonly buffer Buffer { float b[]; };
+layout(set=0,binding=3) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {uint count;} p;
+void main(){
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=(p.count-1u)/128u+1u)return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  float z=b[i]/(1.0+b[i]);
+  y[i]=g[i]*(x[i]<0?1.0-z:z);
+}

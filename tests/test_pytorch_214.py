@@ -265,3 +265,40 @@ def test_native_layer_norm_backward_no_affine_and_partial_masks():
         wanted = torch.autograd.grad(out_cpu, x_cpu, grad)[0]
         got = torch.autograd.grad(out_vk, x_vk, grad.to('vulkan'))[0]
         check_close(got, wanted, tol=5e-4)
+
+
+def test_layer_norm_queued_strided_affine_lifetimes():
+    """Packing affine views must survive later allocations and deferred work."""
+    torch.manual_seed(83)
+    x = torch.randn(3, 4, 7, requires_grad=True)
+    w = torch.randn(7, 4).t().detach().requires_grad_()
+    b = torch.randn(4, 14)[:, 1::2].detach().requires_grad_()
+    xv = x.detach().to('vulkan').requires_grad_()
+    wv = w.detach().t().contiguous().to('vulkan').t().requires_grad_()
+    rawb = torch.zeros(4, 14)
+    rawb[:, 1::2] = b.detach()
+    bv = rawb.to('vulkan')[:, 1::2].requires_grad_()
+    ref, got = x, xv
+    for _ in range(5):
+        ref = torch.nn.functional.layer_norm(ref, (4, 7), w, b, 0.003)
+        got = torch.nn.functional.layer_norm(got, (4, 7), wv, bv, 0.003)
+    grad = torch.randn_like(ref)
+    ref_grads = torch.autograd.grad(ref, (x, w, b), grad)
+    got_grads = torch.autograd.grad(got, (xv, wv, bv), grad.to('vulkan'))
+    torch.testing.assert_close(got.cpu(), ref, rtol=3e-4, atol=2e-5)
+    for a, e in zip(got_grads, ref_grads):
+        torch.testing.assert_close(a.cpu(), e, rtol=3e-4, atol=2e-5)
+
+
+def test_layer_norm_rank_nine_view_keeps_correctness_fallback():
+    torch.manual_seed(94)
+    data = torch.randn(2, 2, 2, 2, 2, 2, 2, 2, 3)
+    x = data.transpose(0, 1).detach().requires_grad_()
+    xv = data.to('vulkan').transpose(0, 1).detach().requires_grad_()
+    grad = torch.randn_like(data).transpose(0, 1)
+    y = torch.nn.functional.layer_norm(x, (3,))
+    yv = torch.nn.functional.layer_norm(xv, (3,))
+    g = torch.autograd.grad(y, x, grad)[0]
+    gv = torch.autograd.grad(yv, xv, grad.contiguous().to('vulkan'))[0]
+    torch.testing.assert_close(yv.cpu(), y, rtol=3e-4, atol=2e-5)
+    torch.testing.assert_close(gv.cpu(), g, rtol=3e-4, atol=2e-5)

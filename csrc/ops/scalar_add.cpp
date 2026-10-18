@@ -1,5 +1,7 @@
 #include "native_utils.h"
 #include <ATen/native/BinaryOps.h>
+#include <ATen/ExpandUtils.h>
+#include <ATen/MemoryOverlap.h>
 #include <torch/library.h>
 
 namespace torch_vulkan::ops {
@@ -52,10 +54,76 @@ at::Tensor& add_scalar_(at::Tensor& x,const at::Scalar& value,const at::Scalar& 
   }
   dispatch(x,x,value,alpha,true);return x;
 }
+// Indexing uses the destination's logical shape and two independent stride
+// sets: arbitrary non-overlapping destination views and broadcast RHS views.
+// No packing or host read is needed for the usual accumulation case.
+bool tensor_view_supported(const at::Tensor& t,bool inplace) {
+  if(t.device().type()!=c10::DeviceType::PrivateUse1 ||
+      t.scalar_type()!=at::kFloat || t.dim()>8 || t.numel()>UINT32_MAX ||
+      t.storage_offset()<0 || uint64_t(t.storage_offset())>UINT32_MAX)return false;
+  if(t.storage().nbytes()>device_limits().maxStorageBufferRange)return false;
+  uint64_t last=t.storage_offset();
+  std::vector<std::pair<int64_t,int64_t>> axes;
+  for(int64_t d=0;d<t.dim();++d) {
+    if(t.size(d)>UINT32_MAX || t.stride(d)<0 || uint64_t(t.stride(d))>UINT32_MAX)return false;
+    if(t.size(d)>1) {
+      const uint64_t extent=uint64_t(t.size(d)-1)*t.stride(d);
+      if(extent>UINT32_MAX-last)return false;
+      last+=extent;
+      axes.push_back({t.stride(d),t.size(d)});
+    }
+  }
+  if(inplace) {
+    // Includes transposes and stepped slices, unlike a contiguous-only guard.
+    std::sort(axes.begin(),axes.end());
+    uint64_t span=1;
+    for(auto [stride,size]:axes) {
+      if(uint64_t(stride)<span)return false;
+      span+=uint64_t(size-1)*stride;
+    }
+  }
+  return true;
+}
 at::Tensor& add_tensor_(at::Tensor& x,const at::Tensor& other,const at::Scalar& alpha) {
+  // Check the original tensors before any copies obscure their aliases.
+  at::assert_no_internal_overlap(x);
+  at::assert_no_partial_overlap(x,other);
   if(other.device().is_cpu() && other.dim()==0 &&
       at::result_type(x,other)==x.scalar_type())return add_scalar_(x,other.item(),alpha);
-  // Tensor/tensor mutation retains the established CPU behavior.
+  const char* disabled=std::getenv("TORCH_VULKAN_DISABLE_NATIVE_TENSOR_ADD");
+  if((!disabled || std::strcmp(disabled,"1")!=0) &&
+      tensor_view_supported(x,true) && tensor_view_supported(other,false) &&
+      x.device()==other.device()) {
+    at::native::alpha_check(x.scalar_type(),alpha);
+    const auto shape=at::infer_size(x.sizes(),other.sizes());
+    TORCH_CHECK(at::IntArrayRef(shape)==x.sizes(),
+                "output with shape ",x.sizes()," doesn't match the broadcast shape ",shape);
+    std::vector<uint32_t> p(29,0);
+    p[0]=u32(x.numel());p[1]=u32(x.storage_offset());
+    p[2]=u32(other.storage_offset());p[3]=bits(alpha.toFloat());
+    if(x.is_contiguous() && other.is_contiguous()) {
+      if(other.numel()==x.numel())p[28]=1;
+      else if(other.numel()==1)p[28]=2;
+    }
+    std::fill(p.begin()+4,p.begin()+12,1);
+    bool same_mapping=x.storage_offset()==other.storage_offset();
+    const int64_t pad=x.dim()-other.dim();
+    for(int64_t d=0;d<x.dim();++d) {
+      p[4+d]=u32(x.size(d));p[12+d]=u32(x.stride(d));
+      const int64_t rd=d-pad;
+      const uint32_t stride=rd>=0 && other.size(rd)!=1 ? u32(other.stride(rd)) : 0;
+      p[20+d]=stride;
+      if(x.size(d)>1 && stride!=p[12+d])same_mapping=false;
+    }
+    // ATen may return TooHard for sliced aliases. Distinct storages are always
+    // safe; equal element mappings are also safe because each invocation reads
+    // before its own write. Ambiguous different mappings retain the CPU path.
+    const bool shared=x.storage().is_alias_of(other.storage());
+    if(!shared || same_mapping || at::get_overlap_status(x,other)==at::MemOverlapStatus::No) {
+      if(x.numel())run("tensor_add_inplace",{base(x),base(other)},{base(x)},p,(x.numel()+127)/128);
+      return x;
+    }
+  }
   auto cpu=x.cpu();cpu.add_(other.cpu(),alpha);x.copy_(cpu);return x;
 }
 } // namespace

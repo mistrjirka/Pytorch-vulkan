@@ -1,0 +1,23 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Gradient { float g[]; };
+// Binding 2 tracks destination storage as a read dependency for partial writes.
+// The host uploads/preserves it, but no shader load is necessary.
+layout(set=0,binding=2) readonly buffer Preserved { float unused[]; };
+layout(set=0,binding=3) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {
+  uint count,offset,slope,backward;
+  uint sizes[8]; uint strides[8];
+} p;
+void main() {
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=(p.count+127)/128)return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint rest=i,at=p.offset;
+  for(int d=7;d>=0;--d){at+=(rest%p.sizes[d])*p.strides[d];rest/=p.sizes[d];}
+  float value=p.backward!=0?g[i]:x[i];
+  // Ordered >, not >= or max/min: this preserves the ATen zero/NaN branch.
+  y[at]=x[i]>0.0?value:value*uintBitsToFloat(p.slope);
+}

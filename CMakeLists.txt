@@ -87,6 +87,9 @@ add_library(torch_vulkan_C SHARED
   csrc/vulkan_allocator.cpp
   csrc/ops/mm.cpp
   csrc/ops/scalar_add.cpp
+  csrc/ops/activation.cpp
+  csrc/ops/loss_primitives.cpp
+  csrc/ops/nll_loss.cpp
   csrc/ops/cat.cpp
   csrc/ops/pooling.cpp
   csrc/ops/upsample.cpp

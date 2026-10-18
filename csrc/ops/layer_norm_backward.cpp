@@ -1,6 +1,6 @@
 // GPU-native FP32 LayerNorm backward. Removes the CPU fallback that otherwise
 // stages dY/X/mean/rstd/gamma on every autograd step.
-#include "../vulkan_context.h"
+#include "native_utils.h"
 #include "../vulkan_allocator.h"
 #include <ATen/Functions.h>
 #include <torch/library.h>
@@ -12,10 +12,9 @@ namespace torch_vulkan::ops {
 using TensorBuffer = std::shared_ptr<kp::Tensor>;
 static at::Tensor contiguous_for_native_layer_norm(const at::Tensor& src) {
   if (src.is_contiguous() && src.storage_offset() == 0) return src;
-  // A strided view has no independent Kompute buffer. Materialize it through
-  // the existing correct CPU host-mirror path before dispatching the shader.
-  // Later this can become a native Vulkan strided copy or strided kernel.
-  return src.to(at::kCPU).contiguous().to(src.device());
+  // Pack readable views on GPU without introducing a host boundary.
+  if(native::can_pack_view(src))return native::packed(src);
+  return src.cpu().contiguous().to(src.device());
 }
 
 static TensorBuffer buffer(const at::Tensor& t) {
@@ -36,9 +35,7 @@ static void dispatch(const std::string& shader,
   bindings.insert(bindings.end(),outputs.begin(),outputs.end());
   auto algorithm=ctx.get_or_create_algorithm(
       shader,bindings,kp::Workgroup({workgroups,1,1}),constants);
-  // Ensure host mirrors of other operations have coherent data. Future
-  // persistent GPU scheduling will retain these dependencies on the device.
-  ctx.synchronize();
+  // run_compute tracks dependencies and owns queued bindings until completion.
   ctx.run_compute(algorithm,shader,inputs,outputs);
 }
 static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
@@ -81,9 +78,10 @@ static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
   auto& mgr=VulkanContext::instance().manager();
   if (output_mask[0]) {
     TensorBuffer gamma;
+    at::Tensor gamma_c; // Keep any packed allocation alive until enqueue.
     if (weight && weight->defined()) {
       TORCH_CHECK(weight->numel()==k,"layer_norm_backward: weight size mismatch");
-      auto gamma_c=contiguous_for_native_layer_norm(*weight);
+      gamma_c=contiguous_for_native_layer_norm(*weight);
       gamma=buffer(gamma_c);
     } else gamma=mgr.tensor(std::vector<float>(k,1.0f));
     dx=at::empty(input.sizes(),input.options());

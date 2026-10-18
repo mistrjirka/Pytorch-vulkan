@@ -1,0 +1,131 @@
+{
+  "base_revision": "6d145b40e32e875a395bb48f59c3e7224ad51c98",
+  "backend_extension_sha256": "d4981192039cf936a44d2424d03076e35f9b2828d98eee090d04d8c0251f7190",
+  "baseline_extension_sha256": "28c4aeece04bcc77e5aa3bc8befb93ffe26780b5776958181771e05262e5b1ee",
+  "source_sha256": {
+    "CMakeLists.txt": "7c86ffbd337b644489e9e8da0f39d45a98feea9fc7c6253dadd478f61b76c4a6",
+    "csrc/ops/activation.cpp": "edc6c5ca093e687501a0902d99b4f31d48ff5a568430450ecc797dc1b6602f23",
+    "csrc/ops/layer_norm_backward.cpp": "644317b9f46c24ddad3de86728756d6f07da73f5c953df8966d28786a771c4a3",
+    "csrc/ops/log_softmax.cpp": "4dfa30bde1e542c35c729babdb525aab63505ecfa506da3ee0b994d228749ec2",
+    "csrc/ops/loss_primitives.cpp": "e692cec1f409205a6ab1cf0cc773cd88457920f80ba5db31278b897a3def2009",
+    "csrc/ops/mm.cpp": "42a4974b2bb20c4c09ef0b514e7b4d69081ab722ed6039efa3eaee3402420c53",
+    "csrc/ops/native_utils.h": "05b6724e44029b0088e703d8c6386424408a995ac014f7e05d1a068786fa3236",
+    "csrc/ops/nll_loss.cpp": "778e9af05b06e5ce5ffc1f9ff8782055f4f21580cde6729f87c6f2bd54cad493",
+    "csrc/ops/scalar_add.cpp": "ecc62ce1014b6e2173b7ef117b254c86cf17944da71556a58596ee13571d65b2",
+    "csrc/shaders/leaky_relu_native.comp": "67b1c3e92a051e8197a7614085db49b37808fff48855bc821062545110c13441",
+    "csrc/shaders/leaky_relu_native.spv": "e06ca8404924f3b5140ba9b5277bcb3bc983dd60307ace7c8c4704459d5f8b88",
+    "csrc/shaders/loss_binary.comp": "f19b92168375021161a34c9c9628b3a5e2b2d869caa39ba77917d5cf197c6ba6",
+    "csrc/shaders/loss_binary.spv": "7d61e87f99a96eb5076fcba56d63b0411b2675a93db8bd54f629bec6e88f0651",
+    "csrc/shaders/loss_log_sigmoid.comp": "5b8d5301e144cfa2702b035e31e3fb45e532bf21e1f2aa5e2305f69269bb0787",
+    "csrc/shaders/loss_log_sigmoid.spv": "d7983c0124f5f69bb433efa3a1bf79dd4618aed1ce52309eb8bb67d21efe20f2",
+    "csrc/shaders/loss_log_sigmoid_backward.comp": "71979a0f5bf83b80c5cc9cf8358e752b9ea54bb17f70587fadef58a5e00b56a0",
+    "csrc/shaders/loss_log_sigmoid_backward.spv": "4b0b16f0dda20b2ef5be73c8bc6eed123ba47f6ee36fd1eb393c69a537493af9",
+    "csrc/shaders/loss_mean_reduce.comp": "d732faa6b72d886a678076b4d0c4d27ad5a857cfd5a2745702f016c3933967d8",
+    "csrc/shaders/loss_mean_reduce.spv": "5feaca2cdbc8f50255e0ed5e8de213bf03169f02a9c917371ece9dd9a0054dd5",
+    "csrc/shaders/loss_mutate.comp": "853bf6d0327900d844bfada4891a3230aa88d33cfc9c0ee33aaaae3b48b2fe30",
+    "csrc/shaders/loss_mutate.spv": "39bd8ac421c6e9a7755454acf7848999510d908b814bb3c12c0ed5f9df947047",
+    "csrc/shaders/loss_unary.comp": "fabe88b46ba525668811194267fbea474073045dd547cde4c451c05e525fa052",
+    "csrc/shaders/loss_unary.spv": "483da356c7bb6f2af7e7b7248a4a682bc40210fb571b4815756d10d5cf4ba27f",
+    "csrc/shaders/nll_loss_backward.comp": "7c9ddf113352b560fa6180bd7507c843b40b5e45dd3d390ad0dcd7808f5d20af",
+    "csrc/shaders/nll_loss_backward.spv": "2407f09f10fe2ace8e8fe216c68018e4aae6a5346e79f6f80b962df119883e05",
+    "csrc/shaders/nll_loss_forward.comp": "f22437b92478fc8f0271bcd94e5c7757b0b54c32f070a5747d6f9ebad3e54e7c",
+    "csrc/shaders/nll_loss_forward.spv": "1ee51921ce2a1df51cc1e5c56c9653588422be551c432febb6d6737a111af6d1",
+    "csrc/shaders/tensor_add_inplace.comp": "ab68d38e81f6883fb295058f9b5bd1aa4bea80d8611dfeccca158804c8960293",
+    "csrc/shaders/tensor_add_inplace.spv": "b2625bc6272abf1e4e14a04d009ee22ce96699c720859577a4da61b2c877e796",
+    "scripts/compile_native_fallbacks.py": "3ca679d90344754bfbef59adb2198123499e5c79c4ac0e0ffea7c4f74dd66414",
+    "tests/test_empty_strided.py": "ce64b9aedd832b2b4c77c2b0bf574b2abc41a870cb970a6a3fac9522a8c887ff",
+    "tests/test_loss_primitives.py": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "tests/test_native_activation.py": "c268b29a78c1656d29d7dc712e56688496bfba6b6949d5b26eb9f30416a0bb38",
+    "tests/test_native_device_copy.py": "c0ef5c386c0892855ece922f62b0bf921bbb202abfafe346d742f57b3c616d65",
+    "tests/test_native_nll_loss.py": "2efdef33b441c5bd4d631dcec7faee02c32e5ec2d01130ba3c27b13cf0b418f8",
+    "tests/test_pytorch_214.py": "7827efdf1d04e00bf9f218b98c384c86a2e483b6cc2cb99c1c1bf6f8f8f4a1b6",
+    "tests/test_tensor_add_inplace.py": "caaee263ee802f5ac4a1c3ce43e117497cea2842e9d4eb617ccd512f11d30bbc"
+  },
+  "benchmark_order": [
+    "before1",
+    "after1",
+    "after2",
+    "before2",
+    "cuda1",
+    "cuda2"
+  ],
+  "notes": [
+    "Whole-network FP32 forward/backward/AdamW; matched RTX 2080 Ti.",
+    "Source hashes identify tested changes on base_revision; no model-specific dispatch.",
+    "CUDA uses torch.optim.AdamW(foreach=False); Vulkan uses backend fused AdamW.",
+    "AMD/Intel not tested."
+  ],
+  "gpu_inventory": [
+    "0, NVIDIA GeForce RTX 2080 Ti, GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29, 580.178.04",
+    "1, Tesla V100-SXM2-32GB, GPU-1d64d3a4-4aea-87ec-9048-33a5217efd79, 580.178.04"
+  ],
+  "validation": {
+    "eager": {
+      "summary": "804 passed, 2 skipped, 3 warnings in 13.59s",
+      "log_sha256": "e39ec46c9b52274b78e7f2aa1b3a8ab1b98f2d13c818c892e08dc7cfee652a70"
+    },
+    "deferred": {
+      "summary": "806 passed, 3 warnings in 13.90s",
+      "log_sha256": "3e56c25b4dd22688aee4c87d0562a3f963efe8c747f97d6e874e48dbb3dea0e1"
+    },
+    "v100": {
+      "summary": "806 passed, 3 warnings in 12.17s",
+      "log_sha256": "9dae8ce56216e35ebc1384c8bff11933a1ed6dce0f52523c8f4aaae1ca941efb"
+    },
+    "lavapipe": {
+      "summary": "805 passed, 1 skipped, 3 warnings in 12.18s",
+      "log_sha256": "4b4484bcf7556214ea324a01ef3fe1c02f1d7c45d60b2c8b41dc866f3929091c"
+    },
+    "host": {
+      "summary": "351 passed in 3.36s",
+      "log_sha256": "679e5c4a75f493e1ef81936ae372860c35d30f36d4fc28d73f796ff85963f47d"
+    }
+  },
+  "benchmark_scripts_sha256": {
+    "benchmarks/compare_cuda_vulkan.py": "24b97a74196ab537eee978a70115b3ba9d5fe6c7452ec9addb273eb1d5c1e018",
+    "benchmarks/profile_network.py": "e812b644434693819ac4f59fd79e0acdb56509917baff2a5fc064c55c019cb42",
+    "benchmarks/capture_network_parity.py": "f9a10b2d5b1f49a715f433f55f1847e693d83f3183bfc511fa11d1d19a3df718",
+    "benchmarks/compare_network_parity.py": "da51db620c6c6d9b074f3c59e9dd2f31a7b9338747d5fd038b87d9b72eb71113",
+    "benchmarks/summarize_native_fallbacks.py": "7dd2db84dcba16452f97d067cd8c77b901defe66e58fd511446009bf282c443c"
+  },
+  "capture_sha256": {
+    "mlp-after1.json": "6b1b242e07905f3570341d863cbc417584b4f162d303191178c4492c64858ff7",
+    "mlp-after2.json": "09b5e53d55a953e98f64c9fd47fef63f359505f77c633c550832f2519824b973",
+    "mlp-before1.json": "e6e6d2a10758ce2b1a80891c783f6baf09137d809627e745392195233f540bbd",
+    "mlp-before2.json": "1780bbe3efb6484296195968a641e2535132a9a6f30201ec7c08a9694e2ee90a",
+    "mlp-cuda-profile.json": "198801caed802588fd98eb3493e0ecc951985f19865632af8371099e5cb67c5b",
+    "mlp-cuda1.json": "299a94ad4160d7abef79d716c2fb04d48314d586ecee92d1ed4210e7fd9ce31f",
+    "mlp-cuda2.json": "fc71ed705f657a7c53fa080f4637070b265af6d5e27b1532e3eada5f5505fbf4",
+    "mlp-parity-before.json": "3fc351ad96fdc803f90c9476c0517f62d11096ab6827e994a9666dfc5ce85a88",
+    "mlp-parity-cuda.json": "2ee58e3c2da6abf128c52409192d001bd4c9a9dfc8094f747235965ef4f47600",
+    "mlp-vulkan-profile.json": "4de9e6dbce7e6bcb7f1c8201cc578cdeb9baab4d347fcb271d7a8d795f0f156e",
+    "style_net-after1.json": "82e125eedba41d22c198b103d6810cfce09bffe2b56236ef95aaadb861660b8b",
+    "style_net-after2.json": "2cbdb3ebf8ec96ae629d5a6290a290ad8b7f89d451e257b8c3e35394fda4b096",
+    "style_net-before1.json": "180fafcdc8b90b8bb40f9405a41494b45c408d75372afdf634f1d1bf4491eec0",
+    "style_net-before2.json": "ae23c39c65f5422476cc7e2d3646b4af6348c96f6bd87a0f5a93eec5f1fa2c0d",
+    "style_net-cuda-profile.json": "c7b114fc0a58199657c874b4b77ebc1adf95c69c06419924c2e1afb664dae17b",
+    "style_net-cuda1.json": "4b054af83cd133105acac02449e50e4259ce5ab3765c5434e2927589088e5796",
+    "style_net-cuda2.json": "18342bd091c7a29ad3d36ac7c5937cf38415bb455d2747069f8820a4022a66d3",
+    "style_net-nsys-phases.json": "cd96d786ee61cc3f17206b6202a4993a85e2d22bfef1f4e699c7aca2e1d9f656",
+    "style_net-parity-before.json": "d2851acb14b138a4bc5c661cf6c1986ea64541f222e029d174a4edcea62b765b",
+    "style_net-parity-cuda.json": "9c7cba76d3aacb891c30c7a46ea278a08f8b4b4dd4ac3fe27063a01fc6cde91e",
+    "style_net-vulkan-api.json": "2141929574033020ecd43948405c4563ac059c8f9c9734d785fa60e5b861b888",
+    "style_net-vulkan-profile.json": "3d901b3a0e361cf2ce8abd53d9e0b430b96576b05ddfc9f4f6f2ec4f3d13d91a",
+    "summary.json": "4d3205982081f904b37b5e0cadb61b56764f4908448dd81d9425ffb32193ea7c",
+    "test-deferred.txt": "3e56c25b4dd22688aee4c87d0562a3f963efe8c747f97d6e874e48dbb3dea0e1",
+    "test-eager.txt": "e39ec46c9b52274b78e7f2aa1b3a8ab1b98f2d13c818c892e08dc7cfee652a70",
+    "test-host.txt": "679e5c4a75f493e1ef81936ae372860c35d30f36d4fc28d73f796ff85963f47d",
+    "test-lavapipe.txt": "4b4484bcf7556214ea324a01ef3fe1c02f1d7c45d60b2c8b41dc866f3929091c",
+    "test-v100.txt": "9dae8ce56216e35ebc1384c8bff11933a1ed6dce0f52523c8f4aaae1ca941efb",
+    "unet-after1.json": "431c0464d5d6f6b2419ef541f7ade909c2e46703967b01b4ff11d6e0b448827f",
+    "unet-after2.json": "3f1cc3c141b65891b1b58bb6b9941aaff5a69e14cafb7b32b0b21d5a1c3fee71",
+    "unet-before1.json": "9a24ea9ef436dd2cda6931bc6e01841072913a0585ddacf3a753d51747bc597e",
+    "unet-before2.json": "714f9c15b073165b15b3c5f68eadb14710c8f4240ed3dce5a34345555f4230af",
+    "unet-cuda-profile.json": "37bb2547cf0c2117d31d68d703323dd4b8772dbf635c7c2222b31e84e2e4d218",
+    "unet-cuda1.json": "bc05bf39f6d6c54b099b40c66536c58e0e5e2be927fd3c9ba2160362af9adadd",
+    "unet-cuda2.json": "6e3e958862d1f738e18b3a3fbb1de4ca4090c604b9fbff1ac5311a359fe5fb96",
+    "unet-parity-before.json": "71fde91cc41fedb18077b7b8421805b06e85d61ed2f0a7e08ecac6ee396dfb24",
+    "unet-parity-cuda.json": "ed2f58f10c2c44370a4394e0bde9afd12c62224e036c0895bf1f3bd87ac0a86d",
+    "unet-vulkan-profile.json": "0360274fc06aecf5fb2235ffdb467efa9196bbe7fa33559e041f48f5ef03e44e"
+  }
+}

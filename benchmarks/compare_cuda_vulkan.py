@@ -135,6 +135,8 @@ def main():
     input_dev, label_dev = input_cpu.to(args.backend), label_cpu.to(args.backend)
     info = {
         "backend": args.backend,
+        "backend_package_path": str(Path(torch_vulkan.__file__).resolve()) if args.backend == "vulkan" else None,
+        "backend_extension_sha256": hashlib.sha256(Path(torch_vulkan._C.__file__).read_bytes()).hexdigest() if args.backend == "vulkan" else None,
         "device_name": device_name,
         "torch_version": torch.__version__,
         "cuda_version": torch.version.cuda,
@@ -160,7 +162,8 @@ def main():
             "TORCH_VULKAN_DISABLE_NATIVE_CAT", "TORCH_VULKAN_GPU_PACK_VIEWS",
             "TORCH_VULKAN_DISABLE_SCALAR_BINARY", "TORCH_VULKAN_DISABLE_FENCE_POOL",
             "TORCH_VULKAN_ZERO_REUSED_BUFFERS", "TORCH_VULKAN_ADAMW_FORCE_SYNC",
-            "TORCH_VULKAN_DISABLE_NATIVE_SCALAR_ADD")},
+            "TORCH_VULKAN_DISABLE_NATIVE_SCALAR_ADD", "TORCH_VULKAN_DISABLE_NATIVE_TENSOR_ADD",
+            "TORCH_VULKAN_DISABLE_NATIVE_LEAKY_RELU", "TORCH_VULKAN_DISABLE_LOSS_PRIMITIVES")},
         "modes": {},
         "zoo_commit": subprocess.check_output(
             ["git", "-C", str(args.zoo), "rev-parse", "HEAD"], text=True

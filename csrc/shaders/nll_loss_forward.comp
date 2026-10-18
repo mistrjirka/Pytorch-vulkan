@@ -1,0 +1,37 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) readonly buffer T {uvec2 target[];};
+layout(binding=2) readonly buffer W {float weights[];};
+layout(binding=3) writeonly buffer Y {float y[];};
+layout(binding=4) writeonly buffer TW {float total[];};
+layout(push_constant) uniform P {uint rows,cols,reduction,ignore_lo,ignore_hi,weighted,vector_input;} p;
+shared float sums[128];
+shared float counts[128];
+void main() {
+  uint lane=gl_LocalInvocationID.x;
+  if(p.reduction==0 && p.vector_input==0) {
+    uint group=gl_WorkGroupID.y*gl_NumWorkGroups.x+gl_WorkGroupID.x;
+    if(group>=(p.rows-1u)/128u+1u)return;
+    uint row=group*128+lane;
+    if(row==0)total[0]=0;
+    if(row>=p.rows)return;
+    uvec2 t=target[row];
+    if(all(equal(t,uvec2(p.ignore_lo,p.ignore_hi)))) {y[row]=0;return;}
+    y[row]=-x[row*p.cols+t.x]*(p.weighted!=0?weights[t.x]:1.0);
+    return;
+  }
+  float value=0,weight=0;
+  for(uint row=lane;row<p.rows;row+=128) {
+    uvec2 t=target[row];
+    if(all(equal(t,uvec2(p.ignore_lo,p.ignore_hi))))continue;
+    float w=p.weighted!=0?weights[t.x]:1.0;
+    value-=x[row*p.cols+t.x]*w;weight+=w;
+  }
+  sums[lane]=value;counts[lane]=weight;barrier();
+  for(uint stride=64;stride>0;stride/=2) {
+    if(lane<stride){sums[lane]+=sums[lane+stride];counts[lane]+=counts[lane+stride];}
+    barrier();
+  }
+  if(lane==0){total[0]=counts[0];y[0]=p.reduction==1?sums[0]/counts[0]:sums[0];}
+}

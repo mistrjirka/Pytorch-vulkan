@@ -1,0 +1,21 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(set=0,binding=2) writeonly buffer Buffer { float b[]; };
+layout(push_constant) uniform Params {uint count,offset,op;float scalar;uint dims[8];uint strides[8];} p;
+// GLSL has no log1p. The correction preserves small positive exp(-abs(x)).
+float log_one_plus(float z){
+  float t=1.0+z;
+  return t==1.0?z:log(t)*(z/(t-1.0));
+}
+void main(){
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=(p.count-1u)/128u+1u)return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint r=i,a=p.offset;
+  for(int d=7;d>=0;--d){a+=(r%p.dims[d])*p.strides[d];r/=p.dims[d];}
+  float v=x[a],z=exp(-abs(v));b[i]=z;
+  y[i]=isnan(v)?v:min(v,0.0)-log_one_plus(z);
+}

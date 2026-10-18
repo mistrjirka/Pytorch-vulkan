@@ -112,7 +112,7 @@ See [candidate dispatch, validation and matched CUDA measurements](docs/convolut
 The [register-tile report](docs/convolution-register-tiles.md) compares the new
 four-output-per-thread candidate with CUDA and records where it helps or regresses.
 
-[Latest whole-network profile](docs/network-profile-795d34e.md): CPU activation fallbacks dominate StyleNet; a GPU-only diagnostic reduces its training step by about 3×. Includes current U-Net/MLP comparisons and the next general fixes.
+[Native fallback removal and current network profile](docs/native-fallback-removal-6d145b4.md): general activation, mutation, loss and strided-allocation kernels remove the measured FP32 tensor CPU fallbacks. Includes matched before/after/CUDA timings, full-gradient comparisons and cross-device correctness results. The [earlier profile](docs/network-profile-795d34e.md) records the original bottlenecks.
 
 ### Performance investigation and experimental optimizations
 

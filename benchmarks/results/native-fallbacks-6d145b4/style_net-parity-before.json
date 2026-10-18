@@ -1,0 +1,273 @@
+{
+  "model": "style_net",
+  "actual": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/style_net-after.pt",
+  "reference": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/style_net-before.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "fec9f5711d76349cb841f75f2393306ad2071992b524512d987509efaa380f8d",
+  "input_sha256": "d57fa293d43bb4c90db83177caabb574f39eb4da3df2529e362626a3f66720be",
+  "gradients": {
+    "conv0.conv.weight": {
+      "max_abs": 1.0652001947164536e-08,
+      "relative_l2": 1.4016907457520929e-06,
+      "passed": true
+    },
+    "conv0.norm.weight": {
+      "max_abs": 3.055902197957039e-09,
+      "relative_l2": 1.3014731331835292e-06,
+      "passed": true
+    },
+    "conv0.norm.bias": {
+      "max_abs": 2.6775524020195007e-09,
+      "relative_l2": 1.5544856537081888e-06,
+      "passed": true
+    },
+    "conv1.conv.weight": {
+      "max_abs": 7.450580596923828e-09,
+      "relative_l2": 1.4582297328273565e-06,
+      "passed": true
+    },
+    "conv1.norm.weight": {
+      "max_abs": 2.0954757928848267e-09,
+      "relative_l2": 1.2994901485802325e-06,
+      "passed": true
+    },
+    "conv1.norm.bias": {
+      "max_abs": 1.5279510989785194e-09,
+      "relative_l2": 1.6847457074238344e-06,
+      "passed": true
+    },
+    "conv2.conv.weight": {
+      "max_abs": 7.450580596923828e-09,
+      "relative_l2": 1.5642772061030525e-06,
+      "passed": true
+    },
+    "conv2.norm.weight": {
+      "max_abs": 1.862645149230957e-09,
+      "relative_l2": 1.4469976630365696e-06,
+      "passed": true
+    },
+    "conv2.norm.bias": {
+      "max_abs": 1.4260876923799515e-09,
+      "relative_l2": 1.6602475210962868e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.conv1.weight": {
+      "max_abs": 5.704350769519806e-09,
+      "relative_l2": 1.572688738858731e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.norm1.weight": {
+      "max_abs": 1.1641532182693481e-09,
+      "relative_l2": 1.4441810867168758e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.norm1.bias": {
+      "max_abs": 8.003553375601768e-10,
+      "relative_l2": 1.6547620673974481e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.conv2.weight": {
+      "max_abs": 4.71482053399086e-09,
+      "relative_l2": 1.409467530217281e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.norm2.weight": {
+      "max_abs": 1.6007106751203537e-09,
+      "relative_l2": 1.5795818262718101e-06,
+      "passed": true
+    },
+    "resnet_blocks.0.norm2.bias": {
+      "max_abs": 6.984919309616089e-10,
+      "relative_l2": 1.5362833218386005e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.conv1.weight": {
+      "max_abs": 3.736204234883189e-09,
+      "relative_l2": 1.4076989362126466e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.norm1.weight": {
+      "max_abs": 8.658389560878277e-10,
+      "relative_l2": 1.2743845882866264e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.norm1.bias": {
+      "max_abs": 5.820766091346741e-10,
+      "relative_l2": 1.412863222691934e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.conv2.weight": {
+      "max_abs": 2.735760062932968e-09,
+      "relative_l2": 1.2169578139392997e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.norm2.weight": {
+      "max_abs": 6.83940015733242e-10,
+      "relative_l2": 1.1825323629377415e-06,
+      "passed": true
+    },
+    "resnet_blocks.1.norm2.bias": {
+      "max_abs": 6.402842700481415e-10,
+      "relative_l2": 1.2771360101910923e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.conv1.weight": {
+      "max_abs": 2.735760062932968e-09,
+      "relative_l2": 1.2568659746069813e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.norm1.weight": {
+      "max_abs": 6.693881005048752e-10,
+      "relative_l2": 1.2111694914646595e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.norm1.bias": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 1.369203746442245e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.conv2.weight": {
+      "max_abs": 2.0372681319713593e-09,
+      "relative_l2": 1.0724450107167033e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.norm2.weight": {
+      "max_abs": 5.238689482212067e-10,
+      "relative_l2": 1.0088733749364504e-06,
+      "passed": true
+    },
+    "resnet_blocks.2.norm2.bias": {
+      "max_abs": 4.0745362639427185e-10,
+      "relative_l2": 1.2013274652028704e-06,
+      "passed": true
+    },
+    "resnet_blocks.3.conv1.weight": {
+      "max_abs": 2.179149305447936e-09,
+      "relative_l2": 1.0970700897655334e-06,
+      "passed": true
+    },
+    "resnet_blocks.3.norm1.weight": {
+      "max_abs": 5.820766091346741e-10,
+      "relative_l2": 1.2540235201562231e-06,
+      "passed": true
+    },
+    "resnet_blocks.3.norm1.bias": {
+      "max_abs": 4.220055416226387e-10,
+      "relative_l2": 1.5511264576563684e-06,
+      "passed": true
+    },
+    "resnet_blocks.3.conv2.weight": {
+      "max_abs": 1.6298145055770874e-09,
+      "relative_l2": 8.991523471917947e-07,
+      "passed": true
+    },
+    "resnet_blocks.3.norm2.weight": {
+      "max_abs": 3.637978807091713e-10,
+      "relative_l2": 9.295515561958918e-07,
+      "passed": true
+    },
+    "resnet_blocks.3.norm2.bias": {
+      "max_abs": 2.510205376893282e-10,
+      "relative_l2": 1.1143859524658092e-06,
+      "passed": true
+    },
+    "resnet_blocks.4.conv1.weight": {
+      "max_abs": 1.7462298274040222e-09,
+      "relative_l2": 9.662140871993241e-07,
+      "passed": true
+    },
+    "resnet_blocks.4.norm1.weight": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 9.539332247733969e-07,
+      "passed": true
+    },
+    "resnet_blocks.4.norm1.bias": {
+      "max_abs": 2.837623469531536e-10,
+      "relative_l2": 1.3789796582000333e-06,
+      "passed": true
+    },
+    "resnet_blocks.4.conv2.weight": {
+      "max_abs": 1.0477378964424133e-09,
+      "relative_l2": 7.563110516118983e-07,
+      "passed": true
+    },
+    "resnet_blocks.4.norm2.weight": {
+      "max_abs": 2.874003257602453e-10,
+      "relative_l2": 6.969102977782454e-07,
+      "passed": true
+    },
+    "resnet_blocks.4.norm2.bias": {
+      "max_abs": 2.6193447411060333e-10,
+      "relative_l2": 1.1612172859159483e-06,
+      "passed": true
+    },
+    "upconv2.conv.weight": {
+      "max_abs": 2.3283064365386963e-09,
+      "relative_l2": 5.789077754778778e-07,
+      "passed": true
+    },
+    "upconv2.norm.weight": {
+      "max_abs": 3.4924596548080444e-10,
+      "relative_l2": 5.322215024888347e-07,
+      "passed": true
+    },
+    "upconv2.norm.bias": {
+      "max_abs": 4.0745362639427185e-10,
+      "relative_l2": 8.628094946419195e-07,
+      "passed": true
+    },
+    "upconv1.conv.weight": {
+      "max_abs": 1.862645149230957e-09,
+      "relative_l2": 3.713190796714537e-07,
+      "passed": true
+    },
+    "upconv1.norm.weight": {
+      "max_abs": 1.1095835361629725e-09,
+      "relative_l2": 8.441640341675373e-07,
+      "passed": true
+    },
+    "upconv1.norm.bias": {
+      "max_abs": 2.0372681319713593e-09,
+      "relative_l2": 2.757605625158678e-06,
+      "passed": true
+    },
+    "conv11.conv.weight": {
+      "max_abs": 6.05359673500061e-09,
+      "relative_l2": 9.359891537832868e-07,
+      "passed": true
+    },
+    "conv11.norm.weight": {
+      "max_abs": 3.725290298461914e-09,
+      "relative_l2": 1.354146583715489e-07,
+      "passed": true
+    },
+    "conv11.norm.bias": {
+      "max_abs": 7.450580596923828e-09,
+      "relative_l2": 1.296309050681891e-07,
+      "passed": true
+    },
+    "conv12.weight": {
+      "max_abs": 2.2351741790771484e-08,
+      "relative_l2": 1.3843181483900415e-07,
+      "passed": true
+    },
+    "conv12.bias": {
+      "max_abs": 5.960464477539063e-08,
+      "relative_l2": 1.7191494505668286e-07,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 5.960464477539063e-08,
+    "relative_l2": 8.368061485838018e-08,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 50
+}

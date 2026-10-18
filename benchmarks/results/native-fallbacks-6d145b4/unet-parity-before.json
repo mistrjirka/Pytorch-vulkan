@@ -1,0 +1,233 @@
+{
+  "model": "unet",
+  "actual": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/unet-after.pt",
+  "reference": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/unet-before.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "0f503ad06a30b61627cf970dd38eaceaadeda98a301c4bb399013ba93c8993b1",
+  "input_sha256": "5ecd8d03727c1f3cab45f082d0608feeca7c2fcbc02d6a29b9d84da4d631a9b6",
+  "gradients": {
+    "e1.0.weight": {
+      "max_abs": 1.909211277961731e-08,
+      "relative_l2": 1.025679208204051e-06,
+      "passed": true
+    },
+    "e1.0.bias": {
+      "max_abs": 3.725290298461914e-09,
+      "relative_l2": 1.4241481164517062,
+      "passed": true
+    },
+    "e1.1.weight": {
+      "max_abs": 5.587935447692871e-09,
+      "relative_l2": 1.1069297255194413e-06,
+      "passed": true
+    },
+    "e1.1.bias": {
+      "max_abs": 5.587935447692871e-09,
+      "relative_l2": 1.2513019221451742e-06,
+      "passed": true
+    },
+    "e1.3.weight": {
+      "max_abs": 1.862645149230957e-08,
+      "relative_l2": 1.0235921111930963e-06,
+      "passed": true
+    },
+    "e1.3.bias": {
+      "max_abs": 5.3551048040390015e-09,
+      "relative_l2": 1.3819791637872552,
+      "passed": true
+    },
+    "e1.4.weight": {
+      "max_abs": 3.550667315721512e-09,
+      "relative_l2": 9.99222731611702e-07,
+      "passed": true
+    },
+    "e1.4.bias": {
+      "max_abs": 2.1827872842550278e-09,
+      "relative_l2": 2.08292201777787e-06,
+      "passed": true
+    },
+    "e2.0.weight": {
+      "max_abs": 9.313225746154785e-09,
+      "relative_l2": 1.0095985282259278e-06,
+      "passed": true
+    },
+    "e2.0.bias": {
+      "max_abs": 1.3969838619232178e-09,
+      "relative_l2": 1.21840176367172,
+      "passed": true
+    },
+    "e2.1.weight": {
+      "max_abs": 2.5029294192790985e-09,
+      "relative_l2": 8.882435977280008e-07,
+      "passed": true
+    },
+    "e2.1.bias": {
+      "max_abs": 2.2118911147117615e-09,
+      "relative_l2": 9.97883120631931e-07,
+      "passed": true
+    },
+    "e2.3.weight": {
+      "max_abs": 6.752088665962219e-09,
+      "relative_l2": 8.45265401452893e-07,
+      "passed": true
+    },
+    "e2.3.bias": {
+      "max_abs": 1.5133991837501526e-09,
+      "relative_l2": 1.438918705834971,
+      "passed": true
+    },
+    "e2.4.weight": {
+      "max_abs": 2.0372681319713593e-09,
+      "relative_l2": 9.858800157835315e-07,
+      "passed": true
+    },
+    "e2.4.bias": {
+      "max_abs": 1.280568540096283e-09,
+      "relative_l2": 1.3051250645170415e-06,
+      "passed": true
+    },
+    "e3.0.weight": {
+      "max_abs": 3.055902197957039e-09,
+      "relative_l2": 8.051426338401967e-07,
+      "passed": true
+    },
+    "e3.0.bias": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 1.380067226548992,
+      "passed": true
+    },
+    "e3.1.weight": {
+      "max_abs": 8.149072527885437e-10,
+      "relative_l2": 6.655696788024824e-07,
+      "passed": true
+    },
+    "e3.1.bias": {
+      "max_abs": 7.8580342233181e-10,
+      "relative_l2": 7.791384269062981e-07,
+      "passed": true
+    },
+    "e3.3.weight": {
+      "max_abs": 2.0954757928848267e-09,
+      "relative_l2": 5.633392034128738e-07,
+      "passed": true
+    },
+    "e3.3.bias": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 1.4284449182291266,
+      "passed": true
+    },
+    "e3.4.weight": {
+      "max_abs": 6.912159733474255e-10,
+      "relative_l2": 6.399359613938565e-07,
+      "passed": true
+    },
+    "e3.4.bias": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 6.384310805796081e-07,
+      "passed": true
+    },
+    "d2.0.weight": {
+      "max_abs": 2.2118911147117615e-09,
+      "relative_l2": 4.483923524237888e-07,
+      "passed": true
+    },
+    "d2.0.bias": {
+      "max_abs": 8.149072527885437e-10,
+      "relative_l2": 1.4056926594180474,
+      "passed": true
+    },
+    "d2.1.weight": {
+      "max_abs": 5.820766091346741e-10,
+      "relative_l2": 5.456045607267604e-07,
+      "passed": true
+    },
+    "d2.1.bias": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 5.577749080491983e-07,
+      "passed": true
+    },
+    "d2.3.weight": {
+      "max_abs": 1.280568540096283e-09,
+      "relative_l2": 3.2021113095514146e-07,
+      "passed": true
+    },
+    "d2.3.bias": {
+      "max_abs": 5.820766091346741e-10,
+      "relative_l2": 1.4665360180404725,
+      "passed": true
+    },
+    "d2.4.weight": {
+      "max_abs": 3.4924596548080444e-10,
+      "relative_l2": 3.7289843556251463e-07,
+      "passed": true
+    },
+    "d2.4.bias": {
+      "max_abs": 3.7834979593753815e-10,
+      "relative_l2": 4.402175339844436e-07,
+      "passed": true
+    },
+    "d1.0.weight": {
+      "max_abs": 1.3969838619232178e-09,
+      "relative_l2": 2.5855882487775126e-07,
+      "passed": true
+    },
+    "d1.0.bias": {
+      "max_abs": 9.313225746154785e-10,
+      "relative_l2": 1.3567043345070464,
+      "passed": true
+    },
+    "d1.1.weight": {
+      "max_abs": 2.6193447411060333e-10,
+      "relative_l2": 2.3028420047586312e-07,
+      "passed": true
+    },
+    "d1.1.bias": {
+      "max_abs": 2.9103830456733704e-10,
+      "relative_l2": 3.060934677584311e-07,
+      "passed": true
+    },
+    "d1.3.weight": {
+      "max_abs": 1.3969838619232178e-09,
+      "relative_l2": 2.3216185482658873e-07,
+      "passed": true
+    },
+    "d1.3.bias": {
+      "max_abs": 1.6298145055770874e-09,
+      "relative_l2": 1.4339813656794724,
+      "passed": true
+    },
+    "d1.4.weight": {
+      "max_abs": 4.656612873077393e-10,
+      "relative_l2": 9.805553773274634e-08,
+      "passed": true
+    },
+    "d1.4.bias": {
+      "max_abs": 6.984919309616089e-10,
+      "relative_l2": 1.4416320224845703e-07,
+      "passed": true
+    },
+    "out.weight": {
+      "max_abs": 5.587935447692871e-09,
+      "relative_l2": 1.5004253089207565e-07,
+      "passed": true
+    },
+    "out.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 42
+}

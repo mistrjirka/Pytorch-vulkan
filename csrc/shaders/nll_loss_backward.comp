@@ -1,0 +1,22 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer G {float grad[];};
+layout(binding=1) readonly buffer T {uvec2 target[];};
+layout(binding=2) readonly buffer W {float weights[];};
+layout(binding=3) readonly buffer TW {float total[];};
+layout(binding=4) writeonly buffer O {float output_grad[];};
+layout(push_constant) uniform P {uint rows,cols,reduction,ignore_lo,ignore_hi,weighted,vector_input;} p;
+void main() {
+  uint group=gl_WorkGroupID.y*gl_NumWorkGroups.x+gl_WorkGroupID.x;
+  if(group>=(p.rows*p.cols-1u)/128u+1u)return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.rows*p.cols)return;
+  uint row=i/p.cols,col=i%p.cols;uvec2 t=target[row];
+  float value=0;
+  if(!all(equal(t,uvec2(p.ignore_lo,p.ignore_hi))) && col==t.x) {
+    float g=grad[p.reduction==0 && p.vector_input==0?row:0];
+    if(p.reduction==1)g/=total[0];
+    value=-g*(p.weighted!=0?weights[col]:1.0);
+  }
+  output_grad[i]=value;
+}

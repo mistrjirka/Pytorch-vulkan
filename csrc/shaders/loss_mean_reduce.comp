@@ -1,0 +1,17 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {uint count;float scale;} p;
+shared float values[128];
+void main(){
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  uint tid=gl_LocalInvocationID.x;
+  // grid() may pad its final row; all invocations agree on this guard.
+  if(group>=((p.count-1u)/1024u+1u))return;
+  float v=0.0;
+  for(uint j=0;j<8;++j){uint i=group*1024+tid+j*128;if(i<p.count)v+=x[i];}
+  values[tid]=v;barrier();
+  for(uint step=64;step>0;step/=2){if(tid<step)values[tid]+=values[tid+step];barrier();}
+  if(tid==0)y[group]=values[0]*p.scale;
+}

@@ -1,0 +1,26 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Other { float other[]; };
+layout(set=0,binding=2) writeonly buffer Output { float y[]; };
+// 116 bytes, within Vulkan's mandatory 128-byte push-constant limit.
+layout(push_constant) uniform Params {
+  uint count,offset,other_offset,alpha;
+  uint sizes[8];uint strides[8];uint other_strides[8];
+  uint linear;
+} p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint rest=i,at=p.offset,rhs=p.other_offset;
+  if(p.linear!=0) {
+    at+=i;
+    if(p.linear==1)rhs+=i;
+  } else {
+    for(int d=7;d>=0;--d) {
+      uint coordinate=rest%p.sizes[d];rest/=p.sizes[d];
+      at+=coordinate*p.strides[d];rhs+=coordinate*p.other_strides[d];
+    }
+  }
+  y[at]=x[at]+uintBitsToFloat(p.alpha)*other[rhs];
+}

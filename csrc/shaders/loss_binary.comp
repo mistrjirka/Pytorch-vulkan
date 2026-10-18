@@ -1,0 +1,20 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer InputA { float x[]; };
+layout(set=0,binding=1) readonly buffer InputB { float z[]; };
+layout(set=0,binding=2) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {uint count,offsetA,offsetB,op;float alpha;uint dims[8];uint stridesA[8];uint stridesB[8];} p;
+void main(){
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=(p.count-1u)/128u+1u)return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint r=i,a=p.offsetA,b=p.offsetB;
+  for(int d=7;d>=0;--d){uint c=r%p.dims[d];a+=c*p.stridesA[d];b+=c*p.stridesB[d];r/=p.dims[d];}
+  if(p.op==0)y[i]=x[a]-p.alpha*z[b];
+  else if(p.op==1)y[i]=x[a]/z[b];
+  else if(p.op==2)y[i]=x[a]*(1.0-z[b])*z[b];
+  else if(p.op==3)y[a]=x[a]/z[b];
+  else if(p.op==4)y[a]=x[a]-p.alpha*z[b];
+  else y[a]=x[a]*z[b];
+}

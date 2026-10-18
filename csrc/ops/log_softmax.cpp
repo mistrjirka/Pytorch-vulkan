@@ -24,13 +24,14 @@ static bool supports_rowwise(const at::Tensor& t, int64_t dim) {
 }
 
 static bool native_enabled(int64_t elements) {
-  // CPU fallback is faster for tiny logits such as batch 128 x classes 10.
-  // The native Vulkan shader wins on transformer-sized last-axis reductions.
+  // Tiny eager reductions previously favored CPU; resident deferred execution
+  // keeps them on GPU to preserve batching and avoid host/device boundaries.
   // Allow 0/1 to force either for controlled benchmarking.
   const auto* env=std::getenv("TORCH_VULKAN_NATIVE_LOGSOFTMAX");
   if (env && std::strcmp(env,"0")==0) return false;
   if (env && std::strcmp(env,"1")==0) return true;
-  return elements >= 32768;
+  auto& ctx=VulkanContext::instance();
+  return elements >= 32768 || (ctx.gpu_resident_enabled() && ctx.deferred_enabled());
 }
 static at::Tensor log_softmax_native(const at::Tensor& input,
                                     int64_t dim, bool half_to_float) {

@@ -56,6 +56,29 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
   if(ctx.can_enqueue(bindings)) ctx.enqueue_compute(algo,bindings,outputs);
   else ctx.run_compute(algo,shader,inputs,outputs);
 }
+// Eligibility for materializing a view with native_pack. Callers that formerly
+// supported broader CPU layouts can retain that path without catching dispatch errors.
+inline bool can_pack_view(const at::Tensor& src) {
+  if(src.device().type()!=c10::DeviceType::PrivateUse1 ||
+     (src.scalar_type()!=at::kFloat && src.scalar_type()!=at::kLong) ||
+     src.dim()>8 || src.numel()>UINT32_MAX || src.storage_offset()<0 ||
+     uint64_t(src.storage_offset())>UINT32_MAX) return false;
+  const auto& limits=device_limits();
+  if(src.storage().nbytes()>limits.maxStorageBufferRange ||
+     limits.maxComputeWorkGroupInvocations<128 || limits.maxComputeWorkGroupSize[0]<128 ||
+     limits.maxPushConstantsSize<72 || limits.maxPerStageDescriptorStorageBuffers<2 ||
+     limits.maxDescriptorSetStorageBuffers<2) return false;
+  uint64_t last=src.storage_offset();
+  for(int64_t d=0;d<src.dim();++d) {
+    if(src.size(d)>UINT32_MAX || src.stride(d)<0 || uint64_t(src.stride(d))>UINT32_MAX)return false;
+    if(src.size(d)>1) {
+      const uint64_t extent=uint64_t(src.size(d)-1)*src.stride(d);
+      if(extent>UINT32_MAX-last)return false;
+      last+=extent;
+    }
+  }
+  return true;
+}
 inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
   TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong,"Vulkan native packing supports FP32/int64");
   base(src,dtype); // Validate device and dtype even on the no-copy path.

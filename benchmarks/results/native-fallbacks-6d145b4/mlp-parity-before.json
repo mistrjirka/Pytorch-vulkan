@@ -1,0 +1,73 @@
+{
+  "model": "mlp",
+  "actual": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/mlp-after.pt",
+  "reference": "benchmarks/results/nsys/native-fallbacks-6d145b4/parity/mlp-before.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "b4aab605c90c2a7a6e454100284343d30f3632007786a01fe6cebc5b6075f3a5",
+  "input_sha256": "24a6ab1f8dd106d0daef4385913bc719c367cd5de8228e1c42a43126e32636cd",
+  "gradients": {
+    "0.weight": {
+      "max_abs": 5.587935447692871e-09,
+      "relative_l2": 3.3817714260873e-07,
+      "passed": true
+    },
+    "0.bias": {
+      "max_abs": 3.026798367500305e-09,
+      "relative_l2": 3.094713849154384e-07,
+      "passed": true
+    },
+    "2.weight": {
+      "max_abs": 1.6298145055770874e-09,
+      "relative_l2": 3.5374060420366183e-07,
+      "passed": true
+    },
+    "2.bias": {
+      "max_abs": 2.0954757928848267e-09,
+      "relative_l2": 3.166539217798928e-07,
+      "passed": true
+    },
+    "3.weight": {
+      "max_abs": 2.7939677238464355e-09,
+      "relative_l2": 1.6333384058227432e-07,
+      "passed": true
+    },
+    "3.bias": {
+      "max_abs": 2.3283064365386963e-09,
+      "relative_l2": 1.7544915130858606e-07,
+      "passed": true
+    },
+    "5.weight": {
+      "max_abs": 8.149072527885437e-10,
+      "relative_l2": 1.6975106068381314e-07,
+      "passed": true
+    },
+    "5.bias": {
+      "max_abs": 1.280568540096283e-09,
+      "relative_l2": 1.8226340652262355e-07,
+      "passed": true
+    },
+    "6.weight": {
+      "max_abs": 1.862645149230957e-08,
+      "relative_l2": 1.4027439733390416e-07,
+      "passed": true
+    },
+    "6.bias": {
+      "max_abs": 1.1175870895385742e-08,
+      "relative_l2": 2.0965714312760538e-07,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 2.384185791015625e-07,
+    "relative_l2": 9.649409919284615e-08,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 10
+}

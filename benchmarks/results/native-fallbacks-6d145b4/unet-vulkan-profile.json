@@ -1,0 +1,4007 @@
+{
+  "revision": "6d145b40e32e875a395bb48f59c3e7224ad51c98",
+  "profile_script_sha256": "e812b644434693819ac4f59fd79e0acdb56509917baff2a5fc064c55c019cb42",
+  "zoo_revision": "c7c063101ec5209caf8022f5b4ea6948d1a8d6ed",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "vulkan",
+  "model": "unet",
+  "dtype": "float32",
+  "backend_package_path": "/workspace/Pytorch-vulkan/torch_vulkan/__init__.py",
+  "backend_extension_sha256": "d4981192039cf936a44d2424d03076e35f9b2828d98eee090d04d8c0251f7190",
+  "finite_leaky_composite": false,
+  "shape": [
+    1,
+    3,
+    64,
+    64
+  ],
+  "torch": "2.14.1+cpu",
+  "initial_state_sha256": "0f503ad06a30b61627cf970dd38eaceaadeda98a301c4bb399013ba93c8993b1",
+  "input_sha256": "5ecd8d03727c1f3cab45f082d0608feeca7c2fcbc02d6a29b9d84da4d631a9b6",
+  "model_seed": 42,
+  "input_seed": 123,
+  "first_loss": 0.7050257921218872,
+  "optimizer": "vulkan_fused",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-30acbf2b-a41a-8b88-e298-fe66c4138b29",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_CONV_AUTOTUNE": "1",
+    "TORCH_VULKAN_SHADER_DIR": "/workspace/Pytorch-vulkan/csrc/shaders"
+  },
+  "warmup_ms": [
+    439.88765199901536,
+    95.95949099457357,
+    9.272701005102135,
+    8.677339006680995,
+    8.862913004122674,
+    9.270387003198266,
+    9.751498000696301,
+    9.842245999607258
+  ],
+  "profiled_steps": 3,
+  "counter_delta": {
+    "cache": {
+      "algo_hits": 74,
+      "algo_misses": 436,
+      "seq_reuses": 0,
+      "seq_creates": 0,
+      "algo_evictions": 436,
+      "bound_algorithms": 0,
+      "pipeline_hits": 436,
+      "pipeline_misses": 0,
+      "pipeline_evictions": 0,
+      "pipeline_entries": 0
+    },
+    "queue": {
+      "submissions": 3,
+      "recorded_ops": 510,
+      "largest_batch": 0
+    },
+    "dispatch": {
+      "candidates_timed": 0,
+      "candidates_timed_dbias_direct": 0,
+      "candidates_timed_dbias_reduce": 0,
+      "candidates_timed_dinput_direct": 0,
+      "candidates_timed_dinput_tiled_base": 0,
+      "candidates_timed_dinput_tiled_register": 0,
+      "candidates_timed_dinput_tiled_tall": 0,
+      "candidates_timed_dinput_tiled_wide": 0,
+      "candidates_timed_dweight_direct": 0,
+      "candidates_timed_dweight_reduce": 0,
+      "candidates_timed_dweight_tiled_base": 0,
+      "candidates_timed_dweight_tiled_register": 0,
+      "candidates_timed_dweight_tiled_tall": 0,
+      "candidates_timed_dweight_tiled_wide": 0,
+      "candidates_timed_forward_direct": 0,
+      "candidates_timed_forward_tiled_base": 0,
+      "candidates_timed_forward_tiled_register": 0,
+      "candidates_timed_forward_tiled_tall": 0,
+      "candidates_timed_forward_tiled_wide": 0,
+      "entries": 0,
+      "evictions": 0,
+      "hits": 129,
+      "misses": 0,
+      "selected_dbias_reduce": 33,
+      "selected_dinput_direct": 3,
+      "selected_dinput_tiled_register": 12,
+      "selected_dinput_tiled_tall": 15,
+      "selected_dweight_reduce": 6,
+      "selected_dweight_tiled_register": 21,
+      "selected_dweight_tiled_tall": 6,
+      "selected_forward_tiled_base": 3,
+      "selected_forward_tiled_register": 3,
+      "selected_forward_tiled_tall": 27,
+      "tunes": 0
+    },
+    "gpu": {}
+  },
+  "operators": [
+    {
+      "name": "network/backward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 4.790264000000001,
+      "inclusive_cpu_ms": 4.8105686666666685,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/final_sync",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 4.164342333333333,
+      "inclusive_cpu_ms": 4.164342333333333,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch_vulkan::adamw_step_batch_",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.622028666666667,
+      "inclusive_cpu_ms": 0.622028666666667,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/forward",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.4850863333333302,
+      "inclusive_cpu_ms": 1.820711666666666,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.37087933333333833,
+      "inclusive_cpu_ms": 0.38383433333333367,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::empty",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 181.0,
+      "self_cpu_ms": 0.28634133333333506,
+      "inclusive_cpu_ms": 0.28634133333333506,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.28228366666667354,
+      "inclusive_cpu_ms": 0.2955306666666684,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.23718633333333142,
+      "inclusive_cpu_ms": 0.2653716666666678,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.19686899999999985,
+      "inclusive_cpu_ms": 0.22084599999999924,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.step#AdamW.step",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.19371566666666665,
+      "inclusive_cpu_ms": 0.8157443333333337,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.1572010000000003,
+      "inclusive_cpu_ms": 0.16494233333333372,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.13748866666666495,
+      "inclusive_cpu_ms": 0.1424940000000003,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.13322966666666616,
+      "inclusive_cpu_ms": 0.1404636666666658,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.1288783333333353,
+      "inclusive_cpu_ms": 0.14154900000000104,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.12752066666666392,
+      "inclusive_cpu_ms": 0.13928433333333387,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.12259699999999944,
+      "inclusive_cpu_ms": 0.1286820000000013,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: torch::autograd::AccumulateGrad",
+      "shapes": [],
+      "calls_per_step": 42.0,
+      "self_cpu_ms": 0.12211766666666245,
+      "inclusive_cpu_ms": 0.32655466666666266,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::add_",
+      "shapes": [
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.12118799999999343,
+      "inclusive_cpu_ms": 0.14001999999999917,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: ConvolutionBackward0",
+      "shapes": [],
+      "calls_per_step": 11.0,
+      "self_cpu_ms": 0.12107866666666617,
+      "inclusive_cpu_ms": 1.842773999999998,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: NativeBatchNormBackward0",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.11295099999999245,
+      "inclusive_cpu_ms": 0.7777473333333286,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::threshold_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.10732966666666334,
+      "inclusive_cpu_ms": 0.11434499999999889,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.10421666666666579,
+      "inclusive_cpu_ms": 0.11564100000000023,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::threshold_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.10383599999999979,
+      "inclusive_cpu_ms": 0.11219800000000184,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.10130100000000129,
+      "inclusive_cpu_ms": 0.11117599999999947,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm_backward",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.09984366666666786,
+      "inclusive_cpu_ms": 0.11248133333333347,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.06842633333333326,
+      "inclusive_cpu_ms": 0.07027333333333297,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.066864000000002,
+      "inclusive_cpu_ms": 0.07348266666666663,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.06543766666666674,
+      "inclusive_cpu_ms": 0.06751166666666597,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.06472333333333123,
+      "inclusive_cpu_ms": 0.06810633333333317,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::relu",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.06301733333333531,
+      "inclusive_cpu_ms": 0.06595933333333528,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::sigmoid",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.060612000000000686,
+      "inclusive_cpu_ms": 0.10369833333333342,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.060458000000000615,
+      "inclusive_cpu_ms": 0.06227166666666642,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::relu",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.058569333333331884,
+      "inclusive_cpu_ms": 0.061630999999999554,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::threshold_backward",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.056056999999999184,
+      "inclusive_cpu_ms": 0.0597539999999996,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.zero_grad#AdamW.zero_grad",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.052780666666667184,
+      "inclusive_cpu_ms": 0.052780666666667184,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: ReluBackward0",
+      "shapes": [],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.051253000000000305,
+      "inclusive_cpu_ms": 0.3811233333333339,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::cat",
+      "shapes": [
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.04901766666666724,
+      "inclusive_cpu_ms": 0.050820666666667194,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::sub_",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 3.0,
+      "self_cpu_ms": 0.04522666666666479,
+      "inclusive_cpu_ms": 0.046489666666666075,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::add",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.04498666666666456,
+      "inclusive_cpu_ms": 0.04785533333333266,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::add",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.04399466666666679,
+      "inclusive_cpu_ms": 0.04659966666666696,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d_with_indices_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+          1,
+          32,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.03495799999999963,
+      "inclusive_cpu_ms": 0.03698166666666627,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.033699333333334074,
+      "inclusive_cpu_ms": 0.03639766666666719,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "UpsampleNearest2DBackward0",
+      "shapes": [
+        [
+          1,
+          64,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.03345499999999932,
+      "inclusive_cpu_ms": 0.06985266666666651,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d_backward",
+      "shapes": [
+        [
+          1,
+          128,
+          32,
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.03337166666666599,
+      "inclusive_cpu_ms": 0.035762666666665915,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.032329666666666375,
+      "inclusive_cpu_ms": 0.03331166666666665,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d_with_indices_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [
+          1,
+          64,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.031504666666666105,
+      "inclusive_cpu_ms": 0.03359566666666615,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::relu",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.029615666666666204,
+      "inclusive_cpu_ms": 0.031131333333333563,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.02728733333333321,
+      "inclusive_cpu_ms": 0.6526083333333335,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "NativeBatchNormBackward0",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.02662233333333279,
+      "inclusive_cpu_ms": 0.2919940000000006,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "NativeBatchNormBackward0",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.025793333333335187,
+      "inclusive_cpu_ms": 0.24663933333333443,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.02571466666666481,
+      "inclusive_cpu_ms": 0.026635666666666072,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          64
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.02535133333333018,
+      "inclusive_cpu_ms": 0.05044399999999875,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.02528333333333368,
+      "inclusive_cpu_ms": 0.026318999999999808,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.025241333333330507,
+      "inclusive_cpu_ms": 0.6505086666666651,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          32
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.024315666666670798,
+      "inclusive_cpu_ms": 0.04833633333333561,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [
+          1
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.02427499999999994,
+      "inclusive_cpu_ms": 0.02513299999999966,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.02426166666666662,
+      "inclusive_cpu_ms": 0.02426166666666662,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.023977666666667195,
+      "inclusive_cpu_ms": 0.025109666666666877,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.023597000000000055,
+      "inclusive_cpu_ms": 0.024511999999999944,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: MaxPool2DWithIndicesBackward0",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.022482666666664652,
+      "inclusive_cpu_ms": 0.19996799999999923,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/loss",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.022168333333332763,
+      "inclusive_cpu_ms": 0.11732766666666718,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          32,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.021797999999999623,
+      "inclusive_cpu_ms": 0.02683666666666583,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.019669999999999542,
+      "inclusive_cpu_ms": 0.020508000000000037,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d_with_indices",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.019319000000000603,
+      "inclusive_cpu_ms": 0.02092200000000067,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d_with_indices",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.019178999999999027,
+      "inclusive_cpu_ms": 0.020998666666666662,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/zero_grad",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.019118999999999792,
+      "inclusive_cpu_ms": 0.07189966666666697,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "network/optimizer",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.018824666666665508,
+      "inclusive_cpu_ms": 0.8345689999999992,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.018547999999998864,
+      "inclusive_cpu_ms": 0.31407866666666723,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::div_",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01844333333333437,
+      "inclusive_cpu_ms": 0.018857666666666772,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::mean",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.018090333333335366,
+      "inclusive_cpu_ms": 0.019957000000000485,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.017967000000000403,
+      "inclusive_cpu_ms": 0.01883833333333299,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ReluBackward0",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.017302333333334446,
+      "inclusive_cpu_ms": 0.13164733333333334,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ReluBackward0",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.017287999999999252,
+      "inclusive_cpu_ms": 0.1294860000000011,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.01705466666666674,
+      "inclusive_cpu_ms": 0.40088900000000044,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::log_sigmoid_forward",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.016454333333332367,
+      "inclusive_cpu_ms": 0.01841799999999997,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_batch_norm_impl_index",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.015881999999999286,
+      "inclusive_cpu_ms": 0.15781866666666558,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::fill_",
+      "shapes": [
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01536500000000069,
+      "inclusive_cpu_ms": 0.01536500000000069,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_batch_norm_impl_index",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.014219333333333186,
+      "inclusive_cpu_ms": 0.15858033333333432,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.013752000000001013,
+      "inclusive_cpu_ms": 0.28570233333333334,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::binary_cross_entropy_with_logits",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.013718666666668771,
+      "inclusive_cpu_ms": 0.09515933333333441,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "NativeBatchNormBackward0",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0136816666666676,
+      "inclusive_cpu_ms": 0.12616300000000108,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          128
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.013057999999995748,
+      "inclusive_cpu_ms": 0.025925333333331763,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          64
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.01260266666667015,
+      "inclusive_cpu_ms": 0.025092666666668567,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          64
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.012489999999998417,
+      "inclusive_cpu_ms": 0.012489999999998417,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          32
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.012125333333331127,
+      "inclusive_cpu_ms": 0.024020666666664813,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          32
+        ]
+      ],
+      "calls_per_step": 12.0,
+      "self_cpu_ms": 0.011895333333333686,
+      "inclusive_cpu_ms": 0.011895333333333686,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::slice",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.011854999999999564,
+      "inclusive_cpu_ms": 0.01723233333333307,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.011595000000000936,
+      "inclusive_cpu_ms": 0.07974433333333392,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::slice",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.011458333333331515,
+      "inclusive_cpu_ms": 0.01658099999999892,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "BinaryCrossEntropyWithLogitsBackward0",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.011378333333334163,
+      "inclusive_cpu_ms": 0.1833926666666671,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: BinaryCrossEntropyWithLogitsBackward0",
+      "shapes": [],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.01096099999999918,
+      "inclusive_cpu_ms": 0.19435366666666626,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.010942999999999908,
+      "inclusive_cpu_ms": 0.0873380000000002,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: CatBackward0",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.010238000000000132,
+      "inclusive_cpu_ms": 0.06743466666666731,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009764666666666926,
+      "inclusive_cpu_ms": 0.12540566666666716,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009497333333332487,
+      "inclusive_cpu_ms": 0.15199133333333278,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: UpsampleNearest2DBackward0",
+      "shapes": [],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.009304333333335761,
+      "inclusive_cpu_ms": 0.11853300000000218,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.009272999999999532,
+      "inclusive_cpu_ms": 0.17421533333333325,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ReluBackward0",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.008982999999999568,
+      "inclusive_cpu_ms": 0.06873699999999917,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::narrow",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.00890933333333381,
+      "inclusive_cpu_ms": 0.02614166666666688,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008783000000000053,
+      "inclusive_cpu_ms": 0.11995899999999952,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008596000000001084,
+      "inclusive_cpu_ms": 0.07998466666666706,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::result_type",
+      "shapes": [
+        [],
+        []
+      ],
+      "calls_per_step": 20.0,
+      "self_cpu_ms": 0.008583333333336555,
+      "inclusive_cpu_ms": 0.008583333333336555,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008344999999998435,
+      "inclusive_cpu_ms": 0.13702699999999973,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::item",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.008161666666671275,
+      "inclusive_cpu_ms": 0.01024866666666918,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.008054333333334095,
+      "inclusive_cpu_ms": 0.07616066666666726,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0077540000000011185,
+      "inclusive_cpu_ms": 0.14821766666666691,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::fill_",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007660666666666505,
+      "inclusive_cpu_ms": 0.007660666666666505,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::batch_norm",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.007477333333334987,
+      "inclusive_cpu_ms": 0.16529600000000058,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.007470333333332747,
+      "inclusive_cpu_ms": 0.1328759999999999,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_batch_norm_impl_index",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.007193333333333081,
+      "inclusive_cpu_ms": 0.08204866666666666,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::mul_",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006996333333333193,
+      "inclusive_cpu_ms": 0.006996333333333193,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "MaxPool2DWithIndicesBackward0",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006589000000001155,
+      "inclusive_cpu_ms": 0.043570666666667424,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          128
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.006435000000000703,
+      "inclusive_cpu_ms": 0.012867333333336015,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          128
+        ]
+      ],
+      "calls_per_step": 6.0,
+      "self_cpu_ms": 0.006432333333335313,
+      "inclusive_cpu_ms": 0.006432333333335313,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::batch_norm",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 4.0,
+      "self_cpu_ms": 0.006348666666666115,
+      "inclusive_cpu_ms": 0.16492900000000044,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.006204666666667284,
+      "inclusive_cpu_ms": 0.03616666666666659,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.006121666666667314,
+      "inclusive_cpu_ms": 0.07639500000000028,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005877666666666566,
+      "inclusive_cpu_ms": 0.06814933333333298,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "MaxPool2DWithIndicesBackward0",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005864000000001397,
+      "inclusive_cpu_ms": 0.039459666666667545,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005767333333334288,
+      "inclusive_cpu_ms": 0.033979666666667525,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005767000000001644,
+      "inclusive_cpu_ms": 0.042334666666667624,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          64,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005740666666664462,
+      "inclusive_cpu_ms": 0.010623666666665789,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.005647000000000048,
+      "inclusive_cpu_ms": 0.0353683333333341,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0056299999999987445,
+      "inclusive_cpu_ms": 0.03331499999999937,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0053773333333335055,
+      "inclusive_cpu_ms": 0.0053773333333335055,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::narrow",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005366000000000895,
+      "inclusive_cpu_ms": 0.021946999999999814,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.005122666666667404,
+      "inclusive_cpu_ms": 0.005122666666667404,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [
+          1
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004995666666666996,
+      "inclusive_cpu_ms": 0.033124666666667205,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "CatBackward0",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004645666666666936,
+      "inclusive_cpu_ms": 0.030787333333333815,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "CatBackward0",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.004462333333333542,
+      "inclusive_cpu_ms": 0.026409333333333354,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          32,
+          32,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.004130999999999328,
+      "inclusive_cpu_ms": 0.08387533333333325,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [
+          64,
+          64,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.004077666666666762,
+      "inclusive_cpu_ms": 0.09141566666666695,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0038770000000000093,
+      "inclusive_cpu_ms": 0.07138866666666599,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::empty_strided",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.00386699999999928,
+      "inclusive_cpu_ms": 0.00386699999999928,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0036429999999994986,
+      "inclusive_cpu_ms": 0.02996199999999931,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "UpsampleNearest2DBackward0",
+      "shapes": [
+        [
+          1,
+          128,
+          32,
+          32
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0036133333333339883,
+      "inclusive_cpu_ms": 0.0393759999999999,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          1,
+          32,
+          1,
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0033023333333329296,
+      "inclusive_cpu_ms": 0.0064413333333338115,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0032559999999993276,
+      "inclusive_cpu_ms": 0.03656766666666598,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::log_sigmoid",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0031986666666660615,
+      "inclusive_cpu_ms": 0.02161666666666603,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003173000000000684,
+      "inclusive_cpu_ms": 0.02768500000000063,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::batch_norm",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.003159000000000636,
+      "inclusive_cpu_ms": 0.08520766666666729,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.003102666666666361,
+      "inclusive_cpu_ms": 0.02821233333333324,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0030856666666679755,
+      "inclusive_cpu_ms": 0.02972133333333405,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          128,
+          128,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0030423333333340755,
+      "inclusive_cpu_ms": 0.005707000000000638,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          64,
+          192,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0030126666666680344,
+      "inclusive_cpu_ms": 0.0057876666666673675,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [
+          1
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0029960000000005494,
+      "inclusive_cpu_ms": 0.02812900000000021,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          64,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002765333333334638,
+      "inclusive_cpu_ms": 0.0052263333333348785,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          128,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0026953333333337164,
+      "inclusive_cpu_ms": 0.005523666666666638,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          3,
+          64,
+          64
+        ],
+        [
+          32,
+          3,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0026856666666661227,
+      "inclusive_cpu_ms": 0.08267033333333319,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          32,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0026786666666668377,
+      "inclusive_cpu_ms": 0.0026786666666668377,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          32,
+          96,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002677999999999732,
+      "inclusive_cpu_ms": 0.005039333333333919,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          64,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0025846666666666353,
+      "inclusive_cpu_ms": 0.0025846666666666353,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          32,
+          3,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002561666666664375,
+      "inclusive_cpu_ms": 0.004895666666665117,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          96,
+          64,
+          64
+        ],
+        [
+          32,
+          96,
+          3,
+          3
+        ],
+        [
+          32
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002434999999998354,
+      "inclusive_cpu_ms": 0.04476966666666597,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          32,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0023599999999993695,
+      "inclusive_cpu_ms": 0.005038666666666207,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          192,
+          32,
+          32
+        ],
+        [
+          64,
+          192,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0023046666666673445,
+      "inclusive_cpu_ms": 0.03847133333333393,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          64,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 2.0,
+      "self_cpu_ms": 0.0022983333333346915,
+      "inclusive_cpu_ms": 0.004883000000001326,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          64,
+          16,
+          16
+        ],
+        [
+          128,
+          64,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.002140333333332592,
+      "inclusive_cpu_ms": 0.03612000000000012,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0021376666666662915,
+      "inclusive_cpu_ms": 0.02305966666666696,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          32,
+          64,
+          64
+        ],
+        [
+          1,
+          32,
+          1,
+          1
+        ],
+        [
+          1
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0021369999999994132,
+      "inclusive_cpu_ms": 0.035261666666666615,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          128,
+          16,
+          16
+        ],
+        [
+          128,
+          128,
+          3,
+          3
+        ],
+        [
+          128
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0021206666666663144,
+      "inclusive_cpu_ms": 0.035435666666665686,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::_local_scalar_dense",
+      "shapes": [
+        []
+      ],
+      "calls_per_step": 10.0,
+      "self_cpu_ms": 0.0020869999999979048,
+      "inclusive_cpu_ms": 0.0020869999999979048,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "shapes": [
+        [
+          1,
+          32,
+          32,
+          32
+        ],
+        [
+          64,
+          32,
+          3,
+          3
+        ],
+        [
+          64
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0020573333333326217,
+      "inclusive_cpu_ms": 0.03742566666666672,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "shapes": [
+        [
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001793666666666013,
+      "inclusive_cpu_ms": 0.003650000000000091,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          1,
+          32,
+          1,
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0017866666666671639,
+      "inclusive_cpu_ms": 0.0017866666666671639,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::max_pool2d",
+      "shapes": [
+        [
+          1,
+          64,
+          32,
+          32
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0017803333333338666,
+      "inclusive_cpu_ms": 0.022779000000000528,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::empty_like",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0017629999999993137,
+      "inclusive_cpu_ms": 0.003916999999999462,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::ones_like",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.00172699999999971,
+      "inclusive_cpu_ms": 0.020304666666666586,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          64,
+          192,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001522666666666737,
+      "inclusive_cpu_ms": 0.001522666666666737,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::empty_like",
+      "shapes": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0014996666666670536,
+      "inclusive_cpu_ms": 0.0032126666666661852,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          128,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0014853333333336802,
+      "inclusive_cpu_ms": 0.002828333333332921,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          128,
+          128,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.001459666666666332,
+      "inclusive_cpu_ms": 0.001459666666666332,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          1,
+          32,
+          1,
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0013523333333337177,
+      "inclusive_cpu_ms": 0.0031390000000008815,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          128,
+          64,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0013429999999992409,
+      "inclusive_cpu_ms": 0.0013429999999992409,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          64,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0013156666666667054,
+      "inclusive_cpu_ms": 0.0013156666666667054,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::result_type",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        [
+          1,
+          1,
+          64,
+          64
+        ]
+      ],
+      "calls_per_step": 3.0,
+      "self_cpu_ms": 0.0012630000000012841,
+      "inclusive_cpu_ms": 0.0012630000000012841,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          64,
+          192,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0012523333333325961,
+      "inclusive_cpu_ms": 0.002774999999999333,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          32,
+          3,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0012423333333326809,
+      "inclusive_cpu_ms": 0.0012423333333326809,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          32,
+          96,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0012123333333336934,
+      "inclusive_cpu_ms": 0.0012123333333336934,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          128,
+          128,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0012050000000002304,
+      "inclusive_cpu_ms": 0.0026646666666665622,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          32,
+          96,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0011490000000004936,
+      "inclusive_cpu_ms": 0.0023613333333341873,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          64,
+          32,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0011453333333335347,
+      "inclusive_cpu_ms": 0.00246100000000024,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          32,
+          3,
+          3,
+          3
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0010916666666680613,
+      "inclusive_cpu_ms": 0.002334000000000742,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "shapes": [
+        [
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0009876666666673373,
+      "inclusive_cpu_ms": 0.001856333333334078,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "shapes": [
+        [
+          1
+        ]
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0008686666666667406,
+      "inclusive_cpu_ms": 0.0008686666666667406,
+      "inclusive_device_ms": 0.0
+    },
+    {
+      "name": "aten::result_type",
+      "shapes": [
+        [
+          1,
+          1,
+          64,
+          64
+        ],
+        []
+      ],
+      "calls_per_step": 1.0,
+      "self_cpu_ms": 0.0004143333333324032,
+      "inclusive_cpu_ms": 0.0004143333333324032,
+      "inclusive_device_ms": 0.0
+    }
+  ],
+  "device_events": [],
+  "notes": [
+    "Instrumented attribution only; shape recording can retain tensors and alter buffer reuse.",
+    "Inclusive operator and stage durations overlap; never add them together.",
+    "CPU operator times include waits; they are not GPU execution times.",
+    "Vulkan queue counters cover deferred submissions, not all Vulkan API submissions.",
+    "Vulkan GPU timestamp coverage can be empty under resident/deferred execution.",
+    "Device events include CUDA kernels and memory operations; summed durations can overlap."
+  ]
+}
