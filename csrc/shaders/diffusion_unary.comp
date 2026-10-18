@@ -1,0 +1,33 @@
+#version 450
+// General FP32 pointwise shader, supports view strides and storage offsets.
+// op 0=SiLU,1=sin,2=cos,3=exp,4=sqrt,5=rsqrt,6=tanh,7=neg
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {
+  uint count, offset, op;
+  uint dims[8],strides[8];
+} p;
+void main(){
+  uint wg=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(wg>=(p.count+127u)/128u)return;
+  uint i=wg*128u+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint off=p.offset,index=i;
+  for(int d=7;d>=0;--d) {
+    off+=(index%p.dims[d])*p.strides[d];
+    index/=p.dims[d];
+  }
+  float v=x[off],o;
+  if(p.op==0u) {
+    float s=1.0/(1.0+exp(-v));
+    o=v*s;
+  } else if(p.op==1u)o=sin(v);
+  else if(p.op==2u)o=cos(v);
+  else if(p.op==3u)o=exp(v);
+  else if(p.op==4u)o=sqrt(v);
+  else if(p.op==5u)o=inversesqrt(v);
+  else if(p.op==6u)o=tanh(v);
+  else o=-v;
+  y[i]=o;
+}

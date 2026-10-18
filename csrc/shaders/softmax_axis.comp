@@ -1,0 +1,38 @@
+#version 450
+// Axis-independent FP32 softmax over [outer,axis,inner] in row-major storage.
+// All threads in one workgroup share a single logical row.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params {uint outer,axis_size,inner;} p;
+shared float tmp[128];
+void main() {
+  uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(row>=p.outer*p.inner)return;
+  uint tid=gl_LocalInvocationID.x;
+  uint outer_i=row/p.inner,inner_i=row%p.inner;
+  uint start=outer_i*p.axis_size*p.inner+inner_i;
+  float vmax=-3.402823466e38;
+  for(uint j=tid;j<p.axis_size;j+=128u)
+    vmax=max(vmax,x[start+j*p.inner]);
+  tmp[tid]=vmax;
+  barrier();
+  for(uint shift=64u;shift>0u;shift>>=1u){
+    if(tid<shift)tmp[tid]=max(tmp[tid],tmp[tid+shift]);
+    barrier();
+  }
+  float m=tmp[0];
+  barrier();
+  float sum=0.0;
+  for(uint j=tid;j<p.axis_size;j+=128u)
+    sum+=exp(x[start+j*p.inner]-m);
+  tmp[tid]=sum;
+  barrier();
+  for(uint shift=64u;shift>0u;shift>>=1u){
+    if(tid<shift)tmp[tid]+=tmp[tid+shift];
+    barrier();
+  }
+  float inv=1.0/tmp[0];
+  for(uint j=tid;j<p.axis_size;j+=128u)
+    y[start+j*p.inner]=exp(x[start+j*p.inner]-m)*inv;
+}

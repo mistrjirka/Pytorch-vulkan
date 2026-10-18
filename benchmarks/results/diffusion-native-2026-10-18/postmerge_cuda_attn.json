@@ -1,0 +1,61 @@
+{
+  "backend": "cuda",
+  "config": {
+    "backend": "cuda",
+    "attention": true,
+    "interpolation": "nearest",
+    "size": 16,
+    "batch": 1,
+    "repeats": 8,
+    "warmup": 4,
+    "skip_parity": true
+  },
+  "vulkan_controls": {
+    "TORCH_VULKAN_GPU_RESIDENT": "default",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_GROUP_NORM": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_DIFFUSION_UNARY": "default",
+    "TORCH_VULKAN_DISABLE_NATIVE_BMM": "default"
+  },
+  "git_commit": "2ef614b71c54df91d1415a63ff1d91ab05d0f2c0",
+  "torch_version": "2.14.1+cu130",
+  "status": "ok",
+  "activations_note": "SiLU/GroupNorm/timestep sin-cos/optional SDPA",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "parameters": 12307,
+  "modes": {
+    "inference": {
+      "median_ms": 1.423,
+      "min_ms": 1.408,
+      "max_ms": 1.437,
+      "samples_ms": [
+        1.436,
+        1.429,
+        1.437,
+        1.419,
+        1.427,
+        1.408,
+        1.416,
+        1.409
+      ],
+      "first_loss": null
+    },
+    "training": {
+      "median_ms": 9.452,
+      "min_ms": 8.843,
+      "max_ms": 10.24,
+      "samples_ms": [
+        8.898,
+        8.884,
+        8.888,
+        8.843,
+        10.006,
+        10.125,
+        10.193,
+        10.24
+      ],
+      "first_loss": 1.1103649139404297
+    }
+  },
+  "elapsed_s": 1.915
+}

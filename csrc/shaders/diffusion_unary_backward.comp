@@ -1,0 +1,31 @@
+#version 450
+// Native SiLU/Tanh backward with arbitrary FP32 strided input/output gradients.
+// op0 = SiLU backward(grad,x), op1 = Tanh backward(grad,tanh(x)).
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer GradOut { float g[]; };
+layout(set=0,binding=1) readonly buffer InputOrOutput { float x[]; };
+layout(set=0,binding=2) writeonly buffer GradInput { float dx[]; };
+layout(push_constant) uniform Params {
+  uint count,grad_offset,input_offset,op;
+  uint dims[8],grad_strides[8],input_strides[8];
+} p;
+void main(){
+  uint wg=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(wg>=(p.count+127u)/128u)return;
+  uint i=wg*128u+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint gi=p.grad_offset,xi=p.input_offset,r=i;
+  for(int d=7;d>=0;--d) {
+    uint pos=r%p.dims[d];
+    gi+=pos*p.grad_strides[d];
+    xi+=pos*p.input_strides[d];
+    r/=p.dims[d];
+  }
+  float v=x[xi];
+  float derivative;
+  if(p.op==0u){
+    float sigmoid_v=1.0/(1.0+exp(-v));
+    derivative=sigmoid_v*(1.0+v*(1.0-sigmoid_v));
+  } else derivative=1.0-v*v;
+  dx[i]=g[gi]*derivative;
+}

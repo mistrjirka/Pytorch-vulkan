@@ -103,6 +103,10 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/pooling.cpp
   csrc/ops/upsample.cpp
   csrc/ops/batch_norm.cpp
+  csrc/ops/group_norm.cpp
+  csrc/ops/diffusion_unary.cpp
+  csrc/ops/softmax_axis_backward.cpp
+  csrc/ops/bmm.cpp
   csrc/ops/convolution.cpp
   csrc/ops/adamw.cpp
   csrc/ops/layer_norm_backward.cpp

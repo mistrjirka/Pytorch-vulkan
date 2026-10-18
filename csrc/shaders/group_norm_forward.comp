@@ -1,0 +1,55 @@
+#version 450
+// FP32 native GroupNorm. One workgroup per (batch, group).
+// Generic N,C,HxW,groups; no network-specific dimensions.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Gamma { float gamma[]; };
+layout(set=0,binding=2) readonly buffer Beta { float beta[]; };
+layout(set=0,binding=3) writeonly buffer Output { float y[]; };
+layout(set=0,binding=4) writeonly buffer Means { float means[]; };
+layout(set=0,binding=5) writeonly buffer Rstds { float rstds[]; };
+layout(push_constant) uniform Params {
+  uint n,c,hw,g;
+  float eps;
+  uint has_weight,has_bias;
+} p;
+shared float scratch[128];
+void main() {
+  uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(row>=p.n*p.g)return;
+  uint tid=gl_LocalInvocationID.x;
+  uint channels=p.c/p.g;
+  uint count=channels*p.hw;
+  uint base=(row/p.g*p.c+(row%p.g)*channels)*p.hw;
+  // Centered two-pass variance prevents cancellation for large offsets.
+  float center=x[base];
+  float accum=0.0;
+  for(uint j=tid;j<count;j+=128u)accum+=x[base+j]-center;
+  scratch[tid]=accum;
+  barrier();
+  for(uint s=64u;s>0u;s>>=1u) {
+    if(tid<s)scratch[tid]+=scratch[tid+s];
+    barrier();
+  }
+  float mean=center+scratch[0]/float(count);
+  barrier();
+  accum=0.0;
+  for(uint j=tid;j<count;j+=128u) {
+    float d=x[base+j]-mean;
+    accum+=d*d;
+  }
+  scratch[tid]=accum;
+  barrier();
+  for(uint s=64u;s>0u;s>>=1u) {
+    if(tid<s)scratch[tid]+=scratch[tid+s];
+    barrier();
+  }
+  float inv=inversesqrt(scratch[0]/float(count)+p.eps);
+  if(tid==0u) { means[row]=mean; rstds[row]=inv; }
+  for(uint j=tid;j<count;j+=128u) {
+    uint channel=(row%p.g)*channels+j/p.hw;
+    float weight=p.has_weight!=0u?gamma[channel]:1.0;
+    float bias=p.has_bias!=0u?beta[channel]:0.0;
+    y[base+j]=(x[base+j]-mean)*inv*weight+bias;
+  }
+}

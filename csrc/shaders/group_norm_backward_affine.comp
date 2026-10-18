@@ -1,0 +1,30 @@
+#version 450
+// Per-channel dGamma and dBeta; handles any N and spatial shape.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer GradOut { float dy[]; };
+layout(set=0,binding=1) readonly buffer Input { float x[]; };
+layout(set=0,binding=2) readonly buffer Mean { float mean[]; };
+layout(set=0,binding=3) readonly buffer Rstd { float rstd[]; };
+layout(set=0,binding=4) writeonly buffer GradGamma { float dgamma[]; };
+layout(set=0,binding=5) writeonly buffer GradBeta { float dbeta[]; };
+layout(push_constant) uniform Params { uint n,c,hw,g; } p;
+void main() {
+  uint group_id=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  uint ch=group_id*128u+gl_LocalInvocationID.x;
+  if(ch>=p.c)return;
+  uint channels=p.c/p.g;
+  uint g=ch/channels;
+  float dw=0.0,db=0.0;
+  for(uint batch=0u;batch<p.n;++batch) {
+    uint base=(batch*p.c+ch)*p.hw;
+    uint stats=batch*p.g+g;
+    float mean_group=mean[stats],inv=rstd[stats];
+    for(uint pos=0u;pos<p.hw;++pos) {
+      float delta=dy[base+pos];
+      db+=delta;
+      dw+=delta*(x[base+pos]-mean_group)*inv;
+    }
+  }
+  dgamma[ch]=dw;
+  dbeta[ch]=db;
+}

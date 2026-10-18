@@ -1,0 +1,54 @@
+{
+  "backend": "vulkan",
+  "config": {
+    "backend": "vulkan",
+    "attention": false,
+    "interpolation": "nearest",
+    "size": 16,
+    "batch": 1,
+    "repeats": 8,
+    "warmup": 4,
+    "skip_parity": true
+  },
+  "git_commit": "6d145b4 (audited snapshot; working tree may be newer)",
+  "torch_version": "2.14.1+cpu",
+  "status": "ok",
+  "activations_note": "SiLU/GroupNorm/timestep sin-cos/optional SDPA",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "parameters": 11187,
+  "modes": {
+    "inference": {
+      "median_ms": 1.869,
+      "min_ms": 1.334,
+      "max_ms": 2.435,
+      "samples_ms": [
+        2.435,
+        2.397,
+        2.205,
+        2.138,
+        1.6,
+        1.345,
+        1.427,
+        1.334
+      ],
+      "first_loss": null
+    },
+    "training": {
+      "median_ms": 10.729,
+      "min_ms": 9.23,
+      "max_ms": 11.023,
+      "samples_ms": [
+        9.31,
+        9.961,
+        9.23,
+        10.781,
+        10.886,
+        10.679,
+        10.779,
+        11.023
+      ],
+      "first_loss": 1.0789034366607666
+    }
+  },
+  "elapsed_s": 2.042
+}

@@ -1,0 +1,2 @@
+style_net     inference cuda   median=    1.545 ms  range=[1.517,1.630]
+style_net     training  cuda   median=   12.132 ms  range=[12.013,12.365]

@@ -1,0 +1,54 @@
+{
+  "backend": "cuda",
+  "config": {
+    "backend": "cuda",
+    "attention": false,
+    "interpolation": "nearest",
+    "size": 16,
+    "batch": 1,
+    "repeats": 8,
+    "warmup": 4,
+    "skip_parity": true
+  },
+  "git_commit": "6d145b4 (audited snapshot; working tree may be newer)",
+  "torch_version": "2.14.1+cu130",
+  "status": "ok",
+  "activations_note": "SiLU/GroupNorm/timestep sin-cos/optional SDPA",
+  "device_name": "NVIDIA GeForce RTX 2080 Ti",
+  "parameters": 11187,
+  "modes": {
+    "inference": {
+      "median_ms": 1.214,
+      "min_ms": 1.201,
+      "max_ms": 1.229,
+      "samples_ms": [
+        1.229,
+        1.216,
+        1.22,
+        1.201,
+        1.223,
+        1.209,
+        1.211,
+        1.203
+      ],
+      "first_loss": null
+    },
+    "training": {
+      "median_ms": 8.948,
+      "min_ms": 7.831,
+      "max_ms": 9.324,
+      "samples_ms": [
+        8.012,
+        7.831,
+        8.183,
+        8.922,
+        9.324,
+        9.26,
+        8.974,
+        9.268
+      ],
+      "first_loss": 1.0789034366607666
+    }
+  },
+  "elapsed_s": 1.9
+}

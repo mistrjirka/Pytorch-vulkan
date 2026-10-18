@@ -1,0 +1,45 @@
+#version 450
+// GroupNorm dX with saved batch/group mean and inverse stddev.
+// One workgroup computes the two reduction terms and all dX for a group.
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer GradOut { float dy[]; };
+layout(set=0,binding=1) readonly buffer Input { float x[]; };
+layout(set=0,binding=2) readonly buffer Mean { float mean[]; };
+layout(set=0,binding=3) readonly buffer Rstd { float rstd[]; };
+layout(set=0,binding=4) readonly buffer Gamma { float gamma[]; };
+layout(set=0,binding=5) writeonly buffer GradInput { float dx[]; };
+layout(push_constant) uniform Params {
+  uint n,c,hw,g,has_weight;
+} p;
+shared float s1[128];
+shared float s2[128];
+void main(){
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=p.n*p.g)return;
+  uint tid=gl_LocalInvocationID.x;
+  uint channels=p.c/p.g;
+  uint count=channels*p.hw;
+  uint base=(group/p.g*p.c+(group%p.g)*channels)*p.hw;
+  float m=mean[group],r=rstd[group];
+  float a=0.0,b=0.0;
+  for(uint j=tid;j<count;j+=128u) {
+    uint ch=group%p.g*channels+j/p.hw;
+    float v=dy[base+j]*(p.has_weight!=0u?gamma[ch]:1.0);
+    float z=(x[base+j]-m)*r;
+    a+=v;b+=v*z;
+  }
+  s1[tid]=a;s2[tid]=b;
+  barrier();
+  for(uint s=64u;s>0u;s>>=1u){
+    if(tid<s){s1[tid]+=s1[tid+s];s2[tid]+=s2[tid+s];}
+    barrier();
+  }
+  float avg=s1[0]/float(count);
+  float avg_z=s2[0]/float(count);
+  for(uint j=tid;j<count;j+=128u){
+    uint ch=group%p.g*channels+j/p.hw;
+    float v=dy[base+j]*(p.has_weight!=0u?gamma[ch]:1.0);
+    float z=(x[base+j]-m)*r;
+    dx[base+j]=r*(v-avg-z*avg_z);
+  }
+}

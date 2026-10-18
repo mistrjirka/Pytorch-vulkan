@@ -1,0 +1,13 @@
+unet vulkan loss 0.7050257921218872 gradients 42
+[Oct 18 2026 18:29:26] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+unet 42 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/unet-after.pt
+unet 42 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/unet-cuda.pt
+style_net vulkan loss 0.7122873067855835 gradients 50
+[Oct 18 2026 18:29:26] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+style_net 50 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/style_net-after.pt
+style_net 50 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/style_net-cuda.pt
+mlp vulkan loss 2.4708096981048584 gradients 10
+[Oct 18 2026 18:29:26] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
+mlp 10 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/mlp-after.pt
+mlp 10 gradients matched /workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/mlp-cuda.pt
+PARITY PASSED: previous Vulkan exact equality and saved matched CUDA tolerances

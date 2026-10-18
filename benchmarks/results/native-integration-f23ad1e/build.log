@@ -1,0 +1,80 @@
+CMake Warning at /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/share/cmake/Torch/TorchConfig.cmake:22 (message):
+  library kineto not found.
+Call Stack (most recent call first):
+  /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/share/cmake/Torch/TorchConfig.cmake:119 (append_torchlib_if_found)
+  CMakeLists.txt:12 (find_package)
+
+
+-- Kompute not found, building from source...
+-- Patched Kompute v0.9.0 with shared pipeline bundle cache
+
+-- Patched Kompute v0.9.0 descriptor arena
+
+-- Kompute completed-fence pool patch verified
+
+-- Kompute primary buffer barrier batching applied (idempotent)
+
+-- General purpose GPU compute framework built on Vulkan
+-- =======================================================
+--   KOMPUTE_OPT_BUILD_TESTS: OFF
+--   KOMPUTE_OPT_CODE_COVERAGE: OFF
+--   KOMPUTE_OPT_BUILD_DOCS: OFF
+--   KOMPUTE_OPT_INSTALL: OFF
+--   KOMPUTE_OPT_BUILD_PYTHON: OFF
+--   KOMPUTE_OPT_LOG_LEVEL: Warn
+--   KOMPUTE_OPT_USE_SPDLOG: OFF
+--   KOMPUTE_OPT_ANDROID_BUILD: OFF
+--   KOMPUTE_OPT_DISABLE_VK_DEBUG_LAYERS: OFF
+--   KOMPUTE_OPT_DISABLE_VULKAN_VERSION_CHECK: OFF
+--   KOMPUTE_OPT_BUILD_SHADERS: OFF
+--   KOMPUTE_OPT_USE_BUILT_IN_SPDLOG: ON
+--   KOMPUTE_OPT_SPDLOG_ASYNC_MODE: OFF
+--   KOMPUTE_OPT_USE_BUILT_IN_FMT: ON
+--   KOMPUTE_OPT_USE_BUILT_IN_GOOGLE_TEST: ON
+--   KOMPUTE_OPT_USE_BUILT_IN_PYBIND11: ON
+--   KOMPUTE_OPT_USE_BUILT_IN_VULKAN_HEADER: ON
+--   KOMPUTE_OPT_BUILT_IN_VULKAN_HEADER_TAG: v1.3.231
+-- =======================================================
+-- Ensuring the currently installed driver supports the Vulkan version requested by the Vulkan Header.
+-- Found Vulkan Header version: 1.3.231
+'DISPLAY' environment variable not set... skipping surface info
+error: XDG_RUNTIME_DIR is invalid or not set in the environment.
+-- Running vulkaninfo was successful. Parsing the output...
+-- GPU0 supports Vulkan API version '1.4.312'.
+Valid GPU (GPU0) for Vulkan header version 1.3.231 found. GPU0 supports up to Vulkan 1.4.312.
+-- Version: 10.1.0
+-- Build type: Release
+-- Using log level Warn
+-- Configuring done (1.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /workspace/Pytorch-vulkan-zero-bias/.cmake-build
+[  4%] Built target kp_shader
+[ 12%] Built target fmt
+[ 17%] Built target kp_logger
+[ 19%] Building CXX object _deps/kompute-build/src/CMakeFiles/kompute.dir/Sequence.cpp.o
+[ 21%] Building CXX object _deps/kompute-build/src/CMakeFiles/kompute.dir/Manager.cpp.o
+[ 24%] Linking CXX static library libkompute.a
+[ 43%] Built target kompute
+[ 46%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/vulkan_context.cpp.o
+[ 48%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/torch_vulkan.cpp.o
+[ 51%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/vulkan_allocator.cpp.o
+[ 53%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/mm.cpp.o
+[ 56%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/scalar_add.cpp.o
+[ 58%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/activation.cpp.o
+[ 60%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/loss_primitives.cpp.o
+[ 63%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/nll_loss.cpp.o
+[ 65%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/cat.cpp.o
+[ 68%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/pooling.cpp.o
+[ 70%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/upsample.cpp.o
+[ 73%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/batch_norm.cpp.o
+[ 75%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/group_norm.cpp.o
+[ 78%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/diffusion_unary.cpp.o
+[ 80%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/softmax_axis_backward.cpp.o
+[ 82%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/bmm.cpp.o
+[ 85%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/convolution.cpp.o
+[ 87%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/adamw.cpp.o
+[ 90%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/layer_norm_backward.cpp.o
+[ 92%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/reduce.cpp.o
+[ 95%] Building CXX object CMakeFiles/torch_vulkan_C.dir/csrc/ops/log_softmax.cpp.o
+[ 97%] Linking CXX shared library /workspace/Pytorch-vulkan-zero-bias/torch_vulkan/_C.cpython-312-x86_64-linux-gnu.so
+[100%] Built target torch_vulkan_C

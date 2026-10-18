@@ -68,9 +68,13 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 361/361 passed |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 361/361 passed |
-| Lavapipe software Vulkan | 360 passed, one hardware-only test skipped |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 981 passed (GPU-resident + deferred mode) |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 981 passed (GPU-resident + deferred mode) |
+| Lavapipe software Vulkan | 980 passed, 1 hardware-only skip |
+| RTX 2080 Ti, eager / host-backed mode | 979 passed, 2 deferred-only skips |
+
+These counts include both the native operators and runtime/convolution optimizations;
+see the [combined validation and CUDA measurements](docs/native-operator-integration.md).
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
@@ -100,6 +104,24 @@ for matched CUDA/Vulkan profiles, general dispatch and current limitations.
 
 The simple SGD example at `examples/linear_train.py` reduces MSE from
 4.6667 to 0.7864 in five steps.
+
+### Native Vulkan operators for diffusion-style training
+
+GroupNorm forward/backward (including weight/bias gradients), SiLU forward/backward,
+general FP32 sin/cos/exp/sqrt/rsqrt/tanh/negation, axis-independent softmax
+forward/backward, and stride-aware batched matrix multiplication are now native.
+All are reusable PyTorch operators, not U-Net-specific kernel branches. The
+old non-last-axis softmax correctness bug has been fixed.
+
+On a diagnostic 16×16 FP32 denoising U-Net on the RTX 2080 Ti, GPU-resident Vulkan
+training improved from 16.70 ms with these operators disabled to 10.73 ms with
+them enabled (CUDA 8.95 ms). With self-attention, Vulkan training improved from
+23.57 to 14.59 ms (CUDA 9.08 ms). These results do **not** establish performance
+for full Stable Diffusion checkpoints. See the
+[implementation, pinned-source license audit, correctness, and benchmark report](docs/diffusion-native-operators.md).
+
+Still missing: fully fused training SDPA, complete dropout/RNG, bilinear/bicubic
+resize backward, transposed convolution, and generalized FP16/BF16 compute.
 
 ### General convolution selection
 

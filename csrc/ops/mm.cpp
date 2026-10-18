@@ -522,39 +522,29 @@ at::Tensor empty_strided_native(
       c10::dtype_or_default(dtype)));
 }
 
-// aten::_softmax — row-wise softmax via softmax.spv
-// Phase 4: cached algorithm for repeated softmax on same-sized buffers
+// General FP32 softmax along ANY axis, including the non-last dimension.
+// Replaces the old shader that silently treated non-last axes as the last.
 at::Tensor vulkan_softmax(const at::Tensor& self, int64_t dim, bool half_to_float) {
-  VulkanContext::instance().synchronize();
-  TORCH_CHECK(self.dtype() == at::kFloat, "softmax: only float32");
-  auto self_c = contiguous_for_kernel(self);
-
-  // Flatten to 2D: [batch, row_size]
-  int64_t row_size = self_c.size(dim);
-  int64_t num_rows = self_c.numel() / row_size;
-
-  auto& ctx = VulkanContext::instance();
-  auto& mgr = ctx.manager();
-
-  auto output = at::empty(self.sizes(), self.options());
-  auto tensor_in = get_kp_tensor(self_c);
-  auto tensor_out = get_kp_tensor(output);
-
-  uint32_t nr = static_cast<uint32_t>(num_rows);
-  uint32_t rs = static_cast<uint32_t>(row_size);
-
-  // Softmax uses temp tensors (not allocator-backed), so algorithm cache
-  // won't hit for different calls. Still use the API for consistency --
-  // the cache miss overhead is negligible.
-  auto algorithm = ctx.get_or_create_algorithm(
-      "softmax",
-      {tensor_in, tensor_out},
-      kp::Workgroup({nr, 1, 1}),
-      std::vector<uint32_t>{nr, rs});
-
-  ctx.synchronize();
-  ctx.run_compute(algorithm, "softmax", {tensor_in}, {tensor_out});
-
+  TORCH_CHECK(self.scalar_type()==at::kFloat && !half_to_float,
+              "Vulkan native softmax requires FP32 without half_to_float");
+  const int64_t rank=std::max<int64_t>(1,self.dim());
+  const int64_t axis=dim<0 ? dim+rank : dim;
+  TORCH_CHECK(axis>=0 && axis<rank,"Vulkan softmax: dimension out of range");
+  if(!native::can_pack_view(self))
+    return at::_softmax(self.cpu(),dim,half_to_float).to(self.device());
+  auto output=at::empty(self.sizes(),self.options());
+  if(!self.numel())return output;
+  const int64_t axis_size=self.dim()?self.size(axis):1;
+  uint64_t outer=1,inner=1;
+  for(int64_t d=0;d<self.dim();++d){
+    if(d<axis)outer*=uint64_t(self.size(d));
+    else if(d>axis)inner*=uint64_t(self.size(d));
+  }
+  TORCH_CHECK(outer*inner*uint64_t(axis_size)<=UINT32_MAX,
+              "Vulkan softmax: indexing exceeds uint32");
+  const auto input=native::packed(self);
+  native::run("softmax_axis",{native::base(input)},{native::base(output)},
+      {native::u32(outer),native::u32(axis_size),native::u32(inner)},outer*inner,512);
   return output;
 }
 

@@ -1,0 +1,133 @@
+{
+  "warmup": 12,
+  "samples_per_run": 50,
+  "runs": 2,
+  "workloads": {
+    "diffusion-basic": {
+      "vulkan": {
+        "inference": {
+          "pooled_median_ms": 1.512,
+          "run_medians_ms": [
+            1.263,
+            1.515
+          ],
+          "min_ms": 1.082,
+          "max_ms": 1.719
+        },
+        "training": {
+          "pooled_median_ms": 10.8975,
+          "run_medians_ms": [
+            10.867,
+            10.938
+          ],
+          "min_ms": 9.615,
+          "max_ms": 12.058
+        }
+      },
+      "cuda": {
+        "inference": {
+          "pooled_median_ms": 1.191,
+          "run_medians_ms": [
+            1.19,
+            1.193
+          ],
+          "min_ms": 1.178,
+          "max_ms": 1.237
+        },
+        "training": {
+          "pooled_median_ms": 9.536,
+          "run_medians_ms": [
+            9.537,
+            9.531
+          ],
+          "min_ms": 7.117,
+          "max_ms": 10.866
+        }
+      }
+    },
+    "diffusion-attention": {
+      "vulkan": {
+        "inference": {
+          "pooled_median_ms": 2.4855,
+          "run_medians_ms": [
+            2.492,
+            2.479
+          ],
+          "min_ms": 2.373,
+          "max_ms": 5.018
+        },
+        "training": {
+          "pooled_median_ms": 15.5755,
+          "run_medians_ms": [
+            15.573,
+            15.586
+          ],
+          "min_ms": 13.672,
+          "max_ms": 18.426
+        }
+      },
+      "cuda": {
+        "inference": {
+          "pooled_median_ms": 1.4355,
+          "run_medians_ms": [
+            1.423,
+            1.441
+          ],
+          "min_ms": 1.398,
+          "max_ms": 2.228
+        },
+        "training": {
+          "pooled_median_ms": 11.555499999999999,
+          "run_medians_ms": [
+            11.538,
+            11.57
+          ],
+          "min_ms": 10.548,
+          "max_ms": 11.782
+        }
+      }
+    },
+    "style-net": {
+      "vulkan": {
+        "inference": {
+          "pooled_median_ms": 4.912,
+          "run_medians_ms": [
+            4.837,
+            5.053
+          ],
+          "min_ms": 4.119,
+          "max_ms": 5.494
+        },
+        "training": {
+          "pooled_median_ms": 16.3345,
+          "run_medians_ms": [
+            14.0,
+            16.499
+          ],
+          "min_ms": 13.727,
+          "max_ms": 17.659
+        }
+      },
+      "cuda": {
+        "inference": {
+          "pooled_median_ms": 1.567,
+          "run_medians_ms": [
+            1.579,
+            1.545
+          ],
+          "min_ms": 1.517,
+          "max_ms": 1.653
+        },
+        "training": {
+          "pooled_median_ms": 12.120000000000001,
+          "run_medians_ms": [
+            12.104,
+            12.132
+          ],
+          "min_ms": 9.653,
+          "max_ms": 12.374
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+#version 450
+// General axis softmax derivative: y * (dy - dot(dy,y)).
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Grad { float grad[]; };
+layout(set=0,binding=1) readonly buffer Softmax { float y[]; };
+layout(set=0,binding=2) writeonly buffer GradInput { float dx[]; };
+layout(push_constant) uniform Params {uint outer,axis_size,inner;} p;
+shared float scratch[128];
+void main() {
+  uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(row>=p.outer*p.inner)return;
+  uint tid=gl_LocalInvocationID.x;
+  uint start=(row/p.inner)*p.axis_size*p.inner+row%p.inner;
+  float partial=0.0;
+  for(uint j=tid;j<p.axis_size;j+=128u) {
+    uint idx=start+j*p.inner;
+    partial+=grad[idx]*y[idx];
+  }
+  scratch[tid]=partial;
+  barrier();
+  for(uint shift=64u;shift>0u;shift>>=1u){
+    if(tid<shift)scratch[tid]+=scratch[tid+shift];
+    barrier();
+  }
+  float dot=scratch[0];
+  for(uint j=tid;j<p.axis_size;j+=128u) {
+    uint idx=start+j*p.inner;
+    dx[idx]=y[idx]*(grad[idx]-dot);
+  }
+}
