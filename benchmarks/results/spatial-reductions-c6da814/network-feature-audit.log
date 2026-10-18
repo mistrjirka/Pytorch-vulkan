@@ -1,0 +1,19 @@
+resnet18 {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+resnet18_224 {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+vgg11_128 {'average_pool': True, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': True, 'attention': False, 'mask_math': False} transpose False
+mobilenet_v3 {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': True, 'attention': False, 'mask_math': False} transpose False
+unet {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': False, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+/workspace/pytorch-XDNA2-vulkan-zoo-reference/benchmarks/model_zoo.py:95: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(layer, layers)
+transformer {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': False, 'attention': True, 'mask_math': False} transpose False
+mlp {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+lstm {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+conv1d_audio {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+conv_autoencoder {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': False, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose True
+embedding {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+style_net {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': False, 'dropout_rng': False, 'attention': False, 'mask_math': False} transpose False
+pool_classifier {'average_pool': True, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': True} transpose False
+bilinear_autoencoder {'average_pool': False, 'bilinear_resize': True, 'bicubic_resize': False, 'axis_mean': False, 'sum': False, 'dropout_rng': False, 'attention': False, 'mask_math': True} transpose False
+bicubic_autoencoder {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': True, 'axis_mean': False, 'sum': False, 'dropout_rng': False, 'attention': False, 'mask_math': True} transpose False
+reduction_regressor {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': True, 'sum': True, 'dropout_rng': False, 'attention': False, 'mask_math': True} transpose False
+attention_block {'average_pool': False, 'bilinear_resize': False, 'bicubic_resize': False, 'axis_mean': False, 'sum': True, 'dropout_rng': False, 'attention': True, 'mask_math': True} transpose False

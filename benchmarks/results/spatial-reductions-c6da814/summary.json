@@ -1,0 +1,229 @@
+{
+  "pool_classifier": {
+    "before": {
+      "median_ms": 3.631658495578449,
+      "run_medians_ms": [
+        3.6687074971268885,
+        3.1716205048724078
+      ],
+      "max_parity_abs": 1.4901161193847656e-08,
+      "cold_trace_fallback_counts": {
+        "aten::avg_pool2d": 2,
+        "aten::_adaptive_avg_pool2d": 2,
+        "aten::pow": 4,
+        "aten::_adaptive_avg_pool2d_backward": 2,
+        "aten::avg_pool2d_backward": 2,
+        "aten::zero_": 12
+      },
+      "steady_step_fallback_counts": {
+        "aten::avg_pool2d": 1,
+        "aten::_adaptive_avg_pool2d": 1,
+        "aten::pow": 2,
+        "aten::_adaptive_avg_pool2d_backward": 1,
+        "aten::avg_pool2d_backward": 1
+      }
+    },
+    "after": {
+      "median_ms": 1.31784599943785,
+      "run_medians_ms": [
+        1.3173150000511669,
+        1.31804099510191
+      ],
+      "max_parity_abs": 1.4901161193847656e-08,
+      "cold_trace_fallback_counts": {
+        "aten::zero_": 12
+      },
+      "steady_step_fallback_counts": {}
+    },
+    "cuda": {
+      "median_ms": 1.909771999635268,
+      "run_medians_ms": [
+        1.9144915058859624,
+        1.8996340004377998
+      ],
+      "max_parity_abs": 1.4901161193847656e-08
+    },
+    "speedup": 2.7557533255991946,
+    "after_over_cuda": 0.690054100536365
+  },
+  "bilinear_autoencoder": {
+    "before": {
+      "median_ms": 2.68366550153587,
+      "run_medians_ms": [
+        2.891693999117706,
+        2.6557890014373697
+      ],
+      "max_parity_abs": 1.7881393432617188e-07,
+      "cold_trace_fallback_counts": {
+        "aten::upsample_bilinear2d": 2,
+        "aten::pow": 4,
+        "aten::upsample_bilinear2d_backward": 2,
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {
+        "aten::upsample_bilinear2d": 1,
+        "aten::pow": 2,
+        "aten::upsample_bilinear2d_backward": 1
+      }
+    },
+    "after": {
+      "median_ms": 0.9942839969880879,
+      "run_medians_ms": [
+        0.9957369984476827,
+        0.9934475019690581
+      ],
+      "max_parity_abs": 1.7881393432617188e-07,
+      "cold_trace_fallback_counts": {
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {}
+    },
+    "cuda": {
+      "median_ms": 1.338979993306566,
+      "run_medians_ms": [
+        1.3382084944169037,
+        1.3393455010373145
+      ],
+      "max_parity_abs": 1.9371509552001953e-07
+    },
+    "speedup": 2.6990935282729107,
+    "after_over_cuda": 0.7425682250357879
+  },
+  "bicubic_autoencoder": {
+    "before": {
+      "median_ms": 3.025685997272376,
+      "run_medians_ms": [
+        3.4533695070422255,
+        2.493198997399304
+      ],
+      "max_parity_abs": 2.384185791015625e-07,
+      "cold_trace_fallback_counts": {
+        "aten::upsample_bicubic2d": 2,
+        "aten::pow": 4,
+        "aten::upsample_bicubic2d_backward": 2,
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {
+        "aten::upsample_bicubic2d": 1,
+        "aten::pow": 2,
+        "aten::upsample_bicubic2d_backward": 1
+      }
+    },
+    "after": {
+      "median_ms": 1.008079998428002,
+      "run_medians_ms": [
+        1.008079998428002,
+        1.007343496894464
+      ],
+      "max_parity_abs": 2.980232238769531e-07,
+      "cold_trace_fallback_counts": {
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {}
+    },
+    "cuda": {
+      "median_ms": 1.3359285003389232,
+      "run_medians_ms": [
+        1.3588670044555329,
+        1.3177955042920075
+      ],
+      "max_parity_abs": 2.980232238769531e-07
+    },
+    "speedup": 3.0014344119421326,
+    "after_over_cuda": 0.754591281024586
+  },
+  "reduction_regressor": {
+    "before": {
+      "median_ms": 6.001701003697235,
+      "run_medians_ms": [
+        6.122838502051309,
+        5.969110497971997
+      ],
+      "max_parity_abs": 2.9802322387695312e-08,
+      "cold_trace_fallback_counts": {
+        "aten::clamp": 2,
+        "aten::pow": 8,
+        "aten::gt": 2,
+        "aten::lt": 2,
+        "aten::logical_and": 2,
+        "aten::where": 2,
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {
+        "aten::clamp": 1,
+        "aten::pow": 4,
+        "aten::gt": 1,
+        "aten::lt": 1,
+        "aten::logical_and": 1,
+        "aten::where": 1
+      }
+    },
+    "after": {
+      "median_ms": 1.4899430025252514,
+      "run_medians_ms": [
+        1.4909849996911362,
+        1.4885910059092566
+      ],
+      "max_parity_abs": 5.960464477539063e-08,
+      "cold_trace_fallback_counts": {
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {}
+    },
+    "cuda": {
+      "median_ms": 1.794234492990654,
+      "run_medians_ms": [
+        1.7878424987429753,
+        1.8043480013147928
+      ],
+      "max_parity_abs": 3.725290298461914e-08
+    },
+    "speedup": 4.028141340658781,
+    "after_over_cuda": 0.8304059521460846
+  },
+  "attention_block": {
+    "before": {
+      "median_ms": 2.8516705060610548,
+      "run_medians_ms": [
+        2.8516705060610548,
+        2.820603003783617
+      ],
+      "max_parity_abs": 8.940696716308594e-08,
+      "cold_trace_fallback_counts": {
+        "aten::isneginf": 2,
+        "aten::all": 2,
+        "aten::where": 2,
+        "aten::pow": 4,
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {
+        "aten::isneginf": 1,
+        "aten::all": 1,
+        "aten::where": 1,
+        "aten::pow": 2
+      }
+    },
+    "after": {
+      "median_ms": 1.9031004994758405,
+      "run_medians_ms": [
+        1.99858099949779,
+        1.833241491112858
+      ],
+      "max_parity_abs": 8.940696716308594e-08,
+      "cold_trace_fallback_counts": {
+        "aten::zero_": 8
+      },
+      "steady_step_fallback_counts": {}
+    },
+    "cuda": {
+      "median_ms": 1.64416750340024,
+      "run_medians_ms": [
+        1.4574985034414567,
+        1.7336074961349368
+      ],
+      "max_parity_abs": 8.940696716308594e-08
+    },
+    "speedup": 1.4984340064260786,
+    "after_over_cuda": 1.1574857765648032
+  }
+}

@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Condition {uint c[];};
+layout(binding=1) readonly buffer Left {float x[];};
+layout(binding=2) readonly buffer Right {float z[];};
+layout(binding=3) writeonly buffer Output {float y[];};
+layout(push_constant) uniform Params {uint count;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.count)y[i]=((c[i/4]>>(8*(i%4)))&255u)!=0?x[i]:z[i];}

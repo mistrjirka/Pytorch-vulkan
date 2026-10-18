@@ -1,0 +1,73 @@
+{
+  "model": "mlp",
+  "actual": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/spatial-reductions-c6da814/mlp.pt",
+  "reference": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/mlp-cuda.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "b4aab605c90c2a7a6e454100284343d30f3632007786a01fe6cebc5b6075f3a5",
+  "input_sha256": "24a6ab1f8dd106d0daef4385913bc719c367cd5de8228e1c42a43126e32636cd",
+  "gradients": {
+    "0.weight": {
+      "max_abs": 1.30385160446167e-08,
+      "relative_l2": 9.655631986077045e-07,
+      "passed": true
+    },
+    "0.bias": {
+      "max_abs": 7.2177499532699585e-09,
+      "relative_l2": 7.068715369084471e-07,
+      "passed": true
+    },
+    "2.weight": {
+      "max_abs": 4.3655745685100555e-09,
+      "relative_l2": 1.0475390693813428e-06,
+      "passed": true
+    },
+    "2.bias": {
+      "max_abs": 3.841705620288849e-09,
+      "relative_l2": 6.768815494294833e-07,
+      "passed": true
+    },
+    "3.weight": {
+      "max_abs": 1.2936652638018131e-08,
+      "relative_l2": 9.2214228367877e-07,
+      "passed": true
+    },
+    "3.bias": {
+      "max_abs": 5.820766091346741e-09,
+      "relative_l2": 4.2477218476115015e-07,
+      "passed": true
+    },
+    "5.weight": {
+      "max_abs": 5.471520125865936e-09,
+      "relative_l2": 1.1043634311317236e-06,
+      "passed": true
+    },
+    "5.bias": {
+      "max_abs": 2.0954757928848267e-09,
+      "relative_l2": 2.789565780772582e-07,
+      "passed": true
+    },
+    "6.weight": {
+      "max_abs": 9.313225746154785e-08,
+      "relative_l2": 1.1257951498739825e-06,
+      "passed": true
+    },
+    "6.bias": {
+      "max_abs": 1.1175870895385742e-08,
+      "relative_l2": 1.8916709787962336e-07,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 2.5331974029541016e-06,
+    "relative_l2": 1.216400429279301e-06,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 10
+}

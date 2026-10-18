@@ -912,8 +912,8 @@ void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
   at::native::cpu_fallback(op, stack);
   double elapsed_ms = std::chrono::duration<double, std::milli>(
       std::chrono::steady_clock::now() - start).count();
-  std::fprintf(stderr, "PV_FALLBACK %s %.3f ms\n",
-               op.schema().name().c_str(), elapsed_ms);
+  std::fprintf(stderr, "PV_FALLBACK %s %.3f ms overload=%s\n",
+               op.schema().name().c_str(), elapsed_ms,op.schema().overload_name().c_str());
 }
 
 TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {

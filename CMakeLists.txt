@@ -101,6 +101,9 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/nll_loss.cpp
   csrc/ops/cat.cpp
   csrc/ops/pooling.cpp
+  csrc/ops/predicates_math.cpp
+  csrc/ops/average_pool.cpp
+  csrc/ops/resize_linear_cubic.cpp
   csrc/ops/upsample.cpp
   csrc/ops/batch_norm.cpp
   csrc/ops/group_norm.cpp

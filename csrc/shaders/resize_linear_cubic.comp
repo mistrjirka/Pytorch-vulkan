@@ -1,0 +1,51 @@
+// Cubic coefficients adapted from ncnn interp_bicubic_coeffs.comp:
+// Copyright 2019 Tencent. SPDX-License-Identifier: BSD-3-Clause
+// Upstream 44b02dabdcf97499281a4692ebd65bad73dcf8b6.
+// See third_party/licenses/ncnn-LICENSE.txt. Other code is original (MIT).
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input { float x[]; };
+layout(binding=1) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params { uint planes,ih,iw,oh,ow,backward,cubic,align_corners; float sy,sx; } p;
+float coord(uint o,float s){float v=p.align_corners!=0?float(o)*s:(float(o)+0.5)*s-0.5;return p.cubic!=0?v:max(v,0.0);}
+vec4 weights(float t){
+ if(p.cubic==0)return vec4(1.0-t,t,0,0);
+ const float A=-0.75;
+ float t0=t+1.0,t2=1.0-t;
+ // Horner form reduces cancellation relative to expanded polynomials.
+ float a=((A*t0-5.0*A)*t0+8.0*A)*t0-4.0*A;
+ float b=((A+2.0)*t-(A+3.0))*t*t+1.0;
+ float c=((A+2.0)*t2-(A+3.0))*t2*t2+1.0;
+ float t3=2.0-t;
+ float d=((A*t3-5.0*A)*t3+8.0*A)*t3-4.0*A;
+ return vec4(a,b,c,d);
+}
+uint bound(int target,uint size,float s){uint lo=0,hi=size;while(lo<hi){uint mid=lo+(hi-lo)/2;if(int(floor(coord(mid,s)))<target)lo=mid+1;else hi=mid;}return lo;}
+float weight_for(uint o,uint input_pos,uint input_size,float s){
+ float f=coord(o,s);int b=int(floor(f));vec4 w=weights(f-float(b));float r=0;
+ int offset=p.cubic!=0?-1:0;int taps=p.cubic!=0?4:2;
+ for(int k=0;k<taps;k++)if(clamp(b+offset+k,0,int(input_size)-1)==int(input_pos))r+=w[k];
+ return r;
+}
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+ if(p.backward==0){
+  if(i>=p.planes*p.oh*p.ow)return;
+  uint plane=i/(p.oh*p.ow),h=(i/p.ow)%p.oh,w=i%p.ow;
+  float fy=coord(h,p.sy),fx=coord(w,p.sx);int by=int(floor(fy)),bx=int(floor(fx));
+  vec4 wy=weights(fy-float(by)),wx=weights(fx-float(bx));
+  int offset=p.cubic!=0?-1:0,taps=p.cubic!=0?4:2;float acc=0;
+  for(int j=0;j<taps;j++){float row=0;uint iy=uint(clamp(by+offset+j,0,int(p.ih)-1));
+   for(int k=0;k<taps;k++){uint ix=uint(clamp(bx+offset+k,0,int(p.iw)-1));row+=x[(plane*p.ih+iy)*p.iw+ix]*wx[k];}acc+=row*wy[j];}
+  y[i]=acc;
+ }else{
+  if(i>=p.planes*p.ih*p.iw)return;
+  uint plane=i/(p.ih*p.iw),h=(i/p.iw)%p.ih,w=i%p.iw;
+  int left=p.cubic!=0?2:1,right=p.cubic!=0?2:1;
+  uint hb=h==0?0:bound(int(h)-left,p.oh,p.sy),he=h+1==p.ih?p.oh:bound(int(h)+right,p.oh,p.sy);
+  uint wb=w==0?0:bound(int(w)-left,p.ow,p.sx),we=w+1==p.iw?p.ow:bound(int(w)+right,p.ow,p.sx);
+  float acc=0;
+  for(uint a=hb;a<he;a++){float wy=weight_for(a,h,p.ih,p.sy);for(uint b=wb;b<we;b++)acc+=x[(plane*p.oh+a)*p.ow+b]*wy*weight_for(b,w,p.iw,p.sx);}
+  y[i]=acc;
+ }
+}

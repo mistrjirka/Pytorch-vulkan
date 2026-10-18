@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input {float x[];};
+layout(binding=1) writeonly buffer Output {uint y[];};
+layout(push_constant) uniform Params {uint count,op;float value;}p;
+void main(){uint word=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(word>=(p.count/4+uint(p.count%4!=0)))return;uint result=0;
+ for(uint b=0;b<4;b++){uint i=word*4+b;if(i>=p.count)break;float a=x[i];bool v=p.op==0?(isinf(a)&&a<0):p.op==1?a>p.value:p.op==2?a==p.value:p.op==3?a>=p.value:p.op==4?a<=p.value:a<p.value;result|=uint(v)<<(8*b);}y[word]=result;}

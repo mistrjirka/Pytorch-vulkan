@@ -1,0 +1,2 @@
+attention_block vulkan 2.820603003783617 ms
+[Oct 18 2026 18:55:07] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

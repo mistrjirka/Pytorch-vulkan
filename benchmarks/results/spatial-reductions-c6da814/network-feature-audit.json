@@ -1,0 +1,805 @@
+{
+  "resnet18": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      32,
+      32
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 20,
+      "aten.add_.Tensor": 28,
+      "aten.empty.memory_format": 20,
+      "aten.native_batch_norm.default": 20,
+      "aten.relu_.default": 17,
+      "aten.detach.default": 98,
+      "aten.max_pool2d_with_indices.default": 1,
+      "aten.mean.dim": 1,
+      "aten.view.default": 3,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 2,
+      "aten.sum.dim_IntList": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.threshold_backward.default": 17,
+      "aten.native_batch_norm_backward.default": 20,
+      "aten.convolution_backward.default": 20,
+      "aten.add.Tensor": 8,
+      "aten.max_pool2d_with_indices_backward.default": 1
+    }
+  },
+  "resnet18_224": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      32,
+      32
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 20,
+      "aten.add_.Tensor": 28,
+      "aten.empty.memory_format": 20,
+      "aten.native_batch_norm.default": 20,
+      "aten.relu_.default": 17,
+      "aten.detach.default": 98,
+      "aten.max_pool2d_with_indices.default": 1,
+      "aten.mean.dim": 1,
+      "aten.view.default": 3,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 2,
+      "aten.sum.dim_IntList": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.threshold_backward.default": 17,
+      "aten.native_batch_norm_backward.default": 20,
+      "aten.convolution_backward.default": 20,
+      "aten.add.Tensor": 8,
+      "aten.max_pool2d_with_indices_backward.default": 1
+    }
+  },
+  "vgg11_128": {
+    "status": "ok",
+    "input_shape": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "features": {
+      "average_pool": [
+        "aten._adaptive_avg_pool2d.default",
+        "aten._adaptive_avg_pool2d_backward.default"
+      ],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [
+        "aten.bernoulli_.float"
+      ],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 8,
+      "aten.relu_.default": 10,
+      "aten.detach.default": 44,
+      "aten.max_pool2d_with_indices.default": 5,
+      "aten._adaptive_avg_pool2d.default": 1,
+      "aten.view.default": 5,
+      "aten.t.default": 15,
+      "aten.addmm.default": 3,
+      "aten.empty_like.default": 2,
+      "aten.bernoulli_.float": 2,
+      "aten.div_.Scalar": 2,
+      "aten.mul.Tensor": 4,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 6,
+      "aten.sum.dim_IntList": 3,
+      "aten.threshold_backward.default": 10,
+      "aten._adaptive_avg_pool2d_backward.default": 1,
+      "aten.max_pool2d_with_indices_backward.default": 5,
+      "aten.convolution_backward.default": 8
+    }
+  },
+  "mobilenet_v3": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      32,
+      32
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [
+        "aten.bernoulli_.float"
+      ],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 52,
+      "aten.add_.Tensor": 40,
+      "aten.empty.memory_format": 34,
+      "aten.native_batch_norm.default": 34,
+      "aten.clone.default": 19,
+      "aten.hardswish_.default": 19,
+      "aten.relu_.default": 5,
+      "aten.detach.default": 172,
+      "aten.mean.dim": 10,
+      "aten.relu.default": 9,
+      "aten.hardsigmoid.default": 9,
+      "aten.mul.Tensor": 28,
+      "aten.view.default": 4,
+      "aten.t.default": 10,
+      "aten.addmm.default": 2,
+      "aten.empty_like.default": 1,
+      "aten.bernoulli_.float": 1,
+      "aten.div_.Scalar": 1,
+      "aten.mul_.Tensor": 1,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 4,
+      "aten.sum.dim_IntList": 8,
+      "aten.hardswish_backward.default": 19,
+      "aten.expand.default": 10,
+      "aten.div.Scalar": 10,
+      "aten.native_batch_norm_backward.default": 34,
+      "aten.convolution_backward.default": 52,
+      "aten.hardsigmoid_backward.default": 9,
+      "aten.threshold_backward.default": 14,
+      "aten.add.Tensor": 15
+    }
+  },
+  "unet": {
+    "status": "ok",
+    "input_shape": [
+      1,
+      3,
+      16,
+      16
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 11,
+      "aten.add_.Tensor": 10,
+      "aten.empty.memory_format": 10,
+      "aten.native_batch_norm.default": 10,
+      "aten.relu.default": 10,
+      "aten.detach.default": 62,
+      "aten.max_pool2d_with_indices.default": 2,
+      "aten.upsample_nearest2d.default": 2,
+      "aten.cat.default": 2,
+      "aten.binary_cross_entropy_with_logits.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.sigmoid.default": 1,
+      "aten.sub.Tensor": 1,
+      "aten.mul.Tensor": 1,
+      "aten.div_.Scalar": 1,
+      "aten.convolution_backward.default": 11,
+      "aten.threshold_backward.default": 10,
+      "aten.native_batch_norm_backward.default": 10,
+      "aten.slice.Tensor": 4,
+      "aten.upsample_nearest2d_backward.default": 2,
+      "aten.max_pool2d_with_indices_backward.default": 2,
+      "aten.add.Tensor": 2
+    }
+  },
+  "transformer": {
+    "status": "ok",
+    "input_shape": [
+      1,
+      128
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [
+        "aten._scaled_dot_product_flash_attention_for_cpu.default",
+        "aten._scaled_dot_product_flash_attention_for_cpu_backward.default"
+      ],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.embedding.default": 1,
+      "aten.add.Tensor": 25,
+      "aten.native_layer_norm.default": 8,
+      "aten.transpose.int": 48,
+      "aten.view.default": 139,
+      "aten.t.default": 85,
+      "aten.addmm.default": 17,
+      "aten.unsqueeze.default": 8,
+      "aten.squeeze.dim": 8,
+      "aten.clone.default": 8,
+      "aten.select.int": 12,
+      "aten._scaled_dot_product_flash_attention_for_cpu.default": 4,
+      "aten.detach.default": 61,
+      "aten.permute.default": 8,
+      "aten.gelu.default": 4,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 34,
+      "aten.sum.dim_IntList": 17,
+      "aten.gelu_backward.default": 4,
+      "aten.native_layer_norm_backward.default": 8,
+      "aten._scaled_dot_product_flash_attention_for_cpu_backward.default": 4,
+      "aten.select_backward.default": 12,
+      "aten._unsafe_view.default": 4,
+      "aten.new_empty_strided.default": 1,
+      "aten.copy_.default": 1,
+      "aten.embedding_dense_backward.default": 1
+    }
+  },
+  "mlp": {
+    "status": "ok",
+    "input_shape": [
+      32,
+      784
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.t.default": 14,
+      "aten.addmm.default": 3,
+      "aten.gelu.default": 2,
+      "aten.native_layer_norm.default": 2,
+      "aten._log_softmax.default": 1,
+      "aten.detach.default": 12,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 5,
+      "aten.sum.dim_IntList": 3,
+      "aten.view.default": 3,
+      "aten.native_layer_norm_backward.default": 2,
+      "aten.gelu_backward.default": 2
+    }
+  },
+  "lstm": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      8,
+      64
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.zeros.default": 2,
+      "aten.transpose.int": 3,
+      "aten.clone.default": 1,
+      "aten.select.int": 5,
+      "aten.mkldnn_rnn_layer.default": 2,
+      "aten.detach.default": 24,
+      "aten.stack.default": 2,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 2,
+      "aten.sum.dim_IntList": 1,
+      "aten.view.default": 1,
+      "aten.select_backward.default": 1,
+      "aten.mkldnn_rnn_layer_backward.default": 2
+    }
+  },
+  "conv1d_audio": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      1,
+      512
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 5,
+      "aten.add_.Tensor": 5,
+      "aten.empty.memory_format": 5,
+      "aten.native_batch_norm.default": 5,
+      "aten.silu.default": 5,
+      "aten.unsqueeze.default": 2,
+      "aten.mean.dim": 1,
+      "aten.squeeze.dim": 2,
+      "aten.view.default": 3,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten._log_softmax.default": 1,
+      "aten.detach.default": 24,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 2,
+      "aten.sum.dim_IntList": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.silu_backward.default": 5,
+      "aten.native_batch_norm_backward.default": 5,
+      "aten.convolution_backward.default": 5
+    }
+  },
+  "conv_autoencoder": {
+    "status": "ok",
+    "input_shape": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": true,
+    "operators": {
+      "aten.convolution.default": 6,
+      "aten.leaky_relu.default": 3,
+      "aten.relu.default": 2,
+      "aten.detach.default": 18,
+      "aten.sigmoid.default": 1,
+      "aten.mse_loss.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.mse_loss_backward.default": 1,
+      "aten.sigmoid_backward.default": 1,
+      "aten.convolution_backward.default": 6,
+      "aten.threshold_backward.default": 2,
+      "aten.leaky_relu_backward.default": 3
+    }
+  },
+  "embedding": {
+    "status": "ok",
+    "input_shape": [
+      16,
+      64
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.embedding.default": 1,
+      "aten.mean.dim": 1,
+      "aten.t.default": 10,
+      "aten.addmm.default": 2,
+      "aten.relu.default": 1,
+      "aten.detach.default": 9,
+      "aten._log_softmax.default": 1,
+      "aten.nll_loss_forward.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.nll_loss_backward.default": 1,
+      "aten._log_softmax_backward_data.default": 1,
+      "aten.mm.default": 4,
+      "aten.sum.dim_IntList": 2,
+      "aten.view.default": 2,
+      "aten.threshold_backward.default": 1,
+      "aten.unsqueeze.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.embedding_dense_backward.default": 1
+    }
+  },
+  "style_net": {
+    "status": "ok",
+    "input_shape": [
+      1,
+      3,
+      8,
+      8
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": []
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 17,
+      "aten.add_.Tensor": 16,
+      "aten.empty.memory_format": 16,
+      "aten.native_batch_norm.default": 16,
+      "aten.leaky_relu.default": 16,
+      "aten.clone.default": 1,
+      "aten.add.Tensor": 13,
+      "aten.cat.default": 3,
+      "aten.upsample_nearest2d.default": 2,
+      "aten.sub.Tensor": 1,
+      "aten.abs.default": 1,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.sgn.default": 1,
+      "aten.mul.Tensor": 1,
+      "aten.convolution_backward.default": 17,
+      "aten.detach.default": 50,
+      "aten.leaky_relu_backward.default": 16,
+      "aten.native_batch_norm_backward.default": 16,
+      "aten.slice.Tensor": 7,
+      "aten.upsample_nearest2d_backward.default": 2
+    }
+  },
+  "pool_classifier": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      23,
+      29
+    ],
+    "features": {
+      "average_pool": [
+        "aten.avg_pool2d.default",
+        "aten._adaptive_avg_pool2d.default",
+        "aten._adaptive_avg_pool2d_backward.default",
+        "aten.avg_pool2d_backward.default"
+      ],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": [
+        "aten.pow.Tensor_Scalar"
+      ]
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 2,
+      "aten.relu.default": 1,
+      "aten.detach.default": 8,
+      "aten.avg_pool2d.default": 1,
+      "aten.gelu.default": 1,
+      "aten._adaptive_avg_pool2d.default": 1,
+      "aten.view.default": 3,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten.pow.Tensor_Scalar": 2,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.mul.Scalar": 1,
+      "aten.mul.Tensor": 1,
+      "aten.mm.default": 2,
+      "aten.sum.dim_IntList": 1,
+      "aten._adaptive_avg_pool2d_backward.default": 1,
+      "aten.gelu_backward.default": 1,
+      "aten.convolution_backward.default": 2,
+      "aten.avg_pool2d_backward.default": 1,
+      "aten.threshold_backward.default": 1
+    }
+  },
+  "bilinear_autoencoder": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      23,
+      29
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [
+        "aten.upsample_bilinear2d.default",
+        "aten.upsample_bilinear2d_backward.default"
+      ],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": [
+        "aten.pow.Tensor_Scalar"
+      ]
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 2,
+      "aten.silu.default": 1,
+      "aten.upsample_bilinear2d.default": 1,
+      "aten.pow.Tensor_Scalar": 2,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.mul.Scalar": 1,
+      "aten.mul.Tensor": 1,
+      "aten.convolution_backward.default": 2,
+      "aten.detach.default": 4,
+      "aten.upsample_bilinear2d_backward.default": 1,
+      "aten.silu_backward.default": 1
+    }
+  },
+  "bicubic_autoencoder": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      23,
+      29
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [
+        "aten.upsample_bicubic2d.default",
+        "aten.upsample_bicubic2d_backward.default"
+      ],
+      "axis_mean": [],
+      "sum": [],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": [
+        "aten.pow.Tensor_Scalar"
+      ]
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 2,
+      "aten.silu.default": 1,
+      "aten.upsample_bicubic2d.default": 1,
+      "aten.pow.Tensor_Scalar": 2,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.mul.Scalar": 1,
+      "aten.mul.Tensor": 1,
+      "aten.convolution_backward.default": 2,
+      "aten.detach.default": 4,
+      "aten.upsample_bicubic2d_backward.default": 1,
+      "aten.silu_backward.default": 1
+    }
+  },
+  "reduction_regressor": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      3,
+      23,
+      29
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [
+        "aten.mean.dim"
+      ],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [],
+      "mask_math": [
+        "aten.clamp.default",
+        "aten.pow.Tensor_Scalar",
+        "aten.gt.Scalar",
+        "aten.where.self"
+      ]
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.convolution.default": 1,
+      "aten.clamp.default": 1,
+      "aten.pow.Tensor_Scalar": 4,
+      "aten.mean.dim": 2,
+      "aten.t.default": 5,
+      "aten.addmm.default": 1,
+      "aten.sum.dim_IntList": 3,
+      "aten.mul.Tensor": 4,
+      "aten.add.Tensor": 2,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 4,
+      "aten.div.Scalar": 3,
+      "aten.mul.Scalar": 2,
+      "aten.unsqueeze.default": 4,
+      "aten.mm.default": 2,
+      "aten.view.default": 1,
+      "aten.detach.default": 4,
+      "aten.scalar_tensor.default": 1,
+      "aten.gt.Scalar": 1,
+      "aten.lt.Scalar": 1,
+      "aten.logical_and_.default": 1,
+      "aten.where.self": 1,
+      "aten.convolution_backward.default": 1
+    }
+  },
+  "attention_block": {
+    "status": "ok",
+    "input_shape": [
+      2,
+      37,
+      16
+    ],
+    "features": {
+      "average_pool": [],
+      "bilinear_resize": [],
+      "bicubic_resize": [],
+      "axis_mean": [],
+      "sum": [
+        "aten.sum.dim_IntList"
+      ],
+      "dropout_rng": [],
+      "attention": [
+        "aten._scaled_dot_product_flash_attention_for_cpu.default",
+        "aten._scaled_dot_product_flash_attention_for_cpu_backward.default"
+      ],
+      "mask_math": [
+        "aten.pow.Tensor_Scalar"
+      ]
+    },
+    "has_transposed_convolution": false,
+    "operators": {
+      "aten.view.default": 9,
+      "aten.t.default": 9,
+      "aten.addmm.default": 2,
+      "aten.split.Tensor": 1,
+      "aten.unsqueeze.default": 4,
+      "aten._scaled_dot_product_flash_attention_for_cpu.default": 1,
+      "aten.detach.default": 6,
+      "aten.squeeze.dim": 4,
+      "aten.pow.Tensor_Scalar": 2,
+      "aten.mean.default": 1,
+      "aten.ones_like.default": 1,
+      "aten.expand.default": 1,
+      "aten.div.Scalar": 1,
+      "aten.mul.Scalar": 1,
+      "aten.mul.Tensor": 1,
+      "aten.mm.default": 3,
+      "aten.sum.dim_IntList": 2,
+      "aten._scaled_dot_product_flash_attention_for_cpu_backward.default": 1,
+      "aten.cat.default": 1
+    }
+  }
+}

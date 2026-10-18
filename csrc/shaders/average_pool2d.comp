@@ -1,0 +1,32 @@
+// Original MIT implementation: forward and deterministic input-gather backward.
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input {float x[];};
+layout(binding=1) writeonly buffer Output {float y[];};
+layout(push_constant) uniform Params {uint planes,ih,iw,oh,ow,kh,kw,sh,sw,ph,pw,adaptive,backward,include_pad,parallel;float divisor;} p;
+shared float sums[128];
+void window(uint h,uint w,out int hb,out int he,out int wb,out int we,out float divisor){
+ if(p.adaptive!=0){hb=int(h*p.ih/p.oh);he=int(((h+1)*p.ih+p.oh-1)/p.oh);wb=int(w*p.iw/p.ow);we=int(((w+1)*p.iw+p.ow-1)/p.ow);divisor=float((he-hb)*(we-wb));}
+ else{hb=int(h*p.sh)-int(p.ph);wb=int(w*p.sw)-int(p.pw);he=min(hb+int(p.kh),int(p.ih+p.ph));we=min(wb+int(p.kw),int(p.iw+p.pw));divisor=float((he-hb)*(we-wb));hb=max(hb,0);wb=max(wb,0);he=min(he,int(p.ih));we=min(we,int(p.iw));if(p.include_pad==0)divisor=float((he-hb)*(we-wb));if(p.divisor!=0)divisor=p.divisor;}
+}
+void main(){
+ uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;
+ uint i=p.parallel!=0?group:group*128+lane;
+ if(p.backward==0){
+  if(i>=p.planes*p.oh*p.ow)return;
+  uint plane=i/(p.oh*p.ow),h=(i/p.ow)%p.oh,w=i%p.ow;int hb,he,wb,we;float div;
+  window(h,w,hb,he,wb,we,div);float acc=0;
+  uint width=uint(max(we-wb,0)),count=uint(max(he-hb,0))*width;
+  for(uint k=p.parallel!=0?lane:0;k<count;k+=p.parallel!=0?128:1)acc+=x[(plane*p.ih+uint(hb)+k/width)*p.iw+uint(wb)+k%width];
+  if(p.parallel!=0){sums[lane]=acc;barrier();for(uint s=64;s>0;s/=2){if(lane<s)sums[lane]+=sums[lane+s];barrier();}if(lane==0)y[i]=sums[0]/div;}else y[i]=acc/div;
+ }else{
+  if(i>=p.planes*p.ih*p.iw)return;
+  uint plane=i/(p.ih*p.iw),h=(i/p.iw)%p.ih,w=i%p.iw;
+  uint hb,he,wb,we;
+  if(p.adaptive!=0){hb=h*p.oh/p.ih;he=((h+1)*p.oh+p.ih-1)/p.ih;wb=w*p.ow/p.iw;we=((w+1)*p.ow+p.iw-1)/p.iw;}
+  else{hb=uint(max(0,(int(h+p.ph)-int(p.kh)+int(p.sh))/int(p.sh)));he=min(p.oh,(h+p.ph)/p.sh+1);wb=uint(max(0,(int(w+p.pw)-int(p.kw)+int(p.sw))/int(p.sw)));we=min(p.ow,(w+p.pw)/p.sw+1);}
+  float acc=0;
+  for(uint a=hb;a<he;a++)for(uint b=wb;b<we;b++){int u,v,s,t;float div;window(a,b,u,v,s,t,div);if(int(h)>=u && int(h)<v && int(w)>=s && int(w)<t)acc+=x[(plane*p.oh+a)*p.ow+b]/div;}
+  y[i]=acc;
+ }
+}

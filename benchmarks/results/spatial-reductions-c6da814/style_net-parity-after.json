@@ -1,0 +1,273 @@
+{
+  "model": "style_net",
+  "actual": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/spatial-reductions-c6da814/style_net.pt",
+  "reference": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/style_net-after.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "fec9f5711d76349cb841f75f2393306ad2071992b524512d987509efaa380f8d",
+  "input_sha256": "d57fa293d43bb4c90db83177caabb574f39eb4da3df2529e362626a3f66720be",
+  "gradients": {
+    "conv0.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv0.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv0.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv1.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv1.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv1.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv2.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv2.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv2.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.conv1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.norm1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.norm1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.conv2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.norm2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.0.norm2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.conv1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.norm1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.norm1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.conv2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.norm2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.1.norm2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.conv1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.norm1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.norm1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.conv2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.norm2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.2.norm2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.conv1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.norm1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.norm1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.conv2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.norm2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.3.norm2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.conv1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.norm1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.norm1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.conv2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.norm2.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "resnet_blocks.4.norm2.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv2.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv2.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv2.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv1.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv1.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "upconv1.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv11.conv.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv11.norm.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv11.norm.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv12.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "conv12.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 50
+}

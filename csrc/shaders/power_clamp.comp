@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input {float x[];};
+layout(binding=1) writeonly buffer Output {float y[];};
+layout(push_constant) uniform Params {uint count,op;float a,b;}p;
+float power(float x,float e){
+ if(e==0.5)return x<0.0?uintBitsToFloat(0x7fc00000u):sqrt(x);
+ if(e==-0.5)return x<0.0?uintBitsToFloat(0x7fc00000u):1.0/sqrt(x);
+ if(e==0.0||x==1.0)return 1.0;if(e==1.0)return x;if(e==2.0)return x*x;
+ if(isnan(x)||isnan(e))return uintBitsToFloat(0x7fc00000u);
+ float ax=abs(x);if(isinf(e)){if(ax==1.0)return 1.0;return (ax>1.0)==(e>0.0)?uintBitsToFloat(0x7f800000u):0.0;}
+ bool integer=floor(e)==e,odd=integer && mod(abs(e),2.0)==1.0;
+ bool negative=(floatBitsToUint(x)&0x80000000u)!=0;
+ if(ax==0.0||isinf(ax)){float v=(ax==0.0)==(e>0.0)?0.0:uintBitsToFloat(0x7f800000u);return negative&&odd?-v:v;}
+ if(x<0.0&&!integer)return uintBitsToFloat(0x7fc00000u);
+ float v=pow(ax,e);return x<0.0&&odd?-v:v;
+}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;
+ float a=x[i];y[i]=p.op==0?power(a,p.a):(isnan(a)||isnan(p.a)||isnan(p.b)?uintBitsToFloat(0x7fc00000u):min(max(a,p.a),p.b));}

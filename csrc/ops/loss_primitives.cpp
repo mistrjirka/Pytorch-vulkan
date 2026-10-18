@@ -1,3 +1,4 @@
+#include "reduce_native.h"
 // General FP32 elementwise primitives and global reduction. No model dispatch.
 #include "native_utils.h"
 #include <ATen/ExpandUtils.h>
@@ -269,9 +270,9 @@ bool all_dimensions(const at::Tensor& x,at::OptionalIntArrayRef dims) {
 }
 at::Tensor mean_dim(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keepdim,
                      std::optional<at::ScalarType> dtype) {
-  if(!supported(x) || dtype.value_or(x.scalar_type())!=at::kFloat ||
-     !all_dimensions(x,dims))
+  if(!supported(x) || dtype.value_or(x.scalar_type())!=at::kFloat)
     return at::mean(x.cpu(),dims,keepdim,dtype).to(x.device());
+  if(!all_dimensions(x,dims))return reduce_fp32(x,dims,keepdim,true);
   auto out=at::empty(keepdim?std::vector<int64_t>(x.dim(),1):std::vector<int64_t>{},x.options());
   if(!x.numel()) {fill_scalar(out,std::numeric_limits<float>::quiet_NaN());return out;}
   auto current=packed(x);

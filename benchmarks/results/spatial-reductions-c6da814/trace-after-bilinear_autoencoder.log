@@ -1,0 +1,10 @@
+PV_FALLBACK aten::zero_ 0.063 ms overload=
+PV_FALLBACK aten::zero_ 0.017 ms overload=
+PV_FALLBACK aten::zero_ 0.013 ms overload=
+PV_FALLBACK aten::zero_ 0.013 ms overload=
+PV_FALLBACK aten::zero_ 0.017 ms overload=
+PV_FALLBACK aten::zero_ 0.015 ms overload=
+PV_FALLBACK aten::zero_ 0.013 ms overload=
+PV_FALLBACK aten::zero_ 0.012 ms overload=
+bilinear_autoencoder vulkan 11.695604000124149 ms
+[Oct 18 2026 18:55:37] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

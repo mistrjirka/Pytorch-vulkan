@@ -57,6 +57,7 @@ setup(
 
     description="Vulkan compute backend for PyTorch — runs on any GPU",
     url="https://github.com/mistrjirka/Pytorch-vulkan",
+    license_files=["LICENSE", "third_party/README.md", "third_party/licenses/*.txt"],
     packages=["torch_vulkan"],
     ext_modules=[CMakeExtension("torch_vulkan._C")],
     cmdclass={"build_ext": CMakeBuild},

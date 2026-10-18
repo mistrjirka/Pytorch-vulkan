@@ -1,0 +1,25 @@
+PV_FALLBACK aten::upsample_bilinear2d 0.482 ms
+PV_FALLBACK aten::pow 0.247 ms
+PV_FALLBACK aten::pow 0.243 ms
+PV_FALLBACK aten::upsample_bilinear2d_backward 0.839 ms
+PV_PHASE step=0 measured=False
+PV_FALLBACK aten::upsample_bilinear2d 0.450 ms
+PV_FALLBACK aten::pow 0.217 ms
+PV_FALLBACK aten::pow 0.324 ms
+PV_FALLBACK aten::upsample_bilinear2d_backward 0.968 ms
+PV_FALLBACK aten::zero_ 0.021 ms
+PV_FALLBACK aten::zero_ 0.015 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.017 ms
+PV_FALLBACK aten::zero_ 0.016 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_PHASE step=1 measured=True
+PV_FALLBACK aten::upsample_bilinear2d 0.821 ms
+PV_FALLBACK aten::pow 0.205 ms
+PV_FALLBACK aten::pow 0.191 ms
+PV_FALLBACK aten::upsample_bilinear2d_backward 0.423 ms
+PV_PHASE finished
+bilinear_autoencoder vulkan 3.8707710045855492 ms
+[Oct 18 2026 18:55:07] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

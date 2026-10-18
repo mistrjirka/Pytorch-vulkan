@@ -1,0 +1,233 @@
+{
+  "model": "unet",
+  "actual": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/spatial-reductions-c6da814/unet.pt",
+  "reference": "/workspace/Pytorch-vulkan-zero-bias/benchmarks/results/nsys/runtime-conv-ef6aaf3/unet-after.pt",
+  "rtol": 0.0005,
+  "atol": 2e-05,
+  "initial_state_sha256": "0f503ad06a30b61627cf970dd38eaceaadeda98a301c4bb399013ba93c8993b1",
+  "input_sha256": "5ecd8d03727c1f3cab45f082d0608feeca7c2fcbc02d6a29b9d84da4d631a9b6",
+  "gradients": {
+    "e1.0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.4.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e1.4.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.4.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e2.4.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.4.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "e3.4.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.4.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d2.4.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.0.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.0.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.1.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.1.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.3.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.3.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.4.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "d1.4.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "out.weight": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    },
+    "out.bias": {
+      "max_abs": 0.0,
+      "relative_l2": 0.0,
+      "passed": true
+    }
+  },
+  "output": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "loss": {
+    "max_abs": 0.0,
+    "relative_l2": 0.0,
+    "passed": true
+  },
+  "passed": true,
+  "gradient_count": 42
+}

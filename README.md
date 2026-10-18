@@ -68,18 +68,19 @@ On **PyTorch 2.14.1+cpu**:
 
 | Driver | Test results |
 |---|---:|
-| RTX 2080 Ti (NVIDIA 580.178.04) | 981 passed (GPU-resident + deferred mode) |
-| Tesla V100-SXM2 (NVIDIA 580.178.04) | 981 passed (GPU-resident + deferred mode) |
-| Lavapipe software Vulkan | 980 passed, 1 hardware-only skip |
-| RTX 2080 Ti, eager / host-backed mode | 979 passed, 2 deferred-only skips |
+| RTX 2080 Ti (NVIDIA 580.178.04) | 1,229 passed (GPU-resident + deferred mode) |
+| Tesla V100-SXM2 (NVIDIA 580.178.04) | 1,229 passed (GPU-resident + deferred mode) |
+| Lavapipe software Vulkan | 1,228 passed, 1 hardware-only skip |
+| RTX 2080 Ti, eager / host-backed mode | 1,227 passed, 2 deferred-only skips |
 
 These counts include both the native operators and runtime/convolution optimizations;
-see the [combined validation and CUDA measurements](docs/native-operator-integration.md).
+see the [latest spatial/reduction coverage and CUDA measurements](docs/spatial-reductions-and-network-coverage.md)
+and the [earlier combined integration](docs/native-operator-integration.md).
 
 Supported, tested operations include FP32 GEMM (including transposed inputs),
 elementwise add/multiply, ReLU and GELU forward/backward, LayerNorm with
 correct saved statistics, storage-sharing `view`/`as_strided`,
-native single-axis FP32 sum, larger-logit log-softmax forward/backward,
+native arbitrary-axis FP32 sum and mean, larger-logit log-softmax forward/backward,
 fused GEMM+bias for Linear layers, and **native Vulkan Conv2D forward,
 dInput, dWeight, dBias** with
 stride/padding/dilation/group variants. Conv2D also accepts FP32 channels-last,
@@ -120,8 +121,13 @@ them enabled (CUDA 8.95 ms). With self-attention, Vulkan training improved from
 for full Stable Diffusion checkpoints. See the
 [implementation, pinned-source license audit, correctness, and benchmark report](docs/diffusion-native-operators.md).
 
-Still missing: fully fused training SDPA, complete dropout/RNG, bilinear/bicubic
-resize backward, transposed convolution, and generalized FP16/BF16 compute.
+FP32 average/adaptive pooling and bilinear/bicubic resize now include native
+backward. General reductions, predicates, boolean operations, where, power and
+clamp also cover the tested composed-attention and reduction networks. See the
+[license research, 17-case feature audit and five-network CUDA comparison](docs/spatial-reductions-and-network-coverage.md).
+
+Still missing: fully fused training SDPA, complete dropout/RNG, transposed
+convolution, antialiased resize, and generalized FP16/BF16 compute.
 
 ### General convolution selection
 
@@ -210,8 +216,10 @@ a closer-to-exact GELU further improved correctness.
   It still lacks cuDNN's broader algorithm selection (such as Winograd), and
   layout packing adds work. Conv2D supports 2D, nonempty FP32 configurations;
   this does not imply layout/dtype coverage for every PyTorch operator.
-- Several loss operators, attention, some reductions, pooling families other than max-pool2d,
-  and other unsupported ops still use CPU fallback. Device residency is
+- Unsupported loss/dtype/layout cases, dropout/RNG, 3D pooling, antialiased resize
+  and other operators still use CPU fallback. AdamW state initialization still
+  falls back through `zero_`; the five new feature networks have no generic
+  fallback in measured steady-state steps. Device residency is
   experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.
   `ConvTranspose2d` is also not supported. A reduced-size ResNet18

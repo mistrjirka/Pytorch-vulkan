@@ -1,0 +1,35 @@
+PV_FALLBACK aten::avg_pool2d 0.489 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d 0.860 ms
+PV_FALLBACK aten::pow 0.081 ms
+PV_FALLBACK aten::pow 0.048 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d_backward 1.345 ms
+PV_FALLBACK aten::avg_pool2d_backward 0.641 ms
+PV_PHASE step=0 measured=False
+PV_FALLBACK aten::avg_pool2d 0.437 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d 0.172 ms
+PV_FALLBACK aten::pow 0.074 ms
+PV_FALLBACK aten::pow 0.045 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d_backward 0.279 ms
+PV_FALLBACK aten::avg_pool2d_backward 0.656 ms
+PV_FALLBACK aten::zero_ 0.021 ms
+PV_FALLBACK aten::zero_ 0.015 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.013 ms
+PV_FALLBACK aten::zero_ 0.027 ms
+PV_FALLBACK aten::zero_ 0.027 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.018 ms
+PV_FALLBACK aten::zero_ 0.018 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.013 ms
+PV_PHASE step=1 measured=True
+PV_FALLBACK aten::avg_pool2d 0.379 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d 0.176 ms
+PV_FALLBACK aten::pow 0.065 ms
+PV_FALLBACK aten::pow 0.036 ms
+PV_FALLBACK aten::_adaptive_avg_pool2d_backward 0.273 ms
+PV_FALLBACK aten::avg_pool2d_backward 0.742 ms
+PV_PHASE finished
+pool_classifier vulkan 4.952486997353844 ms
+[Oct 18 2026 18:55:07] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

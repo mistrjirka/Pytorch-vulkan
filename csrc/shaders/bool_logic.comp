@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Left {uint x[];};
+layout(binding=1) readonly buffer Right {uint z[];};
+layout(binding=2) writeonly buffer Output {uint y[];};
+layout(push_constant) uniform Params {uint count,op;}p;
+void main(){uint word=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(word>=(p.count/4+uint(p.count%4!=0)))return;uint a=x[word],b=z[word],r=0;for(uint k=0;k<4;k++){bool v=((a>>(8*k))&255u)!=0,w=((b>>(8*k))&255u)!=0;r|=uint(p.op==0?v&&w:!v)<<(8*k);}y[word]=r;}

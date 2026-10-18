@@ -1,0 +1,40 @@
+PV_FALLBACK aten::clamp 0.551 ms
+PV_FALLBACK aten::pow 0.416 ms
+PV_FALLBACK aten::pow 0.081 ms
+PV_FALLBACK aten::pow 0.068 ms
+PV_FALLBACK aten::pow 0.466 ms
+PV_FALLBACK aten::gt 0.294 ms
+PV_FALLBACK aten::lt 0.305 ms
+PV_FALLBACK aten::logical_and 0.170 ms
+PV_FALLBACK aten::where 0.488 ms
+PV_PHASE step=0 measured=False
+PV_FALLBACK aten::clamp 0.504 ms
+PV_FALLBACK aten::pow 0.396 ms
+PV_FALLBACK aten::pow 0.069 ms
+PV_FALLBACK aten::pow 0.055 ms
+PV_FALLBACK aten::pow 0.538 ms
+PV_FALLBACK aten::gt 0.418 ms
+PV_FALLBACK aten::lt 0.336 ms
+PV_FALLBACK aten::logical_and 0.199 ms
+PV_FALLBACK aten::where 0.672 ms
+PV_FALLBACK aten::zero_ 0.022 ms
+PV_FALLBACK aten::zero_ 0.017 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.013 ms
+PV_FALLBACK aten::zero_ 0.014 ms
+PV_FALLBACK aten::zero_ 0.013 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_FALLBACK aten::zero_ 0.012 ms
+PV_PHASE step=1 measured=True
+PV_FALLBACK aten::clamp 0.495 ms
+PV_FALLBACK aten::pow 0.409 ms
+PV_FALLBACK aten::pow 0.069 ms
+PV_FALLBACK aten::pow 0.038 ms
+PV_FALLBACK aten::pow 0.564 ms
+PV_FALLBACK aten::gt 0.349 ms
+PV_FALLBACK aten::lt 0.329 ms
+PV_FALLBACK aten::logical_and 0.210 ms
+PV_FALLBACK aten::where 0.676 ms
+PV_PHASE finished
+reduction_regressor vulkan 6.344024004647508 ms
+[Oct 18 2026 18:55:07] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

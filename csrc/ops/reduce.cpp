@@ -1,77 +1,31 @@
-// Vulkan-native FP32 reductions, initially optimized for single-axis
-// contiguous reductions such as nn.Linear's sum-to-bias backward.
-#include "../vulkan_context.h"
-#include "../vulkan_allocator.h"
-#include <ATen/Functions.h>
+#include "native_utils.h"
+#include "reduce_native.h"
 #include <torch/library.h>
-#include <c10/util/Exception.h>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <limits>
 #include <numeric>
-#include <optional>
-#include <vector>
-
 namespace torch_vulkan::ops {
-static at::Tensor sum_dim_vulkan(const at::Tensor& self,
-                                at::OptionalIntArrayRef dim,
-                                bool keepdim,
-                                std::optional<at::ScalarType> dtype) {
-  const auto requested_dtype=dtype.value_or(self.scalar_type());
-  // Keep the original semantics through CPU fallback until a particular
-  // layout/dtype is explicitly implemented and tested on GPU.
-  auto cpu_fallback=[&](){
-    auto on_cpu=self.to(at::kCPU);
-    return at::sum(on_cpu,dim,keepdim,dtype).to(self.device());
-  };
-  const char* opt=std::getenv("TORCH_VULKAN_NATIVE_SUM");
-  if ((opt && std::strcmp(opt,"0")==0) ||
-      !dim.has_value() || dim->size()!=1 || self.dim()<1 ||
-      self.scalar_type()!=at::kFloat || requested_dtype!=at::kFloat ||
-      !self.is_contiguous() || self.storage_offset()!=0 ||
-      self.numel()==0)
-    return cpu_fallback();
-
-  const auto axis0=(*dim)[0];
-  const auto rank=self.dim();
-  const int64_t axis=axis0<0 ? axis0+rank : axis0;
-  TORCH_CHECK(axis>=0 && axis<rank,
-              "sum.dim_IntList: dimension out of range (got ",axis0,")");
-  uint64_t outer=1, inner=1;
-  for(int64_t i=0;i<axis;++i)
-    outer*=static_cast<uint64_t>(self.size(i));
-  for(int64_t i=axis+1;i<rank;++i)
-    inner*=static_cast<uint64_t>(self.size(i));
-  const auto reduced=static_cast<uint64_t>(self.size(axis));
-  const uint64_t count=outer*inner;
-  if (count==0 || outer>UINT32_MAX || inner>UINT32_MAX ||
-      reduced>UINT32_MAX || count>65535ull*256ull)
-    return cpu_fallback();
-  std::vector<int64_t> shape;
-  shape.reserve(rank);
-  for(int64_t i=0;i<rank;++i) {
-    if (i==axis) {
-      if (keepdim)shape.push_back(1);
-    } else shape.push_back(self.size(i));
-  }
-  auto result=at::empty(shape,self.options());
-  auto& alloc=VulkanAllocator::instance();
-  auto src=alloc.get_kompute_tensor(self.data_ptr());
-  auto dst=alloc.get_kompute_tensor(result.data_ptr());
-  auto& ctx=VulkanContext::instance();
-  const auto algo=ctx.get_or_create_algorithm("sum_single_axis",
-      {src,dst},kp::Workgroup({static_cast<uint32_t>((count+255)/256),1,1}),
-      {static_cast<uint32_t>(outer),static_cast<uint32_t>(reduced),
-       static_cast<uint32_t>(inner),static_cast<uint32_t>(count)});
-  if (ctx.can_enqueue({src,dst}))
-    ctx.enqueue_compute(algo,{src,dst},{dst});
-  else
-    ctx.run_compute(algo,"sum_single_axis",{src},{dst});
-  return result;
+at::Tensor reduce_fp32(const at::Tensor& self,at::OptionalIntArrayRef dim,bool keepdim,bool mean){
+ using namespace native;
+ TORCH_CHECK(self.scalar_type()==at::kFloat && can_pack_view(self),"Vulkan reduction requires packable FP32 input");
+ const int64_t rank=std::max<int64_t>(1,self.dim());uint32_t mask=0;
+ if(!dim || dim->empty())mask=(1u<<rank)-1;
+ else for(auto raw:*dim){int64_t d=raw<0?raw+rank:raw;TORCH_CHECK(d>=0&&d<rank,"reduction dimension out of range");TORCH_CHECK(!(mask&(1u<<d)),"dim appears multiple times in the list of dims");mask|=1u<<d;}
+ std::vector<int64_t> shape;uint64_t reduced=1;
+ for(int64_t d=0;d<self.dim();d++){if(mask&(1u<<d)){reduced*=self.size(d);if(keepdim)shape.push_back(1);}else shape.push_back(self.size(d));}
+ auto out=at::empty(shape,self.options());if(!out.numel())return out;
+ if(!reduced){out.fill_(mean?std::numeric_limits<float>::quiet_NaN():0.f);return out;}
+ auto x=packed(self);bool parallel=reduced>=64;
+ std::vector<uint32_t> p(21,0);p[0]=u32(out.numel());p[1]=u32(reduced);p[2]=mask;p[3]=mean;p[4]=parallel;
+ std::fill(p.begin()+5,p.begin()+13,1);
+ for(int64_t d=0;d<self.dim();d++){p[5+d]=u32(self.size(d));p[13+d]=u32(x.stride(d));}
+ run("reduce_axes",{base(x)},{base(out)},p,parallel?out.numel():(out.numel()+127)/128,512);return out;
 }
-
-TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
-  m.impl("sum.dim_IntList",&sum_dim_vulkan);
+namespace {
+at::Tensor sum_dim(const at::Tensor& x,at::OptionalIntArrayRef dim,bool keepdim,std::optional<at::ScalarType> dtype){
+ const auto* flag=std::getenv("TORCH_VULKAN_NATIVE_SUM");
+ if((flag&&!std::strcmp(flag,"0"))||x.scalar_type()!=at::kFloat||dtype.value_or(x.scalar_type())!=at::kFloat||!native::can_pack_view(x))return at::sum(x.cpu(),dim,keepdim,dtype).to(x.device());
+ return reduce_fp32(x,dim,keepdim,false);
 }
-} // namespace torch_vulkan::ops
+at::Tensor sum_all(const at::Tensor& x,std::optional<at::ScalarType> dtype){return sum_dim(x,std::nullopt,false,dtype);}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("sum.dim_IntList",&sum_dim);m.impl("sum",&sum_all);}
+}

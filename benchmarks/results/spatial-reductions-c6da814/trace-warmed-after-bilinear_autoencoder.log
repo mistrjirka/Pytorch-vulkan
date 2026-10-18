@@ -1,0 +1,13 @@
+PV_PHASE step=0 measured=False
+PV_FALLBACK aten::zero_ 0.064 ms overload=
+PV_FALLBACK aten::zero_ 0.016 ms overload=
+PV_FALLBACK aten::zero_ 0.012 ms overload=
+PV_FALLBACK aten::zero_ 0.012 ms overload=
+PV_FALLBACK aten::zero_ 0.016 ms overload=
+PV_FALLBACK aten::zero_ 0.015 ms overload=
+PV_FALLBACK aten::zero_ 0.012 ms overload=
+PV_FALLBACK aten::zero_ 0.013 ms overload=
+PV_PHASE step=1 measured=True
+PV_PHASE finished
+bilinear_autoencoder vulkan 2.249129000119865 ms
+[Oct 18 2026 18:55:37] [warn] [/workspace/Pytorch-vulkan-zero-bias/.deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names
