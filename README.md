@@ -212,8 +212,11 @@ a closer-to-exact GELU further improved correctness.
 ## Limitations
 
 The [CUDA universality audit](docs/cuda-universality-audit-b80a1f6.md) distinguishes
-GPU execution, CPU fallback and failures, and records known dtype, embedding-index
-and allocation-option defects at `b80a1f6`. The backend is not a general CUDA replacement.
+GPU execution, CPU fallback and failures at `b80a1f6`. The subsequent
+[FP32 correctness fixes and roadmap](docs/fp32-single-gpu-roadmap.md) cover exact
+embedding indices, allocation options and dtype/device guards. The backend is not
+a general CUDA replacement. Current development prioritizes general FP32 and
+single-GPU support; FP16/BF16 and multi-GPU are deferred.
 
 - **FP32 only for compute kernels.** BF16 and FP16 training are not supported.
 - Conv2D selects general tiled/depthwise/reduction paths with scalar fallbacks.
@@ -221,9 +224,9 @@ and allocation-option defects at `b80a1f6`. The backend is not a general CUDA re
   layout packing adds work. Conv2D supports 2D, nonempty FP32 configurations;
   this does not imply layout/dtype coverage for every PyTorch operator.
 - Unsupported loss/dtype/layout cases, dropout/RNG, 3D pooling, antialiased resize
-  and other operators still use CPU fallback. AdamW state initialization still
-  falls back through `zero_`; the five new feature networks have no generic
-  fallback in measured steady-state steps. Device residency is
+  and other operators still use CPU fallback. FP32 AdamW state zeroing is native,
+  but ordinary AdamW update primitives still fall back. The five spatial/reduction
+  feature networks had no generic fallback in their measured steady-state steps. Device residency is
   experimental and opt-in; not all workflows stay fully on GPU.
 - LSTM fails because the fused LSTM cell implementation is missing.
   `ConvTranspose2d` is also not supported. A reduced-size ResNet18

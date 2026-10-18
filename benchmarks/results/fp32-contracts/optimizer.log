@@ -1,0 +1,11 @@
+UPDATE_BEGIN 0
+PV_FALLBACK aten::lerp 0.135 ms overload=Scalar_out
+PV_FALLBACK aten::addcmul 0.076 ms overload=out
+PV_FALLBACK aten::addcdiv 0.133 ms overload=out
+UPDATE_END 0
+UPDATE_BEGIN 1
+PV_FALLBACK aten::lerp 0.020 ms overload=Scalar_out
+PV_FALLBACK aten::addcmul 0.076 ms overload=out
+PV_FALLBACK aten::addcdiv 0.123 ms overload=out
+UPDATE_END 1
+[Oct 18 2026 19:45:56] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

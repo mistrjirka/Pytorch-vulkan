@@ -1,22 +1,13 @@
 #version 450
-layout(local_size_x = 256) in;
-
-layout(set = 0, binding = 0) buffer BufWeight { float weight[]; };
-layout(set = 0, binding = 1) buffer BufIndices { float indices[]; };
-layout(set = 0, binding = 2) buffer BufOut { float out_data[]; };
-
-layout(push_constant) uniform PushConstants {
-    uint num_indices;
-    uint embedding_dim;
-} params;
-
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Weight { float weight[]; };
+layout(set=0,binding=1) readonly buffer Indices { uint indices[]; };
+layout(set=0,binding=2) writeonly buffer Output { float y[]; };
+layout(push_constant) uniform Params { uint count, width, words; } p;
 void main() {
-    uint gid = gl_GlobalInvocationID.x;
-    uint total = params.num_indices * params.embedding_dim;
-    if (gid >= total) return;
-
-    uint row = gid / params.embedding_dim;
-    uint col = gid % params.embedding_dim;
-    uint idx = uint(indices[row]);
-    out_data[gid] = weight[idx * params.embedding_dim + col];
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  // Validation checked the sign, high word and table bounds before this dispatch.
+  uint row=indices[(i/p.width)*p.words];
+  y[i]=weight[row*p.width+i%p.width];
 }

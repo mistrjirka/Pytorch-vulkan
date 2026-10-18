@@ -1,3 +1,4 @@
+#include "vulkan_device.h"
 // torch_vulkan.cpp — Entry point for the PrivateUse1 Vulkan backend.
 //
 // When Python does `import torch_vulkan`, this shared library loads and:
@@ -33,7 +34,7 @@ struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   }
 
   c10::Device exchangeDevice(c10::Device d) const override {
-    // Single-device for now (device 0)
+    validate_vulkan_device(d);
     return c10::Device(c10::DeviceType::PrivateUse1, 0);
   }
 
@@ -42,7 +43,7 @@ struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   }
 
   void setDevice(c10::Device d) const override {
-    // Single device — nothing to do
+    validate_vulkan_device(d);
   }
 
   void uncheckedSetDevice(c10::Device d) const noexcept override {}
@@ -52,6 +53,7 @@ struct VulkanGuardImpl final : public c10::impl::DeviceGuardImplInterface {
   }
 
   c10::Stream getDefaultStream(c10::Device d) const override {
+    validate_vulkan_device(d);
     return c10::Stream(c10::Stream::DEFAULT, d);
   }
 

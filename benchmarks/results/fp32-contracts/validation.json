@@ -1,0 +1,84 @@
+{
+  "base_commit": "1526dc8d9b88222566212c8c5a15ebf710894e43",
+  "binary_sha256": "66f289f388b1945e34849f529b301557c44f12aca295efe61b91dce28f0e1e66",
+  "runs": [
+    {
+      "name": "full-rtx",
+      "exit_code": 0,
+      "env": {
+        "PYTHONPATH": "/workspace/Pytorch-vulkan-fp32-contracts",
+        "TORCH_VULKAN_GPU_RESIDENT": "1",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "0"
+      },
+      "pytest_summary": "1307 passed, 3 warnings in 16.57s"
+    },
+    {
+      "name": "full-v100",
+      "exit_code": 0,
+      "env": {
+        "PYTHONPATH": "/workspace/Pytorch-vulkan-fp32-contracts",
+        "TORCH_VULKAN_GPU_RESIDENT": "1",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "1"
+      },
+      "pytest_summary": "1307 passed, 3 warnings in 14.54s"
+    },
+    {
+      "name": "full-lavapipe",
+      "exit_code": 0,
+      "env": {
+        "PYTHONPATH": "/workspace/Pytorch-vulkan-fp32-contracts",
+        "TORCH_VULKAN_GPU_RESIDENT": "1",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "0",
+        "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json"
+      },
+      "pytest_summary": "1306 passed, 1 skipped, 3 warnings in 14.38s"
+    },
+    {
+      "name": "full-eager-rtx",
+      "exit_code": 0,
+      "env": {
+        "PYTHONPATH": "/workspace/Pytorch-vulkan-fp32-contracts",
+        "TORCH_VULKAN_GPU_RESIDENT": "0",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS": "0",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "0"
+      },
+      "pytest_summary": "1304 passed, 3 skipped, 3 warnings in 15.22s"
+    }
+  ],
+  "torch_version": "2.14.1+cpu",
+  "torch_git_revision": "5c4886908584029761b579af026dcfb627c84070",
+  "tested_file_sha256": {
+    "csrc/ops/mm.cpp": "bd5fc5553599821c221b4e947c6a53462acd258fcb992fb681cb2af7c38d774b",
+    "csrc/ops/native_utils.h": "b4ab94868109899509e95db6b3fbcc7a092c3ee437f1e1159ee99546fbc24adc",
+    "csrc/ops/loss_primitives.cpp": "9a60d9ce19f1510d5e97f2e263c5d0b258e6d182b4d4a7fae5845156fdf2eb80",
+    "csrc/torch_vulkan.cpp": "c9ce2c7a3f3368a842b20c7b98edef05196f92a0dd5cbcf3d54ba76bc8647293",
+    "csrc/vulkan_device.h": "f0a98f8977f151efe5385803a7f0f2354341fb707c5107de0c6665dd4dbe0b41",
+    "tests/test_fp32_contracts.py": "d77d4f09f93e378f5a22706bbcc387484888270fbf9480795ccb8a874aeac9fe",
+    "csrc/shaders/embedding.comp": "cf76ed75049d561d001ccb365a7bba48bda34d22f996a00d078ed40e32e10149",
+    "csrc/shaders/embedding.spv": "8e000eefa100605878565270eaf12c1bfee9dd79749c9933d15c98157f0dc515",
+    "csrc/shaders/embedding_validate.comp": "a30c4890aa0f987d3e3c58bbd43ff11b9490519713c3eebb4a9b7251a212317c",
+    "csrc/shaders/embedding_validate.spv": "bfbe28d6282cdf950d92c02d170cd59b9bb3caedb93037f2b56c6743160a3f2a",
+    "csrc/shaders/native_pack_int32.comp": "02f83dcc0f919887288ae8515049ae121a3ae79b8c1da8424a025bba79d73112",
+    "csrc/shaders/native_pack_int32.spv": "ad3981b5644076b908094feacd82d5c47fc4fed8d2a1e2e4f1778a688fdcc63d"
+  },
+  "optimizer_probe": {
+    "steps": 2,
+    "parameter_and_moment_parity": true,
+    "fallback_counts": {
+      "aten::lerp.Scalar_out": 2,
+      "aten::addcmul.out": 2,
+      "aten::addcdiv.out": 2,
+      "aten::zero_": 0
+    },
+    "env": {
+      "PYTHONPATH": "/workspace/Pytorch-vulkan-fp32-contracts",
+      "TORCH_VULKAN_GPU_RESIDENT": "1",
+      "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+      "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "0",
+      "TORCH_VULKAN_TRACE_FALLBACK": "1"
+    }
+  }
+}

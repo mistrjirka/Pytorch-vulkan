@@ -170,6 +170,7 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
   return x;
 }
 at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {return mutate(x,s,0);}
+at::Tensor& zero_native(at::Tensor& x) {return fill_scalar(x,0);}
 at::Tensor& div_scalar_(at::Tensor& x,const at::Scalar& s) {return mutate(x,s,1);}
 
 // Python scalar mutations can arrive as Tensor overloads with CPU scalars.
@@ -304,6 +305,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {
   m.impl("mul_.Tensor",&mul_tensor_);
   m.impl("mul_.Scalar",&mul_scalar_);
   m.impl("fill_.Scalar",&fill_scalar);
+  m.impl("zero_",&zero_native);
   m.impl("sigmoid",&sigmoid_native);
   m.impl("sigmoid_backward",&sigmoid_backward_native);
   m.impl("abs",&abs_native);

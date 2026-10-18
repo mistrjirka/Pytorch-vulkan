@@ -11,6 +11,7 @@
 #include "../vulkan_engine.h"
 #include "../vulkan_context.h"
 #include "native_utils.h"
+#include "../vulkan_device.h"
 #include <ATen/core/op_registration/op_registration.h>
 #include <ATen/native/CPUFallback.h>
 #include <torch/library.h>
@@ -230,13 +231,23 @@ static at::Tensor mm_raw(const at::Tensor& self, const at::Tensor& mat2) {
 at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   TORCH_CHECK(self.dim() == 2 && mat2.dim() == 2, "mm: inputs must be 2D");
   TORCH_CHECK(self.size(1) == mat2.size(0), "mm: dimension mismatch");
-  TORCH_CHECK(self.dtype() == at::kFloat, "mm: only float32 for now");
+  TORCH_CHECK(self.scalar_type() == mat2.scalar_type(), "mm: expected both matrices to have the same dtype");
+  TORCH_CHECK(self.scalar_type() == at::kFloat, "mm: only float32 for now");
+  TORCH_CHECK(self.device() == mat2.device() && self.device().type() == c10::DeviceType::PrivateUse1,
+              "mm: expected both matrices on the same Vulkan device");
 
   int64_t M = self.size(0), K = self.size(1), N = mat2.size(1);
   TORCH_CHECK(M >= 0 && K >= 0 && N >= 0 && M <= UINT32_MAX &&
               K <= UINT32_MAX && N <= UINT32_MAX,
               "mm: unsupported matrix dimensions");
 
+  auto output = at::empty({M, N}, self.options());
+  if (!M || !N) return output;
+  if (!K) return output.fill_(0);
+  TORCH_CHECK(self.numel() <= UINT32_MAX && mat2.numel() <= UINT32_MAX &&
+              output.numel() <= UINT32_MAX, "mm: indexing exceeds uint32");
+  TORCH_CHECK(native::can_pack_view(self) && native::can_pack_view(mat2),
+              "mm: input layout or storage exceeds Vulkan indexing/device limits");
   auto& ctx = VulkanContext::instance();
   auto& mgr = ctx.manager();
   // A stride-only transpose shares its original Vulkan allocation. Matrix
@@ -258,7 +269,6 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   auto tensor_b = b_on_vk ? get_kp_tensor(mat2_c)
       : mgr.tensor(std::vector<float>(mat2_c.data_ptr<float>(), mat2_c.data_ptr<float>() + K * N));
 
-  auto output = at::empty({M, N}, self.options().device(c10::Device(c10::DeviceType::PrivateUse1, 0)));
   auto tensor_c = get_kp_tensor(output);
 
   uint32_t m_val = static_cast<uint32_t>(M);
@@ -275,6 +285,15 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   const uint32_t tile_size = use_register_kernel ? 64 : 16;
   uint32_t wg_x = (N + tile_size - 1) / tile_size;
   uint32_t wg_y = (M + tile_size - 1) / tile_size;
+
+  const auto& limits=native::device_limits();
+  TORCH_CHECK(wg_x<=limits.maxComputeWorkGroupCount[0] && wg_y<=limits.maxComputeWorkGroupCount[1] &&
+              limits.maxComputeWorkGroupInvocations>=256 && limits.maxComputeWorkGroupSize[0]>=16 &&
+              limits.maxComputeWorkGroupSize[1]>=16 &&
+              limits.maxComputeSharedMemorySize>=(use_register_kernel?8192u:2048u) &&
+              output.nbytes()<=limits.maxStorageBufferRange &&
+              limits.maxPerStageDescriptorStorageBuffers>=3 && limits.maxDescriptorSetStorageBuffers>=3,
+              "mm: dispatch exceeds Vulkan physical device limits");
 
   // Phase 4: cached algorithm.
   // For transformer inference, the weight tensor_b is the same every call
@@ -398,6 +417,7 @@ at::Tensor vulkan_to_copy(
   auto target_dtype = dtype.value_or(self.scalar_type());
 
   if (target_device.type() == c10::DeviceType::PrivateUse1) {
+    validate_vulkan_device(target_device);
     auto self_cpu = host_mirror(self).contiguous();
     auto self_cast = self_cpu.to(target_dtype).contiguous();
     auto result = at::empty(self_cast.sizes(),
@@ -444,8 +464,10 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
           p[2+d]=native::u32(input.size(d));p[10+d]=native::u32(input.stride(d));
         }
         const auto dtype=input.scalar_type();
-        native::run(dtype==at::kLong?"native_pack_int64":"native_pack",
-            {native::base(input,dtype)},{native::base(self,dtype)},p,(input.numel()+127)/128);
+        native::run(dtype==at::kBool?"native_pack_bool":dtype==at::kLong?"native_pack_int64":
+                        dtype==at::kInt?"native_pack_int32":"native_pack",
+            {native::base(input,dtype)},{native::base(self,dtype)},p,
+            (input.numel()+(dtype==at::kBool?511:127))/(dtype==at::kBool?512:128));
         return self;
       }
     }
@@ -493,20 +515,11 @@ at::Tensor empty_memory_format(
     at::IntArrayRef size, std::optional<at::ScalarType> dtype,
     std::optional<at::Layout> layout, std::optional<at::Device> device,
     std::optional<bool> pin_memory, std::optional<at::MemoryFormat> memory_format) {
-  auto actual_dtype = dtype.value_or(at::kFloat);
-  auto allocator = &VulkanAllocator::instance();
-  int64_t nel = 1;
-  for (auto s : size) nel *= s;
-  size_t nbytes = nel * at::elementSize(actual_dtype);
-
-  auto storage = c10::Storage(c10::Storage::use_byte_size_t(), nbytes,
-      allocator->allocate(nbytes), allocator, true);
-  auto tensor = at::detail::make_tensor<c10::TensorImpl>(
-      std::move(storage),
-      c10::DispatchKeySet(c10::DispatchKey::PrivateUse1),
-      at::scalarTypeToTypeMeta(actual_dtype));
-  tensor.unsafeGetTensorImpl()->set_sizes_contiguous(size);
-  return tensor;
+  if (device) validate_vulkan_device(*device);
+  TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided,"Vulkan empty requires strided layout");
+  TORCH_CHECK(!pin_memory.value_or(false),"Vulkan empty does not support pinned memory");
+  return at::Tensor(at::detail::empty_generic(size, &VulkanAllocator::instance(),
+      c10::DispatchKeySet(c10::DispatchKey::PrivateUse1), c10::dtype_or_default(dtype), memory_format));
 }
 
 // Allocate arbitrary ATen strided storage directly; the generic helper validates
@@ -515,6 +528,7 @@ at::Tensor empty_strided_native(
     c10::SymIntArrayRef size,c10::SymIntArrayRef stride,
     std::optional<at::ScalarType> dtype,std::optional<at::Layout> layout,
     std::optional<at::Device> device,std::optional<bool> pin_memory) {
+  if (device) validate_vulkan_device(*device);
   TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided,"Vulkan empty_strided requires strided layout");
   TORCH_CHECK(!pin_memory.value_or(false),"Vulkan empty_strided does not support pinned memory");
   return at::Tensor(at::detail::empty_strided_symint_generic(size,stride,
@@ -639,47 +653,34 @@ at::Tensor vulkan_gelu_backward(const at::Tensor& grad,
   return elementwise_binary(input, grad, "gelu_backward", {n});
 }
 
-// aten::embedding — lookup table via embedding.spv
-// Phase 4: cached algorithm
-at::Tensor vulkan_embedding(
-    const at::Tensor& weight,
-    const at::Tensor& indices,
-    int64_t padding_idx,
-    bool scale_grad_by_freq,
-    bool sparse) {
-
-  VulkanContext::instance().synchronize();
-  TORCH_CHECK(weight.dtype() == at::kFloat, "embedding: only float32 weight");
-  auto weight_c = contiguous_for_kernel(weight);
-  auto indices_c = contiguous_for_kernel(indices).to(at::kFloat);  // pass as float buffer
-
-  int64_t num_indices = indices_c.numel();
-  int64_t embedding_dim = weight.size(1);
-  int64_t total = num_indices * embedding_dim;
-
-  auto& ctx = VulkanContext::instance();
-  auto& mgr = ctx.manager();
-
-  auto out_sizes = indices.sizes().vec();
-  out_sizes.push_back(embedding_dim);
-  auto output = at::empty(out_sizes, weight.options());
-  auto tensor_w = get_kp_tensor(weight_c);
-  auto tensor_idx = get_kp_tensor(indices_c);
-  auto tensor_out = get_kp_tensor(output);
-
-  uint32_t wg = (total + 255) / 256;
-  uint32_t ni = static_cast<uint32_t>(num_indices);
-  uint32_t ed = static_cast<uint32_t>(embedding_dim);
-
-  auto algorithm = ctx.get_or_create_algorithm(
-      "embedding",
-      {tensor_w, tensor_idx, tensor_out},
-      kp::Workgroup({wg, 1, 1}),
-      std::vector<uint32_t>{ni, ed});
-
-  ctx.synchronize();
-  ctx.run_compute(algorithm, "embedding", {tensor_w,tensor_idx}, {tensor_out});
-
+// Exact integer indices, including int64 values beyond FP32's exact range.
+// Validate on GPU before gathering; only a four-byte result crosses to the host.
+at::Tensor vulkan_embedding(const at::Tensor& weight, const at::Tensor& indices,
+    int64_t padding_idx, bool scale_grad_by_freq, bool sparse) {
+  TORCH_CHECK(weight.dim()==2, "embedding: weight must be 2-D");
+  TORCH_CHECK(weight.scalar_type()==at::kFloat, "embedding: only float32 weight");
+  TORCH_CHECK(indices.scalar_type()==at::kLong || indices.scalar_type()==at::kInt,
+              "embedding: indices must have int32 or int64 dtype");
+  TORCH_CHECK(weight.device()==indices.device() && weight.device().type()==c10::DeviceType::PrivateUse1,
+              "embedding: weight and indices must be on the same Vulkan device");
+  auto sizes=indices.sizes().vec(); sizes.push_back(weight.size(1));
+  auto output=at::empty(sizes, weight.options());
+  if (!indices.numel()) return output;
+  if (!native::can_pack_view(weight) || !native::can_pack_view(indices) ||
+      output.numel()>UINT32_MAX || output.nbytes()>native::device_limits().maxStorageBufferRange)
+    return at::embedding(weight.cpu(),indices.cpu(),padding_idx,scale_grad_by_freq,sparse).to(weight.device());
+  auto idx=native::packed(indices,indices.scalar_type());
+  const uint32_t words=indices.scalar_type()==at::kLong?2:1;
+  const uint32_t groups=std::min<int64_t>(256,(idx.numel()+4095)/4096);
+  auto invalid=at::empty({groups},weight.options());
+  native::run("embedding_validate",{native::base(idx,idx.scalar_type())},{native::base(invalid)},
+      {native::u32(idx.numel()),native::u32(weight.size(0)),words},groups,512);
+  auto status=groups==1?invalid:invalid.sum();
+  TORCH_CHECK_INDEX(status.cpu().item<float>()==0, "embedding: index out of range in self");
+  if (!output.numel()) return output;
+  auto w=native::packed(weight);
+  native::run("embedding",{native::base(w),native::base(idx,idx.scalar_type())},{native::base(output)},
+      {native::u32(output.numel()),native::u32(weight.size(1)),words},(output.numel()+127)/128);
   return output;
 }
 

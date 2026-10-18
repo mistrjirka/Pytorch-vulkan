@@ -1,0 +1,25 @@
+#version 450
+layout(local_size_x=128) in;
+layout(set=0,binding=0) readonly buffer Indices { uint indices[]; };
+layout(set=0,binding=1) writeonly buffer Status { float invalid[]; };
+layout(push_constant) uniform Params { uint count, rows, words; } p;
+shared uint bad[128];
+void main() {
+  uint lane=gl_LocalInvocationID.x, failed=0;
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  uint stride=128*gl_NumWorkGroups.x*gl_NumWorkGroups.y;
+  for(uint i=group*128+lane;i<p.count;) {
+    uint lo=indices[i*p.words];
+    bool negativeOrHigh=p.words==2 ? indices[i*2+1]!=0 : lo>0x7fffffffu;
+    if(negativeOrHigh || lo>=p.rows)failed=1;
+    if(p.count-i<=stride)break;
+    i+=stride;
+  }
+  bad[lane]=failed;
+  barrier();
+  for(uint step=64;step>0;step>>=1) {
+    if(lane<step)bad[lane]|=bad[lane+step];
+    barrier();
+  }
+  if(lane==0)invalid[group]=float(bad[0]);
+}

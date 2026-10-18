@@ -1,0 +1,6 @@
+{
+  "steps": 2,
+  "parameter_and_moment_parity": true,
+  "torch": "2.14.1+cpu",
+  "device": "NVIDIA GeForce RTX 2080 Ti"
+}

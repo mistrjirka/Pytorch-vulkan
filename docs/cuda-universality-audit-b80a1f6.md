@@ -10,7 +10,10 @@ extends what can execute, but does not make it GPU-native or guarantee that
 every unsupported configuration works.
 
 This is an investigation. The backend implementation was not changed. The
-correctness defects below remain present at the audited revision.
+correctness defects below remain present at the audited revision. Subsequent
+[FP32 correctness work](fp32-single-gpu-roadmap.md) fixes the mixed-dtype matrix
+multiply, embedding-index, allocation-layout and invalid-device defects; the
+device RNG defect and broader coverage gaps remain.
 
 ## Evidence and scope
 
