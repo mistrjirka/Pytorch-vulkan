@@ -1,0 +1,6 @@
+{
+  "backend": "vulkan",
+  "status": "error",
+  "error": "Backend doesn't support events.",
+  "error_type": "RuntimeError"
+}

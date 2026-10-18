@@ -1,0 +1,324 @@
+PV_CASE_BEGIN conv1d
+PV_OPERATION_BEGIN conv1d
+PV_OPERATION_END conv1d
+/workspace/_pv_universality_b80a1f6/probe_coverage.py:67: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  d['output_max_abs']=float((actual.cpu()-out).abs().max()) if out.numel() else 0
+PV_CASE_END conv1d ok
+PV_CASE_BEGIN conv2d_10x10
+PV_OPERATION_BEGIN conv2d_10x10
+PV_OPERATION_END conv2d_10x10
+PV_CASE_END conv2d_10x10 ok
+PV_CASE_BEGIN conv2d_11x11
+PV_OPERATION_BEGIN conv2d_11x11
+PV_OPERATION_END conv2d_11x11
+PV_CASE_END conv2d_11x11 ok
+PV_CASE_BEGIN conv3d
+PV_OPERATION_BEGIN conv3d
+PV_CASE_END conv3d error
+PV_CASE_BEGIN conv_transpose2d
+PV_OPERATION_BEGIN conv_transpose2d
+PV_CASE_END conv_transpose2d error
+PV_CASE_BEGIN avg_pool3d
+PV_OPERATION_BEGIN avg_pool3d
+PV_FALLBACK aten::avg_pool3d 0.067 ms overload=out
+PV_FALLBACK aten::avg_pool3d_backward 0.539 ms overload=grad_input
+PV_OPERATION_END avg_pool3d
+PV_CASE_END avg_pool3d ok
+PV_CASE_BEGIN max_pool3d
+PV_OPERATION_BEGIN max_pool3d
+PV_FALLBACK aten::max_pool3d_with_indices 0.756 ms overload=
+PV_FALLBACK aten::max_pool3d_with_indices_backward 1.622 ms overload=
+PV_OPERATION_END max_pool3d
+PV_CASE_END max_pool3d ok
+PV_CASE_BEGIN resize_bilinear_aa
+PV_OPERATION_BEGIN resize_bilinear_aa
+PV_FALLBACK aten::_upsample_bilinear2d_aa 0.088 ms overload=out
+PV_FALLBACK aten::_upsample_bilinear2d_aa_backward 0.155 ms overload=grad_input
+PV_OPERATION_END resize_bilinear_aa
+PV_CASE_END resize_bilinear_aa ok
+PV_CASE_BEGIN resize_trilinear
+PV_OPERATION_BEGIN resize_trilinear
+PV_FALLBACK aten::upsample_trilinear3d 0.068 ms overload=out
+PV_FALLBACK aten::upsample_trilinear3d_backward 0.118 ms overload=grad_input
+PV_OPERATION_END resize_trilinear
+PV_CASE_END resize_trilinear ok
+PV_CASE_BEGIN grid_sample
+PV_OPERATION_BEGIN grid_sample
+PV_FALLBACK aten::grid_sampler_2d 0.760 ms overload=
+PV_FALLBACK aten::grid_sampler_2d_backward 2.536 ms overload=
+PV_OPERATION_END grid_sample
+PV_CASE_END grid_sample ok
+PV_CASE_BEGIN reflection_pad2d
+PV_OPERATION_BEGIN reflection_pad2d
+PV_FALLBACK aten::reflection_pad2d 0.693 ms overload=
+PV_FALLBACK aten::reflection_pad2d_backward 1.512 ms overload=
+PV_OPERATION_END reflection_pad2d
+PV_CASE_END reflection_pad2d ok
+PV_CASE_BEGIN mm_fp32
+PV_OPERATION_BEGIN mm_fp32
+PV_OPERATION_END mm_fp32
+PV_CASE_END mm_fp32 ok
+PV_CASE_BEGIN add_fp32
+PV_OPERATION_BEGIN add_fp32
+PV_OPERATION_END add_fp32
+PV_CASE_END add_fp32 ok
+PV_CASE_BEGIN mm_fp16
+PV_OPERATION_BEGIN mm_fp16
+PV_CASE_END mm_fp16 error
+PV_CASE_BEGIN add_fp16
+PV_OPERATION_BEGIN add_fp16
+PV_CASE_END add_fp16 error
+PV_CASE_BEGIN mm_bf16
+PV_OPERATION_BEGIN mm_bf16
+PV_CASE_END mm_bf16 error
+PV_CASE_BEGIN add_bf16
+PV_OPERATION_BEGIN add_bf16
+PV_CASE_END add_bf16 error
+PV_CASE_BEGIN mm_fp64
+PV_OPERATION_BEGIN mm_fp64
+PV_CASE_END mm_fp64 error
+PV_CASE_BEGIN add_fp64
+PV_OPERATION_BEGIN add_fp64
+PV_CASE_END add_fp64 error
+PV_CASE_BEGIN mm_complex64
+PV_OPERATION_BEGIN mm_complex64
+PV_CASE_END mm_complex64 error
+PV_CASE_BEGIN add_complex64
+PV_OPERATION_BEGIN add_complex64
+PV_CASE_END add_complex64 error
+PV_CASE_BEGIN add_int64
+PV_OPERATION_BEGIN add_int64
+PV_CASE_END add_int64 error
+PV_CASE_BEGIN sum_int64
+PV_OPERATION_BEGIN sum_int64
+PV_OPERATION_END sum_int64
+PV_CASE_END sum_int64 ok
+PV_CASE_BEGIN index_select
+PV_OPERATION_BEGIN index_select
+PV_FALLBACK aten::index_select 0.684 ms overload=
+PV_FALLBACK aten::zero_ 0.058 ms overload=
+PV_FALLBACK aten::index_add 0.070 ms overload=out
+PV_OPERATION_END index_select
+PV_CASE_END index_select ok
+PV_CASE_BEGIN gather
+PV_OPERATION_BEGIN gather
+PV_FALLBACK aten::gather 0.029 ms overload=out
+PV_FALLBACK aten::zero_ 0.041 ms overload=
+PV_FALLBACK aten::scatter_add 0.053 ms overload=out
+PV_OPERATION_END gather
+PV_CASE_END gather ok
+PV_CASE_BEGIN scatter_add
+PV_OPERATION_BEGIN scatter_add
+PV_FALLBACK aten::scatter_add 0.025 ms overload=out
+PV_FALLBACK aten::gather 0.043 ms overload=out
+PV_OPERATION_END scatter_add
+PV_CASE_END scatter_add ok
+PV_CASE_BEGIN embedding
+PV_OPERATION_BEGIN embedding
+PV_FALLBACK aten::embedding_dense_backward 1.304 ms overload=
+PV_OPERATION_END embedding
+PV_CASE_END embedding ok
+PV_CASE_BEGIN embedding_bag
+PV_OPERATION_BEGIN embedding_bag
+PV_FALLBACK aten::_embedding_bag 1.400 ms overload=
+PV_FALLBACK aten::_embedding_bag_backward 1.537 ms overload=
+PV_OPERATION_END embedding_bag
+PV_CASE_END embedding_bag ok
+PV_CASE_BEGIN sort
+PV_OPERATION_BEGIN sort
+PV_FALLBACK aten::sort 0.034 ms overload=values_stable
+PV_FALLBACK aten::zero_ 0.054 ms overload=
+PV_FALLBACK aten::scatter 0.057 ms overload=src_out
+PV_OPERATION_END sort
+PV_CASE_END sort ok
+PV_CASE_BEGIN topk
+PV_OPERATION_BEGIN topk
+PV_FALLBACK aten::topk 0.029 ms overload=values
+PV_FALLBACK aten::zero_ 0.028 ms overload=
+PV_FALLBACK aten::scatter 0.046 ms overload=src_out
+PV_OPERATION_END topk
+PV_CASE_END topk ok
+PV_CASE_BEGIN cumsum
+PV_OPERATION_BEGIN cumsum
+PV_FALLBACK aten::cumsum 0.016 ms overload=out
+PV_FALLBACK aten::flip 1.421 ms overload=
+PV_FALLBACK aten::cumsum 0.043 ms overload=out
+PV_FALLBACK aten::flip 1.215 ms overload=
+PV_OPERATION_END cumsum
+PV_CASE_END cumsum ok
+PV_CASE_BEGIN variance
+PV_OPERATION_BEGIN variance
+PV_FALLBACK aten::var 0.685 ms overload=correction
+PV_OPERATION_END variance
+PV_CASE_END variance ok
+PV_CASE_BEGIN fft
+PV_OPERATION_BEGIN fft
+PV_FALLBACK aten::_fft_r2c 0.745 ms overload=
+PV_OPERATION_END fft
+PV_CASE_END fft ok
+PV_CASE_BEGIN linalg_solve
+PV_OPERATION_BEGIN linalg_solve
+PV_FALLBACK aten::eye 0.705 ms overload=m_out
+PV_FALLBACK aten::_linalg_solve_ex 0.121 ms overload=result
+PV_FALLBACK aten::any 0.019 ms overload=all_out
+PV_FALLBACK aten::_local_scalar_dense 0.003 ms overload=
+PV_FALLBACK aten::linalg_lu_solve 0.223 ms overload=out
+PV_OPERATION_END linalg_solve
+PV_CASE_END linalg_solve ok
+PV_CASE_BEGIN sparse_roundtrip
+PV_OPERATION_BEGIN sparse_roundtrip
+PV_CASE_END sparse_roundtrip error
+PV_CASE_BEGIN mse_loss
+PV_OPERATION_BEGIN mse_loss
+PV_FALLBACK aten::resize_ 0.014 ms overload=
+PV_FALLBACK aten::mse_loss 0.031 ms overload=out
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/nn/functional.py:4341: UserWarning: An output with one or more elements was resized since it had shape [], which does not match the required output shape [3, 5]. This behavior is deprecated, and in a future PyTorch release outputs will not be resized unless they have zero elements. You can explicitly reuse an out tensor t by resizing it, inplace, to zero elements with t.resize_(0). (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/Resize.cpp:30.)
+  return torch._C._nn.mse_loss(
+PV_FALLBACK aten::mse_loss_backward 0.104 ms overload=
+PV_FALLBACK aten::mse_loss_backward 1.574 ms overload=
+PV_OPERATION_END mse_loss
+PV_CASE_END mse_loss ok
+PV_CASE_BEGIN cross_entropy
+PV_OPERATION_BEGIN cross_entropy
+PV_OPERATION_END cross_entropy
+PV_CASE_END cross_entropy ok
+PV_CASE_BEGIN sdpa
+PV_OPERATION_BEGIN sdpa
+PV_OPERATION_END sdpa
+PV_CASE_END sdpa ok
+PV_CASE_BEGIN sdpa_causal
+PV_OPERATION_BEGIN sdpa_causal
+PV_FALLBACK aten::tril 0.028 ms overload=out
+PV_OPERATION_END sdpa_causal
+PV_CASE_END sdpa_causal ok
+PV_SPECIAL_BEGIN dropout
+PV_FALLBACK aten::native_dropout 1.516 ms overload=
+PV_FALLBACK aten::native_dropout_backward 1.576 ms overload=
+PV_SPECIAL_END dropout
+PV_SPECIAL_BEGIN rng
+PV_FALLBACK aten::normal_ 0.014 ms overload=
+PV_FALLBACK aten::normal_ 0.009 ms overload=
+PV_SPECIAL_END rng
+PV_SPECIAL_BEGIN device_seed
+PV_FALLBACK aten::normal_ 0.014 ms overload=
+PV_FALLBACK aten::normal_ 0.007 ms overload=
+PV_SPECIAL_END device_seed
+PV_SPECIAL_BEGIN generator
+PV_SPECIAL_END generator
+PV_SPECIAL_BEGIN autocast
+PV_SPECIAL_END autocast
+PV_SPECIAL_BEGIN lstm
+PV_FALLBACK aten::zero_ 0.014 ms overload=
+PV_FALLBACK aten::zero_ 0.005 ms overload=
+PV_SPECIAL_END lstm
+PV_SPECIAL_BEGIN standard_adamw
+PV_FALLBACK aten::zero_ 0.038 ms overload=
+PV_FALLBACK aten::zero_ 0.005 ms overload=
+PV_FALLBACK aten::lerp 0.081 ms overload=Scalar_out
+PV_FALLBACK aten::addcmul 0.072 ms overload=out
+PV_FALLBACK aten::addcdiv 0.147 ms overload=out
+PV_FALLBACK aten::lerp 0.072 ms overload=Scalar_out
+PV_FALLBACK aten::addcmul 0.071 ms overload=out
+PV_FALLBACK aten::addcdiv 0.117 ms overload=out
+PV_SPECIAL_END standard_adamw
+PV_SPECIAL_BEGIN second_order_grad
+PV_SPECIAL_END second_order_grad
+{
+  "backend": "vulkan",
+  "cases": {
+    "conv1d": "ok",
+    "conv2d_10x10": "ok",
+    "conv2d_11x11": "ok",
+    "conv3d": "error",
+    "conv_transpose2d": "error",
+    "avg_pool3d": "ok",
+    "max_pool3d": "ok",
+    "resize_bilinear_aa": "ok",
+    "resize_trilinear": "ok",
+    "grid_sample": "ok",
+    "reflection_pad2d": "ok",
+    "mm_fp32": "ok",
+    "add_fp32": "ok",
+    "mm_fp16": "error",
+    "add_fp16": "error",
+    "mm_bf16": "error",
+    "add_bf16": "error",
+    "mm_fp64": "error",
+    "add_fp64": "error",
+    "mm_complex64": "error",
+    "add_complex64": "error",
+    "add_int64": "error",
+    "sum_int64": "ok",
+    "index_select": "ok",
+    "gather": "ok",
+    "scatter_add": "ok",
+    "embedding": "ok",
+    "embedding_bag": "ok",
+    "sort": "ok",
+    "topk": "ok",
+    "cumsum": "ok",
+    "variance": "ok",
+    "fft": "ok",
+    "linalg_solve": "ok",
+    "sparse_roundtrip": "error",
+    "mse_loss": "ok",
+    "cross_entropy": "ok",
+    "sdpa": "ok",
+    "sdpa_causal": "ok"
+  },
+  "special": {
+    "dropout": {
+      "status": "ok",
+      "result": {
+        "dropped": 485
+      }
+    },
+    "rng": {
+      "status": "ok",
+      "result": {
+        "torch_manual_seed_repeats": true,
+        "changes_cpu_rng_state": true
+      }
+    },
+    "device_seed": {
+      "status": "ok",
+      "result": {
+        "device_manual_seed_all_repeats": false
+      }
+    },
+    "generator": {
+      "status": "error",
+      "error_type": "NotImplementedError",
+      "error": "You should register `PrivateUse1HooksInterface`by `RegisterPrivateUse1HooksInterface` and implement `getNewGenerator` at the same time for PrivateUse1."
+    },
+    "autocast": {
+      "status": "error",
+      "error_type": "AssertionError",
+      "error": "Tried to use AMP with the `vulkan` backend, but the backend has not registered a module or the module misses some necessary funcs. The backend should register a module by `torch._register_device_module`, and the module must have these funcs: \n`get_amp_supported_dtype() -> List[torch.dtype]`. \nBut the func `get_amp_supported_dtype` is missing. \n"
+    },
+    "lstm": {
+      "status": "error",
+      "error_type": "NotImplementedError",
+      "error": "Could not run 'aten::_thnn_fused_lstm_cell' with arguments from the 'CPU' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'aten::_thnn_fused_lstm_cell' is only available for these backends: [PrivateUse1, Meta, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradHIP, AutogradXLA, AutogradMPS, AutogradIPU, AutogradXPU, AutogradHPU, AutogradVE, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradPrivateUse1, AutogradPrivateUse2, AutogradPrivateUse3, AutogradMeta, AutogradNestedTensor, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].\n\nPrivateUse1: registered at /workspace/Pytorch-vulkan/csrc/ops/mm.cpp:950 [backend fallback]\nMeta: registered at /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/_meta_registrations.py:53 [kernel]\nBackendSelect: fallthrough registered at /__w/pytorch/pytorch/aten/src/ATen/core/BackendSelectFallbackKernel.cpp:3 [backend fallback]\nPython: registered at /__w/pytorch/pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:192 [backend fallback]\nFuncTorchDynamicLayerBackMode: regis"
+    },
+    "standard_adamw": {
+      "status": "ok",
+      "result": [
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813
+      ]
+    },
+    "second_order_grad": {
+      "status": "ok",
+      "result": "sin second derivative matches CPU"
+    }
+  }
+}
+[Oct 18 2026 19:16:42] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

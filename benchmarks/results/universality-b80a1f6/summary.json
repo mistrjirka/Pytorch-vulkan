@@ -1,0 +1,432 @@
+{
+  "source_commit": "b80a1f6dcb17287b14404ec802e1b725878ef1c6",
+  "mode": {
+    "TORCH_VULKAN_GPU_RESIDENT": "1",
+    "TORCH_VULKAN_DEFER_SUBMISSIONS": "1",
+    "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX": "0"
+  },
+  "deepseek": {
+    "cli_version": "2.0.32",
+    "model": "opencode/deepseek-v4.1-flash-free",
+    "reviews": {
+      "coverage": {
+        "session": "ses_eaf86d38bffejuxd73RscrOwrc",
+        "tool_calls": 17,
+        "exit_code": 0,
+        "final_reason": "tool-calls",
+        "raw_jsonl_sha256": "288293925fbc58a1fcdf7bfde3b02c796e4605260a9fbec598daac764312d249"
+      },
+      "dispatch": {
+        "session": "ses_eaf86d387ffeRCtBHft4cYpJv0",
+        "tool_calls": 17,
+        "exit_code": 0,
+        "final_reason": "tool-calls",
+        "raw_jsonl_sha256": "be8c2694737b2eaa47edb2052d7c0c4b823a47b9ca9fdfcd3f14264f7ebcbc42"
+      },
+      "framework": {
+        "session": "ses_eaf86d38bffeRirWhdsESE93f1",
+        "tool_calls": 21,
+        "exit_code": 0,
+        "final_reason": "tool-calls",
+        "raw_jsonl_sha256": "83c1d0caa39c024932d5065867f46558fd5355c98788821bd627561150b6dc38"
+      }
+    }
+  },
+  "backends": {
+    "vulkan": {
+      "torch": "2.14.1+cpu",
+      "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "extension_sha256": "ee1590e623f8fbf0fbbfb63aa23074290ee75f7352dec71862f523b0d7da1672",
+      "direct_registration_count": 126,
+      "operator_cases": {
+        "conv1d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv2d_10x10": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv2d_11x11": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv3d": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv_transpose2d": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "avg_pool3d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::avg_pool3d": 1,
+            "aten::avg_pool3d_backward": 1
+          }
+        },
+        "max_pool3d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::max_pool3d_with_indices": 1,
+            "aten::max_pool3d_with_indices_backward": 1
+          }
+        },
+        "resize_bilinear_aa": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::_upsample_bilinear2d_aa": 1,
+            "aten::_upsample_bilinear2d_aa_backward": 1
+          }
+        },
+        "resize_trilinear": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::upsample_trilinear3d": 1,
+            "aten::upsample_trilinear3d_backward": 1
+          }
+        },
+        "grid_sample": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::grid_sampler_2d": 1,
+            "aten::grid_sampler_2d_backward": 1
+          }
+        },
+        "reflection_pad2d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::reflection_pad2d": 1,
+            "aten::reflection_pad2d_backward": 1
+          }
+        },
+        "mm_fp32": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp32": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_fp16": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp16": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_bf16": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_bf16": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_fp64": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp64": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_complex64": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_complex64": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_int64": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "sum_int64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "index_select": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::index_select": 1,
+            "aten::zero_": 1,
+            "aten::index_add": 1
+          }
+        },
+        "gather": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::gather": 1,
+            "aten::zero_": 1,
+            "aten::scatter_add": 1
+          }
+        },
+        "scatter_add": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::scatter_add": 1,
+            "aten::gather": 1
+          }
+        },
+        "embedding": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::embedding_dense_backward": 1
+          }
+        },
+        "embedding_bag": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::_embedding_bag": 1,
+            "aten::_embedding_bag_backward": 1
+          }
+        },
+        "sort": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::sort": 1,
+            "aten::zero_": 1,
+            "aten::scatter": 1
+          }
+        },
+        "topk": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::topk": 1,
+            "aten::zero_": 1,
+            "aten::scatter": 1
+          }
+        },
+        "cumsum": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::cumsum": 2,
+            "aten::flip": 2
+          }
+        },
+        "variance": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::var": 1
+          }
+        },
+        "fft": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::_fft_r2c": 1
+          }
+        },
+        "linalg_solve": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::eye": 1,
+            "aten::_linalg_solve_ex": 1,
+            "aten::any": 1,
+            "aten::_local_scalar_dense": 1,
+            "aten::linalg_lu_solve": 1
+          }
+        },
+        "sparse_roundtrip": {
+          "status": "error",
+          "generic_cpu_fallbacks": {}
+        },
+        "mse_loss": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::resize_": 1,
+            "aten::mse_loss": 1,
+            "aten::mse_loss_backward": 2
+          }
+        },
+        "cross_entropy": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sdpa": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sdpa_causal": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {
+            "aten::tril": 1
+          }
+        }
+      },
+      "passed": 27,
+      "errors": 12
+    },
+    "cuda": {
+      "torch": "2.14.1+cu130",
+      "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "extension_sha256": null,
+      "direct_registration_count": 1340,
+      "operator_cases": {
+        "conv1d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv2d_10x10": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv2d_11x11": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv3d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "conv_transpose2d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "avg_pool3d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "max_pool3d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "resize_bilinear_aa": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "resize_trilinear": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "grid_sample": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "reflection_pad2d": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_fp32": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp32": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_fp16": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp16": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_bf16": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_bf16": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_fp64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_fp64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mm_complex64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_complex64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "add_int64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sum_int64": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "index_select": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "gather": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "scatter_add": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "embedding": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "embedding_bag": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sort": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "topk": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "cumsum": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "variance": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "fft": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "linalg_solve": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sparse_roundtrip": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "mse_loss": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "cross_entropy": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sdpa": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        },
+        "sdpa_causal": {
+          "status": "ok",
+          "generic_cpu_fallbacks": {}
+        }
+      },
+      "passed": 39,
+      "errors": 0
+    }
+  }
+}

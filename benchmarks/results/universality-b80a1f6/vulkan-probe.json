@@ -1,0 +1,474 @@
+{
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "cases": {
+    "conv1d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 9.5367431640625e-07,
+      "gradient_max_abs": 1.430511474609375e-06,
+      "status": "ok"
+    },
+    "conv2d_10x10": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 1.52587890625e-05,
+      "gradient_max_abs": 9.5367431640625e-06,
+      "status": "ok"
+    },
+    "conv2d_11x11": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 1.52587890625e-05,
+      "gradient_max_abs": 7.62939453125e-06,
+      "status": "ok"
+    },
+    "conv3d": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "Vulkan convolution supports NCHW tensors only"
+    },
+    "conv_transpose2d": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "Vulkan ConvTranspose is not implemented yet"
+    },
+    "avg_pool3d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "max_pool3d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "resize_bilinear_aa": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "resize_trilinear": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "grid_sample": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 3.5762786865234375e-07,
+      "gradient_max_abs": 1.1920928955078125e-06,
+      "status": "ok"
+    },
+    "reflection_pad2d": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "mm_fp32": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 4.76837158203125e-07,
+      "gradient_max_abs": 2.384185791015625e-07,
+      "status": "ok"
+    },
+    "add_fp32": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "mm_fp16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_fp16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_bf16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_bf16": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_fp64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_fp64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "mm_complex64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "mm: only float32 for now"
+    },
+    "add_complex64": {
+      "backward_requested": true,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "add_int64": {
+      "backward_requested": false,
+      "status": "error",
+      "error_type": "RuntimeError",
+      "error": "add: float32 inputs required"
+    },
+    "sum_int64": {
+      "backward_requested": false,
+      "forward": "ok",
+      "output_max_abs": 0.0,
+      "status": "ok"
+    },
+    "index_select": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "gather": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "scatter_add": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "embedding": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "embedding_bag": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "sort": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "topk": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "cumsum": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "variance": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 2.9802322387695312e-08,
+      "status": "ok"
+    },
+    "fft": {
+      "backward_requested": false,
+      "forward": "ok",
+      "output_max_abs": 0.0,
+      "status": "ok"
+    },
+    "linalg_solve": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 2.9802322387695312e-08,
+      "gradient_max_abs": 2.384185791015625e-07,
+      "status": "ok"
+    },
+    "sparse_roundtrip": {
+      "backward_requested": false,
+      "status": "error",
+      "error_type": "NotImplementedError",
+      "error": "Could not run 'aten::_sparse_coo_tensor_with_dims_and_tensors' with arguments from the 'Sparsevulkan' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'aten::_sparse_coo_tensor_with_dims_and_tensors' is only available for these backends: [PrivateUse1, Meta, SparseCPU, SparseMeta, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradHIP, AutogradXLA, AutogradMPS, AutogradIPU, AutogradXPU, AutogradHPU, AutogradVE, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradPrivateUse1, AutogradPrivateUse2, AutogradPrivateUse3, AutogradMeta, AutogradNestedTensor, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].\n\nPrivateUse1: registered at /workspace/Pytorch-vulkan/csrc/ops/mm.cpp:950 [backend fallback]\nMeta: registered at /__w/pytorch/pytorch/build/aten/src/ATen/RegisterMeta_0.cpp:12824 [kernel]\nSparseCPU: registered at /__w/pytorch/pytorch/build/aten/src/ATen/RegisterSparseCPU_0.cpp:2643 [kernel]\nSparseMeta: registered at /__w/pytorch/pytorch/build/aten/src/ATen/RegisterSparseMeta_0.cpp:338 [kernel]\nBackendSelect: registered at"
+    },
+    "mse_loss": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 0.0,
+      "gradient_max_abs": 0.0,
+      "status": "ok"
+    },
+    "cross_entropy": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 1.1920928955078125e-07,
+      "gradient_max_abs": 2.9802322387695312e-08,
+      "status": "ok"
+    },
+    "sdpa": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 2.384185791015625e-07,
+      "gradient_max_abs": 2.980232238769531e-07,
+      "status": "ok"
+    },
+    "sdpa_causal": {
+      "backward_requested": true,
+      "forward": "ok",
+      "backward": "ok",
+      "output_max_abs": 2.5331974029541016e-07,
+      "gradient_max_abs": 4.76837158203125e-07,
+      "status": "ok"
+    }
+  },
+  "special": {
+    "dropout": {
+      "status": "ok",
+      "result": {
+        "dropped": 485
+      }
+    },
+    "rng": {
+      "status": "ok",
+      "result": {
+        "torch_manual_seed_repeats": true,
+        "changes_cpu_rng_state": true
+      }
+    },
+    "device_seed": {
+      "status": "ok",
+      "result": {
+        "device_manual_seed_all_repeats": false
+      }
+    },
+    "generator": {
+      "status": "error",
+      "error_type": "NotImplementedError",
+      "error": "You should register `PrivateUse1HooksInterface`by `RegisterPrivateUse1HooksInterface` and implement `getNewGenerator` at the same time for PrivateUse1."
+    },
+    "autocast": {
+      "status": "error",
+      "error_type": "AssertionError",
+      "error": "Tried to use AMP with the `vulkan` backend, but the backend has not registered a module or the module misses some necessary funcs. The backend should register a module by `torch._register_device_module`, and the module must have these funcs: \n`get_amp_supported_dtype() -> List[torch.dtype]`. \nBut the func `get_amp_supported_dtype` is missing. \n"
+    },
+    "lstm": {
+      "status": "error",
+      "error_type": "NotImplementedError",
+      "error": "Could not run 'aten::_thnn_fused_lstm_cell' with arguments from the 'CPU' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'aten::_thnn_fused_lstm_cell' is only available for these backends: [PrivateUse1, Meta, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradHIP, AutogradXLA, AutogradMPS, AutogradIPU, AutogradXPU, AutogradHPU, AutogradVE, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradPrivateUse1, AutogradPrivateUse2, AutogradPrivateUse3, AutogradMeta, AutogradNestedTensor, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].\n\nPrivateUse1: registered at /workspace/Pytorch-vulkan/csrc/ops/mm.cpp:950 [backend fallback]\nMeta: registered at /workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/_meta_registrations.py:53 [kernel]\nBackendSelect: fallthrough registered at /__w/pytorch/pytorch/aten/src/ATen/core/BackendSelectFallbackKernel.cpp:3 [backend fallback]\nPython: registered at /__w/pytorch/pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:192 [backend fallback]\nFuncTorchDynamicLayerBackMode: regis"
+    },
+    "standard_adamw": {
+      "status": "ok",
+      "result": [
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813
+      ]
+    },
+    "second_order_grad": {
+      "status": "ok",
+      "result": "sin second derivative matches CPU"
+    }
+  },
+  "extension_sha256": "ee1590e623f8fbf0fbbfb63aa23074290ee75f7352dec71862f523b0d7da1672",
+  "direct_registrations": [
+    "aten::_adaptive_avg_pool2d",
+    "aten::_adaptive_avg_pool2d_backward",
+    "aten::_copy_from",
+    "aten::_copy_from_and_resize",
+    "aten::_log_softmax",
+    "aten::_log_softmax_backward_data",
+    "aten::_reshape_alias",
+    "aten::_softmax",
+    "aten::_softmax_backward_data",
+    "aten::_to_copy",
+    "aten::abs",
+    "aten::add.Scalar",
+    "aten::add.Tensor",
+    "aten::add_.Scalar",
+    "aten::add_.Tensor",
+    "aten::addmm",
+    "aten::all",
+    "aten::all.dim",
+    "aten::as_strided",
+    "aten::avg_pool2d",
+    "aten::avg_pool2d_backward",
+    "aten::bitwise_and.Tensor",
+    "aten::bitwise_not",
+    "aten::bmm",
+    "aten::cat",
+    "aten::clamp",
+    "aten::convolution_backward_overrideable",
+    "aten::convolution_overrideable",
+    "aten::copy_",
+    "aten::cos",
+    "aten::div.Scalar",
+    "aten::div.Tensor",
+    "aten::div_.Scalar",
+    "aten::div_.Tensor",
+    "aten::embedding",
+    "aten::empty.memory_format",
+    "aten::empty_strided",
+    "aten::eq.Scalar",
+    "aten::exp",
+    "aten::fill_.Scalar",
+    "aten::ge.Scalar",
+    "aten::gelu",
+    "aten::gelu_backward",
+    "aten::gt.Scalar",
+    "aten::isneginf",
+    "aten::le.Scalar",
+    "aten::leaky_relu",
+    "aten::leaky_relu.out",
+    "aten::leaky_relu_",
+    "aten::leaky_relu_backward",
+    "aten::leaky_relu_backward.grad_input",
+    "aten::log_sigmoid_backward",
+    "aten::log_sigmoid_forward",
+    "aten::logical_and",
+    "aten::logical_and.out",
+    "aten::lt.Scalar",
+    "aten::max_pool2d_with_indices",
+    "aten::max_pool2d_with_indices_backward",
+    "aten::mean",
+    "aten::mean.dim",
+    "aten::mm",
+    "aten::mul.Scalar",
+    "aten::mul.Tensor",
+    "aten::mul_.Scalar",
+    "aten::mul_.Tensor",
+    "aten::native_batch_norm",
+    "aten::native_batch_norm_backward",
+    "aten::native_group_norm",
+    "aten::native_group_norm_backward",
+    "aten::native_layer_norm",
+    "aten::native_layer_norm_backward",
+    "aten::neg",
+    "aten::nll_loss_backward",
+    "aten::nll_loss_forward",
+    "aten::pow.Tensor_Scalar",
+    "aten::relu",
+    "aten::rsqrt",
+    "aten::sgn",
+    "aten::sigmoid",
+    "aten::sigmoid_backward",
+    "aten::silu",
+    "aten::silu_backward",
+    "aten::sin",
+    "aten::sqrt",
+    "aten::sub.Tensor",
+    "aten::sub_.Scalar",
+    "aten::sub_.Tensor",
+    "aten::sum",
+    "aten::sum.dim_IntList",
+    "aten::t",
+    "aten::tanh",
+    "aten::tanh_backward",
+    "aten::threshold_backward",
+    "aten::upsample_bicubic2d",
+    "aten::upsample_bicubic2d_backward",
+    "aten::upsample_bilinear2d",
+    "aten::upsample_bilinear2d_backward",
+    "aten::upsample_nearest2d",
+    "aten::upsample_nearest2d_backward",
+    "aten::view",
+    "aten::where.ScalarOther",
+    "aten::where.ScalarSelf",
+    "aten::where.self",
+    "aten::where.self_out",
+    "c10d::_allgather_base_",
+    "c10d::_reduce_scatter_base_",
+    "c10d::allgather_",
+    "c10d::allgather_coalesced_",
+    "c10d::allgather_into_tensor_coalesced_",
+    "c10d::allreduce_",
+    "c10d::allreduce_coalesced_",
+    "c10d::alltoall_",
+    "c10d::alltoall_base_",
+    "c10d::barrier",
+    "c10d::broadcast_",
+    "c10d::gather_",
+    "c10d::gather_into_tensor_",
+    "c10d::recv_",
+    "c10d::recv_any_source_",
+    "c10d::reduce_",
+    "c10d::reduce_scatter_",
+    "c10d::reduce_scatter_tensor_coalesced_",
+    "c10d::scatter_",
+    "c10d::send",
+    "torch_vulkan::adamw_step_",
+    "torch_vulkan::adamw_step_batch_"
+  ]
+}

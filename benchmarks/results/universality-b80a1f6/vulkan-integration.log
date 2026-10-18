@@ -1,0 +1,109 @@
+BEGIN channels_last_factory
+END channels_last_factory ok
+BEGIN invalid_device_index
+END invalid_device_index ok
+BEGIN view_version
+END view_version ok
+BEGIN view_bounds
+END view_bounds error
+BEGIN embedding_flags
+PV_FALLBACK aten::embedding_dense_backward 1.870 ms overload=
+END embedding_flags ok
+BEGIN embedding_large_index
+END embedding_large_index ok
+BEGIN mixed_dtype_mm
+END mixed_dtype_mm ok
+BEGIN stream
+END stream error
+BEGIN event
+END event ok
+BEGIN compile
+END compile error
+{
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "cases": {
+    "channels_last_factory": {
+      "status": "ok",
+      "result": {
+        "strides": [
+          105,
+          35,
+          7,
+          1
+        ],
+        "channels_last": false
+      }
+    },
+    "invalid_device_index": {
+      "status": "ok",
+      "result": "vulkan:0"
+    },
+    "view_version": {
+      "status": "ok",
+      "result": {
+        "versions_before": [
+          0,
+          0
+        ],
+        "versions_after": [
+          1,
+          1
+        ],
+        "modification_rejected": true
+      }
+    },
+    "view_bounds": {
+      "status": "error",
+      "type": "RuntimeError",
+      "error": "setStorage: sizes [100], strides [1], storage offset 0, and itemsize 4 requiring a storage size of 400 are out of bounds for storage of size 16"
+    },
+    "embedding_flags": {
+      "status": "ok",
+      "result": "padding/frequency forward and gradients match CPU"
+    },
+    "embedding_large_index": {
+      "status": "ok",
+      "result": {
+        "expected": 123.0,
+        "actual": 456.0,
+        "matches": false
+      }
+    },
+    "mixed_dtype_mm": {
+      "status": "ok",
+      "result": {
+        "accepted_mismatched_dtypes": true,
+        "output": [
+          [
+            0.0,
+            12.25
+          ],
+          [
+            0.0,
+            36.25
+          ],
+          [
+            0.0,
+            60.25
+          ]
+        ]
+      }
+    },
+    "stream": {
+      "status": "error",
+      "type": "RuntimeError",
+      "error": "Backend doesn't support create a new Stream."
+    },
+    "event": {
+      "status": "ok",
+      "result": "torch.Event device_type=vulkan, device_index=-1, event_flag=0, event_id=0"
+    },
+    "compile": {
+      "status": "error",
+      "type": "InductorError",
+      "error": "KeyError: 'vulkan'\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+    }
+  }
+}
+[Oct 18 2026 19:16:42] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

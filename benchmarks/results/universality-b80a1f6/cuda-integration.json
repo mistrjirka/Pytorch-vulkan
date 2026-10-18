@@ -1,0 +1,71 @@
+{
+  "backend": "cuda",
+  "torch": "2.14.1+cu130",
+  "cases": {
+    "channels_last_factory": {
+      "status": "ok",
+      "result": {
+        "strides": [
+          105,
+          1,
+          21,
+          3
+        ],
+        "channels_last": true
+      }
+    },
+    "invalid_device_index": {
+      "status": "error",
+      "type": "AcceleratorError",
+      "error": "CUDA error: invalid device ordinal\nGPU device may be out of range, do you have enough GPUs?\nThe CUDA driver logged these messages, which may provide useful details:\nInvalid device number 17 provided, must be in the range of 0 to 0\n\n"
+    },
+    "view_version": {
+      "status": "ok",
+      "result": {
+        "versions_before": [
+          0,
+          0
+        ],
+        "versions_after": [
+          1,
+          1
+        ],
+        "modification_rejected": true
+      }
+    },
+    "view_bounds": {
+      "status": "error",
+      "type": "RuntimeError",
+      "error": "setStorage: sizes [100], strides [1], storage offset 0, and itemsize 4 requiring a storage size of 400 are out of bounds for storage of size 16"
+    },
+    "embedding_flags": {
+      "status": "ok",
+      "result": "padding/frequency forward and gradients match CPU"
+    },
+    "embedding_large_index": {
+      "status": "ok",
+      "result": {
+        "expected": 123.0,
+        "actual": 123.0,
+        "matches": true
+      }
+    },
+    "mixed_dtype_mm": {
+      "status": "error",
+      "type": "RuntimeError",
+      "error": "expected mat1 and mat2 to have the same dtype, but got: float != double"
+    },
+    "stream": {
+      "status": "ok",
+      "result": "torch.Stream device_type=cuda, device_index=0, stream_id=3"
+    },
+    "event": {
+      "status": "ok",
+      "result": "torch.Event device_type=cuda, device_index=-1, event_flag=0, event_id=0"
+    },
+    "compile": {
+      "status": "ok",
+      "result": "default Inductor fullgraph output matches CPU"
+    }
+  }
+}

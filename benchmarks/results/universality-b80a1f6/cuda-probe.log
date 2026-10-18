@@ -1,0 +1,269 @@
+PV_CASE_BEGIN conv1d
+PV_OPERATION_BEGIN conv1d
+PV_OPERATION_END conv1d
+/workspace/_pv_universality_b80a1f6/probe_coverage.py:67: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  d['output_max_abs']=float((actual.cpu()-out).abs().max()) if out.numel() else 0
+PV_CASE_END conv1d ok
+PV_CASE_BEGIN conv2d_10x10
+PV_OPERATION_BEGIN conv2d_10x10
+PV_OPERATION_END conv2d_10x10
+PV_CASE_END conv2d_10x10 ok
+PV_CASE_BEGIN conv2d_11x11
+PV_OPERATION_BEGIN conv2d_11x11
+PV_OPERATION_END conv2d_11x11
+PV_CASE_END conv2d_11x11 ok
+PV_CASE_BEGIN conv3d
+PV_OPERATION_BEGIN conv3d
+PV_OPERATION_END conv3d
+PV_CASE_END conv3d ok
+PV_CASE_BEGIN conv_transpose2d
+PV_OPERATION_BEGIN conv_transpose2d
+PV_OPERATION_END conv_transpose2d
+PV_CASE_END conv_transpose2d ok
+PV_CASE_BEGIN avg_pool3d
+PV_OPERATION_BEGIN avg_pool3d
+PV_OPERATION_END avg_pool3d
+PV_CASE_END avg_pool3d ok
+PV_CASE_BEGIN max_pool3d
+PV_OPERATION_BEGIN max_pool3d
+PV_OPERATION_END max_pool3d
+PV_CASE_END max_pool3d ok
+PV_CASE_BEGIN resize_bilinear_aa
+PV_OPERATION_BEGIN resize_bilinear_aa
+PV_OPERATION_END resize_bilinear_aa
+PV_CASE_END resize_bilinear_aa ok
+PV_CASE_BEGIN resize_trilinear
+PV_OPERATION_BEGIN resize_trilinear
+PV_OPERATION_END resize_trilinear
+PV_CASE_END resize_trilinear ok
+PV_CASE_BEGIN grid_sample
+PV_OPERATION_BEGIN grid_sample
+PV_OPERATION_END grid_sample
+PV_CASE_END grid_sample ok
+PV_CASE_BEGIN reflection_pad2d
+PV_OPERATION_BEGIN reflection_pad2d
+PV_OPERATION_END reflection_pad2d
+PV_CASE_END reflection_pad2d ok
+PV_CASE_BEGIN mm_fp32
+PV_OPERATION_BEGIN mm_fp32
+PV_OPERATION_END mm_fp32
+PV_CASE_END mm_fp32 ok
+PV_CASE_BEGIN add_fp32
+PV_OPERATION_BEGIN add_fp32
+PV_OPERATION_END add_fp32
+PV_CASE_END add_fp32 ok
+PV_CASE_BEGIN mm_fp16
+PV_OPERATION_BEGIN mm_fp16
+PV_OPERATION_END mm_fp16
+PV_CASE_END mm_fp16 ok
+PV_CASE_BEGIN add_fp16
+PV_OPERATION_BEGIN add_fp16
+PV_OPERATION_END add_fp16
+PV_CASE_END add_fp16 ok
+PV_CASE_BEGIN mm_bf16
+PV_OPERATION_BEGIN mm_bf16
+PV_OPERATION_END mm_bf16
+PV_CASE_END mm_bf16 ok
+PV_CASE_BEGIN add_bf16
+PV_OPERATION_BEGIN add_bf16
+PV_OPERATION_END add_bf16
+PV_CASE_END add_bf16 ok
+PV_CASE_BEGIN mm_fp64
+PV_OPERATION_BEGIN mm_fp64
+PV_OPERATION_END mm_fp64
+PV_CASE_END mm_fp64 ok
+PV_CASE_BEGIN add_fp64
+PV_OPERATION_BEGIN add_fp64
+PV_OPERATION_END add_fp64
+PV_CASE_END add_fp64 ok
+PV_CASE_BEGIN mm_complex64
+PV_OPERATION_BEGIN mm_complex64
+PV_OPERATION_END mm_complex64
+PV_CASE_END mm_complex64 ok
+PV_CASE_BEGIN add_complex64
+PV_OPERATION_BEGIN add_complex64
+PV_OPERATION_END add_complex64
+PV_CASE_END add_complex64 ok
+PV_CASE_BEGIN add_int64
+PV_OPERATION_BEGIN add_int64
+PV_OPERATION_END add_int64
+PV_CASE_END add_int64 ok
+PV_CASE_BEGIN sum_int64
+PV_OPERATION_BEGIN sum_int64
+PV_OPERATION_END sum_int64
+PV_CASE_END sum_int64 ok
+PV_CASE_BEGIN index_select
+PV_OPERATION_BEGIN index_select
+PV_OPERATION_END index_select
+PV_CASE_END index_select ok
+PV_CASE_BEGIN gather
+PV_OPERATION_BEGIN gather
+PV_OPERATION_END gather
+PV_CASE_END gather ok
+PV_CASE_BEGIN scatter_add
+PV_OPERATION_BEGIN scatter_add
+PV_OPERATION_END scatter_add
+PV_CASE_END scatter_add ok
+PV_CASE_BEGIN embedding
+PV_OPERATION_BEGIN embedding
+PV_OPERATION_END embedding
+PV_CASE_END embedding ok
+PV_CASE_BEGIN embedding_bag
+PV_OPERATION_BEGIN embedding_bag
+PV_OPERATION_END embedding_bag
+PV_CASE_END embedding_bag ok
+PV_CASE_BEGIN sort
+PV_OPERATION_BEGIN sort
+PV_OPERATION_END sort
+PV_CASE_END sort ok
+PV_CASE_BEGIN topk
+PV_OPERATION_BEGIN topk
+PV_OPERATION_END topk
+PV_CASE_END topk ok
+PV_CASE_BEGIN cumsum
+PV_OPERATION_BEGIN cumsum
+PV_OPERATION_END cumsum
+PV_CASE_END cumsum ok
+PV_CASE_BEGIN variance
+PV_OPERATION_BEGIN variance
+PV_OPERATION_END variance
+PV_CASE_END variance ok
+PV_CASE_BEGIN fft
+PV_OPERATION_BEGIN fft
+PV_OPERATION_END fft
+PV_CASE_END fft ok
+PV_CASE_BEGIN linalg_solve
+PV_OPERATION_BEGIN linalg_solve
+PV_OPERATION_END linalg_solve
+PV_CASE_END linalg_solve ok
+PV_CASE_BEGIN sparse_roundtrip
+PV_OPERATION_BEGIN sparse_roundtrip
+PV_OPERATION_END sparse_roundtrip
+PV_CASE_END sparse_roundtrip ok
+PV_CASE_BEGIN mse_loss
+PV_OPERATION_BEGIN mse_loss
+PV_OPERATION_END mse_loss
+PV_CASE_END mse_loss ok
+PV_CASE_BEGIN cross_entropy
+PV_OPERATION_BEGIN cross_entropy
+PV_OPERATION_END cross_entropy
+PV_CASE_END cross_entropy ok
+PV_CASE_BEGIN sdpa
+PV_OPERATION_BEGIN sdpa
+PV_OPERATION_END sdpa
+PV_CASE_END sdpa ok
+PV_CASE_BEGIN sdpa_causal
+PV_OPERATION_BEGIN sdpa_causal
+PV_OPERATION_END sdpa_causal
+PV_CASE_END sdpa_causal ok
+PV_SPECIAL_BEGIN dropout
+PV_SPECIAL_END dropout
+PV_SPECIAL_BEGIN rng
+PV_SPECIAL_END rng
+PV_SPECIAL_BEGIN device_seed
+PV_SPECIAL_END device_seed
+PV_SPECIAL_BEGIN generator
+PV_SPECIAL_END generator
+PV_SPECIAL_BEGIN autocast
+PV_SPECIAL_END autocast
+PV_SPECIAL_BEGIN lstm
+PV_SPECIAL_END lstm
+PV_SPECIAL_BEGIN standard_adamw
+PV_SPECIAL_END standard_adamw
+PV_SPECIAL_BEGIN second_order_grad
+PV_SPECIAL_END second_order_grad
+{
+  "backend": "cuda",
+  "cases": {
+    "conv1d": "ok",
+    "conv2d_10x10": "ok",
+    "conv2d_11x11": "ok",
+    "conv3d": "ok",
+    "conv_transpose2d": "ok",
+    "avg_pool3d": "ok",
+    "max_pool3d": "ok",
+    "resize_bilinear_aa": "ok",
+    "resize_trilinear": "ok",
+    "grid_sample": "ok",
+    "reflection_pad2d": "ok",
+    "mm_fp32": "ok",
+    "add_fp32": "ok",
+    "mm_fp16": "ok",
+    "add_fp16": "ok",
+    "mm_bf16": "ok",
+    "add_bf16": "ok",
+    "mm_fp64": "ok",
+    "add_fp64": "ok",
+    "mm_complex64": "ok",
+    "add_complex64": "ok",
+    "add_int64": "ok",
+    "sum_int64": "ok",
+    "index_select": "ok",
+    "gather": "ok",
+    "scatter_add": "ok",
+    "embedding": "ok",
+    "embedding_bag": "ok",
+    "sort": "ok",
+    "topk": "ok",
+    "cumsum": "ok",
+    "variance": "ok",
+    "fft": "ok",
+    "linalg_solve": "ok",
+    "sparse_roundtrip": "ok",
+    "mse_loss": "ok",
+    "cross_entropy": "ok",
+    "sdpa": "ok",
+    "sdpa_causal": "ok"
+  },
+  "special": {
+    "dropout": {
+      "status": "ok",
+      "result": {
+        "dropped": 536
+      }
+    },
+    "rng": {
+      "status": "ok",
+      "result": {
+        "torch_manual_seed_repeats": true,
+        "changes_cpu_rng_state": false
+      }
+    },
+    "device_seed": {
+      "status": "ok",
+      "result": {
+        "device_manual_seed_all_repeats": true
+      }
+    },
+    "generator": {
+      "status": "ok",
+      "result": "<torch._C.Generator object at 0x7f202d2ca4d0>"
+    },
+    "autocast": {
+      "status": "ok",
+      "result": "torch.float16"
+    },
+    "lstm": {
+      "status": "ok",
+      "result": "forward/backward CPU parity"
+    },
+    "standard_adamw": {
+      "status": "ok",
+      "result": [
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813,
+        0.9798009991645813
+      ]
+    },
+    "second_order_grad": {
+      "status": "ok",
+      "result": "sin second derivative matches CPU"
+    }
+  }
+}

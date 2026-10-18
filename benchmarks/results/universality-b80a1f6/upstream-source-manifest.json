@@ -1,0 +1,23 @@
+{
+  "revision": "5c4886908584029761b579af026dcfb627c84070",
+  "files": [
+    {
+      "path": "aten/src/ATen/native/Convolution.cpp",
+      "sha256": "3a36b958fd9306e3d4427ed7ce514a3a7f61d6857df8474a5b01b10df8c7290d",
+      "bytes": 101739,
+      "status": "ok"
+    },
+    {
+      "path": "aten/src/ATen/native/cudnn/Conv_v8.cpp",
+      "sha256": "ec8213dda6218ec95244e0b4313d9af216851d5379d7ee1490b4b7b694abc4e8",
+      "bytes": 49622,
+      "status": "ok"
+    },
+    {
+      "path": "aten/src/ATen/native/cuda/Embedding.cu",
+      "sha256": "a0eb9829ce4a027c59943712a92dbf5d9d13154317a9689cdc708ee3e549cd86",
+      "bytes": 15583,
+      "status": "ok"
+    }
+  ]
+}

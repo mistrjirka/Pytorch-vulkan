@@ -1,0 +1,2 @@
+{"backend": "vulkan", "status": "error", "error": "Backend doesn't support events.", "error_type": "RuntimeError"}
+[Oct 18 2026 19:16:42] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

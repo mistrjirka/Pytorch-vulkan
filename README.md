@@ -211,6 +211,10 @@ a closer-to-exact GELU further improved correctness.
 
 ## Limitations
 
+The [CUDA universality audit](docs/cuda-universality-audit-b80a1f6.md) distinguishes
+GPU execution, CPU fallback and failures, and records known dtype, embedding-index
+and allocation-option defects at `b80a1f6`. The backend is not a general CUDA replacement.
+
 - **FP32 only for compute kernels.** BF16 and FP16 training are not supported.
 - Conv2D selects general tiled/depthwise/reduction paths with scalar fallbacks.
   It still lacks cuDNN's broader algorithm selection (such as Winograd), and
