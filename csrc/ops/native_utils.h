@@ -73,6 +73,25 @@ inline void run(const std::string& shader,const std::vector<Buffer>& inputs,
   if(ctx.can_enqueue(bindings)) ctx.enqueue_compute(algo,bindings,outputs);
   else ctx.run_compute(algo,shader,inputs,outputs);
 }
+// General rank/stride iteration uses a device metadata buffer instead of the
+// eight-axis push-constant ABI. Existing fixed-axis eligibility stays unchanged.
+inline bool can_iterate_fp32(const at::Tensor& x) {
+ if(x.layout()!=at::kStrided||x.device().type()!=c10::DeviceType::PrivateUse1||x.scalar_type()!=at::kFloat||x.dim()>64||x.numel()>UINT32_MAX||x.storage_offset()<0||uint64_t(x.storage_offset())>UINT32_MAX)return false;
+ if(x.storage().nbytes()>device_limits().maxStorageBufferRange)return false;
+ uint64_t last=x.storage_offset();for(int64_t d=0;d<x.dim();d++){if(x.size(d)>UINT32_MAX||x.stride(d)<0||uint64_t(x.stride(d))>UINT32_MAX)return false;if(x.size(d)>1){auto extent=uint64_t(x.size(d)-1)*x.stride(d);if(extent>UINT32_MAX-last)return false;last+=extent;}}return true;
+}
+inline void iterate_fp32(const at::Tensor& input,const at::Tensor& other,const at::Tensor& out,uint32_t op,float scalar=0,float alpha=1,const at::Tensor& auxiliary={}) {
+ TORCH_CHECK(can_iterate_fp32(input)&&can_iterate_fp32(other)&&can_iterate_fp32(out)&&input.device()==out.device()&&other.device()==out.device(),"Vulkan general iteration exceeds dtype/device/indexing limits");
+ if(!out.numel())return;
+ auto a=input.expand(out.sizes()),b=other.expand(out.sizes());TORCH_CHECK(can_iterate_fp32(a)&&can_iterate_fp32(b),"Vulkan broadcast iteration exceeds indexing limits");
+ auto rank=out.dim();std::vector<uint32_t> data(std::max<int64_t>(1,4*rank),0);for(int64_t d=0;d<rank;d++){data[d]=u32(out.size(d));data[rank+d]=u32(a.stride(d));data[2*rank+d]=u32(b.stride(d));data[3*rank+d]=u32(out.stride(d));}
+ auto host=at::empty({int64_t(data.size())},at::TensorOptions().dtype(at::kInt).device(at::kCPU));std::memcpy(host.data_ptr<int32_t>(),data.data(),data.size()*4);auto metadata=host.to(out.device());auto aux=auxiliary.defined()?auxiliary:at::empty({1},out.options());
+ auto flags=uint32_t(a.is_neg())|(uint32_t(b.is_neg())<<1)|(uint32_t(out.is_neg())<<2);
+ run("iteration_fp32",{base(a),base(b),base(metadata,at::kInt)},{write_base(out),write_base(aux)},{u32(out.numel()),u32(rank),u32(a.storage_offset()),u32(b.storage_offset()),u32(out.storage_offset()),op,bits(scalar),bits(alpha),flags},(out.numel()+127)/128);
+}
+inline at::Tensor iterated_unary_fp32(const at::Tensor& x,uint32_t op,float scalar=0,float alpha=1){auto out=at::empty(x.sizes(),x.options());iterate_fp32(x,x,out,op,scalar,alpha);return out;}
+inline bool can_pack_data(const at::Tensor& src);
+
 // Eligibility for materializing a view with native_pack. Callers that formerly
 // supported broader CPU layouts can retain that path without catching dispatch errors.
 inline bool can_pack_view(const at::Tensor& src) {
@@ -97,11 +116,13 @@ inline bool can_pack_view(const at::Tensor& src) {
   }
   return true;
 }
+inline bool can_pack_data(const at::Tensor& src){return can_pack_view(src)||can_iterate_fp32(src);}
 inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) {
   TORCH_CHECK(dtype==at::kFloat || dtype==at::kLong || dtype==at::kInt || dtype==at::kComplexFloat || dtype==at::kBool || dtype==at::kByte || dtype==at::kChar || dtype==at::kShort,"Vulkan native packing supports FP32/complex64/int32/int64/bool");
   TORCH_CHECK(src.device().type()==c10::DeviceType::PrivateUse1 && src.scalar_type()==dtype,
               "Vulkan native operator tensor device/dtype mismatch");
   if(!src.numel())return at::empty(src.sizes(),src.options());
+  if((src.dim()>8||src.is_neg())&&can_iterate_fp32(src))return iterated_unary_fp32(src,0);
   if(src.is_neg()||src.is_conj()){auto out=at::empty(src.sizes(),src.options());out.copy_(src);return out;}
   base(src,dtype);
   if(src.is_contiguous() && src.storage_offset()==0) return src;

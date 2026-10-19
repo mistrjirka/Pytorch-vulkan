@@ -1,0 +1,90 @@
+[
+  {
+    "id": "tests/test_cat.py::test_cat_preserves_dtype_promotion_fallback[dtype11-dtype21]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The failing parameter contains a Float64 operand and promotes the result to Float64.",
+    "test_source": "tests/test_cat.py",
+    "test_source_sha256": "f31c1770d0f1fc11f0cab2ed40fa0e93f6197808e805d7fc251fdd8519d5cb78",
+    "function_source": "@pytest.mark.parametrize('dtype1,dtype2',[(torch.int64,torch.int64),(torch.float32,torch.float64),(torch.float32,torch.int64)])\ndef test_cat_preserves_dtype_promotion_fallback(dtype1,dtype2):\n a=torch.arange(6).reshape(2,3).to(dtype1);b=torch.arange(4).reshape(2,2).to(dtype2)\n torch.testing.assert_close(torch.cat([a.to('vulkan'),b.to('vulkan')],1).cpu(),torch.cat([a,b],1))"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_binary_strided_nonfinite_scalar_and_dtype[sub]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The failing assertion is the Float64 first iteration of the explicit [float64, int64] tensor loop.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "@pytest.mark.parametrize(\"op\", [torch.sub, torch.div])\ndef test_binary_strided_nonfinite_scalar_and_dtype(op):\n    a = torch.arange(48, dtype=torch.float32).reshape(6, 8) - 20\n    b = torch.tensor([[-float(\"inf\"), -1., -0., 0., 1., float(\"inf\"), float(\"nan\"), 3.]])\n    av, bv = a.to(\"vulkan\"), b.to(\"vulkan\")\n    torch.testing.assert_close(op(av[1::2, ::2], bv[:, ::2]).cpu(),\n                               op(a[1::2, ::2], b[:, ::2]), equal_nan=True)\n    for scalar in [torch.tensor(2.), torch.tensor(2., dtype=torch.float64)]:\n        torch.testing.assert_close(op(av, scalar).cpu(), op(a, scalar))\n        torch.testing.assert_close(op(scalar, av).cpu(), op(scalar, a), equal_nan=True)\n    for dtype in [torch.float64, torch.int64]:\n        a = torch.arange(6, dtype=dtype).reshape(2, 3)\n        b = torch.full((1, 3), 2, dtype=dtype)\n        torch.testing.assert_close(op(a.to(\"vulkan\"), b.to(\"vulkan\")).cpu(), op(a, b))"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_binary_strided_nonfinite_scalar_and_dtype[div]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The failing assertion is the Float64 first iteration of the explicit [float64, int64] tensor loop.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "@pytest.mark.parametrize(\"op\", [torch.sub, torch.div])\ndef test_binary_strided_nonfinite_scalar_and_dtype(op):\n    a = torch.arange(48, dtype=torch.float32).reshape(6, 8) - 20\n    b = torch.tensor([[-float(\"inf\"), -1., -0., 0., 1., float(\"inf\"), float(\"nan\"), 3.]])\n    av, bv = a.to(\"vulkan\"), b.to(\"vulkan\")\n    torch.testing.assert_close(op(av[1::2, ::2], bv[:, ::2]).cpu(),\n                               op(a[1::2, ::2], b[:, ::2]), equal_nan=True)\n    for scalar in [torch.tensor(2.), torch.tensor(2., dtype=torch.float64)]:\n        torch.testing.assert_close(op(av, scalar).cpu(), op(a, scalar))\n        torch.testing.assert_close(op(scalar, av).cpu(), op(scalar, a), equal_nan=True)\n    for dtype in [torch.float64, torch.int64]:\n        a = torch.arange(6, dtype=dtype).reshape(2, 3)\n        b = torch.full((1, 3), 2, dtype=dtype)\n        torch.testing.assert_close(op(a.to(\"vulkan\"), b.to(\"vulkan\")).cpu(), op(a, b))"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_div_expanded_rejects_and_fill_dtype_fallback",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The Int64 iteration succeeds; the Float64 tensor fill iteration falls back.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "def test_div_expanded_rejects_and_fill_dtype_fallback():\n    for device in [\"cpu\", \"vulkan\"]:\n        x = torch.ones(1).to(device).expand(4)\n        with pytest.raises(RuntimeError):\n            x.div_(2)\n    for dtype in [torch.int64, torch.float64]:\n        a = torch.arange(12, dtype=dtype).reshape(3, 4)\n        b = a.to(\"vulkan\")\n        a[:, ::2].fill_(3)\n        b[:, ::2].fill_(3)\n        torch.testing.assert_close(b.cpu(), a)"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_mean_views_fallbacks_and_dim_validation",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The requested mean output dtype is explicitly torch.float64.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "def test_mean_views_fallbacks_and_dim_validation():\n    a = torch.randn(5, 7, 9)\n    b = a.to(\"vulkan\")\n    torch.testing.assert_close(b[1:, ::2].transpose(0, 2).mean().cpu(),\n                               a[1:, ::2].transpose(0, 2).mean())\n    torch.testing.assert_close(b.mean(dim=(0, 2), keepdim=True).cpu(),\n                               a.mean(dim=(0, 2), keepdim=True))\n    torch.testing.assert_close(b.mean(dtype=torch.float64).cpu(),\n                               a.mean(dtype=torch.float64))\n    for dim in [(0, 0), (4,), (-4,)]:\n        for x in [a, b]:\n            with pytest.raises((RuntimeError, IndexError)):\n                x.mean(dim=dim)"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_div_tensor_mutation_fallback_preserves_storage",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The divisor tensor explicitly has Float64 dtype, including for a Float32 destination.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "def test_div_tensor_mutation_fallback_preserves_storage():\n    for dtype in [torch.float32, torch.float64]:\n        a = torch.arange(48, dtype=dtype).reshape(6, 8) + 1\n        b = a.to('vulkan')\n        rhs = torch.tensor([[2., 3., 4., 5.]], dtype=torch.float64)\n        a[1::2, ::2].div_(rhs)\n        b[1::2, ::2].div_(rhs.to('vulkan'))\n        torch.testing.assert_close(b.cpu(), a)"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_mutation_arithmetic_errors_fallbacks_and_nonfinite[sub_]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The Float32 iteration succeeds; the Float64 tensor iteration falls back.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "@pytest.mark.parametrize('op', ['sub_', 'mul_'])\ndef test_mutation_arithmetic_errors_fallbacks_and_nonfinite(op):\n    for device in ['cpu', 'vulkan']:\n        x = torch.arange(12, dtype=torch.float32).to(device) + 1\n        with pytest.raises(RuntimeError):\n            getattr(x[1:], op)(x[:-1])\n        x = torch.ones(1, 3).to(device)\n        with pytest.raises(RuntimeError):\n            getattr(x, op)(torch.ones(2, 3).to(device))\n        x = torch.ones(1).to(device).expand(3)\n        with pytest.raises(RuntimeError):\n            getattr(x, op)(2.)\n    for dtype in [torch.float32, torch.float64, torch.int64]:\n        a = torch.arange(48, dtype=dtype).reshape(6, 8) + 1\n        b = a.to('vulkan')\n        rhs = torch.tensor([[2, 3, 4, 5]], dtype=dtype)\n        getattr(a[1::2, ::2], op)(rhs)\n        getattr(b[1::2, ::2], op)(rhs.to('vulkan'))\n        torch.testing.assert_close(b.cpu(), a)\n    a = torch.tensor([-float('inf'), -1., -0., 0., 1., float('inf'), float('nan')])\n    for scalar in [0., float('inf'), float('nan')]:\n        x, y = a.clone(), a.to('vulkan')\n        getattr(x, op)(scalar)\n        getattr(y, op)(scalar)\n        torch.testing.assert_close(y.cpu(), x, equal_nan=True)"
+  },
+  {
+    "id": "tests/test_loss_primitives.py::test_mutation_arithmetic_errors_fallbacks_and_nonfinite[mul_]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The Float32 iteration succeeds; the Float64 tensor iteration falls back.",
+    "test_source": "tests/test_loss_primitives.py",
+    "test_source_sha256": "33e7dff98adf821b572e55374be30f942f34918d912740b059919e7a89970407",
+    "function_source": "@pytest.mark.parametrize('op', ['sub_', 'mul_'])\ndef test_mutation_arithmetic_errors_fallbacks_and_nonfinite(op):\n    for device in ['cpu', 'vulkan']:\n        x = torch.arange(12, dtype=torch.float32).to(device) + 1\n        with pytest.raises(RuntimeError):\n            getattr(x[1:], op)(x[:-1])\n        x = torch.ones(1, 3).to(device)\n        with pytest.raises(RuntimeError):\n            getattr(x, op)(torch.ones(2, 3).to(device))\n        x = torch.ones(1).to(device).expand(3)\n        with pytest.raises(RuntimeError):\n            getattr(x, op)(2.)\n    for dtype in [torch.float32, torch.float64, torch.int64]:\n        a = torch.arange(48, dtype=dtype).reshape(6, 8) + 1\n        b = a.to('vulkan')\n        rhs = torch.tensor([[2, 3, 4, 5]], dtype=dtype)\n        getattr(a[1::2, ::2], op)(rhs)\n        getattr(b[1::2, ::2], op)(rhs.to('vulkan'))\n        torch.testing.assert_close(b.cpu(), a)\n    a = torch.tensor([-float('inf'), -1., -0., 0., 1., float('inf'), float('nan')])\n    for scalar in [0., float('inf'), float('nan')]:\n        x, y = a.clone(), a.to('vulkan')\n        getattr(x, op)(scalar)\n        getattr(y, op)(scalar)\n        torch.testing.assert_close(y.cpu(), x, equal_nan=True)"
+  },
+  {
+    "id": "tests/test_native_activation.py::test_leaky_out_resize_and_dtype_fallback",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The Float32 out/resize case succeeds; the Float64 iteration falls back.",
+    "test_source": "tests/test_native_activation.py",
+    "test_source_sha256": "c268b29a78c1656d29d7dc712e56688496bfba6b6949d5b26eb9f30416a0bb38",
+    "function_source": "def test_leaky_out_resize_and_dtype_fallback():\n    for dtype in [torch.float32, torch.float64]:\n        x = torch.tensor([-2., 0., 3.], dtype=dtype)\n        a = torch.empty(0, dtype=dtype)\n        b = a.to(\"vulkan\")\n        torch.ops.aten.leaky_relu.out(x, .3, out=a)\n        torch.ops.aten.leaky_relu.out(x.to(\"vulkan\"), .3, out=b)\n        exact(b, a)\n    for device in [\"cpu\", \"vulkan\"]:\n        with pytest.raises(RuntimeError):\n            torch.ops.aten.leaky_relu.out(torch.ones(3).to(device), .3,\n                                         out=torch.empty(3, dtype=torch.float64).to(device))"
+  },
+  {
+    "id": "tests/test_scalar_add.py::test_scalar_add_cpu_tensor_and_fallbacks",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The failing tuple has a Float64 Vulkan destination; earlier Float32 and Int64 destinations succeed.",
+    "test_source": "tests/test_scalar_add.py",
+    "test_source_sha256": "801efb2eff60c901e9fc70482a431589e0e8d65122d59777da7147dacf7974e8",
+    "function_source": "def test_scalar_add_cpu_tensor_and_fallbacks():\n    for dtype,scalar in [(torch.float32,torch.tensor(.25,dtype=torch.float64)),\n                         (torch.int64,torch.tensor(2)),(torch.float64,torch.tensor(.25))]:\n        a=torch.ones(3,5,dtype=dtype);b=a.to('vulkan')\n        a.add_(scalar,alpha=3);b.add_(scalar,alpha=3)\n        torch.testing.assert_close(b.cpu(),a)\n    a=torch.randn(3,5);b=a.to('vulkan');other=torch.randn(1,5)\n    a.add_(other);b.add_(other.to('vulkan'))\n    torch.testing.assert_close(b.cpu(),a)"
+  },
+  {
+    "id": "tests/test_tensor_add_inplace.py::test_tensor_add_inplace_dtype_fallback[dtype0]",
+    "status": "raw error; FP64 deferred, not counted as pass",
+    "reason": "The failing parameter is Float64; the Int64 parameter succeeds.",
+    "test_source": "tests/test_tensor_add_inplace.py",
+    "test_source_sha256": "caaee263ee802f5ac4a1c3ce43e117497cea2842e9d4eb617ccd512f11d30bbc",
+    "function_source": "@pytest.mark.parametrize(\"dtype\", [torch.float64, torch.int64])\ndef test_tensor_add_inplace_dtype_fallback(dtype):\n    a = torch.arange(15, dtype=dtype).reshape(3, 5)\n    rhs = torch.arange(5, dtype=dtype)\n    b = a.to(\"vulkan\")\n    a.add_(rhs, alpha=-2)\n    b.add_(rhs.to(\"vulkan\"), alpha=-2)\n    torch.testing.assert_close(b.cpu(), a, rtol=0, atol=0)"
+  }
+]

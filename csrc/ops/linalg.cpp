@@ -1,5 +1,6 @@
 #include "native_utils.h"
 #include <ATen/ExpandUtils.h>
+#include <cmath>
 #include <ATen/ops/_linalg_check_errors_native.h>
 #include <torch/library.h>
 #include <ATen/MemoryOverlap.h>
@@ -108,6 +109,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
 #include "native_utils.h"
 #include <ATen/WrapDimUtils.h>
 #include <ATen/ExpandUtils.h>
+#include <cmath>
 #include <torch/library.h>
 namespace torch_vulkan::ops {namespace {
 using namespace native;
@@ -164,4 +166,11 @@ at::Tensor matrix_exp_native(const at::Tensor& x){at::native::squareCheckInputs(
 std::tuple<at::Tensor,at::Tensor> triangular_solve_legacy(const at::Tensor& b,const at::Tensor& a,bool upper,bool transpose,bool unit){auto matrix=transpose?a.transpose(-2,-1):a;auto solution=at::linalg_solve_triangular(matrix,b,transpose?!upper:upper,true,unit);auto batch=at::infer_size_dimvector(a.sizes().slice(0,a.dim()-2),b.sizes().slice(0,b.dim()-2));batch.push_back(a.size(-2));batch.push_back(a.size(-1));return {solution,a.expand(batch).clone()};}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_matrix_sqrth",&matrix_sqrth_native);m.impl("linalg_matrix_exp",&matrix_exp_native);m.impl("triangular_solve",&triangular_solve_legacy);}
+}
+
+namespace torch_vulkan::ops {namespace {
+std::tuple<at::Tensor,at::Tensor,at::Tensor> ldl_factor_native(const at::Tensor& x,bool,bool check_errors){TORCH_CHECK(x.dim()>=2,"torch.linalg.ldl_factor_ex: The input tensor must have at least 2 dimensions.");TORCH_CHECK(x.size(-1)==x.size(-2),"torch.linalg.ldl_factor_ex: A must be batches of square matrices");TORCH_CHECK(x.scalar_type()==at::kFloat&&can_pack_data(x),"Vulkan LDL factorization requires packable FP32 input");auto n=x.size(-1);auto batch=x.sizes().vec();batch.resize(x.dim()-2);auto pivot_shape=batch;pivot_shape.push_back(n);auto ld=at::empty(x.sizes(),x.options()),pivots=at::empty(pivot_shape,x.options().dtype(at::kInt)),info=at::zeros(batch,x.options().dtype(at::kInt));if(n&&info.numel()){auto input=packed(x),workspace=at::empty(x.sizes(),x.options());run("ldl_factor_general",{base(input)},{write_base(ld),write_base(pivots,at::kInt),write_base(info,at::kInt),write_base(workspace)},{u32(info.numel()),u32(n),bits(float((1.+std::sqrt(17.))/8.))},info.numel(),12);}if(check_errors)check_info(info,"torch.linalg.ldl_factor_ex",x.dim()==2);return {ld,pivots,info};}
+at::Tensor ldl_solve_native(const at::Tensor& ld,const at::Tensor& pivots,const at::Tensor& b,bool){TORCH_CHECK(ld.dim()>=2&&ld.size(-1)==ld.size(-2),"torch.linalg.ldl_solve: LD must be batches of square matrices");TORCH_CHECK(b.dim()>=2&&b.size(-2)==ld.size(-1),"torch.linalg.ldl_solve: Incompatible matrix sizes for LD and B");TORCH_CHECK(ld.scalar_type()==at::kFloat&&b.scalar_type()==at::kFloat&&pivots.scalar_type()==at::kInt,"Vulkan LDL solve requires FP32 matrices and int32 pivots");TORCH_CHECK(ld.device()==b.device()&&ld.device()==pivots.device(),"LD, pivots and B must have the same device");TORCH_CHECK(pivots.dim()==ld.dim()-1&&pivots.sizes()==ld.sizes().slice(0,ld.dim()-1),"LDL pivots shape mismatch");auto batch=at::infer_size_dimvector(ld.sizes().slice(0,ld.dim()-2),b.sizes().slice(0,b.dim()-2));auto n=ld.size(-1),rhs=b.size(-1);auto shape=batch;shape.push_back(n);shape.push_back(rhs);auto out=at::empty(shape,b.options());if(!out.numel())return out;auto matrix_shape=batch;matrix_shape.push_back(n);matrix_shape.push_back(n);auto pivot_shape=batch;pivot_shape.push_back(n);auto a=packed(ld.expand(matrix_shape)),p=packed(pivots.expand(pivot_shape),at::kInt),input=packed(b.expand(shape));auto status=at::zeros({1},b.options().dtype(at::kInt));run("ldl_solve_general",{base(a),base(p,at::kInt),base(input)},{write_base(out),write_base(status,at::kInt)},{u32(out.numel()/(n*rhs)),u32(n),u32(rhs),u32((rhs+127)/128)},(out.numel()/(n*rhs))*((rhs+127)/128));TORCH_CHECK(status.cpu().item<int32_t>()==0,"LDL pivot index is invalid");return out;}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_ldl_factor_ex",&ldl_factor_native);m.impl("linalg_ldl_solve",&ldl_solve_native);}
 }

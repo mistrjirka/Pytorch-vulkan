@@ -13,7 +13,7 @@ using TensorBuffer = std::shared_ptr<kp::Tensor>;
 static at::Tensor contiguous_for_native_layer_norm(const at::Tensor& src) {
   if (src.is_contiguous() && src.storage_offset() == 0) return src;
   // Pack readable views on GPU without introducing a host boundary.
-  if(native::can_pack_view(src))return native::packed(src);
+  if(native::can_pack_data(src))return native::packed(src);
   return native::cpu_fallback_tensor(src,__func__).contiguous().to(src.device());
 }
 

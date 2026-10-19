@@ -141,6 +141,8 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  for(auto name:{"quantile","nanquantile"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".scalar_out").c_str(),name,"scalar");}
  add("multi_margin_loss.out","multi_margin_loss");add("multi_margin_loss_backward.grad_input","multi_margin_loss_backward");add("multilabel_margin_loss_forward.output","multilabel_margin_loss_forward");add("multilabel_margin_loss_backward.grad_input","multilabel_margin_loss_backward");
  add("hash_tensor.out","hash_tensor");
+ add("linalg_ldl_factor_ex.out","linalg_ldl_factor_ex");add("linalg_ldl_solve.out","linalg_ldl_solve");
+ add("_ctc_loss.out","_ctc_loss");add("_ctc_loss.Tensor_out","_ctc_loss","Tensor");add("_ctc_loss_backward.out","_ctc_loss_backward");
  add("fractional_max_pool2d.output","fractional_max_pool2d");add("fractional_max_pool3d.output","fractional_max_pool3d");add("fractional_max_pool2d_backward.grad_input","fractional_max_pool2d_backward");add("fractional_max_pool3d_backward.grad_input","fractional_max_pool3d_backward");
  add("_pdist_forward.out","_pdist_forward");add("_pdist_backward.out","_pdist_backward");add("log_sigmoid_forward.output","log_sigmoid_forward");add("log_sigmoid_backward.grad_input","log_sigmoid_backward");
  add("histc.out","histc");add("histogram.bins_tensor_out","histogram","bins_tensor");add("histogram.bin_ct_out","histogram","bin_ct");add("_histogramdd_from_bin_cts.out","_histogramdd_from_bin_cts");add("_histogramdd_from_bin_tensors.out","_histogramdd_from_bin_tensors");

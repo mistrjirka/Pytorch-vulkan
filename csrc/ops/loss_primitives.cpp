@@ -59,20 +59,25 @@ at::Tensor unary(const at::Tensor& x,uint32_t op,float scalar=0) {
   return out;
 }
 at::Tensor sigmoid_native(const at::Tensor& x) {
+  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return sigmoid_native(x.to(at::kFloat));
+  if(!supported(x)&&can_iterate_fp32(x))return iterated_unary_fp32(x,1);
   return supported(x)?unary(x,0):at::sigmoid(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor abs_native(const at::Tensor& x) {
   if(x.scalar_type()==at::kComplexFloat){auto out=at::empty(x.sizes(),x.options().dtype(at::kFloat));if(x.numel())run("complex_magnitude",{base(packed(x,at::kComplexFloat),at::kComplexFloat)},{write_base(out)},{u32(x.numel())},(x.numel()+127)/128);return out;}
   if(integer_type(x.scalar_type()))return at::where(x.lt(0),at::mul(x,-1),x);
+  if(!supported(x)&&can_iterate_fp32(x))return iterated_unary_fp32(x,2);
   return supported(x)?unary(x,1):at::abs(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor sgn_native(const at::Tensor& x) {
   if(x.scalar_type()==at::kComplexFloat){auto magnitude=at::abs(x);return at::where(magnitude.eq(0),at::zeros({},x.options()),x.div(magnitude));}
   if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return at::sign(x);
+  if(!supported(x)&&can_iterate_fp32(x))return iterated_unary_fp32(x,3);
   return supported(x)?unary(x,2):at::sgn(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor div_scalar(const at::Tensor& x,const at::Scalar& scalar) {
   if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return div_scalar(x.to(at::kFloat),scalar);
+  if(!supported(x)&&can_iterate_fp32(x)&&at::result_type(x,scalar)==at::kFloat)return iterated_unary_fp32(x,4,scalar.toFloat());
   if(!supported(x) || at::result_type(x,scalar)!=at::kFloat)
     return at::div(native::cpu_fallback_tensor(x,__func__),scalar).to(x.device());
   return unary(x,3,scalar.toFloat());
@@ -98,6 +103,7 @@ at::Tensor binary(const at::Tensor& aa,const at::Tensor& bb,uint32_t op,
     if(op==0&&integer_type(dtype))return at::add(aa,bb,at::Scalar(int64_t(uint64_t(0)-uint64_t(alpha.toLong()))));
     if((op==1||dtype==at::kFloat)&&(aa.scalar_type()!=at::kFloat||bb.scalar_type()!=at::kFloat))return binary(aa.to(at::kFloat),bb.to(at::kFloat),op,alpha);
   }
+  if(at::result_type(aa,bb)==at::kFloat&&(!supported(aa)||!supported(bb))){auto a=device_scalar(aa,bb),b=device_scalar(bb,aa);if(can_iterate_fp32(a)&&can_iterate_fp32(b)){auto shape=at::infer_size(a.sizes(),b.sizes());auto out=at::empty(shape,a.options());iterate_fp32(a,b,out,op==0?9:op==1?11:16,0,alpha.toFloat());return out;}}
   if(at::result_type(aa,bb)!=at::kFloat ||
      (!aa.device().is_cpu() && !supported(aa)) ||
      (!bb.device().is_cpu() && !supported(bb))) {
@@ -175,6 +181,7 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
     auto value=op==1?at::div(x,scalar):op==2?at::sub(x,scalar,alpha):at::mul(x,scalar);
     TORCH_CHECK(c10::canCast(value.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(value);return x;
   }
+  if(can_iterate_fp32(x)&&(fill||at::result_type(x,scalar)==at::kFloat)&&!scalar.isComplex()&&(fill||independent(x))&&(!supported(x)||!independent(x,fill))){iterate_fp32(x,x,x,op==0?8:op==1?4:op==2?6:5,scalar.toFloat(),alpha.toFloat());return x;}
   if(!supported(x) || (!fill && at::result_type(x,scalar)!=at::kFloat) ||
      (fill && scalar.isComplex()) || !independent(x,fill))
     return mutate_cpu(x,scalar,op,alpha);
@@ -230,6 +237,7 @@ at::Tensor& mutate_tensor(at::Tensor& x,const at::Tensor& other,uint32_t op,
     auto value=op==1?at::div(x,other):op==2?at::sub(x,other,alpha):at::mul(x,other);
     TORCH_CHECK(c10::canCast(value.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(value);return x;
   }
+  if((!supported(x)||!supported(other))&&can_iterate_fp32(x)&&can_iterate_fp32(other)&&independent(x)){auto rhs=other;if(x.storage().is_alias_of(other.storage())&&(x.sizes()!=other.sizes()||x.strides()!=other.strides()||x.storage_offset()!=other.storage_offset()))rhs=iterated_unary_fp32(other,0);iterate_fp32(x,rhs,x,op==1?11:op==2?9:10,0,alpha.toFloat());return x;}
   if(supported(x) && supported(other) && independent(x)) {
     std::vector<uint32_t> p(29,0);
     p[0]=u32(x.numel());p[1]=u32(x.storage_offset());p[2]=u32(other.storage_offset());
@@ -277,6 +285,7 @@ at::Tensor& mul_scalar_(at::Tensor& x,const at::Scalar& other) {
 }
 
 std::tuple<at::Tensor,at::Tensor> log_sigmoid_forward(const at::Tensor& x) {
+  if(!supported(x)&&can_iterate_fp32(x)){auto out=at::empty(x.sizes(),x.options()),buffer=at::empty(x.sizes(),x.options());iterate_fp32(x,x,out,15,0,1,buffer);return {out,buffer};}
   if(!supported(x)) {
     auto r=at::log_sigmoid_forward(native::cpu_fallback_tensor(x,__func__));
     return {std::get<0>(r).to(x.device()),std::get<1>(r).to(x.device())};
@@ -288,6 +297,8 @@ std::tuple<at::Tensor,at::Tensor> log_sigmoid_forward(const at::Tensor& x) {
 }
 at::Tensor log_sigmoid_backward(const at::Tensor& grad,const at::Tensor& x,
                                 const at::Tensor& buffer) {
+  if((!supported(x)||!supported(grad)||!supported(buffer))&&can_iterate_fp32(x)&&can_iterate_fp32(grad)&&can_iterate_fp32(buffer)&&x.sizes()==grad.sizes()&&x.sizes()==buffer.sizes()){auto a=packed(x).reshape({-1}),g=packed(grad).reshape({-1}),b=packed(buffer).reshape({-1});return at::log_sigmoid_backward(g,a,b).reshape(x.sizes());}
+
   if(!supported(x) || !supported(grad) || !supported(buffer) ||
      x.sizes()!=grad.sizes() || x.sizes()!=buffer.sizes())
     return at::log_sigmoid_backward(native::cpu_fallback_tensor(grad,__func__),native::cpu_fallback_tensor(x,__func__),native::cpu_fallback_tensor(buffer,__func__)).to(x.device());
@@ -311,6 +322,10 @@ bool all_dimensions(const at::Tensor& x,at::OptionalIntArrayRef dims) {
 }
 at::Tensor mean_dim(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keepdim,
                      std::optional<at::ScalarType> dtype) {
+  TORCH_CHECK(!dtype||at::isFloatingType(*dtype)||at::isComplexType(*dtype),"mean(): could not infer output dtype. Optional dtype must be either a floating point or complex dtype. Got: ",dtype.value_or(x.scalar_type()));
+  TORCH_CHECK(x.is_floating_point()||x.is_complex()||dtype.has_value(),"mean(): could not infer output dtype. Input dtype must be either a floating point or complex dtype. Got: ",x.scalar_type());
+  if(!supported(x)&&can_iterate_fp32(x)&&dtype.value_or(at::kFloat)==at::kFloat&&all_dimensions(x,dims)){auto flat=packed(x).reshape({-1});auto value=mean_dim(flat,std::nullopt,false,dtype);return keepdim?value.reshape(std::vector<int64_t>(x.dim(),1)):value;}
+
   if(!supported(x) || dtype.value_or(x.scalar_type())!=at::kFloat)
     return at::mean(native::cpu_fallback_tensor(x,__func__),dims,keepdim,dtype).to(x.device());
   if(!all_dimensions(x,dims))return reduce_fp32(x,dims,keepdim,true);

@@ -1,0 +1,11 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};layout(binding=1) readonly buffer B {uint b[];};layout(binding=2) readonly buffer Metadata {uint metadata[];};layout(binding=3) buffer Y {uint y[];};layout(binding=4) writeonly buffer Auxiliary {float auxiliary[];};
+layout(push_constant) uniform P {uint count,rank,offset_a,offset_b,offset_out,op,scalar,alpha,flags;}p;
+float log_one_plus(float z){float t=1.0+z;return t==1.0?z:log(t)*divide_refined(z,t-1.0);}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(id>=p.count)return;uint rest=id,ia=p.offset_a,ib=p.offset_b,io=p.offset_out;for(int d=int(p.rank)-1;d>=0;d--){uint coordinate=rest%metadata[d];rest/=metadata[d];ia+=coordinate*metadata[p.rank+uint(d)];ib+=coordinate*metadata[2u*p.rank+uint(d)];io+=coordinate*metadata[3u*p.rank+uint(d)];}float a=uintBitsToFloat(x[ia]),rhs=uintBitsToFloat(b[ib]);if((p.flags&1u)!=0u)a=-a;if((p.flags&2u)!=0u)rhs=-rhs;float scalar=uintBitsToFloat(p.scalar),alpha=uintBitsToFloat(p.alpha);precise float result=a;
+ if(p.op==1u)result=divide_refined(1.0,1.0+exp(-a));else if(p.op==2u)result=abs(a);else if(p.op==3u)result=a>0.0?1.0:a<0.0?-1.0:0.0;else if(p.op==4u)result=divide_refined(a,scalar);else if(p.op==5u)result=a*scalar;else if(p.op==6u)result=a-alpha*scalar;else if(p.op==7u)result=a+alpha*scalar;else if(p.op==8u)result=scalar;else if(p.op==9u)result=a-alpha*rhs;else if(p.op==10u)result=a*rhs;else if(p.op==11u)result=divide_refined(a,rhs);else if(p.op==12u)result=a+alpha*rhs;else if(p.op==13u)result=a>0.0?a:a*scalar;else if(p.op==14u)result=rhs*(a>0.0?1.0:scalar);else if(p.op==15u){float z=exp(-abs(a));auxiliary[id]=z;result=isnan(a)?a:min(a,0.0)-log_one_plus(z);}else if(p.op==16u)result=a*rhs*(1.0-rhs);
+ if((p.flags&4u)!=0u)result=-result;if(p.op==8u)atomicExchange(y[io],floatBitsToUint(result));else y[io]=floatBitsToUint(result);
+}

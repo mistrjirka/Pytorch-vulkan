@@ -1751,3 +1751,214 @@ def test_fractional_pool_native_random_intervals_indices_and_gradient(dimensions
     assert torch.equal(indicesv.cpu(),indices)
     g=torch.randn_like(expected);expected.backward(g);actual.backward(g.to('vulkan'))
     torch.testing.assert_close(v.grad.cpu(),x.grad)
+
+@pytest.mark.parametrize('layout',['contiguous','permute','stepped'])
+@pytest.mark.parametrize('rank',[9,16,32,64])
+def test_general_iteration_native_rank_stride_and_broadcast(rank,layout):
+    shape=[1]*(rank-4)+[2,3,2,6]
+    torch.manual_seed(226)
+    x=torch.randn(shape);v=x.to('vulkan')
+    if layout=='permute':
+        dims=list(range(rank));dims[-4:]=[rank-1,rank-3,rank-4,rank-2]
+        x=x.permute(dims);v=v.permute(dims)
+    if layout=='stepped':x=x[...,1::2];v=v[...,1::2]
+    rhs=torch.randn(x.size(-1));rv=rhs.to('vulkan')
+    vk.reset_execution_stats()
+    actual=[v.sigmoid(),v.abs(),v.sgn(),v/3.,v-rv,v/rv,torch.nn.functional.leaky_relu(v,.13),torch.nn.functional.logsigmoid(v),v.mean()]
+    resident()
+    expected=[x.sigmoid(),x.abs(),x.sgn(),x/3.,x-rhs,x/rhs,torch.nn.functional.leaky_relu(x,.13),torch.nn.functional.logsigmoid(x),x.mean()]
+    for a,b in zip(actual,expected):torch.testing.assert_close(a.cpu(),b)
+    vk.reset_execution_stats();v.add_(rv,alpha=.25);v.sub_(rv,alpha=-.3);v.mul_(rv);v.div_(rv);v.add_(.15);resident()
+    x.add_(rhs,alpha=.25);x.sub_(rhs,alpha=-.3);x.mul_(rhs);x.div_(rhs);x.add_(.15)
+    torch.testing.assert_close(v.cpu(),x)
+
+
+def test_general_iteration_native_uncoalesced_axes_and_autograd():
+    torch.manual_seed(267)
+    x=torch.randn([2]*9).permute(8,6,4,2,0,7,5,3,1).detach().requires_grad_()
+    v=x.detach().contiguous().to('vulkan').permute(8,6,4,2,0,7,5,3,1).detach().requires_grad_()
+    # Match logical values while preserving a noncontiguous rank-nine layout.
+    expected=v.detach().cpu().requires_grad_()
+    vk.reset_execution_stats()
+    result=(v.sigmoid()+torch.nn.functional.logsigmoid(v)+torch.nn.functional.leaky_relu(v,.2)).mean()
+    resident()
+    reference=(expected.sigmoid()+torch.nn.functional.logsigmoid(expected)+torch.nn.functional.leaky_relu(expected,.2)).mean()
+    result.backward();reference.backward()
+    torch.testing.assert_close(v.grad.cpu(),expected.grad)
+
+
+def test_general_iteration_native_overlapping_fill_and_lazy_negative_view():
+    cpu=torch.arange(64,dtype=torch.float32);gpu=cpu.to('vulkan')
+    a=cpu.as_strided((8,8),(1,1),3);v=gpu.as_strided((8,8),(1,1),3)
+    vk.reset_execution_stats();v.fill_(1.75);resident();a.fill_(1.75)
+    torch.testing.assert_close(gpu.cpu(),cpu)
+    shape=[1]*8+[4];x=torch.tensor([-2.,-0.,1.,3.]).reshape(shape);v=x.to('vulkan')
+    neg=torch._neg_view(v);expected=torch._neg_view(x)
+    vk.reset_execution_stats();actual=neg.sigmoid();neg.add_(.25);resident()
+    torch.testing.assert_close(actual.cpu(),expected.sigmoid())
+    expected.add_(.25);torch.testing.assert_close(v.cpu(),x)
+
+@pytest.mark.parametrize('replacement',[False,True])
+@pytest.mark.parametrize('batched',[False,True])
+def test_multinomial_native_generator_and_zero_weights(replacement,batched):
+    weights=torch.tensor([[0.,1.,3.,0.,2.],[2.,0.,0.,1.,4.]])
+    if not batched:weights=weights[0]
+    x=weights.to('vulkan');g=torch.Generator(device='vulkan').manual_seed(611)
+    samples=4 if not replacement else 20000
+    vk.reset_execution_stats();a=torch.multinomial(x,samples,replacement,generator=g)
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    g.manual_seed(611);b=torch.multinomial(x,samples,replacement,generator=g)
+    assert torch.equal(a.cpu(),b.cpu())
+    if not replacement:
+        rows=a.cpu().reshape(-1,samples)
+        assert all(len(set(row.tolist()))==samples for row in rows)
+    else:
+        rows=a.cpu().reshape(-1,samples);expected=weights.reshape(-1,5)
+        for row,prob in zip(rows,expected):
+            counts=torch.bincount(row,minlength=5).float()/samples
+            torch.testing.assert_close(counts,prob/prob.sum(),atol=.015,rtol=0)
+            assert torch.equal(counts[prob==0],torch.zeros_like(counts[prob==0]))
+
+
+def test_multinomial_native_invalid_probabilities_and_out():
+    for values in [[0.,0.,0.],[1.,-1.,1.],[1.,float('nan'),1.],[1.,float('inf'),1.]]:
+        for replacement in [False,True]:
+            with pytest.raises(RuntimeError,match='probability|probabilities'):
+                torch.multinomial(torch.tensor(values,device='vulkan'),2,replacement)
+    x=torch.tensor([0.,0.,1.,0.],device='vulkan');out=torch.empty(20,dtype=torch.long,device='vulkan')[::2]
+    assert torch.multinomial(x,10,True,out=out) is out
+    assert out.cpu().tolist()==[2]*10
+    with pytest.raises(RuntimeError,match='Long tensor out'):torch.multinomial(x,2,out=torch.empty(2,device='vulkan'))
+
+@pytest.mark.parametrize('target_format',['padded','concatenated'])
+@pytest.mark.parametrize('tensor_lengths',[False,True])
+@pytest.mark.parametrize('reduction',['none','mean','sum'])
+@pytest.mark.parametrize('zero_infinity',[False,True])
+def test_ctc_native_lengths_repeats_zero_lengths_and_gradients(target_format,tensor_lengths,reduction,zero_infinity):
+    torch.manual_seed(633)
+    lengths=[0,7,13];target_lengths=[0,3,5]
+    targets=torch.tensor([[1,1,2,2,1],[1,1,2,2,1],[1,1,2,2,1]],dtype=torch.int64)
+    if target_format=='concatenated':targets=torch.cat([row[:n] for row,n in zip(targets,target_lengths)])
+    data=torch.randn(15,8,3).log_softmax(1).permute(0,2,1)
+    x=data.detach().requires_grad_();v=data.to('vulkan').detach().requires_grad_()
+    il=torch.tensor(lengths) if tensor_lengths else lengths;tl=torch.tensor(target_lengths) if tensor_lengths else target_lengths
+    op=torch.nn.functional.ctc_loss
+    expected=op(x,targets,il,tl,reduction=reduction,zero_infinity=zero_infinity)
+    vk.reset_execution_stats()
+    actual=op(v,targets.to('vulkan'),il.to('vulkan') if tensor_lengths else il,tl.to('vulkan') if tensor_lengths else tl,reduction=reduction,zero_infinity=zero_infinity)
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.cpu(),expected,equal_nan=True)
+    grad=torch.randn_like(expected);expected.backward(grad);actual.backward(grad.to('vulkan'))
+    torch.testing.assert_close(v.grad.cpu(),x.grad,equal_nan=True)
+
+@pytest.mark.parametrize('dtype',[torch.int32,torch.int64])
+@pytest.mark.parametrize('blank',[0,3])
+def test_ctc_native_long_sequences_cpu_targets_and_alphas(dtype,blank):
+    torch.manual_seed(642)
+    targets=torch.randint(0,6,(2,17),dtype=dtype);targets=targets+(targets>=blank).to(dtype)
+    x=torch.randn(81,2,7).log_softmax(-1).detach().requires_grad_();v=x.detach().to('vulkan').requires_grad_()
+    expected,alpha=torch.ops.aten._ctc_loss(x,targets,[81,73],[17,11],blank,False)
+    actual,alphav=torch.ops.aten._ctc_loss(v,targets,[81,73],[17,11],blank,False)
+    torch.testing.assert_close(actual.cpu(),expected)
+    for n,(length,labels) in enumerate([(81,17),(73,11)]):torch.testing.assert_close(alphav[n,:length,:2*labels+1].cpu(),alpha[n,:length,:2*labels+1])
+    grad=torch.tensor([.2,-.3]);expected.backward(grad);actual.backward(grad.to('vulkan'))
+    torch.testing.assert_close(v.grad.cpu(),x.grad)
+
+@pytest.mark.parametrize('dtype',[torch.bool,torch.uint8,torch.int8,torch.int16,torch.int32,torch.int64])
+def test_integer_sigmoid_and_powers_remain_native(dtype):
+    x=torch.tensor([[-3,-1,0,1,3],[7,8,9,10,11]],dtype=torch.int64).to(dtype)
+    v=x.to('vulkan').t()
+    for exponent in [0,1,2,5,63]:
+        vk.reset_execution_stats();actual=torch.pow(v,exponent);resident()
+        assert torch.equal(actual.cpu(),torch.pow(x.t(),exponent))
+    vk.reset_execution_stats();actual=v.sigmoid();resident()
+    torch.testing.assert_close(actual.cpu(),x.t().sigmoid())
+    if dtype!=torch.bool:
+        with pytest.raises(RuntimeError,match='negative integer powers'):torch.pow(v,-1)
+
+
+def test_noncanonical_bool_sigmoid_and_square():
+    raw=torch.tensor([0,1,2,255,128,0,7,64],dtype=torch.uint8)
+    v=raw.to('vulkan').view(torch.bool);cpu=raw.view(torch.bool)
+    torch.testing.assert_close(v.sigmoid().cpu(),cpu.sigmoid())
+    assert torch.equal(v.square().cpu(),cpu.square())
+    with pytest.raises(RuntimeError,match='Optional dtype must be either a floating point or complex dtype'):
+        torch.ones(3,4,device='vulkan').mean(dtype=torch.long)
+
+@pytest.mark.parametrize('n',[0,1,2,5,11])
+@pytest.mark.parametrize('batch',[(),(2,),(2,1)])
+@pytest.mark.parametrize('hermitian',[False,True])
+def test_ldl_native_factors_pivots_and_solve(n,batch,hermitian):
+    torch.manual_seed(844)
+    source=torch.randn(batch+(n,n));a=(source+source.transpose(-1,-2))*.5
+    if n==2:a=torch.tensor([[0.,1.],[1.,0.]]).expand(batch+(2,2)).clone()
+    expected,pivots,info=torch.linalg.ldl_factor_ex(a,hermitian=hermitian)
+    v=a.to('vulkan');vk.reset_execution_stats()
+    actual,pv,iv=torch.linalg.ldl_factor_ex(v,hermitian=hermitian)
+    resident();torch.testing.assert_close(actual.cpu(),expected)
+    assert torch.equal(pv.cpu(),pivots);assert torch.equal(iv.cpu(),info)
+    b=torch.randn(batch+(n,3))
+    result=torch.linalg.ldl_solve(actual,pv,b.to('vulkan'),hermitian=hermitian)
+    torch.testing.assert_close(result.cpu(),torch.linalg.ldl_solve(expected,pivots,b,hermitian=hermitian))
+
+@pytest.mark.parametrize('n',[7,17,129])
+def test_ldl_native_solve_accepts_cpu_factors_and_batch_broadcast(n):
+    torch.manual_seed(862)
+    source=torch.randn(2,n,n);a=source+source.transpose(-1,-2)+torch.eye(n)*.25
+    ld,pivots=torch.linalg.ldl_factor(a)
+    b=torch.randn(1,n,4)
+    expected=torch.linalg.ldl_solve(ld,pivots,b)
+    actual=torch.linalg.ldl_solve(ld.to('vulkan'),pivots.to('vulkan'),b.to('vulkan'))
+    torch.testing.assert_close(actual.cpu(),expected)
+    # Factorization uses the lower triangle, including a non-symmetric upper half.
+    data=a+torch.triu(torch.randn_like(a),1)
+    actual,pv,iv=torch.linalg.ldl_factor_ex(data.to('vulkan'))
+    ld,pivots,info=torch.linalg.ldl_factor_ex(data)
+    # CUDA and Vulkan use different floating-point update schedules from CPU
+    # LAPACK at larger sizes. Validate the factorization through an independent
+    # CPU FP64 solve and a normalized equation residual, while retaining exact
+    # pivot/info checks and the small-matrix factor comparisons above.
+    solution=torch.linalg.ldl_solve(actual.cpu().double(),pv.cpu(),b.double())
+    effective=torch.tril(data).double()+torch.tril(data,-1).double().transpose(-1,-2)
+    residual=(effective@solution-b.double()).abs().amax(-2)
+    scale=effective.abs().sum(-1).amax(-1).unsqueeze(-1)*solution.abs().amax(-2)+b.double().abs().amax(-2)
+    assert (residual/scale).max()<4*torch.finfo(torch.float32).eps
+    assert torch.equal(pv.cpu(),pivots);assert torch.equal(iv.cpu(),info)
+
+
+def test_ldl_native_singular_info_and_errors():
+    a=torch.zeros(3,3,device='vulkan')
+    result,pivots,info=torch.linalg.ldl_factor_ex(a)
+    assert info.cpu().item()==1
+    # Pinned CPU ATen raises RuntimeError with an unknown-info message for LDL.
+    with pytest.raises(RuntimeError,match='Unknown error code: 1'):torch.linalg.ldl_factor_ex(a,check_errors=True)
+    with pytest.raises(RuntimeError,match='square'):torch.linalg.ldl_factor_ex(torch.ones(2,3,device='vulkan'))
+
+
+def test_ldl_solve_single_rounding_across_fp32_exponents():
+    # In a 2x2 unit-diagonal LDL solve, the last result is exactly c - a*b.
+    # Compare that operation to the host C99 single-rounded fmaf oracle. This
+    # includes cancellation, halfway rounding, overflow and subnormal values.
+    import ctypes
+    import ctypes.util
+    import random
+    import struct
+    libm=ctypes.CDLL(ctypes.util.find_library('m') or None)
+    fmaf=libm.fmaf;fmaf.argtypes=[ctypes.c_float]*3;fmaf.restype=ctypes.c_float
+    def fp32(raw):return struct.unpack('f',struct.pack('I',raw))[0]
+    directed=[(0x3f800001,0x3f7ffffe,0x3f800000),
+              (0x7f7fffff,0x40000000,0x7f7fffff),
+              (0x00800000,0x3f000000,0x00800001),
+              (0x00000001,0x3f000000,0x00000001),
+              (0x00000003,0x3f000000,0x00000002),
+              (0x3f800001,0x3f800001,0x3f800002)]
+    rng=random.Random(863)
+    bits=directed+[tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(512)]
+    triples=[tuple(fp32(raw) for raw in row) for row in bits
+             if all((raw&0x7f800000)!=0x7f800000 for raw in row)]
+    values=torch.tensor(triples);ld=torch.eye(2).repeat(len(triples),1,1)
+    ld[:,1,0]=values[:,0];pivots=torch.tensor([1,2],dtype=torch.int32).expand(len(triples),2)
+    rhs=values[:,1:].reshape(-1,2,1)
+    expected=torch.tensor([fmaf(-a,b,c) for a,b,c in triples])
+    result=torch.linalg.ldl_solve(ld.to('vulkan'),pivots.to('vulkan'),rhs.to('vulkan')).cpu()[:,1,0]
+    torch.testing.assert_close(result,expected,rtol=0,atol=0,equal_nan=True)

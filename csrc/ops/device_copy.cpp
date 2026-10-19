@@ -10,6 +10,7 @@ bool copy_on_device(at::Tensor& out,const at::Tensor& input){
  if(out.device().type()!=c10::DeviceType::PrivateUse1||input.device()!=out.device()||!(device_copy_supported(out.scalar_type())||out.scalar_type()==at::kComplexFloat)||!(device_copy_supported(input.scalar_type())||input.scalar_type()==at::kComplexFloat))return false;
  auto src=input.expand(out.sizes());
  if(!out.numel())return true;
+ if(can_iterate_fp32(out)&&can_iterate_fp32(src)&&(!can_pack_view(out)||!can_pack_view(src))){at::assert_no_internal_overlap(out);at::assert_no_partial_overlap(out,src);if(out.storage().is_alias_of(src.storage())&&(out.strides()!=src.strides()||out.storage_offset()!=src.storage_offset()))src=iterated_unary_fp32(src,0);iterate_fp32(src,src,out,0);return true;}
  TORCH_CHECK(can_pack_view(out)&&can_pack_view(src),"device copy exceeds Vulkan indexing/storage limits");
  at::assert_no_internal_overlap(out);at::assert_no_partial_overlap(out,src);
  // One invocation owns an entire destination word. Invert non-overlapping

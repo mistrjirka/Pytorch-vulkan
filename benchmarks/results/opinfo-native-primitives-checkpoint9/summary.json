@@ -1,0 +1,66 @@
+{
+  "scope": "Focused rechecks plus repository strict checks; not a new full upstream audit of this staged source",
+  "runs": {
+    "focused48": {
+      "cases": 105,
+      "outcomes": {
+        "skipped": 7,
+        "passed": 91,
+        "error": 5,
+        "expected_failure": 1,
+        "unexpected_success": 1
+      },
+      "backend_source_sha256": "d13611e3494b2912420956908414ea395c31bc735a15788b3d6be1d40960a652",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 5
+    },
+    "focused49": {
+      "cases": 34,
+      "outcomes": {
+        "passed": 31,
+        "skipped": 3
+      },
+      "backend_source_sha256": "dd3403ddf2292c49fc34bb40e59ba97176ca28f16f764db2edf7df1cb0991233",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused50": {
+      "cases": 275,
+      "outcomes": {
+        "passed": 241,
+        "error": 6,
+        "skipped": 26,
+        "expected_failure": 1,
+        "unexpected_success": 1
+      },
+      "backend_source_sha256": "dd3403ddf2292c49fc34bb40e59ba97176ca28f16f764db2edf7df1cb0991233",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused51": {
+      "cases": 27,
+      "outcomes": {
+        "passed": 24,
+        "skipped": 3
+      },
+      "backend_source_sha256": "f40e7d34235b35c768e4a1703b53e66cbd68345c1738fa233e71e40d58281655",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    }
+  },
+  "before_7f12ebe_for_focused50": {
+    "passed": 195,
+    "error": 52,
+    "skipped": 26,
+    "expected_failure": 2
+  },
+  "recovered_errors_as_passed": 46,
+  "repository_strict_result": {
+    "passed": 2932,
+    "failed": 11,
+    "status": "All 11 raw failures explicitly require deferred FP64 tensors or arithmetic; source evidence retained."
+  },
+  "regressions_strict_per_device": 1199,
+  "repository_ordinary_rtx_passed": 2943,
+  "source_sha256": "f40e7d34235b35c768e4a1703b53e66cbd68345c1738fa233e71e40d58281655"
+}

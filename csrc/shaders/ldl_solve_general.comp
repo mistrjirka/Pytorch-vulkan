@@ -1,0 +1,14 @@
+// Interleaved Bunch-Kaufman triangular/block solve; LAPACK BSD-3-Clause.
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+#include "fp32_fma.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer LD {float ld[];};layout(binding=1) readonly buffer Pivots {int pivots[];};layout(binding=2) readonly buffer B {float input_data[];};layout(binding=3) buffer Y {float y[];};layout(binding=4) buffer Status {uint status[];};
+layout(push_constant) uniform P {uint batch,n,rhs,blocks;}p;
+void main(){uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,batch=group/p.blocks,col=(group%p.blocks)*128u+gl_LocalInvocationID.x;if(batch>=p.batch||col>=p.rhs)return;uint n=p.n,base=batch*n*n,outbase=batch*n*p.rhs;for(uint i=0u;i<n;i++)y[outbase+i*p.rhs+col]=input_data[outbase+i*p.rhs+col];
+ for(uint k=0u;k<n;){int value=pivots[batch*n+k];uint kp=value>0?uint(value-1):uint(-(value+1));if(value==0||kp>=n||(value<0&&(k+1u>=n||pivots[batch*n+k+1u]!=value))){atomicOr(status[0],1u);return;}uint row=value>0?k:k+1u;float tmp=y[outbase+row*p.rhs+col];y[outbase+row*p.rhs+col]=y[outbase+kp*p.rhs+col];y[outbase+kp*p.rhs+col]=tmp;float a=y[outbase+k*p.rhs+col];
+  if(value>0){for(uint i=k+1u;i<n;i++)y[outbase+i*p.rhs+col]=fma_refined(uintBitsToFloat(floatBitsToUint(ld[base+i*n+k])^0x80000000u),a,y[outbase+i*p.rhs+col]);y[outbase+k*p.rhs+col]=divide_refined(a,ld[base+k*n+k]);k++;}else{float b=y[outbase+(k+1u)*p.rhs+col];for(uint i=k+2u;i<n;i++){float next=fma_refined(uintBitsToFloat(floatBitsToUint(ld[base+i*n+k])^0x80000000u),a,y[outbase+i*p.rhs+col]);next=fma_refined(uintBitsToFloat(floatBitsToUint(ld[base+i*n+k+1u])^0x80000000u),b,next);y[outbase+i*p.rhs+col]=next;}float off=ld[base+(k+1u)*n+k],d0=divide_refined(ld[base+k*n+k],off),d1=divide_refined(ld[base+(k+1u)*n+k+1u],off);precise float denominator=d0*d1-1.0;float b0=divide_refined(a,off),b1=divide_refined(b,off);precise float r0=d1*b0-b1,r1=d0*b1-b0;y[outbase+k*p.rhs+col]=divide_refined(r0,denominator);y[outbase+(k+1u)*p.rhs+col]=divide_refined(r1,denominator);k+=2u;}
+ }
+ for(int k=int(n)-1;k>=0;){int value=pivots[batch*n+uint(k)];uint kp=value>0?uint(value-1):uint(-(value+1));float first=y[outbase+uint(k)*p.rhs+col],second=value<0?y[outbase+uint(k-1)*p.rhs+col]:0.0;for(uint i=uint(k)+1u;i<n;i++){first=fma_refined(uintBitsToFloat(floatBitsToUint(ld[base+i*n+uint(k)])^0x80000000u),y[outbase+i*p.rhs+col],first);if(value<0)second=fma_refined(uintBitsToFloat(floatBitsToUint(ld[base+i*n+uint(k-1)])^0x80000000u),y[outbase+i*p.rhs+col],second);}y[outbase+uint(k)*p.rhs+col]=first;if(value<0)y[outbase+uint(k-1)*p.rhs+col]=second;float tmp=y[outbase+uint(k)*p.rhs+col];y[outbase+uint(k)*p.rhs+col]=y[outbase+kp*p.rhs+col];y[outbase+kp*p.rhs+col]=tmp;k-=value>0?1:2;}
+}

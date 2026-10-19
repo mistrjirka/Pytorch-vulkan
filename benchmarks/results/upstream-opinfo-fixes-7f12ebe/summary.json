@@ -1,0 +1,3762 @@
+{
+  "backend_commit": "7f12ebe73be2e605b51d2cfa3c3bfe9454ed27db",
+  "backend_source_sha256": "0626a646144a573b6c8d5b9ff6a2afdf38b846469d3b7d73ef2e6fe30bb8a3cd",
+  "source_identity": "recorded_after_build",
+  "published_source_identity": null,
+  "torch": "2.14.1+cpu",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "source_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+  "extension_sha256": "37c583d52981ae653da070baa4393767ba2acc382835420810995abf1636d5d7",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "opinfo_registry_entries": 703,
+  "selected_cases": 8696,
+  "generated_cases_outside_scope": 24078,
+  "excluded_reasons": {
+    "other dtype": 976,
+    "other test family": 17494,
+    "non-core class (FakeTensor, math-bit dtypes, or metadata)": 5608
+  },
+  "raw_outcomes": {
+    "passed": 7707,
+    "unexpected_success": 29,
+    "error": 437,
+    "skipped": 446,
+    "expected_failure": 77
+  },
+  "resolved_outcomes": {
+    "passed": 7707,
+    "unexpected_success": 29,
+    "error": 437,
+    "skipped": 446,
+    "expected_failure": 77
+  },
+  "failures_by_category": {
+    "forbidden_fallback": 304,
+    "error": 64,
+    "numerical_comparison": 1,
+    "rng_dtype_rejection": 12,
+    "error_message_contract": 16,
+    "upstream_cuda_only_feature": 40
+  },
+  "first_missing_dispatches": {
+    "Vulkan inline::vulkan_to_copy": 160,
+    "Vulkan inline::mutate_cpu": 53,
+    "aten::linalg_ldl_factor_ex.out": 24,
+    "aten::linalg_eig": 16,
+    "aten::_ctc_loss": 9,
+    "aten::_to_sparse_csr": 9,
+    "aten::_linalg_eigvals": 6,
+    "aten::multinomial": 6,
+    "Vulkan inline::vulkan_copy_": 3,
+    "aten::embedding_renorm_": 3,
+    "Vulkan inline::forward": 3,
+    "Vulkan inline::sigmoid_native": 2,
+    "Vulkan inline::power": 2,
+    "Vulkan inline::add_tensor_": 2,
+    "aten::avg_pool2d.out": 2,
+    "aten::avg_pool3d.out": 2,
+    "Vulkan inline::mean_dim": 1,
+    "Vulkan inline::cpu_unary": 1
+  },
+  "by_family": {
+    "test_0d_tensor_with_python_scalar": {
+      "passed": 5
+    },
+    "test_backward": {
+      "passed": 519,
+      "error": 13,
+      "skipped": 6,
+      "expected_failure": 3
+    },
+    "test_compare_cpu": {
+      "passed": 481,
+      "unexpected_success": 17,
+      "error": 51,
+      "skipped": 62,
+      "expected_failure": 4
+    },
+    "test_cow_input": {
+      "passed": 642,
+      "error": 34,
+      "skipped": 2
+    },
+    "test_errors": {
+      "passed": 198,
+      "error": 26,
+      "expected_failure": 2
+    },
+    "test_errors_sparse": {
+      "error": 5,
+      "passed": 15
+    },
+    "test_forward_ad": {
+      "passed": 490,
+      "skipped": 176,
+      "error": 9,
+      "expected_failure": 3
+    },
+    "test_non_standard_bool_values": {
+      "passed": 314,
+      "skipped": 11,
+      "error": 26
+    },
+    "test_noncontiguous_samples": {
+      "passed": 1007,
+      "error": 75,
+      "expected_failure": 7,
+      "skipped": 57
+    },
+    "test_operator": {
+      "passed": 626,
+      "error": 27,
+      "skipped": 21,
+      "expected_failure": 4
+    },
+    "test_out": {
+      "passed": 934,
+      "expected_failure": 14,
+      "error": 51,
+      "skipped": 34,
+      "unexpected_success": 8
+    },
+    "test_out_requires_grad_error": {
+      "passed": 269,
+      "error": 6,
+      "skipped": 6,
+      "expected_failure": 1
+    },
+    "test_out_warning": {
+      "passed": 948,
+      "expected_failure": 20,
+      "error": 47,
+      "skipped": 33,
+      "unexpected_success": 4
+    },
+    "test_reduction_ops_reduce": {
+      "passed": 27
+    },
+    "test_variant_consistency_eager": {
+      "passed": 592,
+      "skipped": 36,
+      "expected_failure": 19,
+      "error": 31
+    },
+    "test_view_replay": {
+      "passed": 640,
+      "error": 36,
+      "skipped": 2
+    }
+  },
+  "by_dtype": {
+    "bool": {
+      "passed": 314,
+      "skipped": 11,
+      "error": 26
+    },
+    "float32": {
+      "passed": 5775,
+      "unexpected_success": 25,
+      "error": 286,
+      "skipped": 380,
+      "expected_failure": 52
+    },
+    "int64": {
+      "passed": 430,
+      "skipped": 22,
+      "error": 47,
+      "expected_failure": 3
+    },
+    "test-defined": {
+      "passed": 1188,
+      "error": 78,
+      "expected_failure": 22,
+      "skipped": 33,
+      "unexpected_success": 4
+    }
+  },
+  "by_operator_variant": {
+    "H": {
+      "passed": 12
+    },
+    "T": {
+      "passed": 13
+    },
+    "__getitem__": {
+      "passed": 12
+    },
+    "__radd__": {
+      "passed": 13
+    },
+    "__rand__": {
+      "passed": 6
+    },
+    "__rdiv__": {
+      "passed": 13
+    },
+    "__rmatmul__": {
+      "passed": 11
+    },
+    "__rmod__": {
+      "passed": 12
+    },
+    "__rmul__": {
+      "passed": 13
+    },
+    "__ror__": {
+      "passed": 6
+    },
+    "__rpow__": {
+      "passed": 12
+    },
+    "__rsub__": {
+      "passed": 12
+    },
+    "__rxor__": {
+      "passed": 6
+    },
+    "_batch_norm_with_update": {
+      "passed": 9,
+      "expected_failure": 2
+    },
+    "_chunk_cat": {
+      "passed": 10,
+      "error": 1,
+      "skipped": 1
+    },
+    "_native_batch_norm_legit": {
+      "unexpected_success": 1,
+      "passed": 10
+    },
+    "_refs.T": {
+      "passed": 3
+    },
+    "_refs._conversions.bfloat16": {
+      "error": 3
+    },
+    "_refs._conversions.bool": {
+      "passed": 3
+    },
+    "_refs._conversions.byte": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.cdouble": {
+      "error": 3
+    },
+    "_refs._conversions.cfloat": {
+      "passed": 3
+    },
+    "_refs._conversions.chalf": {
+      "error": 3
+    },
+    "_refs._conversions.char": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.complex": {
+      "passed": 3
+    },
+    "_refs._conversions.double": {
+      "error": 3
+    },
+    "_refs._conversions.float": {
+      "passed": 3
+    },
+    "_refs._conversions.half": {
+      "error": 3
+    },
+    "_refs._conversions.int": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.long": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs._conversions.polar": {
+      "passed": 3
+    },
+    "_refs._conversions.short": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.abs": {
+      "passed": 2
+    },
+    "_refs.acos": {
+      "passed": 2
+    },
+    "_refs.acosh": {
+      "passed": 2
+    },
+    "_refs.add": {
+      "passed": 2
+    },
+    "_refs.addcdiv": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.addcmul": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.addr": {
+      "passed": 3
+    },
+    "_refs.alias_copy": {
+      "passed": 3
+    },
+    "_refs.all": {
+      "passed": 2
+    },
+    "_refs.allclose": {
+      "skipped": 2
+    },
+    "_refs.amax": {
+      "passed": 2
+    },
+    "_refs.amin": {
+      "passed": 2
+    },
+    "_refs.any": {
+      "passed": 2
+    },
+    "_refs.arange": {
+      "passed": 3
+    },
+    "_refs.as_strided": {
+      "passed": 3
+    },
+    "_refs.as_strided.partial_views": {
+      "expected_failure": 1,
+      "passed": 2
+    },
+    "_refs.as_strided_copy": {
+      "passed": 3
+    },
+    "_refs.as_strided_scatter": {
+      "passed": 3
+    },
+    "_refs.asin": {
+      "passed": 2
+    },
+    "_refs.asinh": {
+      "passed": 2
+    },
+    "_refs.atan": {
+      "passed": 2
+    },
+    "_refs.atan2": {
+      "passed": 3
+    },
+    "_refs.atanh": {
+      "passed": 2
+    },
+    "_refs.atleast_1d": {
+      "passed": 3
+    },
+    "_refs.atleast_2d": {
+      "passed": 3
+    },
+    "_refs.atleast_3d": {
+      "passed": 3
+    },
+    "_refs.bitwise_and": {
+      "passed": 2
+    },
+    "_refs.bitwise_left_shift": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.bitwise_not": {
+      "passed": 2
+    },
+    "_refs.bitwise_or": {
+      "passed": 2
+    },
+    "_refs.bitwise_right_shift": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.bitwise_xor": {
+      "passed": 2
+    },
+    "_refs.block_diag": {
+      "passed": 3
+    },
+    "_refs.broadcast_shapes": {
+      "passed": 2
+    },
+    "_refs.broadcast_tensors": {
+      "passed": 2
+    },
+    "_refs.broadcast_to": {
+      "passed": 2
+    },
+    "_refs.bucketize": {
+      "passed": 3
+    },
+    "_refs.cat": {
+      "passed": 2
+    },
+    "_refs.cauchy": {
+      "skipped": 3
+    },
+    "_refs.ceil": {
+      "passed": 2
+    },
+    "_refs.chunk": {
+      "passed": 3
+    },
+    "_refs.clamp": {
+      "passed": 2
+    },
+    "_refs.clamp_max": {
+      "passed": 2
+    },
+    "_refs.clamp_min": {
+      "passed": 2
+    },
+    "_refs.clone": {
+      "passed": 2
+    },
+    "_refs.column_stack": {
+      "passed": 3
+    },
+    "_refs.conj": {
+      "passed": 2
+    },
+    "_refs.conj_physical": {
+      "passed": 2
+    },
+    "_refs.constant_pad_nd": {
+      "passed": 3
+    },
+    "_refs.contiguous": {
+      "passed": 3
+    },
+    "_refs.copysign": {
+      "passed": 3
+    },
+    "_refs.cos": {
+      "passed": 2
+    },
+    "_refs.cosh": {
+      "passed": 2
+    },
+    "_refs.count_nonzero": {
+      "passed": 2
+    },
+    "_refs.cumprod": {
+      "passed": 2,
+      "expected_failure": 1
+    },
+    "_refs.cumsum": {
+      "passed": 2,
+      "expected_failure": 1
+    },
+    "_refs.deg2rad": {
+      "passed": 2
+    },
+    "_refs.diag": {
+      "passed": 2
+    },
+    "_refs.diag_embed": {
+      "passed": 3
+    },
+    "_refs.diagonal": {
+      "passed": 3
+    },
+    "_refs.diagonal_copy": {
+      "passed": 3
+    },
+    "_refs.diagonal_scatter": {
+      "passed": 3
+    },
+    "_refs.digamma": {
+      "passed": 2
+    },
+    "_refs.div.floor_rounding": {
+      "passed": 3
+    },
+    "_refs.div.no_rounding_mode": {
+      "passed": 3
+    },
+    "_refs.div.trunc_rounding": {
+      "passed": 3
+    },
+    "_refs.dot": {
+      "passed": 3
+    },
+    "_refs.dsplit": {
+      "passed": 3
+    },
+    "_refs.dstack": {
+      "passed": 3
+    },
+    "_refs.empty": {
+      "skipped": 3
+    },
+    "_refs.empty_like": {
+      "skipped": 3
+    },
+    "_refs.empty_strided": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.eq": {
+      "passed": 2
+    },
+    "_refs.equal": {
+      "skipped": 2
+    },
+    "_refs.erf": {
+      "passed": 2
+    },
+    "_refs.erfc": {
+      "passed": 2
+    },
+    "_refs.erfinv": {
+      "passed": 2
+    },
+    "_refs.exp": {
+      "passed": 2
+    },
+    "_refs.exp2": {
+      "passed": 2
+    },
+    "_refs.expand": {
+      "passed": 3
+    },
+    "_refs.expand_as": {
+      "passed": 3
+    },
+    "_refs.expand_copy": {
+      "passed": 3
+    },
+    "_refs.expm1": {
+      "passed": 2
+    },
+    "_refs.exponential": {
+      "skipped": 3
+    },
+    "_refs.eye": {
+      "error": 3
+    },
+    "_refs.fft.fft": {
+      "passed": 2
+    },
+    "_refs.fft.fft2": {
+      "passed": 2
+    },
+    "_refs.fft.fftn": {
+      "passed": 2
+    },
+    "_refs.fft.fftshift": {
+      "passed": 3
+    },
+    "_refs.fft.hfft": {
+      "passed": 2
+    },
+    "_refs.fft.hfft2": {
+      "passed": 2
+    },
+    "_refs.fft.hfftn": {
+      "passed": 2
+    },
+    "_refs.fft.ifft": {
+      "passed": 2
+    },
+    "_refs.fft.ifft2": {
+      "passed": 2
+    },
+    "_refs.fft.ifftn": {
+      "passed": 2
+    },
+    "_refs.fft.ifftshift": {
+      "passed": 3
+    },
+    "_refs.fft.ihfft": {
+      "passed": 2
+    },
+    "_refs.fft.ihfft2": {
+      "passed": 2
+    },
+    "_refs.fft.ihfftn": {
+      "passed": 2
+    },
+    "_refs.fft.irfft": {
+      "passed": 2
+    },
+    "_refs.fft.irfft2": {
+      "passed": 2
+    },
+    "_refs.fft.irfftn": {
+      "passed": 2
+    },
+    "_refs.fft.rfft": {
+      "passed": 2
+    },
+    "_refs.fft.rfft2": {
+      "passed": 2
+    },
+    "_refs.fft.rfftn": {
+      "passed": 2
+    },
+    "_refs.fill": {
+      "passed": 2
+    },
+    "_refs.flatten": {
+      "passed": 2
+    },
+    "_refs.flip": {
+      "passed": 3
+    },
+    "_refs.fliplr": {
+      "passed": 3
+    },
+    "_refs.flipud": {
+      "passed": 3
+    },
+    "_refs.float_power": {
+      "error": 2
+    },
+    "_refs.floor": {
+      "passed": 2
+    },
+    "_refs.floor_divide": {
+      "passed": 2
+    },
+    "_refs.fmax": {
+      "passed": 3
+    },
+    "_refs.fmin": {
+      "passed": 3
+    },
+    "_refs.fmod": {
+      "passed": 2
+    },
+    "_refs.frac": {
+      "passed": 2
+    },
+    "_refs.frexp": {
+      "passed": 2
+    },
+    "_refs.gcd": {
+      "passed": 2
+    },
+    "_refs.ge": {
+      "passed": 2
+    },
+    "_refs.geometric": {
+      "skipped": 3
+    },
+    "_refs.gt": {
+      "passed": 2
+    },
+    "_refs.heaviside": {
+      "passed": 2
+    },
+    "_refs.hsplit": {
+      "passed": 3
+    },
+    "_refs.hstack": {
+      "passed": 3
+    },
+    "_refs.hypot": {
+      "passed": 3
+    },
+    "_refs.i0": {
+      "passed": 2
+    },
+    "_refs.igamma": {
+      "passed": 3
+    },
+    "_refs.igammac": {
+      "passed": 3
+    },
+    "_refs.imag": {
+      "passed": 1
+    },
+    "_refs.index_add": {
+      "passed": 3
+    },
+    "_refs.index_copy": {
+      "passed": 3
+    },
+    "_refs.index_fill": {
+      "passed": 3
+    },
+    "_refs.index_select": {
+      "passed": 3
+    },
+    "_refs.isclose": {
+      "passed": 2
+    },
+    "_refs.isfinite": {
+      "passed": 2
+    },
+    "_refs.isinf": {
+      "passed": 2
+    },
+    "_refs.isnan": {
+      "passed": 2
+    },
+    "_refs.isneginf": {
+      "passed": 2
+    },
+    "_refs.isposinf": {
+      "passed": 2
+    },
+    "_refs.isreal": {
+      "passed": 2
+    },
+    "_refs.istft": {
+      "passed": 1
+    },
+    "_refs.item": {
+      "skipped": 2
+    },
+    "_refs.lcm": {
+      "passed": 2
+    },
+    "_refs.le": {
+      "passed": 2
+    },
+    "_refs.lerp": {
+      "passed": 3
+    },
+    "_refs.lgamma": {
+      "passed": 2
+    },
+    "_refs.linalg.cross": {
+      "passed": 2
+    },
+    "_refs.linalg.diagonal": {
+      "passed": 3
+    },
+    "_refs.linalg.matrix_norm": {
+      "passed": 3
+    },
+    "_refs.linalg.norm": {
+      "passed": 3
+    },
+    "_refs.linalg.svd": {
+      "passed": 3
+    },
+    "_refs.linalg.svdvals": {
+      "passed": 3
+    },
+    "_refs.linalg.vecdot": {
+      "passed": 2
+    },
+    "_refs.linalg.vector_norm": {
+      "passed": 3
+    },
+    "_refs.linspace": {
+      "passed": 3
+    },
+    "_refs.linspace.tensor_overload": {
+      "error": 3
+    },
+    "_refs.log": {
+      "passed": 2
+    },
+    "_refs.log10": {
+      "passed": 2
+    },
+    "_refs.log1p": {
+      "passed": 2
+    },
+    "_refs.log2": {
+      "passed": 2
+    },
+    "_refs.log_normal": {
+      "skipped": 3
+    },
+    "_refs.log_softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.logaddexp": {
+      "passed": 3
+    },
+    "_refs.logaddexp2": {
+      "passed": 3
+    },
+    "_refs.logical_and": {
+      "passed": 2
+    },
+    "_refs.logical_not": {
+      "passed": 2
+    },
+    "_refs.logical_or": {
+      "passed": 2
+    },
+    "_refs.logical_xor": {
+      "passed": 2
+    },
+    "_refs.logspace": {
+      "error": 3
+    },
+    "_refs.logspace.tensor_overload": {
+      "error": 3
+    },
+    "_refs.logsumexp": {
+      "passed": 3
+    },
+    "_refs.lt": {
+      "passed": 2
+    },
+    "_refs.masked_fill": {
+      "passed": 3
+    },
+    "_refs.maximum": {
+      "passed": 2
+    },
+    "_refs.mean": {
+      "passed": 2
+    },
+    "_refs.meshgrid.list_of_tensors": {
+      "passed": 3
+    },
+    "_refs.meshgrid.variadic_tensors": {
+      "passed": 2
+    },
+    "_refs.minimum": {
+      "passed": 2
+    },
+    "_refs.movedim": {
+      "passed": 3
+    },
+    "_refs.mul": {
+      "passed": 3
+    },
+    "_refs.nan_to_num": {
+      "passed": 2
+    },
+    "_refs.narrow": {
+      "passed": 3
+    },
+    "_refs.narrow_copy": {
+      "passed": 3
+    },
+    "_refs.native_group_norm": {
+      "passed": 2
+    },
+    "_refs.native_layer_norm": {
+      "passed": 2
+    },
+    "_refs.ne": {
+      "passed": 2
+    },
+    "_refs.neg": {
+      "passed": 2
+    },
+    "_refs.new_empty": {
+      "skipped": 3
+    },
+    "_refs.new_empty_strided": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.new_full": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.new_ones": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.new_zeros": {
+      "error": 1,
+      "passed": 2
+    },
+    "_refs.nextafter": {
+      "passed": 3
+    },
+    "_refs.nn.functional.alpha_dropout": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "_refs.nn.functional.celu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.channel_shuffle": {
+      "passed": 3
+    },
+    "_refs.nn.functional.dropout": {
+      "skipped": 3
+    },
+    "_refs.nn.functional.elu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.gelu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.glu": {
+      "passed": 3
+    },
+    "_refs.nn.functional.group_norm": {
+      "passed": 2
+    },
+    "_refs.nn.functional.hardshrink": {
+      "passed": 3
+    },
+    "_refs.nn.functional.hardsigmoid": {
+      "passed": 2
+    },
+    "_refs.nn.functional.hardtanh": {
+      "passed": 3
+    },
+    "_refs.nn.functional.hinge_embedding_loss": {
+      "passed": 3
+    },
+    "_refs.nn.functional.huber_loss": {
+      "passed": 3
+    },
+    "_refs.nn.functional.l1_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.layer_norm": {
+      "passed": 2
+    },
+    "_refs.nn.functional.leaky_relu": {
+      "passed": 3
+    },
+    "_refs.nn.functional.log_softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.nn.functional.margin_ranking_loss": {
+      "passed": 3
+    },
+    "_refs.nn.functional.mish": {
+      "passed": 2
+    },
+    "_refs.nn.functional.mse_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.nll_loss": {
+      "passed": 3
+    },
+    "_refs.nn.functional.pairwise_distance": {
+      "passed": 2
+    },
+    "_refs.nn.functional.pdist": {
+      "passed": 2
+    },
+    "_refs.nn.functional.pixel_shuffle": {
+      "passed": 3
+    },
+    "_refs.nn.functional.pixel_unshuffle": {
+      "passed": 3
+    },
+    "_refs.nn.functional.poisson_nll_loss": {
+      "passed": 3
+    },
+    "_refs.nn.functional.prelu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.relu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.relu6": {
+      "passed": 3
+    },
+    "_refs.nn.functional.selu": {
+      "passed": 2
+    },
+    "_refs.nn.functional.smooth_l1_loss": {
+      "passed": 2
+    },
+    "_refs.nn.functional.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.nn.functional.softmin.with_dtype": {
+      "error": 3
+    },
+    "_refs.nn.functional.softplus": {
+      "passed": 2
+    },
+    "_refs.nn.functional.softshrink": {
+      "passed": 3
+    },
+    "_refs.nn.functional.tanhshrink": {
+      "passed": 2
+    },
+    "_refs.nn.functional.threshold": {
+      "passed": 2
+    },
+    "_refs.nn.functional.triplet_margin_loss": {
+      "passed": 3
+    },
+    "_refs.norm": {
+      "passed": 3
+    },
+    "_refs.normal": {
+      "skipped": 3
+    },
+    "_refs.normal.number_mean": {
+      "skipped": 3
+    },
+    "_refs.normal_.in_place": {
+      "skipped": 3
+    },
+    "_refs.ones": {
+      "passed": 3
+    },
+    "_refs.permute": {
+      "passed": 2
+    },
+    "_refs.permute_copy": {
+      "passed": 3
+    },
+    "_refs.positive": {
+      "passed": 2
+    },
+    "_refs.pow": {
+      "passed": 2
+    },
+    "_refs.prod": {
+      "expected_failure": 1,
+      "passed": 1
+    },
+    "_refs.rad2deg": {
+      "passed": 2
+    },
+    "_refs.randn": {
+      "passed": 3
+    },
+    "_refs.ravel": {
+      "passed": 2
+    },
+    "_refs.real": {
+      "passed": 2
+    },
+    "_refs.reciprocal": {
+      "passed": 2
+    },
+    "_refs.remainder": {
+      "passed": 2
+    },
+    "_refs.renorm": {
+      "passed": 3
+    },
+    "_refs.repeat": {
+      "passed": 3
+    },
+    "_refs.reshape": {
+      "passed": 3
+    },
+    "_refs.reshape_as": {
+      "passed": 3
+    },
+    "_refs.roll": {
+      "passed": 2
+    },
+    "_refs.rot90": {
+      "passed": 3
+    },
+    "_refs.round": {
+      "passed": 2
+    },
+    "_refs.rsqrt": {
+      "passed": 2
+    },
+    "_refs.rsub": {
+      "passed": 3
+    },
+    "_refs.select_scatter": {
+      "passed": 3
+    },
+    "_refs.sgn": {
+      "passed": 2
+    },
+    "_refs.sigmoid": {
+      "passed": 2
+    },
+    "_refs.sign": {
+      "passed": 2
+    },
+    "_refs.signbit": {
+      "passed": 2
+    },
+    "_refs.sin": {
+      "passed": 2
+    },
+    "_refs.sinc": {
+      "passed": 2
+    },
+    "_refs.sinh": {
+      "passed": 2
+    },
+    "_refs.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.special.bessel_j0": {
+      "passed": 2
+    },
+    "_refs.special.bessel_j1": {
+      "passed": 2
+    },
+    "_refs.special.entr": {
+      "passed": 2
+    },
+    "_refs.special.erfcx": {
+      "passed": 2
+    },
+    "_refs.special.i0e": {
+      "passed": 2
+    },
+    "_refs.special.i1": {
+      "passed": 2
+    },
+    "_refs.special.i1e": {
+      "passed": 2
+    },
+    "_refs.special.log_ndtr": {
+      "passed": 2
+    },
+    "_refs.special.log_softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.special.logit": {
+      "passed": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_1": {
+      "passed": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_3": {
+      "passed": 2
+    },
+    "_refs.special.multigammaln.mvlgamma_p_5": {
+      "passed": 2
+    },
+    "_refs.special.ndtr": {
+      "passed": 2
+    },
+    "_refs.special.ndtri": {
+      "passed": 2
+    },
+    "_refs.special.softmax.with_dtype": {
+      "error": 3
+    },
+    "_refs.special.spherical_bessel_j0": {
+      "passed": 2
+    },
+    "_refs.special.xlog1py": {
+      "passed": 3
+    },
+    "_refs.special.zeta": {
+      "expected_failure": 1,
+      "passed": 2
+    },
+    "_refs.split_with_sizes": {
+      "passed": 3
+    },
+    "_refs.sqrt": {
+      "passed": 2
+    },
+    "_refs.square": {
+      "passed": 2
+    },
+    "_refs.squeeze": {
+      "passed": 2
+    },
+    "_refs.squeeze.multiple": {
+      "passed": 2
+    },
+    "_refs.squeeze_copy": {
+      "passed": 2
+    },
+    "_refs.stack": {
+      "passed": 3
+    },
+    "_refs.std": {
+      "passed": 2
+    },
+    "_refs.std_mean": {
+      "passed": 3
+    },
+    "_refs.stft": {
+      "passed": 3
+    },
+    "_refs.sub": {
+      "passed": 2
+    },
+    "_refs.sum": {
+      "expected_failure": 1,
+      "passed": 1
+    },
+    "_refs.sum_to_size": {
+      "passed": 3
+    },
+    "_refs.t": {
+      "passed": 3
+    },
+    "_refs.t_copy": {
+      "passed": 3
+    },
+    "_refs.take_along_dim": {
+      "passed": 3
+    },
+    "_refs.tan": {
+      "passed": 2
+    },
+    "_refs.tanh": {
+      "passed": 2
+    },
+    "_refs.tensor_split": {
+      "passed": 2
+    },
+    "_refs.to": {
+      "error": 3
+    },
+    "_refs.trace": {
+      "passed": 3
+    },
+    "_refs.transpose": {
+      "passed": 2
+    },
+    "_refs.transpose_copy": {
+      "passed": 3
+    },
+    "_refs.tril": {
+      "passed": 3
+    },
+    "_refs.tril_indices": {
+      "error": 2
+    },
+    "_refs.triu": {
+      "passed": 3
+    },
+    "_refs.triu_indices": {
+      "error": 2
+    },
+    "_refs.true_divide": {
+      "passed": 3
+    },
+    "_refs.trunc": {
+      "passed": 2
+    },
+    "_refs.unbind": {
+      "passed": 2
+    },
+    "_refs.unbind_copy": {
+      "passed": 2
+    },
+    "_refs.unflatten": {
+      "passed": 3
+    },
+    "_refs.unfold": {
+      "passed": 3
+    },
+    "_refs.unfold_copy": {
+      "passed": 3
+    },
+    "_refs.unsqueeze": {
+      "passed": 3
+    },
+    "_refs.unsqueeze_copy": {
+      "passed": 3
+    },
+    "_refs.var": {
+      "passed": 2
+    },
+    "_refs.var_mean": {
+      "passed": 3
+    },
+    "_refs.vdot": {
+      "passed": 3
+    },
+    "_refs.view": {
+      "passed": 3
+    },
+    "_refs.view_as": {
+      "passed": 3
+    },
+    "_refs.view_as_complex": {
+      "passed": 3
+    },
+    "_refs.view_copy": {
+      "passed": 2
+    },
+    "_refs.vsplit": {
+      "passed": 3
+    },
+    "_refs.vstack": {
+      "passed": 3
+    },
+    "_refs.where": {
+      "passed": 2
+    },
+    "_refs.xlogy": {
+      "passed": 3
+    },
+    "_refs.zeros": {
+      "passed": 3
+    },
+    "_segment_reduce.lengths": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "_segment_reduce.offsets": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "_softmax_backward_data": {
+      "passed": 10
+    },
+    "_unsafe_masked_index": {
+      "passed": 12
+    },
+    "_unsafe_masked_index_put_accumulate": {
+      "passed": 12
+    },
+    "_upsample_bilinear2d_aa": {
+      "passed": 10
+    },
+    "abs": {
+      "passed": 11
+    },
+    "acos": {
+      "passed": 12
+    },
+    "acosh": {
+      "passed": 12
+    },
+    "add": {
+      "passed": 14
+    },
+    "addbmm": {
+      "passed": 9,
+      "unexpected_success": 1,
+      "skipped": 1
+    },
+    "addcdiv": {
+      "error": 1,
+      "passed": 9,
+      "expected_failure": 1
+    },
+    "addcmul": {
+      "error": 2,
+      "passed": 9,
+      "expected_failure": 1
+    },
+    "addmm": {
+      "passed": 12
+    },
+    "addmm.decomposed": {
+      "passed": 12
+    },
+    "addmv": {
+      "passed": 12
+    },
+    "addr": {
+      "passed": 12,
+      "skipped": 1
+    },
+    "alias_copy": {
+      "passed": 13
+    },
+    "all": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "allclose": {
+      "passed": 5,
+      "skipped": 3
+    },
+    "amax": {
+      "passed": 14
+    },
+    "amin": {
+      "passed": 14
+    },
+    "aminmax": {
+      "error": 1,
+      "passed": 13
+    },
+    "angle": {
+      "passed": 12
+    },
+    "any": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "arange": {
+      "passed": 8,
+      "error": 1,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "argmax": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "argmin": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "argsort": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "argwhere": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "as_strided": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "as_strided.partial_views": {
+      "expected_failure": 4,
+      "skipped": 1,
+      "passed": 7
+    },
+    "as_strided_copy": {
+      "passed": 10,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "as_strided_scatter": {
+      "passed": 10,
+      "skipped": 3
+    },
+    "asin": {
+      "passed": 12
+    },
+    "asinh": {
+      "passed": 12
+    },
+    "atan": {
+      "passed": 12
+    },
+    "atan2": {
+      "passed": 14
+    },
+    "atanh": {
+      "passed": 12
+    },
+    "atleast_1d": {
+      "passed": 12
+    },
+    "atleast_2d": {
+      "passed": 12
+    },
+    "atleast_3d": {
+      "passed": 12
+    },
+    "baddbmm": {
+      "passed": 12
+    },
+    "bernoulli": {
+      "skipped": 1,
+      "passed": 9,
+      "unexpected_success": 2
+    },
+    "bfloat16": {
+      "error": 11,
+      "skipped": 1
+    },
+    "bincount": {
+      "error": 2,
+      "passed": 2
+    },
+    "bitwise_and": {
+      "passed": 5
+    },
+    "bitwise_left_shift": {
+      "skipped": 1,
+      "passed": 4
+    },
+    "bitwise_not": {
+      "passed": 4
+    },
+    "bitwise_or": {
+      "passed": 5
+    },
+    "bitwise_right_shift": {
+      "skipped": 1,
+      "passed": 4
+    },
+    "bitwise_xor": {
+      "passed": 5
+    },
+    "block_diag": {
+      "passed": 12
+    },
+    "bmm": {
+      "passed": 12
+    },
+    "bmm.triton_optimized": {
+      "skipped": 8
+    },
+    "bool": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "broadcast_shapes": {
+      "skipped": 3,
+      "passed": 5
+    },
+    "broadcast_tensors": {
+      "passed": 11
+    },
+    "broadcast_to": {
+      "passed": 11
+    },
+    "bucketize": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "byte": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "cartesian_prod": {
+      "passed": 12
+    },
+    "cat": {
+      "error": 2,
+      "passed": 11
+    },
+    "cauchy": {
+      "skipped": 2,
+      "passed": 7,
+      "expected_failure": 1
+    },
+    "cdist": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "cdouble": {
+      "error": 12
+    },
+    "ceil": {
+      "passed": 11
+    },
+    "cfloat": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "chalf": {
+      "error": 11,
+      "skipped": 1
+    },
+    "char": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "cholesky_inverse": {
+      "passed": 10,
+      "unexpected_success": 1
+    },
+    "cholesky_solve": {
+      "passed": 11
+    },
+    "chunk": {
+      "passed": 12
+    },
+    "clamp": {
+      "passed": 11
+    },
+    "clamp_max": {
+      "expected_failure": 1,
+      "passed": 12
+    },
+    "clamp_min": {
+      "expected_failure": 1,
+      "passed": 12
+    },
+    "clone": {
+      "passed": 11
+    },
+    "column_stack": {
+      "passed": 12,
+      "error": 1
+    },
+    "combinations": {
+      "passed": 12
+    },
+    "complex": {
+      "passed": 11,
+      "error": 1
+    },
+    "conj": {
+      "passed": 11
+    },
+    "conj_physical": {
+      "passed": 12
+    },
+    "constant_pad_nd": {
+      "passed": 12
+    },
+    "contiguous": {
+      "passed": 12
+    },
+    "copysign": {
+      "passed": 14
+    },
+    "corrcoef": {
+      "passed": 11
+    },
+    "cos": {
+      "passed": 12
+    },
+    "cosh": {
+      "passed": 12
+    },
+    "count_nonzero": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "cov": {
+      "passed": 12
+    },
+    "cross": {
+      "passed": 12
+    },
+    "cummax": {
+      "passed": 13
+    },
+    "cummin": {
+      "passed": 13
+    },
+    "cumprod": {
+      "passed": 11,
+      "unexpected_success": 1
+    },
+    "cumsum": {
+      "passed": 11,
+      "unexpected_success": 1
+    },
+    "cumulative_trapezoid": {
+      "passed": 11
+    },
+    "deg2rad": {
+      "passed": 12
+    },
+    "diag": {
+      "passed": 13
+    },
+    "diag_embed": {
+      "passed": 13
+    },
+    "diagflat": {
+      "passed": 11
+    },
+    "diagonal": {
+      "passed": 13
+    },
+    "diagonal_copy": {
+      "passed": 14
+    },
+    "diagonal_scatter": {
+      "passed": 12
+    },
+    "diff": {
+      "passed": 13
+    },
+    "digamma": {
+      "passed": 12
+    },
+    "dist": {
+      "passed": 10
+    },
+    "div.floor_rounding": {
+      "passed": 14
+    },
+    "div.no_rounding_mode": {
+      "passed": 15
+    },
+    "div.trunc_rounding": {
+      "passed": 14
+    },
+    "dot": {
+      "passed": 12,
+      "error": 1
+    },
+    "double": {
+      "error": 12
+    },
+    "dsplit": {
+      "passed": 13
+    },
+    "dstack": {
+      "passed": 12,
+      "error": 2
+    },
+    "einsum": {
+      "passed": 11
+    },
+    "empty": {
+      "skipped": 9,
+      "passed": 2
+    },
+    "empty_like": {
+      "skipped": 6,
+      "passed": 5
+    },
+    "empty_permuted": {
+      "skipped": 9,
+      "passed": 3
+    },
+    "empty_strided": {
+      "skipped": 7,
+      "passed": 4
+    },
+    "eq": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "equal": {
+      "passed": 7,
+      "skipped": 3
+    },
+    "erf": {
+      "passed": 12
+    },
+    "erfc": {
+      "passed": 12
+    },
+    "erfinv": {
+      "passed": 12
+    },
+    "exp": {
+      "passed": 12
+    },
+    "exp2": {
+      "passed": 12
+    },
+    "expand": {
+      "passed": 12
+    },
+    "expand_as": {
+      "passed": 12
+    },
+    "expand_copy": {
+      "passed": 13
+    },
+    "expm1": {
+      "passed": 12
+    },
+    "exponential": {
+      "skipped": 2,
+      "passed": 7,
+      "expected_failure": 1
+    },
+    "eye": {
+      "passed": 5,
+      "error": 2,
+      "skipped": 4,
+      "expected_failure": 1
+    },
+    "fft.fft": {
+      "passed": 13
+    },
+    "fft.fft2": {
+      "passed": 13
+    },
+    "fft.fftn": {
+      "passed": 13
+    },
+    "fft.fftshift": {
+      "passed": 12
+    },
+    "fft.hfft": {
+      "passed": 13
+    },
+    "fft.hfft2": {
+      "passed": 13
+    },
+    "fft.hfftn": {
+      "passed": 13
+    },
+    "fft.ifft": {
+      "passed": 13
+    },
+    "fft.ifft2": {
+      "passed": 13
+    },
+    "fft.ifftn": {
+      "passed": 13
+    },
+    "fft.ifftshift": {
+      "passed": 12
+    },
+    "fft.ihfft": {
+      "passed": 13
+    },
+    "fft.ihfft2": {
+      "passed": 11,
+      "expected_failure": 2
+    },
+    "fft.ihfftn": {
+      "passed": 11,
+      "expected_failure": 2
+    },
+    "fft.irfft": {
+      "passed": 13
+    },
+    "fft.irfft2": {
+      "passed": 13
+    },
+    "fft.irfftn": {
+      "passed": 13
+    },
+    "fft.rfft": {
+      "passed": 13
+    },
+    "fft.rfft2": {
+      "passed": 13
+    },
+    "fft.rfftn": {
+      "passed": 13
+    },
+    "fill": {
+      "passed": 11
+    },
+    "flatten": {
+      "passed": 11
+    },
+    "flip": {
+      "passed": 12
+    },
+    "fliplr": {
+      "passed": 13
+    },
+    "flipud": {
+      "passed": 13
+    },
+    "float": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "float_power": {
+      "passed": 1,
+      "error": 12
+    },
+    "floor": {
+      "passed": 11
+    },
+    "floor_divide": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "fmax": {
+      "passed": 14
+    },
+    "fmin": {
+      "passed": 14
+    },
+    "fmod": {
+      "passed": 12
+    },
+    "frac": {
+      "passed": 10
+    },
+    "frexp": {
+      "passed": 10
+    },
+    "full": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "full_like": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "gather": {
+      "passed": 14
+    },
+    "gcd": {
+      "passed": 4
+    },
+    "ge": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "geometric": {
+      "skipped": 2,
+      "passed": 8,
+      "expected_failure": 1
+    },
+    "geqrf": {
+      "passed": 7,
+      "unexpected_success": 1,
+      "skipped": 1
+    },
+    "gradient": {
+      "passed": 12
+    },
+    "grid_sampler_2d": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "grid_sampler_3d": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "gt": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "half": {
+      "error": 11,
+      "skipped": 1
+    },
+    "hash_tensor": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "heaviside": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "histc": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "histogram": {
+      "passed": 7,
+      "skipped": 1
+    },
+    "histogramdd": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "hsplit": {
+      "passed": 13
+    },
+    "hstack": {
+      "passed": 12,
+      "error": 2
+    },
+    "hypot": {
+      "passed": 12
+    },
+    "i0": {
+      "passed": 12
+    },
+    "igamma": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "igammac": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "imag": {
+      "passed": 1
+    },
+    "index_add": {
+      "passed": 14
+    },
+    "index_copy": {
+      "passed": 13
+    },
+    "index_fill": {
+      "passed": 12
+    },
+    "index_put": {
+      "passed": 12
+    },
+    "index_reduce.amax": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "index_reduce.amin": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "index_reduce.mean": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "index_reduce.prod": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "index_select": {
+      "passed": 14
+    },
+    "inner": {
+      "passed": 12
+    },
+    "int": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "isclose": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "isfinite": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isin": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isinf": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isnan": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isneginf": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isposinf": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "isreal": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "istft": {
+      "passed": 1
+    },
+    "item": {
+      "passed": 7,
+      "skipped": 3,
+      "expected_failure": 1
+    },
+    "jiterator_2inputs_2outputs": {
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_4inputs_with_extra_args": {
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_binary": {
+      "passed": 1,
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_binary_return_by_ref": {
+      "passed": 1,
+      "error": 8,
+      "skipped": 2
+    },
+    "jiterator_unary": {
+      "error": 8,
+      "skipped": 2
+    },
+    "kron": {
+      "passed": 13
+    },
+    "kthvalue": {
+      "passed": 13
+    },
+    "lcm": {
+      "passed": 4
+    },
+    "ldexp": {
+      "passed": 14
+    },
+    "le": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "lerp": {
+      "passed": 11
+    },
+    "lgamma": {
+      "passed": 12
+    },
+    "linalg.cholesky": {
+      "passed": 11
+    },
+    "linalg.cholesky_ex": {
+      "passed": 11
+    },
+    "linalg.cond": {
+      "passed": 11
+    },
+    "linalg.cross": {
+      "error": 1,
+      "passed": 11
+    },
+    "linalg.det": {
+      "passed": 11
+    },
+    "linalg.diagonal": {
+      "passed": 13
+    },
+    "linalg.eig": {
+      "error": 11
+    },
+    "linalg.eigh": {
+      "passed": 11
+    },
+    "linalg.eigvals": {
+      "error": 11
+    },
+    "linalg.eigvalsh": {
+      "passed": 11
+    },
+    "linalg.householder_product": {
+      "passed": 11
+    },
+    "linalg.inv": {
+      "passed": 11
+    },
+    "linalg.inv_ex": {
+      "passed": 11
+    },
+    "linalg.ldl_factor": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.ldl_factor_ex": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.ldl_solve": {
+      "error": 8,
+      "skipped": 1
+    },
+    "linalg.lstsq": {
+      "passed": 10,
+      "skipped": 2
+    },
+    "linalg.lstsq.grad_oriented": {
+      "passed": 11
+    },
+    "linalg.lu": {
+      "unexpected_success": 1,
+      "passed": 10
+    },
+    "linalg.lu_factor": {
+      "unexpected_success": 1,
+      "passed": 10
+    },
+    "linalg.lu_factor_ex": {
+      "unexpected_success": 1,
+      "passed": 10
+    },
+    "linalg.lu_solve": {
+      "passed": 11
+    },
+    "linalg.matrix_norm": {
+      "passed": 11
+    },
+    "linalg.matrix_power": {
+      "passed": 11
+    },
+    "linalg.matrix_rank": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "linalg.matrix_rank.hermitian": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "linalg.matrix_sqrth": {
+      "passed": 10
+    },
+    "linalg.multi_dot": {
+      "passed": 10,
+      "skipped": 2
+    },
+    "linalg.norm": {
+      "passed": 11
+    },
+    "linalg.norm.subgradients_at_zero": {
+      "passed": 11
+    },
+    "linalg.pinv": {
+      "passed": 11
+    },
+    "linalg.pinv.hermitian": {
+      "passed": 11
+    },
+    "linalg.pinv.singular": {
+      "skipped": 10
+    },
+    "linalg.polar": {
+      "passed": 11
+    },
+    "linalg.qr": {
+      "passed": 11
+    },
+    "linalg.slogdet": {
+      "passed": 11
+    },
+    "linalg.solve": {
+      "passed": 11
+    },
+    "linalg.solve_ex": {
+      "passed": 11
+    },
+    "linalg.solve_triangular": {
+      "passed": 11
+    },
+    "linalg.svd": {
+      "passed": 11
+    },
+    "linalg.svdvals": {
+      "passed": 11
+    },
+    "linalg.tensorinv": {
+      "passed": 10
+    },
+    "linalg.tensorsolve": {
+      "passed": 10
+    },
+    "linalg.vander": {
+      "passed": 10
+    },
+    "linalg.vecdot": {
+      "passed": 10
+    },
+    "linalg.vector_norm": {
+      "passed": 11
+    },
+    "linspace": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "linspace.tensor_overload": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "log": {
+      "passed": 12
+    },
+    "log10": {
+      "passed": 12
+    },
+    "log1p": {
+      "passed": 12
+    },
+    "log2": {
+      "passed": 12
+    },
+    "log_normal": {
+      "skipped": 2,
+      "passed": 7,
+      "expected_failure": 1
+    },
+    "log_softmax": {
+      "passed": 11
+    },
+    "log_softmax.with_dtype": {
+      "error": 13
+    },
+    "logaddexp": {
+      "passed": 12
+    },
+    "logaddexp2": {
+      "passed": 11
+    },
+    "logcumsumexp": {
+      "passed": 12
+    },
+    "logdet": {
+      "passed": 10
+    },
+    "logical_and": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "logical_not": {
+      "passed": 8,
+      "skipped": 2
+    },
+    "logical_or": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "logical_xor": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "logit": {
+      "passed": 12
+    },
+    "logspace": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "logspace.tensor_overload": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "logsumexp": {
+      "passed": 14
+    },
+    "long": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "lt": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "lu": {
+      "passed": 9,
+      "expected_failure": 2
+    },
+    "lu_solve": {
+      "passed": 11
+    },
+    "lu_unpack": {
+      "passed": 11
+    },
+    "mH": {
+      "passed": 12
+    },
+    "mT": {
+      "passed": 12
+    },
+    "masked.amax": {
+      "passed": 10
+    },
+    "masked.amin": {
+      "passed": 10
+    },
+    "masked.argmax": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "masked.argmin": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "masked.cumprod": {
+      "passed": 11
+    },
+    "masked.cumsum": {
+      "passed": 11
+    },
+    "masked.log_softmax": {
+      "passed": 10
+    },
+    "masked.logaddexp": {
+      "passed": 10
+    },
+    "masked.logsumexp": {
+      "passed": 11
+    },
+    "masked.mean": {
+      "passed": 9
+    },
+    "masked.median": {
+      "passed": 10
+    },
+    "masked.norm": {
+      "passed": 10
+    },
+    "masked.normalize": {
+      "passed": 10
+    },
+    "masked.prod": {
+      "passed": 11
+    },
+    "masked.softmax": {
+      "passed": 10
+    },
+    "masked.softmin": {
+      "passed": 10
+    },
+    "masked.std": {
+      "passed": 10
+    },
+    "masked.sum": {
+      "passed": 11
+    },
+    "masked.var": {
+      "passed": 10
+    },
+    "masked_fill": {
+      "passed": 13
+    },
+    "masked_scatter": {
+      "passed": 13
+    },
+    "masked_select": {
+      "passed": 14
+    },
+    "matmul": {
+      "passed": 11,
+      "expected_failure": 1
+    },
+    "matrix_exp": {
+      "passed": 10
+    },
+    "max.binary": {
+      "passed": 14
+    },
+    "max.reduction_no_dim": {
+      "passed": 14
+    },
+    "max.reduction_with_dim": {
+      "passed": 14
+    },
+    "max_pool2d_with_indices_backward": {
+      "passed": 8,
+      "skipped": 1,
+      "expected_failure": 1
+    },
+    "maximum": {
+      "passed": 13
+    },
+    "mean": {
+      "error": 1,
+      "passed": 11
+    },
+    "median": {
+      "passed": 12
+    },
+    "meshgrid.list_of_tensors": {
+      "passed": 12
+    },
+    "meshgrid.variadic_tensors": {
+      "passed": 11
+    },
+    "min.binary": {
+      "passed": 14
+    },
+    "min.reduction_no_dim": {
+      "passed": 14
+    },
+    "min.reduction_with_dim": {
+      "passed": 14
+    },
+    "minimum": {
+      "passed": 13
+    },
+    "mm": {
+      "passed": 12
+    },
+    "mode": {
+      "passed": 12,
+      "unexpected_success": 1
+    },
+    "movedim": {
+      "passed": 13
+    },
+    "msort": {
+      "passed": 13
+    },
+    "mul": {
+      "passed": 15
+    },
+    "mul_layout0": {
+      "error": 1
+    },
+    "mul_layout1": {
+      "error": 1
+    },
+    "mul_layout2": {
+      "error": 1
+    },
+    "mul_layout3": {
+      "error": 1
+    },
+    "mul_layout4": {
+      "error": 1
+    },
+    "multinomial": {
+      "skipped": 3,
+      "error": 6,
+      "expected_failure": 1
+    },
+    "mv": {
+      "passed": 12
+    },
+    "mvlgamma.mvlgamma_p_1": {
+      "passed": 11
+    },
+    "mvlgamma.mvlgamma_p_3": {
+      "passed": 11
+    },
+    "mvlgamma.mvlgamma_p_5": {
+      "passed": 11
+    },
+    "nan_to_num": {
+      "passed": 12
+    },
+    "nanmean": {
+      "passed": 10
+    },
+    "nanmedian": {
+      "passed": 11
+    },
+    "nanquantile": {
+      "passed": 11
+    },
+    "nansum": {
+      "passed": 13
+    },
+    "narrow": {
+      "passed": 10,
+      "expected_failure": 3
+    },
+    "narrow_copy": {
+      "passed": 12,
+      "expected_failure": 2
+    },
+    "native_batch_norm": {
+      "unexpected_success": 1,
+      "passed": 10
+    },
+    "native_dropout_backward": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "native_group_norm": {
+      "passed": 9
+    },
+    "native_layer_norm": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "ne": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "neg": {
+      "error": 1,
+      "passed": 11
+    },
+    "new_empty": {
+      "skipped": 7,
+      "passed": 4
+    },
+    "new_empty_strided": {
+      "skipped": 7,
+      "passed": 4
+    },
+    "new_full": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "new_ones": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "new_zeros": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "nextafter": {
+      "passed": 12
+    },
+    "nn.functional.adaptive_avg_pool1d": {
+      "passed": 11
+    },
+    "nn.functional.adaptive_avg_pool2d": {
+      "passed": 11
+    },
+    "nn.functional.adaptive_avg_pool3d": {
+      "passed": 11
+    },
+    "nn.functional.adaptive_max_pool1d": {
+      "passed": 11
+    },
+    "nn.functional.adaptive_max_pool2d": {
+      "passed": 11
+    },
+    "nn.functional.adaptive_max_pool3d": {
+      "passed": 11
+    },
+    "nn.functional.alpha_dropout": {
+      "error": 1,
+      "passed": 9
+    },
+    "nn.functional.avg_pool1d": {
+      "passed": 11,
+      "error": 1
+    },
+    "nn.functional.avg_pool2d": {
+      "passed": 10,
+      "error": 3
+    },
+    "nn.functional.avg_pool3d": {
+      "passed": 10,
+      "error": 3
+    },
+    "nn.functional.batch_norm": {
+      "passed": 10
+    },
+    "nn.functional.batch_norm.without_cudnn": {
+      "skipped": 1
+    },
+    "nn.functional.bilinear": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.binary_cross_entropy": {
+      "passed": 10
+    },
+    "nn.functional.binary_cross_entropy_with_logits": {
+      "passed": 10
+    },
+    "nn.functional.celu": {
+      "passed": 9
+    },
+    "nn.functional.channel_shuffle": {
+      "passed": 12
+    },
+    "nn.functional.conv1d": {
+      "passed": 10,
+      "error": 2
+    },
+    "nn.functional.conv2d": {
+      "passed": 10,
+      "error": 2
+    },
+    "nn.functional.conv3d": {
+      "skipped": 1,
+      "error": 2,
+      "passed": 9
+    },
+    "nn.functional.conv_transpose1d": {
+      "passed": 9,
+      "error": 1
+    },
+    "nn.functional.conv_transpose2d": {
+      "passed": 9,
+      "error": 1
+    },
+    "nn.functional.conv_transpose3d": {
+      "passed": 9,
+      "error": 1
+    },
+    "nn.functional.cosine_embedding_loss": {
+      "passed": 12
+    },
+    "nn.functional.cosine_similarity": {
+      "passed": 10
+    },
+    "nn.functional.cross_entropy": {
+      "passed": 10
+    },
+    "nn.functional.ctc_loss": {
+      "error": 9,
+      "skipped": 1
+    },
+    "nn.functional.dropout": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.dropout2d": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.dropout3d": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.elu": {
+      "passed": 9
+    },
+    "nn.functional.embedding": {
+      "skipped": 2,
+      "error": 2,
+      "passed": 7
+    },
+    "nn.functional.embedding_bag": {
+      "error": 2,
+      "passed": 6,
+      "skipped": 2
+    },
+    "nn.functional.feature_alpha_dropout.with_train": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.feature_alpha_dropout.without_train": {
+      "passed": 12
+    },
+    "nn.functional.fractional_max_pool2d": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.fractional_max_pool3d": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "nn.functional.gaussian_nll_loss": {
+      "passed": 8,
+      "expected_failure": 3
+    },
+    "nn.functional.gelu": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.glu": {
+      "passed": 10
+    },
+    "nn.functional.grid_sample": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "nn.functional.group_norm": {
+      "passed": 10
+    },
+    "nn.functional.hardshrink": {
+      "passed": 11
+    },
+    "nn.functional.hardsigmoid": {
+      "passed": 9
+    },
+    "nn.functional.hardswish": {
+      "passed": 10
+    },
+    "nn.functional.hardtanh": {
+      "passed": 12
+    },
+    "nn.functional.hinge_embedding_loss": {
+      "passed": 11
+    },
+    "nn.functional.huber_loss": {
+      "passed": 11
+    },
+    "nn.functional.instance_norm": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.area": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.bicubic": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.bilinear": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.linear": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.nearest": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.nearest-exact": {
+      "passed": 10
+    },
+    "nn.functional.interpolate.trilinear": {
+      "passed": 10
+    },
+    "nn.functional.kl_div": {
+      "passed": 10
+    },
+    "nn.functional.l1_loss": {
+      "passed": 10
+    },
+    "nn.functional.layer_norm": {
+      "passed": 9
+    },
+    "nn.functional.leaky_relu": {
+      "passed": 10
+    },
+    "nn.functional.linear": {
+      "passed": 10,
+      "error": 1,
+      "expected_failure": 1
+    },
+    "nn.functional.linear_cross_entropy": {
+      "passed": 11
+    },
+    "nn.functional.linear_cross_entropy.chunked": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.linear_cross_entropy.chunked_none": {
+      "passed": 9,
+      "skipped": 2
+    },
+    "nn.functional.local_response_norm": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.logsigmoid": {
+      "passed": 10
+    },
+    "nn.functional.margin_ranking_loss": {
+      "passed": 12
+    },
+    "nn.functional.max_pool1d": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.max_pool2d": {
+      "passed": 10,
+      "error": 2
+    },
+    "nn.functional.max_pool3d": {
+      "passed": 10,
+      "error": 2
+    },
+    "nn.functional.max_unpool1d": {
+      "passed": 11
+    },
+    "nn.functional.max_unpool1d.grad": {
+      "passed": 10
+    },
+    "nn.functional.max_unpool2d": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.max_unpool2d.grad": {
+      "passed": 10
+    },
+    "nn.functional.max_unpool3d": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.max_unpool3d.grad": {
+      "passed": 10
+    },
+    "nn.functional.mish": {
+      "passed": 9
+    },
+    "nn.functional.mse_loss": {
+      "passed": 9
+    },
+    "nn.functional.multi_head_attention_forward": {
+      "skipped": 4,
+      "passed": 6
+    },
+    "nn.functional.multi_margin_loss": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.multilabel_margin_loss": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "nn.functional.multilabel_soft_margin_loss": {
+      "passed": 10
+    },
+    "nn.functional.nll_loss": {
+      "passed": 10
+    },
+    "nn.functional.normalize": {
+      "passed": 11
+    },
+    "nn.functional.one_hot": {
+      "passed": 3
+    },
+    "nn.functional.pad.circular": {
+      "passed": 12
+    },
+    "nn.functional.pad.constant": {
+      "passed": 12
+    },
+    "nn.functional.pad.reflect": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.pad.replicate": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.pad.replicate_negative": {
+      "passed": 10,
+      "error": 1
+    },
+    "nn.functional.pairwise_distance": {
+      "passed": 10
+    },
+    "nn.functional.pdist": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "nn.functional.pixel_shuffle": {
+      "passed": 12
+    },
+    "nn.functional.pixel_unshuffle": {
+      "passed": 12
+    },
+    "nn.functional.poisson_nll_loss": {
+      "passed": 12
+    },
+    "nn.functional.prelu": {
+      "passed": 10
+    },
+    "nn.functional.relu": {
+      "passed": 10
+    },
+    "nn.functional.relu6": {
+      "passed": 11
+    },
+    "nn.functional.rms_norm": {
+      "passed": 10
+    },
+    "nn.functional.rrelu": {
+      "skipped": 1,
+      "passed": 10
+    },
+    "nn.functional.scaled_dot_product_attention": {
+      "skipped": 3,
+      "passed": 7
+    },
+    "nn.functional.selu": {
+      "passed": 9
+    },
+    "nn.functional.silu": {
+      "passed": 9
+    },
+    "nn.functional.silu.complex": {
+      "error": 1
+    },
+    "nn.functional.smooth_l1_loss": {
+      "passed": 9
+    },
+    "nn.functional.soft_margin_loss": {
+      "passed": 11
+    },
+    "nn.functional.softmin": {
+      "passed": 10
+    },
+    "nn.functional.softmin.with_dtype": {
+      "error": 11
+    },
+    "nn.functional.softplus": {
+      "passed": 10
+    },
+    "nn.functional.softshrink": {
+      "passed": 12
+    },
+    "nn.functional.softsign": {
+      "passed": 10
+    },
+    "nn.functional.tanhshrink": {
+      "passed": 10
+    },
+    "nn.functional.threshold": {
+      "passed": 10
+    },
+    "nn.functional.triplet_margin_loss": {
+      "passed": 12
+    },
+    "nn.functional.triplet_margin_with_distance_loss": {
+      "passed": 12
+    },
+    "nn.functional.unfold": {
+      "passed": 11
+    },
+    "nn.functional.upsample_bilinear": {
+      "passed": 10
+    },
+    "nn.functional.upsample_nearest": {
+      "passed": 10
+    },
+    "nonzero": {
+      "passed": 8,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "nonzero_static": {
+      "passed": 8,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "norm": {
+      "passed": 11
+    },
+    "norm.fro": {
+      "passed": 11
+    },
+    "norm.inf": {
+      "passed": 11
+    },
+    "norm.nuc": {
+      "passed": 11
+    },
+    "normal": {
+      "skipped": 2,
+      "passed": 7,
+      "unexpected_success": 2
+    },
+    "normal.in_place": {
+      "skipped": 3,
+      "passed": 6,
+      "expected_failure": 1
+    },
+    "normal.number_mean": {
+      "skipped": 7,
+      "passed": 4
+    },
+    "ones": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "ones_like": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "ormqr": {
+      "passed": 10,
+      "unexpected_success": 1,
+      "skipped": 1
+    },
+    "outer": {
+      "passed": 13
+    },
+    "pca_lowrank": {
+      "skipped": 1,
+      "passed": 9
+    },
+    "permute": {
+      "passed": 11
+    },
+    "permute_copy": {
+      "passed": 13
+    },
+    "pinverse": {
+      "passed": 10
+    },
+    "polar": {
+      "passed": 12
+    },
+    "polygamma.polygamma_n_0": {
+      "passed": 12
+    },
+    "polygamma.polygamma_n_1": {
+      "skipped": 7,
+      "passed": 5
+    },
+    "polygamma.polygamma_n_2": {
+      "skipped": 7,
+      "passed": 5
+    },
+    "polygamma.polygamma_n_3": {
+      "skipped": 7,
+      "passed": 5
+    },
+    "polygamma.polygamma_n_4": {
+      "skipped": 7,
+      "passed": 5
+    },
+    "positive": {
+      "passed": 10
+    },
+    "pow": {
+      "passed": 12
+    },
+    "prod": {
+      "passed": 12
+    },
+    "put": {
+      "passed": 12
+    },
+    "quantile": {
+      "passed": 11
+    },
+    "rad2deg": {
+      "passed": 12
+    },
+    "rand_like": {
+      "skipped": 2,
+      "error": 5,
+      "passed": 2
+    },
+    "randint": {
+      "error": 5,
+      "skipped": 3,
+      "expected_failure": 3
+    },
+    "randint_like": {
+      "skipped": 2,
+      "error": 7,
+      "passed": 2
+    },
+    "randn": {
+      "passed": 5,
+      "skipped": 2,
+      "expected_failure": 2
+    },
+    "randn_like": {
+      "skipped": 2,
+      "error": 5,
+      "passed": 2
+    },
+    "randn_like_layout0": {
+      "passed": 1
+    },
+    "randn_like_layout1": {
+      "passed": 1
+    },
+    "randn_like_layout2": {
+      "passed": 1
+    },
+    "randn_like_layout3": {
+      "passed": 1
+    },
+    "randn_like_layout4": {
+      "passed": 1
+    },
+    "ravel": {
+      "passed": 11
+    },
+    "real": {
+      "passed": 11
+    },
+    "reciprocal": {
+      "passed": 12
+    },
+    "remainder": {
+      "passed": 12
+    },
+    "renorm": {
+      "passed": 12
+    },
+    "repeat": {
+      "passed": 11
+    },
+    "repeat_interleave": {
+      "passed": 12
+    },
+    "reshape": {
+      "passed": 13
+    },
+    "reshape_as": {
+      "passed": 13
+    },
+    "resize_": {
+      "passed": 9,
+      "skipped": 2
+    },
+    "resize_as_": {
+      "passed": 9,
+      "skipped": 2
+    },
+    "resolve_conj": {
+      "passed": 12
+    },
+    "resolve_neg": {
+      "passed": 12
+    },
+    "roll": {
+      "passed": 12
+    },
+    "rot90": {
+      "passed": 13
+    },
+    "round": {
+      "passed": 11
+    },
+    "round.decimals_0": {
+      "passed": 10
+    },
+    "round.decimals_3": {
+      "skipped": 5,
+      "passed": 5
+    },
+    "round.decimals_neg_3": {
+      "skipped": 5,
+      "passed": 5
+    },
+    "rsqrt": {
+      "passed": 12
+    },
+    "rsub": {
+      "passed": 12
+    },
+    "scalar_tensor": {
+      "passed": 7,
+      "skipped": 4
+    },
+    "scatter": {
+      "passed": 13,
+      "error": 1
+    },
+    "scatter_add": {
+      "passed": 13,
+      "error": 1
+    },
+    "scatter_reduce.amax": {
+      "passed": 13
+    },
+    "scatter_reduce.amin": {
+      "passed": 13
+    },
+    "scatter_reduce.mean": {
+      "passed": 12
+    },
+    "scatter_reduce.prod": {
+      "passed": 12,
+      "skipped": 1
+    },
+    "scatter_reduce.sum": {
+      "passed": 13
+    },
+    "searchsorted": {
+      "passed": 8,
+      "skipped": 1
+    },
+    "select": {
+      "passed": 12
+    },
+    "select_scatter": {
+      "passed": 12
+    },
+    "sgn": {
+      "passed": 12
+    },
+    "short": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "sigmoid": {
+      "error": 2,
+      "passed": 10
+    },
+    "sign": {
+      "passed": 12
+    },
+    "signal.windows.bartlett": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.blackman": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.cosine": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.exponential": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.gaussian": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.general_cosine": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.general_hamming": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.hamming": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.hann": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.kaiser": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signal.windows.nuttall": {
+      "passed": 6,
+      "skipped": 3
+    },
+    "signbit": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "sin": {
+      "passed": 12
+    },
+    "sinc": {
+      "passed": 12
+    },
+    "sinh": {
+      "passed": 12
+    },
+    "slice": {
+      "passed": 12
+    },
+    "slice_scatter": {
+      "passed": 13
+    },
+    "softmax": {
+      "passed": 11
+    },
+    "softmax.with_dtype": {
+      "error": 13
+    },
+    "sort": {
+      "passed": 13
+    },
+    "sparse.mm.reduce": {
+      "error": 5,
+      "skipped": 5
+    },
+    "sparse.sampled_addmm": {
+      "error": 4,
+      "skipped": 7
+    },
+    "special.airy_ai": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.bessel_j0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.bessel_j1": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.bessel_y0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.bessel_y1": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_t": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_u": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_v": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.chebyshev_polynomial_w": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.entr": {
+      "passed": 12
+    },
+    "special.erfcx": {
+      "passed": 12
+    },
+    "special.hermite_polynomial_h": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.hermite_polynomial_he": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.i0e": {
+      "passed": 12
+    },
+    "special.i1": {
+      "passed": 12
+    },
+    "special.i1e": {
+      "passed": 12
+    },
+    "special.laguerre_polynomial_l": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.legendre_polynomial_p": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.log_ndtr": {
+      "passed": 12
+    },
+    "special.modified_bessel_i0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_i1": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_k0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.modified_bessel_k1": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.ndtr": {
+      "passed": 12
+    },
+    "special.ndtri": {
+      "passed": 12
+    },
+    "special.polygamma.special_polygamma_n_0": {
+      "passed": 12
+    },
+    "special.scaled_modified_bessel_k0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.scaled_modified_bessel_k1": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_t": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_u": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_v": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.shifted_chebyshev_polynomial_w": {
+      "unexpected_success": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "special.spherical_bessel_j0": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "special.xlog1py": {
+      "passed": 14
+    },
+    "special.zeta": {
+      "expected_failure": 1,
+      "passed": 10,
+      "skipped": 1
+    },
+    "split": {
+      "passed": 12
+    },
+    "split.list_args": {
+      "passed": 12
+    },
+    "split_with_sizes": {
+      "passed": 12
+    },
+    "split_with_sizes_copy": {
+      "passed": 12,
+      "expected_failure": 1
+    },
+    "sqrt": {
+      "passed": 12
+    },
+    "square": {
+      "error": 2,
+      "passed": 10
+    },
+    "squeeze": {
+      "passed": 11
+    },
+    "squeeze.multiple": {
+      "passed": 11
+    },
+    "squeeze_copy": {
+      "passed": 12
+    },
+    "stack": {
+      "passed": 12,
+      "error": 1
+    },
+    "std": {
+      "passed": 11
+    },
+    "std.unbiased": {
+      "passed": 11
+    },
+    "std_mean": {
+      "passed": 11
+    },
+    "std_mean.unbiased": {
+      "passed": 11
+    },
+    "stft": {
+      "passed": 10
+    },
+    "sub": {
+      "passed": 12
+    },
+    "sum": {
+      "passed": 12
+    },
+    "sum_layout0": {
+      "passed": 1
+    },
+    "sum_layout1": {
+      "passed": 1
+    },
+    "sum_layout2": {
+      "passed": 1
+    },
+    "sum_layout3": {
+      "passed": 1
+    },
+    "sum_layout4": {
+      "passed": 1
+    },
+    "sum_to_size": {
+      "passed": 13
+    },
+    "svd": {
+      "passed": 11
+    },
+    "svd_lowrank": {
+      "skipped": 2,
+      "passed": 8
+    },
+    "t": {
+      "passed": 13
+    },
+    "t_copy": {
+      "passed": 14
+    },
+    "take": {
+      "passed": 14
+    },
+    "take_along_dim": {
+      "passed": 13
+    },
+    "tan": {
+      "passed": 12
+    },
+    "tanh": {
+      "passed": 12
+    },
+    "tensor_split": {
+      "passed": 8,
+      "expected_failure": 3
+    },
+    "tensordot": {
+      "passed": 12
+    },
+    "tile": {
+      "passed": 11
+    },
+    "to": {
+      "error": 12
+    },
+    "to_sparse": {
+      "passed": 6,
+      "error": 1,
+      "skipped": 5
+    },
+    "topk": {
+      "passed": 12
+    },
+    "torch._scaled_mm": {
+      "error": 1
+    },
+    "torch._scaled_mm_v2": {
+      "error": 1
+    },
+    "torch.ops.aten._efficient_attention_forward": {
+      "skipped": 1
+    },
+    "torch.ops.aten._flash_attention_forward": {
+      "skipped": 1
+    },
+    "torch.ops.aten._safe_softmax.default": {
+      "passed": 12
+    },
+    "torch.ops.aten._scaled_dot_product_flash_attention_for_cpu": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "trace": {
+      "passed": 12
+    },
+    "transpose": {
+      "passed": 11
+    },
+    "transpose_copy": {
+      "passed": 13
+    },
+    "trapezoid": {
+      "passed": 11
+    },
+    "trapz": {
+      "passed": 11
+    },
+    "triangular_solve": {
+      "passed": 10,
+      "unexpected_success": 1
+    },
+    "tril": {
+      "passed": 13,
+      "error": 1
+    },
+    "tril_indices": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "triu": {
+      "passed": 13,
+      "error": 1
+    },
+    "triu_indices": {
+      "skipped": 1,
+      "passed": 2
+    },
+    "true_divide": {
+      "passed": 14
+    },
+    "trunc": {
+      "passed": 11
+    },
+    "unbind": {
+      "passed": 12
+    },
+    "unbind_copy": {
+      "passed": 13
+    },
+    "unflatten": {
+      "passed": 12
+    },
+    "unfold": {
+      "passed": 12
+    },
+    "unfold_copy": {
+      "passed": 13
+    },
+    "uniform": {
+      "skipped": 2,
+      "error": 1,
+      "passed": 6,
+      "expected_failure": 1
+    },
+    "unique": {
+      "skipped": 2,
+      "passed": 9
+    },
+    "unique_consecutive": {
+      "passed": 10,
+      "skipped": 1
+    },
+    "unravel_index": {
+      "passed": 3
+    },
+    "unsafe_chunk": {
+      "passed": 12
+    },
+    "unsafe_split": {
+      "passed": 12
+    },
+    "unsqueeze": {
+      "passed": 12
+    },
+    "unsqueeze_copy": {
+      "passed": 13
+    },
+    "var": {
+      "passed": 11
+    },
+    "var.unbiased": {
+      "passed": 11
+    },
+    "var_mean": {
+      "passed": 11
+    },
+    "var_mean.unbiased": {
+      "passed": 11
+    },
+    "vdot": {
+      "passed": 12,
+      "error": 1
+    },
+    "view": {
+      "passed": 13
+    },
+    "view_as": {
+      "passed": 13
+    },
+    "view_as_complex": {
+      "passed": 9,
+      "expected_failure": 1
+    },
+    "view_as_real": {
+      "passed": 1
+    },
+    "view_copy": {
+      "passed": 13
+    },
+    "vsplit": {
+      "passed": 13
+    },
+    "vstack": {
+      "passed": 12,
+      "error": 2
+    },
+    "where": {
+      "error": 1,
+      "passed": 12
+    },
+    "xlogy": {
+      "passed": 14
+    },
+    "zero_": {
+      "passed": 12
+    },
+    "zeros": {
+      "passed": 9,
+      "expected_failure": 2,
+      "skipped": 1
+    },
+    "zeros_like": {
+      "error": 8,
+      "passed": 2,
+      "skipped": 1
+    },
+    "zeros_like_layout0": {
+      "passed": 1
+    },
+    "zeros_like_layout1": {
+      "passed": 1
+    },
+    "zeros_like_layout2": {
+      "passed": 1
+    },
+    "zeros_like_layout3": {
+      "passed": 1
+    },
+    "zeros_like_layout4": {
+      "passed": 1
+    }
+  },
+  "timeout_recheck": [],
+  "independent_reproductions": {},
+  "interpretation": [
+    "Counts are generated test cases, not distinct supported operators or sample inputs.",
+    "Each upstream case can stop on its first failing sample; unvisited samples are not passes.",
+    "Upstream skips/xfails are retained. No tolerance or sample-input rewrites were made.",
+    "FP32-tagged cases can explicitly request other dtypes. Test-defined cases can exercise several dtypes.",
+    "Failures may originate in sample generation, comparison helpers, target ops, or composite infrastructure.",
+    "Host-read counters include explicit comparison downloads; this suite does not measure numeric GPU residency.",
+    "Suite completion exit code is not a claim that all tests passed.",
+    "This is selected test_ops coverage, not all PyTorch tests or a complete finite-difference gradcheck suite."
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_bincount_vulkan_int64",
+    "reason": "Integer bincount weights produce FP64 output in pinned ATen; FP64 arithmetic is deferred."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_bincount_vulkan_int64",
+    "reason": "Integer bincount weights produce FP64 output in pinned ATen; FP64 arithmetic is deferred."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_tril_indices_vulkan_int64",
+    "reason": "Pinned Python reference explicitly requests FP64 arange"
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_triu_indices_vulkan_int64",
+    "reason": "Pinned Python reference explicitly requests FP64 arange"
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_tril_indices_vulkan",
+    "reason": "Pinned Python reference explicitly requests FP64 arange"
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_triu_indices_vulkan",
+    "reason": "Pinned Python reference explicitly requests FP64 arange"
+  }
+]

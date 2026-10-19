@@ -1,0 +1,23 @@
+// Bunch-Kaufman pivot/block formulas follow LAPACK SSYTF2 v3.12.1.
+// BSD-3-Clause; see third_party/lapack/LICENSE and NOTICE.md.
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Input {float input_data[];};layout(binding=1) buffer LD {float ld[];};layout(binding=2) buffer Pivots {int pivots[];};layout(binding=3) buffer Info {int info[];};layout(binding=4) buffer Workspace {float schur[];};
+layout(push_constant) uniform P {uint batch,n,alpha;}p;
+shared uint pivot,step_size,skip_update;
+void sync_buffers(){memoryBarrierBuffer();barrier();}
+void main(){uint batch=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;if(batch>=p.batch)return;uint n=p.n,base=batch*n*n;float alpha=uintBitsToFloat(p.alpha);
+ for(uint i=lane;i<n*n;i+=128u){uint row=i/n,col=i%n;ld[base+i]=row>=col?input_data[base+i]:0.0;schur[base+i]=input_data[base+max(row,col)*n+min(row,col)];}if(lane==0u)info[batch]=0;sync_buffers();
+ for(uint k=0u;k<n;){if(lane==0u){step_size=1u;pivot=k;skip_update=0u;float diagonal=abs(schur[base+k*n+k]),column_max=0.0;uint imax=k;for(uint i=k+1u;i<n;i++){float value=abs(schur[base+i*n+k]);if(value>column_max){column_max=value;imax=i;}}
+  if(max(diagonal,column_max)==0.0||isnan(diagonal)){skip_update=1u;if(info[batch]==0)info[batch]=int(k+1u);}else if(diagonal<alpha*column_max){float row_max=0.0;for(uint j=k;j<n;j++)if(j!=imax)row_max=max(row_max,abs(schur[base+imax*n+j]));precise float test=alpha*column_max*divide_refined(column_max,row_max);if(diagonal>=test)pivot=k;else if(abs(schur[base+imax*n+imax])>=alpha*row_max)pivot=imax;else{pivot=imax;step_size=2u;}}}
+  barrier();uint block_size=step_size;uint kk=k+block_size-1u,kp=pivot;
+  // LAPACK's packed LD retains interleaved permutations: previous factor
+  // columns are deliberately untouched by this trailing-matrix interchange.
+  if(kp!=kk){for(uint j=k+lane;j<n;j+=128u){float a=schur[base+kk*n+j];schur[base+kk*n+j]=schur[base+kp*n+j];schur[base+kp*n+j]=a;}sync_buffers();for(uint i=k+lane;i<n;i+=128u){float a=schur[base+i*n+kk];schur[base+i*n+kk]=schur[base+i*n+kp];schur[base+i*n+kp]=a;}}sync_buffers();
+  if(lane==0u){ld[base+k*n+k]=schur[base+k*n+k];pivots[batch*n+k]=block_size==1u?int(kp+1u):-int(kp+1u);if(block_size==2u){ld[base+(k+1u)*n+k+1u]=schur[base+(k+1u)*n+k+1u];ld[base+(k+1u)*n+k]=schur[base+(k+1u)*n+k];pivots[batch*n+k+1u]=-int(kp+1u);}}
+  for(uint i=k+block_size+lane;i<n;i+=128u){float a=schur[base+i*n+k];if(skip_update!=0u)ld[base+i*n+k]=a;else if(block_size==1u)ld[base+i*n+k]=a*divide_refined(1.0,schur[base+k*n+k]);else{float off=schur[base+(k+1u)*n+k],d11=divide_refined(schur[base+(k+1u)*n+k+1u],off),d22=divide_refined(schur[base+k*n+k],off);precise float denominator=d11*d22-1.0;float scale=divide_refined(divide_refined(1.0,denominator),off),b=schur[base+i*n+k+1u];precise float first=scale*(d11*a-b),second=scale*(d22*b-a);ld[base+i*n+k]=first;ld[base+i*n+k+1u]=second;}}sync_buffers();
+  if(skip_update==0u)for(uint index=lane;index<n*n;index+=128u){uint i=index/n,j=index%n;if(i<k+block_size||j<k+block_size||i<j)continue;precise float value=schur[base+index]-schur[base+i*n+k]*ld[base+j*n+k];if(block_size==2u)value-=schur[base+i*n+k+1u]*ld[base+j*n+k+1u];schur[base+index]=value;schur[base+j*n+i]=value;}sync_buffers();k+=block_size;
+ }
+}

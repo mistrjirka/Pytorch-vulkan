@@ -1,6 +1,8 @@
 // General FP32 LeakyReLU, including gradients and alias-preserving mutation.
 #include "native_utils.h"
 #include <ATen/MemoryOverlap.h>
+#include <ATen/ExpandUtils.h>
+#include <ATen/native/Resize.h>
 #include <ATen/native/CPUFallback.h>
 #include <ATen/ops/leaky_relu_ops.h>
 #include <ATen/ops/leaky_relu_backward_ops.h>
@@ -72,16 +74,19 @@ void dispatch(const at::Tensor& x,const at::Tensor* grad,const at::Scalar& slope
       {write_base(out)},p,(out.numel()+127)/128);
 }
 at::Tensor forward(const at::Tensor& x,const at::Scalar& slope) {
+  if(!supported(x)&&can_iterate_fp32(x))return iterated_unary_fp32(x,13,slope.toFloat());
   if(!supported(x))return Fallback<at::_ops::leaky_relu>::call(x,slope);
   auto out=at::empty(x.sizes(),x.options());dispatch(x,nullptr,slope,out);return out;
 }
 at::Tensor& forward_(at::Tensor& x,const at::Scalar& slope) {
   at::assert_no_internal_overlap(x);
+  if(!supported(x,true)&&can_iterate_fp32(x)){iterate_fp32(x,x,x,13,slope.toFloat());return x;}
   if(!supported(x,true))return Fallback<at::_ops::leaky_relu_>::call(x,slope);
   dispatch(x,nullptr,slope,x);return x;
 }
 at::Tensor& forward_out(const at::Tensor& x,const at::Scalar& slope,at::Tensor& out) {
   overlap_check(out,x);
+  if(can_iterate_fp32(x)&&can_iterate_fp32(out)&&out.device()==x.device()&&(!supported(x)||!supported(out,true)||out.sizes()!=x.sizes()||!safe_alias(out,x))){auto value=forward(x,slope);at::native::resize_output(out,x.sizes());iterate_fp32(value,value,out,0);return out;}
   if(!supported(x) || !supported(out,true) || out.sizes()!=x.sizes() || !safe_alias(out,x))
     return Fallback<at::_ops::leaky_relu_out>::call(x,slope,out);
   dispatch(x,nullptr,slope,out);return out;
@@ -94,6 +99,7 @@ void check_result(const at::Scalar& slope,bool self_is_result) {
 at::Tensor backward(const at::Tensor& grad,const at::Tensor& x,
                     const at::Scalar& slope,bool self_is_result) {
   check_result(slope,self_is_result);
+  if(can_iterate_fp32(x)&&can_iterate_fp32(grad)&&x.device()==grad.device()&&(!supported(x)||!supported(grad)||x.sizes()!=grad.sizes())){auto shape=at::infer_size(x.sizes(),grad.sizes());auto out=at::empty(shape,x.options());iterate_fp32(x,grad,out,14,slope.toFloat());return out;}
   if(!supported(x) || !supported(grad) || x.sizes()!=grad.sizes())
     return Fallback<at::_ops::leaky_relu_backward>::call(grad,x,slope,self_is_result);
   auto out=at::empty(x.sizes(),x.options());dispatch(x,&grad,slope,out);return out;
@@ -101,6 +107,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& x,
 at::Tensor& backward_out(const at::Tensor& grad,const at::Tensor& x,
     const at::Scalar& slope,bool self_is_result,at::Tensor& out) {
   check_result(slope,self_is_result);overlap_check(out,x);overlap_check(out,grad);
+  if(can_iterate_fp32(x)&&can_iterate_fp32(grad)&&can_iterate_fp32(out)&&x.device()==grad.device()&&x.device()==out.device()&&(!supported(x)||!supported(grad)||!supported(out,true)||x.sizes()!=grad.sizes()||x.sizes()!=out.sizes()||!safe_alias(out,x)||!safe_alias(out,grad))){auto value=backward(grad,x,slope,self_is_result);at::native::resize_output(out,value.sizes());iterate_fp32(value,value,out,0);return out;}
   if(!supported(x) || !supported(grad) || !supported(out,true) ||
       x.sizes()!=grad.sizes() || x.sizes()!=out.sizes() ||
       !safe_alias(out,x) || !safe_alias(out,grad))

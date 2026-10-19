@@ -2,6 +2,7 @@
 #include "device_copy.h"
 #include "../vulkan_generator.h"
 #include <ATen/MemoryOverlap.h>
+#include <ATen/native/Resize.h>
 #include <ATen/ExpandUtils.h>
 #include <torch/library.h>
 #include <cmath>
@@ -79,4 +80,13 @@ at::Tensor dropout_backward(const at::Tensor& grad,const at::Tensor& mask,double
 }
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("exponential_",&exponential);m.impl("cauchy_",&cauchy);m.impl("log_normal_",&log_normal);m.impl("geometric_",&geometric);m.impl("normal.Tensor_float",&normal_mean);m.impl("normal.float_Tensor",&normal_std);m.impl("normal.Tensor_Tensor",&normal_parameters);m.impl("random_.from",&integer_random);m.impl("random_.to",&integer_random_to);m.impl("random_",&integer_random_default);m.impl("uniform_",&uniform);m.impl("normal_",&normal);m.impl("bernoulli_.float",&bernoulli_scalar);m.impl("bernoulli_.Tensor",&bernoulli_tensor);m.impl("bernoulli",&bernoulli);m.impl("native_dropout",&dropout);m.impl("native_dropout_backward",&dropout_backward);}
+}
+namespace torch_vulkan::ops {namespace {
+at::Tensor multinomial_native(const at::Tensor& x,c10::SymInt symbolic_samples,bool replacement,std::optional<at::Generator> generator){TORCH_CHECK(x.dim()>0&&x.dim()<=2,"prob_dist must be 1 or 2 dim");TORCH_CHECK(x.is_floating_point(),"multinomial only supports floating-point dtypes for input, got: ",x.scalar_type());auto samples=symbolic_samples.expect_int();TORCH_CHECK(samples>0,"cannot sample n_sample <= 0 samples");auto categories=x.size(-1);TORCH_CHECK(replacement||samples<=categories,"cannot sample n_sample > prob_dist.size(-1) samples without replacement");TORCH_CHECK(categories<=16777216,"number of categories cannot exceed 2^24");TORCH_CHECK(x.scalar_type()==at::kFloat,"Vulkan multinomial requires FP32 probabilities");auto shape=x.sizes().vec();shape.back()=samples;auto result=at::empty(shape,x.options().dtype(at::kLong));if(!result.numel())return result;TORCH_CHECK(categories>0,"invalid multinomial distribution (sum of probabilities <= 0)");TORCH_CHECK(at::all(at::logical_and(at::isfinite(x),x.ge(0))).cpu().item<bool>(),"probability tensor contains either `inf`, `nan` or element < 0");auto totals=at::sum(x,{-1},true);TORCH_CHECK(at::all(totals.gt(0)).cpu().item<bool>(),"invalid multinomial distribution (sum of probabilities <= 0)");
+ if(!replacement||samples==1){auto noise=at::empty_like(x);noise.exponential_(1,generator);auto scores=x.div(noise);return samples==1?at::argmax(scores,-1,true):std::get<1>(at::topk(scores,samples,-1,true,true));}
+ auto scaled=x.div(at::amax(x,{-1},true));auto cdf=at::cumsum(scaled,-1);auto random=at::empty(shape,x.options());random.uniform_(0,1,generator);random=at::minimum(random,at::full({},std::nextafter(1.f,0.f),x.options()));auto total=cdf.select(-1,categories-1).unsqueeze(-1);auto values=at::minimum(random.mul(total),at::nextafter(total,at::zeros({},x.options())));return at::searchsorted(cdf,values,false,true).clamp_max(categories-1);
+}
+at::Tensor& multinomial_out_native(const at::Tensor& x,c10::SymInt samples,bool replacement,std::optional<at::Generator> generator,at::Tensor& out){TORCH_CHECK(out.device()==x.device(),"multinomial arguments must have the same device");TORCH_CHECK(out.scalar_type()==at::kLong,"multinomial expects Long tensor out, got: ",out.scalar_type());at::assert_no_internal_overlap(out);auto value=multinomial_native(x,samples,replacement,generator);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("multinomial",&multinomial_native);m.impl("multinomial.out",&multinomial_out_native);}
 }

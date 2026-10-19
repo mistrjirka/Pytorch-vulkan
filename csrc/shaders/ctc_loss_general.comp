@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer LP {float log_probs[];};layout(binding=1) readonly buffer Targets {uvec2 targets[];};layout(binding=2) readonly buffer Meta {uvec4 metadata[];};layout(binding=3) readonly buffer G {float upstream[];};layout(binding=4) readonly buffer Loss {float saved_loss[];};layout(binding=5) readonly buffer Alpha {float saved_alpha[];};layout(binding=6) buffer Out {float result[];};layout(binding=7) buffer Workspace {float table[];};layout(binding=8) buffer Status {uint status[];};
+layout(push_constant) uniform P {uint batch,time,classes,states,blank,mode,zero_infinity;}p;
+float minus_inf(){return uintBitsToFloat(0xff800000u);}
+uint label(uint n,uint state){if((state&1u)==0u)return p.blank;uvec2 value=targets[metadata[n].z+state/2u];if(value.y!=0u||value.x>=p.classes){atomicOr(status[0],1u);return p.blank;}return value.x;}
+float add3(float a,float b,float c){float maximum=a;if(b>maximum)maximum=b;if(c>maximum)maximum=c;if(maximum==minus_inf())maximum=0.0;precise float sum=exp(a-maximum)+exp(b-maximum);sum+=exp(c-maximum);return log(sum)+maximum;}
+float add2(float a,float b){float maximum=a;if(b>maximum)maximum=b;if(maximum==minus_inf())maximum=0.0;precise float sum=exp(a-maximum)+exp(b-maximum);return log(sum)+maximum;}
+void sync_table(){memoryBarrierBuffer();barrier();}
+void main(){uint n=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;if(n>=p.batch)return;uint input_length=metadata[n].x,target_length=metadata[n].y,used=2u*target_length+1u,base=n*p.time*p.states;float neg=minus_inf();
+ if(p.mode==0u){for(uint i=lane;i<p.time*p.states;i+=128u)table[base+i]=neg;sync_table();if(input_length==0u){if(lane==0u)result[n]=target_length==0u?0.0:-neg;return;}for(uint s=lane;s<min(used,2u);s+=128u)table[base+s]=log_probs[n*p.classes+label(n,s)];sync_table();
+  for(uint t=1u;t<input_length;t++){for(uint s=lane;s<used;s+=128u){uint cls=label(n,s),prev=base+(t-1u)*p.states;float a=table[prev+s],b=s>0u?table[prev+s-1u]:neg,c=s>1u&&label(n,s-2u)!=cls?table[prev+s-2u]:neg;table[base+t*p.states+s]=add3(a,b,c)+log_probs[(t*p.batch+n)*p.classes+cls];}sync_table();}
+  if(lane==0u){uint last=base+(input_length-1u)*p.states;result[n]=target_length==0u?-table[last]:-add2(table[last+used-1u],table[last+used-2u]);}return;
+ }
+ float loss=saved_loss[n];if((p.zero_infinity!=0u&&loss==uintBitsToFloat(0x7f800000u))||input_length==0u){for(uint i=lane;i<p.time*p.classes;i+=128u){uint t=i/p.classes,c=i%p.classes;result[(t*p.batch+n)*p.classes+c]=0.0;}return;}
+ for(uint i=lane;i<p.time*p.states;i+=128u)table[base+i]=neg;sync_table();for(uint s=lane;s<min(used,2u);s+=128u){uint state=used-1u-s;table[base+(input_length-1u)*p.states+state]=log_probs[((input_length-1u)*p.batch+n)*p.classes+label(n,state)];}sync_table();
+ for(int t=int(input_length)-2;t>=0;t--){for(uint s=lane;s<used;s+=128u){uint cls=label(n,s),next=base+(uint(t)+1u)*p.states;float a=table[next+s],b=s+1u<used?table[next+s+1u]:neg,c=s+2u<used&&label(n,s+2u)!=cls?table[next+s+2u]:neg;table[base+uint(t)*p.states+s]=add3(a,b,c)+log_probs[(uint(t)*p.batch+n)*p.classes+cls];}sync_table();}
+ for(uint i=lane;i<p.time*p.classes;i+=128u){uint t=i/p.classes,c=i%p.classes,index=(t*p.batch+n)*p.classes+c;if(t>=input_length){result[index]=0.0;continue;}float collected=neg;for(int s=int(used)-1;s>=0;s--)if(label(n,uint(s))==c){uint j=base+t*p.states+uint(s);float v=saved_alpha[j]+table[j];collected=collected==neg?v:add2(collected,v);}float lp=log_probs[index];result[index]=(exp(lp)-exp(collected+loss-lp))*upstream[n];}
+}

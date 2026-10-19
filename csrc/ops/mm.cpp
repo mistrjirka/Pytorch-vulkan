@@ -62,7 +62,7 @@ static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
     const char* flag=std::getenv("TORCH_VULKAN_GPU_PACK_VIEWS");
     return !flag || std::strcmp(flag,"0")!=0;
   }();
-  if(gpu_pack && native::can_pack_view(src))
+  if(gpu_pack && native::can_pack_data(src))
     return native::packed(src,src.scalar_type());
   native::cpu_fallback_check(__func__);
   return host_mirror(src).contiguous().to(src.device());

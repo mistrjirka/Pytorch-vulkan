@@ -24,3 +24,9 @@ implementations in this project. Philox4x32-10 is implemented from its counter
 transformation using core GLSL integer operations; no cuRAND, cuDNN, MIOpen,
 cuFFT, rocFFT or other vendor-library code or binary is included. PyTorch's
 native metadata helpers are called through the installed PyTorch library.
+
+The LDL shaders adapt LAPACK SSYTF2 Bunch-Kaufman pivot and block formulas at
+v3.12.1. The permissive modified BSD notice is retained in
+`licenses/lapack-LICENSE.txt` and included by package license metadata.
+Pinned source and license hashes are in `lapack/NOTICE.md`. The Vulkan buffer,
+parallel update, synchronization and device dispatch code is backend-specific.

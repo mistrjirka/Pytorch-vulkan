@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "device_copy.h"
 #include <ATen/native/BinaryOps.h>
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
@@ -45,10 +46,17 @@ void dispatch(const at::Tensor& x,const at::Tensor& out,const at::Scalar& value,
       {write_base(out,out.scalar_type())},p,(x.numel()+127)/128);
 }
 at::Tensor add_scalar(const at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {
+  if(x.dim()>8&&x.scalar_type()==at::kLong&&x.is_contiguous()){auto flat=x.as_strided({x.numel()},{1},x.storage_offset());return add_scalar(flat,value,alpha).reshape(x.sizes());}
+  if(!supported(x,value,false)&&can_iterate_fp32(x)&&at::result_type(x,value)==at::kFloat){at::native::alpha_check(at::kFloat,alpha);return iterated_unary_fp32(x,7,value.toFloat(),alpha.toFloat());}
   if(!supported(x,value,false))return at::add(x,at::scalar_tensor(value,at::TensorOptions().dtype(at::result_type(x,value))),alpha);
   auto out=at::empty(x.sizes(),x.options());dispatch(x,out,value,alpha,false);return out;
 }
 at::Tensor& add_scalar_(at::Tensor& x,const at::Scalar& value,const at::Scalar& alpha) {
+  if(x.dim()>8&&x.scalar_type()==at::kLong&&x.is_contiguous()){auto flat=x.as_strided({x.numel()},{1},x.storage_offset());add_scalar_(flat,value,alpha);return x;}
+  at::assert_no_internal_overlap(x);
+  if(!supported(x,value,true)&&can_iterate_fp32(x)&&at::result_type(x,value)==at::kFloat){at::native::alpha_check(at::kFloat,alpha);iterate_fp32(x,x,x,7,value.toFloat(),alpha.toFloat());return x;}
+  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){auto result=at::add(x,at::scalar_tensor(value,at::TensorOptions().dtype(at::result_type(x,value))),alpha);TORCH_CHECK(c10::canCast(result.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(result);return x;}
+
   if(!supported(x,value,true)) {
     auto cpu=native::cpu_fallback_tensor(x,__func__);cpu.add_(value,alpha);x.copy_(cpu);return x;
   }
@@ -90,6 +98,8 @@ at::Tensor& add_tensor_(at::Tensor& x,const at::Tensor& other,const at::Scalar& 
   at::assert_no_partial_overlap(x,other);
   if(other.device().is_cpu() && other.dim()==0 &&
       at::result_type(x,other)==x.scalar_type())return add_scalar_(x,other.item(),alpha);
+  if(x.device()==other.device()&&device_copy_supported(x.scalar_type())&&device_copy_supported(other.scalar_type())&&(x.scalar_type()!=at::kFloat||other.scalar_type()!=at::kFloat)){auto result=at::add(x,other,alpha);TORCH_CHECK(result.sizes()==x.sizes(),"output with shape does not match the broadcast shape");TORCH_CHECK(c10::canCast(result.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(result);return x;}
+  if(x.device()==other.device()&&(x.dim()>8||other.dim()>8)&&can_iterate_fp32(x)&&can_iterate_fp32(other)){at::native::alpha_check(at::kFloat,alpha);auto shape=at::infer_size(x.sizes(),other.sizes());TORCH_CHECK(at::IntArrayRef(shape)==x.sizes(),"output with shape does not match the broadcast shape");auto rhs=other;if(x.storage().is_alias_of(other.storage())&&(x.sizes()!=other.sizes()||x.strides()!=other.strides()||x.storage_offset()!=other.storage_offset()))rhs=iterated_unary_fp32(other,0);iterate_fp32(x,rhs,x,12,0,alpha.toFloat());return x;}
   const char* disabled=std::getenv("TORCH_VULKAN_DISABLE_NATIVE_TENSOR_ADD");
   if((!disabled || std::strcmp(disabled,"1")!=0) &&
       tensor_view_supported(x,true) && tensor_view_supported(other,false) &&
