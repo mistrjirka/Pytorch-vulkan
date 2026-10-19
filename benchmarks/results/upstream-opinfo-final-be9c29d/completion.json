@@ -1,0 +1,23 @@
+{
+  "audited_commit": "be9c29d90e2c23367d7ccded946ee1bf83bddf25",
+  "backend_source_sha256": "718f6b58fba20e0659af08feaca01dbe4b29c83a77b139e95507422709771b30",
+  "extension_sha256": "0a6cca6ad0a8aa8cb5b8e41f7980e8900e108a0961277cf69ffff3c15927fa95",
+  "upstream_test_source_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+  "raw_outcomes": {
+    "passed": 7831,
+    "error": 313,
+    "skipped": 446,
+    "unexpected_success": 32,
+    "expected_failure": 74
+  },
+  "scope_classifications": {
+    "deferred_precision": 272,
+    "cross_device_rng_mask_comparison": 1,
+    "cuda_source_jit_gate": 40
+  },
+  "completion_gate_passed": true,
+  "unresolved_in_scope_cases": 0,
+  "successful_case_fallback_calls_or_attempts": 0,
+  "expected_failure_case_fallback_calls_or_attempts": 0,
+  "report_commit_only_changes_docs_and_results": true
+}

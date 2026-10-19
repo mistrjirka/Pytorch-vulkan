@@ -1,7 +1,7 @@
 # FP32 coverage completion
 
-> Latest native correctness evidence: [checkpoint 13](../benchmarks/results/opinfo-native-primitives-checkpoint13/README.md).
-> The final full upstream recheck remains pending; this page is the earlier feature milestone.
+> Final correctness/fallback verification: [full report](fp32-correctness-final-verification.md).
+> The agreed FP32 gate passes; the tables below retain the earlier feature milestone.
 
 > **Subsequent upstream audit:** [OpInfo testing at this revision](upstream-opinfo-audit-863fc0b.md)
 > found missing dispatches and an `addmm` scaling bug beyond these selected tests.
