@@ -1,0 +1,10 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X{uint x[];};layout(binding=1) writeonly buffer Y{uvec2 y[];};
+layout(push_constant) uniform P{uint rows,cols,blocks,floating;}p;
+shared uvec2 partial[128];
+uvec2 float64_bits(uint bits){uint sign=bits&0x80000000u,e=(bits>>23)&255u,m=bits&0x7fffffu;if(e==0u){if(m==0u)return uvec2(0u,sign);int h=findMSB(m);uint rest=m^(1u<<uint(h)),shift=uint(52-h);uvec2 value=shift<32u?uvec2(rest<<shift,rest>>(32u-shift)):uvec2(0u,rest<<(shift-32u));value.y|=sign|uint(h+874)<<20;return value;}return uvec2(m<<29,sign|((e==255u?2047u:e+896u)<<20)|(m>>3)|(e==255u&&m!=0u?0x80000u:0u));}
+uvec2 element(uint i){return p.floating!=0u?float64_bits(x[i]):uvec2(x[2u*i],x[2u*i+1u]);}
+void main(){uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,thread=gl_LocalInvocationID.x;
+ if(p.cols==1u){uint i=group*128u+thread;if(i<p.rows)y[i]=element(i);return;}
+ if(group>=p.rows*p.blocks)return;uint row=group/p.blocks,block=group%p.blocks;uvec2 value=uvec2(0u);for(uint c=block*1024u+thread;c<min(p.cols,(block+1u)*1024u);c+=128u)value^=element(row*p.cols+c);partial[thread]=value;barrier();for(uint stride=64u;stride>0u;stride/=2u){if(thread<stride)partial[thread]^=partial[thread+stride];barrier();}if(thread==0u)y[group]=partial[0];}

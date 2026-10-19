@@ -1,0 +1,8 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};layout(binding=1) readonly buffer Random {float random_value_data[];};layout(binding=2) writeonly buffer Y {float y[];};layout(binding=3) writeonly buffer I {uvec2 indices[];};
+layout(push_constant) uniform P {uint count,dimensions,it,ih,iw,ot,oh,ow,kt,kh,kw;}p;
+uint interval(uint i,uint input_size,uint output_size,uint kernel_size,float random_value){if(i+1u==output_size)return input_size-kernel_size;float alpha=divide_refined(float(input_size-kernel_size),float(output_size-1u));precise float left=(float(i)+random_value)*alpha;precise float right=random_value*alpha;return uint(clamp(int(left)-int(right),0,int(input_size-kernel_size)));}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(id>=p.count)return;uint i=id,w=i%p.ow;i/=p.ow;uint h=i%p.oh;i/=p.oh;uint t=i%p.ot,plane=i/p.ot;uint r=plane*p.dimensions;uint ts=p.dimensions==2u?0u:interval(t,p.it,p.ot,p.kt,random_value_data[r]);uint hs=interval(h,p.ih,p.oh,p.kh,random_value_data[r+1u]);uint ws=interval(w,p.iw,p.ow,p.kw,random_value_data[r+(p.dimensions==2u?0u:2u)]);float best=-1.0/0.0;uint best_index=(ts*p.ih+hs)*p.iw+ws;for(uint z=0u;z<p.kt;z++)for(uint y0=0u;y0<p.kh;y0++)for(uint x0=0u;x0<p.kw;x0++){uint index=((ts+z)*p.ih+hs+y0)*p.iw+ws+x0;float value=x[plane*p.it*p.ih*p.iw+index];if(value>best||isnan(value)){best=value;best_index=index;}}y[id]=best;indices[id]=uvec2(best_index,0u);}

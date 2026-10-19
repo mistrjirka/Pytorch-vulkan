@@ -191,6 +191,7 @@ at::Tensor& mutate(at::Tensor& x,const at::Scalar& scalar,uint32_t op,const at::
   return x;
 }
 at::Tensor& fill_scalar(at::Tensor& x,const at::Scalar& s) {
+ if(x.scalar_type()==at::kUInt64){auto scalar=at::scalar_tensor(s,at::TensorOptions().dtype(at::kUInt64)).view(at::kLong).item<int64_t>();auto storage=x.view(at::kLong);fill_scalar(storage,scalar);return x;}
  if(x.scalar_type()==at::kBool||x.scalar_type()==at::kByte||x.scalar_type()==at::kChar||x.scalar_type()==at::kShort){
   if(!x.numel())return x;
   auto shape=x.sizes().vec();for(int d=0;d<x.dim();d++)if(!x.stride(d))shape[d]=1;

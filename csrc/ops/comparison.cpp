@@ -13,6 +13,7 @@ template<int Op>at::Tensor comparison(const at::Tensor& left,const at::Tensor& r
  auto dev=left.is_cpu()?right.device():left.device();
  TORCH_CHECK(dev.type()==c10::DeviceType::PrivateUse1&&(left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"comparison: expected tensors on the same device");
  auto dtype=at::result_type(left,right);
+ if(dtype==at::kUInt64){auto a=left.view(at::kLong),b=right.view(at::kLong);if constexpr(Op>=2&&Op<=5){a=at::bitwise_xor(a,INT64_MIN);b=at::bitwise_xor(b,INT64_MIN);}return comparison<Op>(a,b);}
  if(dtype==at::kComplexFloat){
   auto a=at::resolve_conj(left.to(dev,dtype)),b=at::resolve_conj(right.to(dev,dtype));
   if constexpr(Op==0)return at::logical_and(at::eq(at::real(a),at::real(b)),at::eq(at::imag(a),at::imag(b)));
@@ -42,6 +43,7 @@ template<int Op>at::Tensor& comparison_scalar_out(const at::Tensor& a,const at::
 template<int Op>at::Tensor& comparison_inplace(at::Tensor& a,const at::Tensor& b){auto value=comparison<Op>(a,b);TORCH_CHECK(a.sizes()==value.sizes(),"comparison in-place broadcast shape mismatch");a.copy_(value);return a;}
 template<int Op>at::Tensor& comparison_scalar_inplace(at::Tensor& a,const at::Scalar& b){a.copy_(comparison_scalar<Op>(a,b));return a;}
 template<int Op>at::Tensor unary_predicate(const at::Tensor& x){
+ if constexpr(Op>=2)if(x.scalar_type()==at::kUInt64)return at::zeros(x.sizes(),x.options().dtype(at::kBool));
  if constexpr(Op==2||Op==3)TORCH_CHECK(!x.is_complex(),"isposinf/isneginf do not support complex inputs");
  if constexpr(Op==4)if(x.scalar_type()==at::kComplexFloat){auto y=at::resolve_conj(x);return at::logical_or(at::isinf(at::real(y)),at::isinf(at::imag(y)));}
  if constexpr(Op==0)return comparison<1>(x,x);

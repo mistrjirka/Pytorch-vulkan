@@ -1,0 +1,15 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X{float x[];};layout(binding=1) readonly buffer B{uvec2 bounds[];};layout(binding=2) readonly buffer G{float g[];};layout(binding=3) readonly buffer V{float values[];};layout(binding=4) writeonly buffer Y{float y[];};
+layout(push_constant) uniform P{uint count,extent,segments,inner,mode,backward,has_initial,initial_bits;}p;
+float initial_value(){return p.has_initial!=0u?uintBitsToFloat(p.initial_bits):p.mode==2u?uintBitsToFloat(0xff800000u):p.mode==3u?uintBitsToFloat(0x7f800000u):p.mode==4u?1.:0.;}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;uint inner=i%p.inner,j=i/p.inner,batch=j/(p.backward!=0u?p.extent:p.segments),segment;
+ if(p.backward==0u)segment=j%p.segments;
+ else{uint position=j%p.extent,lo=0u,hi=p.segments+1u;while(lo<hi){uint mid=(lo+hi)/2u;if(bounds[batch*(p.segments+1u)+mid].x<=position)lo=mid+1u;else hi=mid;}if(lo==0u||lo>p.segments){y[i]=0.;return;}segment=lo-1u;}
+ uint begin=min(bounds[batch*(p.segments+1u)+segment].x,p.extent),end=min(bounds[batch*(p.segments+1u)+segment+1u].x,p.extent),out_index=(batch*p.segments+segment)*p.inner+inner;
+ if(p.backward==0u){precise float value=initial_value();for(uint k=begin;k<end;k++){float a=x[(batch*p.extent+k)*p.inner+inner];if(p.mode<=1u)value+=a;else if(p.mode==2u)value=isnan(a)?a:isnan(value)?value:max(value,a);else if(p.mode==3u)value=isnan(a)?a:isnan(value)?value:min(value,a);else value*=a;}if(p.mode==1u){if(end==begin&&p.has_initial==0u)value=uintBitsToFloat(0x7fc00000u);else if(end>begin&&!isnan(value))value=divide_refined(value,float(end-begin));}y[i]=value;return;}
+ uint position=j%p.extent;if(position<begin||position>=end){y[i]=0.;return;}float grad=g[out_index],value=x[i];if(p.mode==0u)y[i]=grad;else if(p.mode==1u)y[i]=divide_refined(grad,float(end-begin));else if(p.mode==2u||p.mode==3u){if(!isnan(value)&&value!=values[out_index]){y[i]=0.;return;}uint matches=0u;for(uint k=begin;k<end;k++){float a=x[(batch*p.extent+k)*p.inner+inner];if(isnan(a)||a==values[out_index])matches++;}y[i]=matches>1u&&grad>0.?divide_refined(grad,float(matches)):grad;}
+ else if(isnan(value)||value==0.){precise float product=initial_value();for(uint k=begin;k<end;k++)if(k!=position)product*=x[(batch*p.extent+k)*p.inner+inner];y[i]=grad*product;}else y[i]=divide_refined(grad*values[out_index],value);
+}

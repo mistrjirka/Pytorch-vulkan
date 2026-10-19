@@ -457,6 +457,9 @@ at::Tensor vulkan_to_copy(
 
   auto target_device = device.value_or(self.device());
   auto target_dtype = dtype.value_or(self.scalar_type());
+  if(self.layout()==at::kStrided&&self.scalar_type()==at::kUInt64&&device_copy_supported(target_dtype)&&target_dtype!=at::kFloat)return vulkan_to_copy(self.view(at::kLong),target_dtype,layout,device,pin_memory,non_blocking,memory_format);
+  if(self.layout()==at::kStrided&&target_dtype==at::kUInt64&&device_copy_supported(self.scalar_type())&&self.scalar_type()!=at::kFloat)return vulkan_to_copy(self,at::kLong,layout,device,pin_memory,non_blocking,memory_format).view(at::kUInt64);
+
 
   if (target_device.type() == c10::DeviceType::PrivateUse1) {
     validate_vulkan_device(target_device);
@@ -506,6 +509,9 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
   at::assert_no_internal_overlap(self);
   at::assert_no_partial_overlap(self,src);
   if(self.numel())self.mutable_data_ptr();
+  // Equal-width unsigned storage copies preserve all bits through the signed view.
+  if(self.scalar_type()==at::kUInt64&&(src.scalar_type()==at::kUInt64||(device_copy_supported(src.scalar_type())&&src.scalar_type()!=at::kFloat))){auto destination=self.view(at::kLong),source=src.scalar_type()==at::kUInt64?src.view(at::kLong):src;vulkan_copy_(destination,source,non_blocking);return self;}
+  if(src.scalar_type()==at::kUInt64&&device_copy_supported(self.scalar_type())&&self.scalar_type()!=at::kFloat){auto source=src.view(at::kLong);vulkan_copy_(self,source,non_blocking);return self;}
   if(copy_on_device(self,src))return self;
   if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device()==self.device()&&self.scalar_type()==at::kFloat&&src.scalar_type()==at::kBool){
     auto converted=vulkan_to_copy(src,at::kFloat,std::nullopt,std::nullopt,std::nullopt,false,std::nullopt);

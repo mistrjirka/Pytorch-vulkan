@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,rows,cols,a,b,first,upper,words;}p;
+uvec2 product(uint a,uint b){uint hi,lo;umulExtended(a,b,hi,lo);return uvec2(lo,hi);}
+uvec2 plus64(uvec2 a,uvec2 b){uint lo=a.x+b.x;return uvec2(lo,a.y+b.y+uint(lo<a.x));}
+uvec2 minus64(uvec2 a,uvec2 b){return uvec2(a.x-b.x,a.y-b.y-uint(a.x<b.x));}
+uint prefix(uint row){uint m=min(row>p.a?row-p.a:0u,p.b-p.a);uvec2 triangle=product(m,m==0u?0u:m-1u);triangle=uvec2((triangle.x>>1u)|(triangle.y<<31u),triangle.y>>1u);uvec2 result=product(m,p.first);result=p.upper!=0u?minus64(result,triangle):plus64(result,triangle);uint full=p.upper!=0u?min(row,p.a):row>p.b?row-p.b:0u;return result.x+full*p.cols;}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(id>=p.count)return;uint lo=0u,hi=p.rows;while(lo<hi){uint mid=lo+(hi-lo)/2u;if(prefix(mid+1u)<=id)lo=mid+1u;else hi=mid;}uint start=prefix(lo),width=prefix(lo+1u)-start;uint col=(p.upper!=0u?p.cols-width:0u)+id-start;y[id*p.words]=lo;y[(p.count+id)*p.words]=col;if(p.words==2u){y[2u*id+1u]=0u;y[2u*(p.count+id)+1u]=0u;}}

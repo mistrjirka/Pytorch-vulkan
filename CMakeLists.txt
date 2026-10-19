@@ -120,6 +120,7 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/additional_losses.cpp
     csrc/ops/geometry_primitives.cpp
   csrc/ops/order_statistics.cpp
+  csrc/ops/histogram_primitives.cpp
   csrc/ops/indexing.cpp
   csrc/ops/random.cpp
   csrc/vulkan_context.cpp

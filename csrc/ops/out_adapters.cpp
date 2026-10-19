@@ -14,6 +14,7 @@ struct NativeOut : c10::OperatorKernel {
  void operator()(const c10::OperatorHandle& op,c10::DispatchKeySet,torch::jit::Stack* stack){
   auto count=op.schema().arguments().size(),noutputs=op.schema().returns().size();auto begin=stack->size()-count;
   std::vector<at::Tensor> outputs;for(size_t i=stack->size()-noutputs;i<stack->size();i++){auto out=(*stack)[i].toTensor();at::assert_no_internal_overlap(out);for(const auto& previous:outputs)at::assert_no_overlap(out,previous);outputs.push_back(out);}
+  if(name=="aten::hash_tensor")for(const auto& out:outputs)TORCH_CHECK(out.scalar_type()==at::kUInt64,"Expected result to be of dtype uint64, but got ",out.scalar_type());
   torch::jit::Stack args(stack->begin()+begin,stack->end()-noutputs);
   for(const auto& out:outputs)for(const auto& v:args){
     auto validate=[&](const at::Tensor& t){if(!t.defined())return;if(name=="aten::kthvalue"||name=="aten::median"||name=="aten::nanmedian"||name=="aten::mode")at::assert_no_overlap(out,t);else at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
@@ -138,6 +139,11 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("igamma.out","igamma");add("igammac.out","igammac");add("linalg_lstsq.out","linalg_lstsq");
  add("im2col.out","im2col");add("col2im.out","col2im");add("heaviside.out","heaviside");add("linalg_matrix_sqrth.out","linalg_matrix_sqrth");add("linalg_matrix_exp.out","linalg_matrix_exp");add("triangular_solve.X","triangular_solve");add("_cdist_forward.out","_cdist_forward");add("_cdist_backward.out","_cdist_backward");
  for(auto name:{"quantile","nanquantile"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".scalar_out").c_str(),name,"scalar");}
+ add("multi_margin_loss.out","multi_margin_loss");add("multi_margin_loss_backward.grad_input","multi_margin_loss_backward");add("multilabel_margin_loss_forward.output","multilabel_margin_loss_forward");add("multilabel_margin_loss_backward.grad_input","multilabel_margin_loss_backward");
+ add("hash_tensor.out","hash_tensor");
+ add("fractional_max_pool2d.output","fractional_max_pool2d");add("fractional_max_pool3d.output","fractional_max_pool3d");add("fractional_max_pool2d_backward.grad_input","fractional_max_pool2d_backward");add("fractional_max_pool3d_backward.grad_input","fractional_max_pool3d_backward");
+ add("_pdist_forward.out","_pdist_forward");add("_pdist_backward.out","_pdist_backward");add("log_sigmoid_forward.output","log_sigmoid_forward");add("log_sigmoid_backward.grad_input","log_sigmoid_backward");
+ add("histc.out","histc");add("histogram.bins_tensor_out","histogram","bins_tensor");add("histogram.bin_ct_out","histogram","bin_ct");add("_histogramdd_from_bin_cts.out","_histogramdd_from_bin_cts");add("_histogramdd_from_bin_tensors.out","_histogramdd_from_bin_tensors");
  add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");add("var.correction_out","var","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");

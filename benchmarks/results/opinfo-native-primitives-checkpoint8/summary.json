@@ -1,0 +1,110 @@
+{
+  "scope": "Focused recheck, not a new full audit of this staged source",
+  "runs": {
+    "focused39": {
+      "cases": 20,
+      "outcomes": {
+        "passed": 18,
+        "skipped": 2
+      },
+      "backend_source_sha256": "fc24b40c90a415b8da349c5b6c67df32069cbd0da8e01e62080ab07d569c17c8",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused40": {
+      "cases": 22,
+      "outcomes": {
+        "passed": 18,
+        "error": 2,
+        "skipped": 2
+      },
+      "backend_source_sha256": "d2a36b5ece42ab3f6e20e487063be6d46ba115734a228893d16006f05b730a63",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused41": {
+      "cases": 2,
+      "outcomes": {
+        "passed": 2
+      },
+      "backend_source_sha256": "6d54f0acb04978cb838cd12f9cb88c3b7df1b838f1a5ad95ca8634e8864a887b",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused42": {
+      "cases": 10,
+      "outcomes": {
+        "error": 7,
+        "passed": 2,
+        "skipped": 1
+      },
+      "backend_source_sha256": "d21383ced6293553e781089a2edaf22dc24fc518b16ec0bccd97677cfa56ae0a",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 1
+    },
+    "focused43": {
+      "cases": 14,
+      "outcomes": {
+        "error": 2,
+        "passed": 11,
+        "skipped": 1
+      },
+      "backend_source_sha256": "5911d05e403be6e83d0d38d662f950c400b692ab36591bbc828389e9d462fae1",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused44": {
+      "cases": 26,
+      "outcomes": {
+        "passed": 21,
+        "skipped": 5
+      },
+      "backend_source_sha256": "72c0d1e7429e9ff7f5acaee50e33f5dc8fb4658b62ffad411dc9e147de8b6c5d",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused45": {
+      "cases": 41,
+      "outcomes": {
+        "passed": 33,
+        "skipped": 4,
+        "error": 4
+      },
+      "backend_source_sha256": "52a642d211cba14e7574a980277d0c326d3d3259d83bfd8f8464673635b8d191",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused46": {
+      "cases": 20,
+      "outcomes": {
+        "skipped": 2,
+        "passed": 18
+      },
+      "backend_source_sha256": "0626a646144a573b6c8d5b9ff6a2afdf38b846469d3b7d73ef2e6fe30bb8a3cd",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused47": {
+      "cases": 143,
+      "outcomes": {
+        "passed": 121,
+        "error": 6,
+        "skipped": 16
+      },
+      "backend_source_sha256": "0626a646144a573b6c8d5b9ff6a2afdf38b846469d3b7d73ef2e6fe30bb8a3cd",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    }
+  },
+  "before_10d5c22_for_focused47": {
+    "error": 121,
+    "skipped": 14,
+    "passed": 8
+  },
+  "recovered_errors_as_passed": 113,
+  "repository_strict_result": {
+    "passed": 2834,
+    "failed": 20,
+    "status": "Open failures include actual high-rank/in-place gaps and explicitly deferred FP64 compatibility tests; raw failures retained."
+  }
+}

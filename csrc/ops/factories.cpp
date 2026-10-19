@@ -55,3 +55,15 @@ at::Tensor& logspace_out_native(const at::Scalar& start,const at::Scalar& end,in
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("logspace.out",&logspace_out_native);}
 }
+namespace torch_vulkan::ops {namespace {
+at::Tensor triangular_indices_native(int64_t rows,int64_t cols,int64_t offset,std::optional<at::ScalarType> dtype,std::optional<at::Layout> layout,std::optional<at::Device> device,std::optional<bool> pin,bool upper){
+ TORCH_CHECK(rows>=0,"row must be non-negative, got ",rows);TORCH_CHECK(cols>=0,"col must be non-negative, got ",cols);TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided,"only support layout=torch.strided");TORCH_CHECK(!pin.value_or(false),"Vulkan triangular indices cannot be pinned");auto type=dtype.value_or(at::kLong);TORCH_CHECK(type==at::kInt||type==at::kLong,"Vulkan triangular indices requires int32 or int64");auto dev=device.value_or(at::Device(at::kPrivateUse1,0));validate_vulkan_device(dev);u32(rows);u32(cols);
+ auto clip=[&](__int128 x){return int64_t(std::max<__int128>(0,std::min<__int128>(rows,x)));};auto a=upper?clip(1-__int128(offset)):clip(-__int128(offset));auto b=upper?clip(__int128(cols)-offset):clip(__int128(cols)-offset-1);b=std::max(a,b);int64_t first=b>a?int64_t(upper?__int128(cols)-a-offset:__int128(a)+offset+1):0;__int128 m=b-a;__int128 count=upper?__int128(a)*cols+m*first-m*(m-1)/2:m*first+m*(m-1)/2+__int128(rows-b)*cols;TORCH_CHECK(count<=UINT32_MAX/2,"triangular indices exceeds Vulkan indexing limits");auto n=int64_t(count);auto out=at::empty({2,n},at::TensorOptions().device(dev).dtype(type));if(n)run("triangular_indices",{},{write_base(out,type)},{u32(n),u32(rows),u32(cols),u32(a),u32(b),u32(first),uint32_t(upper),uint32_t(type==at::kLong?2:1)},(n+127)/128);return out;
+}
+at::Tensor triu_indices_native(int64_t r,int64_t c,int64_t k,std::optional<at::ScalarType> t,std::optional<at::Layout> l,std::optional<at::Device> d,std::optional<bool> p){return triangular_indices_native(r,c,k,t,l,d,p,true);}
+at::Tensor tril_indices_native(int64_t r,int64_t c,int64_t k,std::optional<at::ScalarType> t,std::optional<at::Layout> l,std::optional<at::Device> d,std::optional<bool> p){return triangular_indices_native(r,c,k,t,l,d,p,false);}
+at::Tensor& triu_indices_out_native(int64_t r,int64_t c,int64_t k,at::Tensor& out){at::assert_no_internal_overlap(out);auto value=triu_indices_native(r,c,k,out.scalar_type(),out.layout(),out.device(),false);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
+at::Tensor& tril_indices_out_native(int64_t r,int64_t c,int64_t k,at::Tensor& out){at::assert_no_internal_overlap(out);auto value=tril_indices_native(r,c,k,out.scalar_type(),out.layout(),out.device(),false);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("triu_indices",&triu_indices_native);m.impl("tril_indices",&tril_indices_native);m.impl("triu_indices.out",&triu_indices_out_native);m.impl("tril_indices.out",&tril_indices_out_native);}
+}

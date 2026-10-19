@@ -162,3 +162,19 @@ TORCH_LIBRARY_IMPL(torch_vulkan,PrivateUse1,m){m.impl("_quantile_ranks",&quantil
 TORCH_LIBRARY_IMPL(torch_vulkan,AutogradPrivateUse1,m){m.impl("_quantile_ranks",torch::CppFunction::makeFallthrough());}
 TORCH_LIBRARY_IMPL(torch_vulkan,Meta,m){m.impl("_quantile_ranks",&quantile_ranks_meta);}
 }
+#include <ATen/native/ReduceOpsUtils.h>
+namespace torch_vulkan::ops {namespace {
+at::Tensor hash_tensor_native(const at::Tensor& raw,at::IntArrayRef dims,bool keep,int64_t mode){TORCH_CHECK(raw.dim()<=64,"only tensors with up to 64 dims are supported");if(!raw.numel())at::native::zero_numel_check_dims(raw,dims,"hash_tensor");TORCH_CHECK(mode==0,"Unknown hash_tensor mode: ",mode);TORCH_CHECK(device_copy_supported(raw.scalar_type()),"hash_tensor requires real FP32 or integer inputs");
+ std::vector<bool> reduce(std::max<int64_t>(1,raw.dim()),dims.empty());for(auto d:dims){d=at::maybe_wrap_dim(d,raw.dim());{TORCH_CHECK(!reduce[d],"dim ",d," appears multiple times in the list of dims");reduce[d]=true;}}
+ std::vector<int64_t> order,shape;int64_t rows=1,cols=1;for(int64_t d=0;d<raw.dim();d++){if(reduce[d]){cols*=raw.size(d);if(keep)shape.push_back(1);}else{rows*=raw.size(d);order.push_back(d);shape.push_back(raw.size(d));}}for(int64_t d=0;d<raw.dim();d++)if(reduce[d])order.push_back(d);
+ auto x=raw.scalar_type()==at::kFloat?raw:raw.to(at::kLong);x=x.permute(order).reshape({rows,cols});x=packed(x,x.scalar_type());bool floating=x.scalar_type()==at::kFloat;auto options=raw.options().dtype(at::kLong);if(!rows)return at::empty(shape,options).view(at::kUInt64);
+ do{auto blocks=(cols+1023)/1024;auto output=at::empty({rows,blocks},options);run("hash_tensor_general",{base(x,x.scalar_type())},{write_base(output,at::kLong)},{u32(rows),u32(cols),u32(blocks),uint32_t(floating)},cols==1?(rows+127)/128:rows*blocks);x=output;cols=blocks;floating=false;}while(cols>1);return x.reshape(shape).view(at::kUInt64);
+}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("hash_tensor",&hash_tensor_native);}
+}
+namespace torch_vulkan::ops {namespace {
+at::Tensor bincount_native(const at::Tensor& raw,const std::optional<at::Tensor>& weights,c10::SymInt symbolic_min){TORCH_CHECK(device_copy_supported(raw.scalar_type())&&raw.scalar_type()!=at::kFloat&&raw.scalar_type()!=at::kBool,"bincount is not implemented for ",raw.scalar_type());auto minlength=symbolic_min.expect_int();TORCH_CHECK(minlength>=0,"minlength should be >= 0");if(raw.dim()==1&&!raw.numel())return at::zeros({minlength},raw.options().dtype(at::kLong));TORCH_CHECK(raw.dim()==1,"bincount only supports 1-d non-negative integral inputs.");auto x=raw.to(at::kLong);TORCH_CHECK(x.min().cpu().item<int64_t>()>=0,"bincount only supports 1-d non-negative integral inputs.");auto maximum=x.max().cpu().item<int64_t>();TORCH_CHECK(maximum<INT64_MAX,"maximum value of input overflowed, it should be < ",INT64_MAX," but got ",maximum);bool weighted=weights&&weights->defined();if(weighted){TORCH_CHECK(weights->dim()==1&&weights->size(0)==raw.size(0),"weights should be 1-d and have the same length as input");TORCH_CHECK(weights->device()==raw.device(),"bincount weights device mismatch");TORCH_CHECK(weights->scalar_type()==at::kFloat,"Vulkan weighted bincount requires FP32 weights");}auto bins=std::max(maximum+1,minlength);u32(bins);auto out=at::zeros({bins},raw.options().dtype(weighted?at::kFloat:at::kLong));auto indices=packed(x,at::kLong),values=weighted?packed(*weights):at::zeros({1},raw.options().dtype(at::kFloat));run("bincount_general",{base(indices,at::kLong),base(values),base(out,out.scalar_type())},{write_base(out,out.scalar_type())},{u32(raw.numel()),uint32_t(weighted)},(raw.numel()+127)/128);return out;}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("bincount",&bincount_native);}
+}

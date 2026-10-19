@@ -25,6 +25,7 @@ at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const st
  run("random_fill",{probability,previous},{write_base(out)},p,(out.numel()+127)/128);return out;
 }
 at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> to,std::optional<at::Generator> generator){
+ if(out.scalar_type()==at::kUInt64){TORCH_CHECK(to.has_value(),"default random_ is not implemented for UInt64");TORCH_CHECK(from>=0,"from is out of bounds for UInt64");auto storage=out.view(at::kLong);integer_random(storage,from,to,generator);return out;}
  if(out.scalar_type()==at::kBool||out.scalar_type()==at::kFloat||out.scalar_type()==at::kByte||out.scalar_type()==at::kChar||out.scalar_type()==at::kShort){
   at::assert_no_internal_overlap(out);
   if(out.scalar_type()==at::kBool){TORCH_CHECK(from>=0&&from<=1,"from is out of bounds for bool");TORCH_CHECK(!to||(*to>=1&&*to<=2),"to - 1 is out of bounds for bool");}

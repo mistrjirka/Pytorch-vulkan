@@ -99,6 +99,8 @@ def worker(args):
             manifest.update(build_manifest)
             manifest['source_identity'] = 'recorded_after_build'
     manifest['match_substrings'] = args.match
+    manifest['watchdog_timeout_seconds'] = args.timeout
+    manifest['runner_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     manifest['planned_test_ids'] = [r['id'] for r in selected if not args.match or any(term in r['id'] for term in args.match)]
     runtime_assets = {name: digest for name, digest in source_hashes.items() if name.endswith(('.spv', '.py'))}
     manifest['runtime_asset_files'] = runtime_assets

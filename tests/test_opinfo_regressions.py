@@ -1475,3 +1475,279 @@ def test_unfold_scalar_and_variant_backward(shape,axis,size,step):
     x=torch.randn(shape,requires_grad=True);v=x.detach().to('vulkan').requires_grad_()
     a=v.unfold(axis,size,step);b=x.unfold(axis,size,step)
     torch.testing.assert_close(torch.autograd.grad(a.sum(),v)[0].cpu(),torch.autograd.grad(b.sum(),x)[0])
+
+@pytest.mark.parametrize('reduction',['sum','mean','max','min','prod'])
+@pytest.mark.parametrize('use_offsets',[False,True])
+@pytest.mark.parametrize('axis',[0,1])
+@pytest.mark.parametrize('initial',[None,0.,.3])
+def test_segment_reductions_forward_backward(reduction,use_offsets,axis,initial):
+    torch.manual_seed(773)
+    lengths=torch.tensor([2,0,4]) if axis==0 else torch.tensor([[2,0,4],[1,3,2]])
+    data=torch.randn(6,3) if axis==0 else torch.randn(2,6,3)
+    data[...,0]=0
+    if use_offsets:
+        shape=list(lengths.shape);shape[-1]=1
+        indices=torch.cat((torch.zeros(shape,dtype=lengths.dtype),lengths.cumsum(-1)),dim=-1);name='offsets'
+    else:indices=lengths;name='lengths'
+    host=data.detach().requires_grad_();dev=data.to('vulkan').requires_grad_()
+    a=torch.segment_reduce(dev,reduction,axis=axis,initial=initial,**{name:indices.to('vulkan')})
+    b=torch.segment_reduce(host,reduction,axis=axis,initial=initial,**{name:indices})
+    torch.testing.assert_close(a.cpu(),b,equal_nan=True)
+    direction=torch.randn_like(b)
+    ga=torch.autograd.grad(a,dev,direction.to('vulkan'))[0];gb=torch.autograd.grad(b,host,direction)[0]
+    torch.testing.assert_close(ga.cpu(),gb,equal_nan=True)
+
+@pytest.mark.parametrize('reduction',['sum','mean','max','min','prod'])
+def test_segment_reductions_nan_and_zero_products(reduction):
+    x=torch.tensor([0.,2.,0.,0.,float('nan'),2.,2.,float('nan')],requires_grad=True)
+    v=x.detach().to('vulkan').requires_grad_();lengths=torch.tensor([2,2,2,2])
+    a=torch.segment_reduce(v,reduction,lengths=lengths.to('vulkan'))
+    b=torch.segment_reduce(x,reduction,lengths=lengths)
+    torch.testing.assert_close(a.cpu(),b,equal_nan=True)
+    torch.testing.assert_close(torch.autograd.grad(a.sum(),v)[0].cpu(),torch.autograd.grad(b.sum(),x)[0],equal_nan=True)
+
+@pytest.mark.parametrize('rank',[0,1,2])
+@pytest.mark.parametrize('power',[1,2])
+@pytest.mark.parametrize('reduction',['none','mean','sum'])
+@pytest.mark.parametrize('weighted',[False,True])
+def test_multi_margin_loss_values_and_gradients(rank,power,reduction,weighted):
+    torch.manual_seed(787);classes=1 if rank==0 else 7;rows=3
+    x=torch.randn(4)[2] if rank==0 else torch.randn(classes*2+1)[1::2] if rank==1 else torch.randn(rows+1,classes*2)[1:,1::2]
+    target=torch.tensor(0) if rank==0 else torch.tensor(3) if rank==1 else torch.tensor([0,3,6])
+    weight=torch.rand(classes*2)[::2] if weighted else None
+    host=x.detach().requires_grad_();dev=x.detach().to('vulkan').requires_grad_()
+    options=dict(p=power,margin=.7,reduction=reduction)
+    a=torch.nn.functional.multi_margin_loss(dev,target.to('vulkan'),weight=weight.to('vulkan') if weighted else None,**options)
+    b=torch.nn.functional.multi_margin_loss(host,target,weight=weight,**options)
+    torch.testing.assert_close(a.cpu(),b)
+    direction=torch.randn_like(b)
+    torch.testing.assert_close(torch.autograd.grad(a,dev,direction.to('vulkan'))[0].cpu(),torch.autograd.grad(b,host,direction)[0])
+
+@pytest.mark.parametrize('rank',[0,1,2])
+@pytest.mark.parametrize('reduction',['none','mean','sum'])
+def test_multilabel_margin_loss_values_masks_and_gradients(rank,reduction):
+    torch.manual_seed(797);classes=1 if rank==0 else 7;rows=3
+    x=torch.randn(4)[2] if rank==0 else torch.randn(classes*2+1)[1::2] if rank==1 else torch.randn(rows+1,classes*2)[1:,1::2]
+    target=torch.tensor(0) if rank==0 else torch.tensor([1,3,-1,-1,-1,-1,-1]) if rank==1 else torch.tensor([[1,3,-1,-1,-1,-1,-1],[6,-1,-1,-1,-1,-1,-1],[0,1,4,-1,-1,-1,-1]])
+    host=x.detach().requires_grad_();dev=x.detach().to('vulkan').requires_grad_()
+    a=torch.nn.functional.multilabel_margin_loss(dev,target.to('vulkan'),reduction=reduction);b=torch.nn.functional.multilabel_margin_loss(host,target,reduction=reduction)
+    torch.testing.assert_close(a.cpu(),b)
+    direction=torch.randn_like(b)
+    torch.testing.assert_close(torch.autograd.grad(a,dev,direction.to('vulkan'))[0].cpu(),torch.autograd.grad(b,host,direction)[0])
+    ag=torch.ops.aten.multilabel_margin_loss_forward(dev.detach(),target.to('vulkan'),0)
+    bg=torch.ops.aten.multilabel_margin_loss_forward(host.detach(),target,0)
+    for u,v in zip(ag,bg):torch.testing.assert_close(u.cpu(),v)
+
+@pytest.mark.parametrize('multilabel',[False,True])
+def test_margin_loss_shape_validation_precedes_target_dtype(multilabel):
+    x=torch.empty(5,0,device='vulkan')
+    target=torch.empty(5,4,device='vulkan') if multilabel else torch.empty(5,device='vulkan')
+    fn=torch.nn.functional.multilabel_margin_loss if multilabel else torch.nn.functional.multi_margin_loss
+    with pytest.raises(RuntimeError,match='Expected non-empty vector or matrix'):
+        fn(x,target)
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.int64,torch.int32,torch.bool,torch.uint8,torch.int8,torch.int16])
+@pytest.mark.parametrize('shape',[(),(4097,),(3,4,5)])
+def test_tensor_hash_types_axes_and_unsigned_output(dtype,shape):
+    torch.manual_seed(809)
+    if dtype==torch.float32:x=torch.randn(shape)
+    elif dtype==torch.bool:x=torch.randint(0,2,shape).bool()
+    else:x=torch.randint(0,91,shape,dtype=dtype)
+    if len(shape)>1:x=x.transpose(0,2)
+    axes=[None] if len(shape)<2 else [None,0,1,-1,(0,2)]
+    v=x.to('vulkan')
+    for dim in axes:
+        for keep in [False,True]:
+            options={'keepdim':keep}
+            if dim is not None:options['dim']=dim
+            actual=torch.hash_tensor(v,**options);expected=torch.hash_tensor(x,**options)
+            assert actual.dtype==torch.uint64
+            assert actual.shape==expected.shape
+            assert torch.equal(actual.cpu(),expected)
+            clone=actual.clone();assert torch.equal(clone.cpu(),expected)
+            out=torch.empty(expected.shape,dtype=torch.uint64,device='vulkan')
+            torch.hash_tensor(v,out=out,**options);assert torch.equal(out.cpu(),expected)
+
+
+def test_tensor_hash_preserves_float_bits_and_signed_extremes():
+    torch.manual_seed(811)
+    bits=torch.randint(-(2**31),2**31-1,(20000,),dtype=torch.int32)
+    x=bits.view(torch.float32)
+    x=torch.cat((x,torch.tensor([0.,-0.,float('inf'),-float('inf'),float('nan')]),torch.tensor([1,0x7fffff,-2147483647],dtype=torch.int32).view(torch.float32)))
+    integers=torch.tensor([-(2**63),2**63-1,-1,0,2**60+3,-(2**60+5)],dtype=torch.int64)
+    for value in [x,integers]:assert torch.equal(torch.hash_tensor(value.to('vulkan')).cpu(),torch.hash_tensor(value))
+
+@pytest.mark.parametrize('dtype',[torch.uint8,torch.int8,torch.int16,torch.int32,torch.int64])
+@pytest.mark.parametrize('weighted',[False,True])
+def test_bincount_indices_weights_and_minimum_length(dtype,weighted):
+    torch.manual_seed(821);x=torch.randint(0,31,(401,),dtype=dtype)[1::2]
+    w=torch.randn(401)[1::2] if weighted else None
+    for minimum in [0,50]:
+        a=torch.bincount(x.to('vulkan'),weights=w.to('vulkan') if weighted else None,minlength=minimum)
+        b=torch.bincount(x,weights=w,minlength=minimum)
+        torch.testing.assert_close(a.cpu(),b)
+
+
+def test_bincount_empty_and_invalid_indices():
+    for n in [0,7]:
+        actual=torch.bincount(torch.empty(0,dtype=torch.int64,device='vulkan'),weights=torch.empty(0,device='vulkan'),minlength=n)
+        torch.testing.assert_close(actual.cpu(),torch.zeros(n,dtype=torch.int64))
+    with pytest.raises(RuntimeError,match='non-negative'):
+        torch.bincount(torch.tensor([0,-1,2],device='vulkan'))
+    with pytest.raises(RuntimeError,match='minlength'):
+        torch.bincount(torch.tensor([0,1],device='vulkan'),minlength=-1)
+
+@pytest.mark.parametrize('value',[-1,2**64-1,3.5])
+def test_unsigned64_fill_preserves_scalar_conversion(value):
+    cpu=torch.empty(5,dtype=torch.uint64).fill_(value)
+    gpu=torch.empty(5,dtype=torch.uint64,device='vulkan').fill_(value)
+    assert torch.equal(gpu.cpu(),cpu)
+
+
+def test_unsigned64_comparisons_cover_sign_boundary():
+    values=[0,1,2**63-1,2**63,2**64-1]
+    x=torch.tensor(values,dtype=torch.uint64,device='vulkan')
+    for name,fn in [('eq',lambda a,b:a==b),('ne',lambda a,b:a!=b),('lt',lambda a,b:a<b),('le',lambda a,b:a<=b),('gt',lambda a,b:a>b),('ge',lambda a,b:a>=b)]:
+        expected=torch.tensor([[fn(a,b) for b in values] for a in values])
+        assert torch.equal(getattr(torch,name)(x[:,None],x[None,:]).cpu(),expected)
+
+
+def test_unsigned64_bounded_generator_reproducibility():
+    generator=torch.Generator(device='vulkan').manual_seed(823)
+    x=torch.empty(10000,dtype=torch.uint64,device='vulkan').random_(5,100,generator=generator)
+    generator.manual_seed(823)
+    y=torch.empty_like(x).random_(5,100,generator=generator)
+    assert torch.equal(x.cpu(),y.cpu())
+    values=x.cpu().tolist();assert all(5<=value<100 for value in values)
+    assert abs(sum(values)/len(values)-52)<1
+
+
+def test_unsigned64_signed_storage_casts_preserve_all_bits():
+    signed=torch.tensor([-(2**63),-1,0,1,2**63-1],dtype=torch.int64)
+    unsigned=signed.to('vulkan').to(torch.uint64)
+    assert torch.equal(unsigned.cpu(),signed.to(torch.uint64))
+    assert torch.equal(unsigned.to(torch.int64).cpu(),signed)
+
+@pytest.mark.parametrize('shape', [(), (31,), (3,4,5), (3,0,5)])
+@pytest.mark.parametrize('weighted,density',[(False,False),(True,False),(False,True),(True,True)])
+def test_histogram_native_edges_weights_and_density(shape,weighted,density):
+    torch.manual_seed(741)
+    x=torch.randn(shape);weight=torch.randn(shape) if weighted else None
+    for bins in [1,7,torch.tensor([-3.,-1.,-.25,0.,.25,1.,3.])]:
+        kw={'weight':weight,'density':density}
+        expected=torch.histogram(x,bins,**kw)
+        actual=torch.histogram(x.to('vulkan'),bins.to('vulkan') if isinstance(bins,torch.Tensor) else bins,weight=weight.to('vulkan') if weighted else None,density=density)
+        for a,b in zip(actual,expected):torch.testing.assert_close(a.cpu(),b,equal_nan=True)
+
+@pytest.mark.parametrize('dimensions',[0,1,2,4])
+@pytest.mark.parametrize('weighted,density',[(False,False),(True,False),(False,True),(True,True)])
+def test_histogramdd_native_mixed_bins_and_strides(dimensions,weighted,density):
+    torch.manual_seed(712)
+    x=torch.randn(dimensions,2,19).permute(1,2,0)
+    weight=torch.randn(2,19) if weighted else None
+    counts=[2+d for d in range(dimensions)]
+    for bins in [counts,[torch.linspace(-2,2,n+1) for n in counts]]:
+        expected=torch.histogramdd(x,bins,weight=weight,density=density)
+        actual=torch.histogramdd(x.to('vulkan'),[b.to('vulkan') for b in bins] if bins and isinstance(bins[0],torch.Tensor) else bins,weight=weight.to('vulkan') if weighted else None,density=density)
+        torch.testing.assert_close(actual.hist.cpu(),expected.hist,equal_nan=True)
+        for a,b in zip(actual.bin_edges,expected.bin_edges):torch.testing.assert_close(a.cpu(),b)
+
+@pytest.mark.parametrize('shape', [(), (101,), (3,7), (0,5)])
+@pytest.mark.parametrize('bounds',[(0.,0.),(-2.,2.),(-100.,0.)])
+def test_histc_native_linear_bin_selection(shape,bounds):
+    torch.manual_seed(772)
+    x=torch.randn(shape)
+    for n in [1,3,10,100]:
+        expected=torch.histc(x,n,*bounds)
+        actual=torch.histc(x.to('vulkan'),n,*bounds)
+        torch.testing.assert_close(actual.cpu(),expected)
+
+
+def test_histogram_native_boundaries_nan_and_degenerate_range():
+    for x in [torch.tensor([-2.,-1.,0.,1.,2.,float('nan')]),torch.ones(17),torch.empty(0)]:
+        v=x.to('vulkan')
+        for n in [1,4]:
+            if not torch.isnan(x).any():
+                for a,b in zip(torch.histogram(v,n),torch.histogram(x,n)):torch.testing.assert_close(a.cpu(),b)
+            for a,b in zip(torch.histogram(v,n,range=(-1.,1.)),torch.histogram(x,n,range=(-1.,1.))):torch.testing.assert_close(a.cpu(),b)
+    with pytest.raises(RuntimeError,match='not finite'):torch.histogram(torch.tensor([float('nan')],device='vulkan'),4)
+    with pytest.raises(RuntimeError,match='innermost dimension'):torch.histogramdd(torch.ones(5,6,device='vulkan'),[1]*5)
+
+@pytest.mark.parametrize('upper',[False,True])
+@pytest.mark.parametrize('dtype',[torch.int32,torch.int64])
+@pytest.mark.parametrize('shape',[(0,5),(5,0),(1,1),(3,7),(7,3),(37,61),(65537,1),(1,65537)])
+def test_triangular_indices_native_shapes_offsets_and_storage(upper,dtype,shape):
+    op=torch.triu_indices if upper else torch.tril_indices
+    for offset in [-2**63,-100,-3,-1,0,1,3,100,2**63-1]:
+        # Pinned CPU size arithmetic overflows at the signed offset limits.
+        # Use the integer inequality itself as an independent oracle there.
+        if offset in [-2**63,2**63-1]:
+            pairs=[(r,c) for r in range(shape[0]) for c in range(shape[1]) if (c>=r+offset if upper else c<=r+offset)]
+            expected=torch.tensor(pairs,dtype=dtype).reshape(-1,2).T.contiguous()
+        else:
+            expected=op(*shape,offset,dtype=dtype)
+        vk.reset_execution_stats()
+        actual=op(*shape,offset,dtype=dtype,device='vulkan')
+        resident()
+        assert torch.equal(actual.cpu(),expected)
+        target=torch.empty((2,actual.size(1)*2),dtype=dtype,device='vulkan')[:,::2]
+        assert (torch.ops.aten.triu_indices.out if upper else torch.ops.aten.tril_indices.out)(*shape,offset,out=target) is target
+        assert torch.equal(target.cpu(),expected)
+
+@pytest.mark.parametrize('p',[0.,.5,1.,2.,3.,float('inf')])
+@pytest.mark.parametrize('shape',[(0,3),(1,3),(7,0),(6,4)])
+def test_pdist_native_forward_backward(p,shape):
+    torch.manual_seed(873)
+    x=torch.randn(shape,requires_grad=True);v=x.detach().to('vulkan').requires_grad_()
+    expected=torch.pdist(x,p);actual=torch.pdist(v,p)
+    torch.testing.assert_close(actual.cpu(),expected)
+    g=torch.randn_like(expected)
+    # Pinned CPU pdist backward segfaults for empty p<1 inputs; the empty
+    # derivative is independently zero, including tensors with no features.
+    if expected.numel() and x.numel():
+        expected.backward(g)
+        gradient=x.grad
+    else:
+        gradient=torch.zeros_like(x)
+    actual.backward(g.to('vulkan'))
+    torch.testing.assert_close(v.grad.cpu(),gradient)
+
+@pytest.mark.parametrize('causal',[False,True])
+@pytest.mark.parametrize('mask_type',['none','2d','4d','all_masked'])
+def test_cpu_flash_aten_contract_uses_vulkan_attention(causal,mask_type):
+    torch.manual_seed(967)
+    q=torch.randn(2,3,5,4,requires_grad=True);k=torch.randn(2,3,7,4,requires_grad=True);v=torch.randn(2,3,7,4,requires_grad=True)
+    mask=None if mask_type=='none' else torch.randn(5,7) if mask_type=='2d' else torch.randn(1,3,5,7) if mask_type=='4d' else torch.full((5,7),float('-inf'))
+    op=torch.ops.aten._scaled_dot_product_flash_attention_for_cpu
+    expected,lse=op(q,k,v,is_causal=causal,attn_mask=mask,scale=.3)
+    inputs=[t.detach().to('vulkan').requires_grad_() for t in (q,k,v)]
+    vk.reset_execution_stats()
+    actual,lsev=op(*inputs,is_causal=causal,attn_mask=None if mask is None else mask.to('vulkan'),scale=.3)
+    # Uploads and scalar parameter setup do not download tensor data.
+    resident()
+    torch.testing.assert_close(actual.cpu(),expected)
+    torch.testing.assert_close(lsev.cpu(),lse)
+    grad=torch.randn_like(expected);expected.backward(grad);actual.backward(grad.to('vulkan'))
+    for a,b in zip(inputs,[q,k,v]):torch.testing.assert_close(a.grad.cpu(),b.grad)
+
+@pytest.mark.parametrize('dimensions',[2,3])
+@pytest.mark.parametrize('batched',[False,True])
+@pytest.mark.parametrize('values',['random','ties','nan','negative_infinity'])
+def test_fractional_pool_native_random_intervals_indices_and_gradient(dimensions,batched,values):
+    torch.manual_seed(613)
+    shape=([2,3] if batched else [3])+([8,11] if dimensions==2 else [7,8,11])
+    x=torch.randn(shape)
+    if values=='ties':x.round_()
+    if values=='nan':x.reshape(-1)[::31]=float('nan')
+    if values=='negative_infinity':x.fill_(float('-inf'))
+    x.requires_grad_();v=x.detach().to('vulkan').requires_grad_()
+    kernel=(3,2) if dimensions==2 else (2,3,2)
+    samples=torch.rand(3,3,dimensions);sv=samples.to('vulkan')
+    output=(4,5) if dimensions==2 else (3,3,5)
+    op=torch.ops.aten.fractional_max_pool2d if dimensions==2 else torch.ops.aten.fractional_max_pool3d
+    expected,indices=op(x,kernel,output,samples)
+    vk.reset_execution_stats();actual,indicesv=op(v,kernel,output,sv);resident()
+    torch.testing.assert_close(actual.cpu(),expected,equal_nan=True)
+    assert torch.equal(indicesv.cpu(),indices)
+    g=torch.randn_like(expected);expected.backward(g);actual.backward(g.to('vulkan'))
+    torch.testing.assert_close(v.grad.cpu(),x.grad)

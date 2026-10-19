@@ -1,0 +1,5 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X{uvec2 x[];};layout(binding=1) readonly buffer W{float weight[];};layout(binding=2) readonly buffer Previous{uint previous[];};layout(binding=3) buffer Y{uint y[];};
+layout(push_constant) uniform P{uint count,weighted;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;uint bin=x[i].x;if(p.weighted==0u){atomicAdd(y[2u*bin],1u);return;}uint old=atomicAdd(y[bin],0u);for(;;){uint expected=old;uint next=floatBitsToUint(uintBitsToFloat(expected)+weight[i]);old=atomicCompSwap(y[bin],expected,next);if(old==expected)break;}}
