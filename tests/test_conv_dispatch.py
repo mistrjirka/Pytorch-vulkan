@@ -253,6 +253,52 @@ def test_zero_workspace_uses_eligible_plan_and_separate_cache_key(monkeypatch):
     assert third["hits"] >= second["hits"] + 3, (second, third)
 
 
+@pytest.mark.parametrize("xshape,cout,kernel,stride,padding,dilation,groups", [
+    ((1, 48, 64, 64), 96, (3, 3), (1, 1), (1, 1), (1, 1), 1),
+    ((1, 64, 64, 31), 128, (3, 5), (1, 2), (2, 3), (2, 1), 2),
+])
+@pytest.mark.parametrize("budget_mb", [1, 64])
+def test_weight_split_scales_to_workspace_and_remains_numerical(
+        xshape, cout, kernel, stride, padding, dilation, groups,
+        budget_mb, monkeypatch):
+    # For these shapes a 1 MiB limit still fits >=2 tiled partials, but
+    # cannot fit the original 256-position partition. Verify both the
+    # budget and the partial indexing, including grouped/nonunit stride
+    # and dilated rectangular filters. No model-specific paths.
+    monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "base")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_AUTOTUNE", "0")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_WORKSPACE_MB", str(budget_mb))
+    prior = torch_vulkan.conv_dispatch_stats()
+    _check_case(xshape, cout, kernel, stride, padding, dilation, groups)
+    stats = torch_vulkan.conv_dispatch_stats()
+    def delta(key):
+        return stats.get(key, 0) - prior.get(key, 0)
+    assert delta("selected_dweight_tiled_base") == 1, stats
+    assert delta("dweight_tiled_dispatches") == 1, stats
+    weight_elements = cout * (xshape[1] // groups) * kernel[0] * kernel[1]
+    weight_bytes = weight_elements * 4
+    output_height = (xshape[2] + 2 * padding[0] -
+                     dilation[0] * (kernel[0] - 1) - 1) // stride[0] + 1
+    output_width = (xshape[3] + 2 * padding[1] -
+                    dilation[1] * (kernel[1] - 1) - 1) // stride[1] + 1
+    positions = xshape[0] * output_height * output_width
+    parts = delta("dweight_tiled_split_count_total")
+    span = delta("dweight_tiled_split_span_total")
+    allocated = delta("dweight_tiled_workspace_bytes_total")
+    assert 2 <= parts <= (positions + 255) // 256
+    assert span % 16 == 0
+    assert (parts - 1) * span < positions <= parts * span
+    assert allocated == parts * weight_bytes
+    assert allocated <= budget_mb * 1024 * 1024
+    if budget_mb == 64:
+        assert parts == (positions + 255) // 256
+        assert span == 256
+    else:
+        assert parts < (positions + 255) // 256
+        assert span > 256
+
+
 def test_forced_split_weight_rejects_zero_workspace(monkeypatch):
     monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
     monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "wide")

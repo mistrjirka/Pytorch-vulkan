@@ -1,12 +1,13 @@
 // dW = dY * im2col(X)^T, gathered a shared tile at a time.
-// Fixed 256-element splits preserve the existing deterministic final reduction.
+// Adaptive spatial Split-K reduction with bounded temporary storage.
+// Retain 256-position splits where they fit; extend each split otherwise.
 #include "conv2d_tile_config.glsl"
 layout(set=0,binding=0) readonly buffer Input { float x[]; };
 layout(set=0,binding=1) readonly buffer GradOut { float go[]; };
 layout(set=0,binding=2) writeonly buffer GradWeight { float out_data[]; };
 layout(push_constant) uniform Params {
   uint n,cin,cout,h,w,kh,kw,oh,ow;
-  uint sh,sw,ph,pw,dh,dw,groups;
+  uint sh,sw,ph,pw,dh,dw,groups,split_span;
 } p;
 #ifdef CONV_FIXED_3X3
 const uint KERNEL_H=3u, KERNEL_W=3u;
@@ -35,7 +36,12 @@ void main() {
 #else
   float acc=0.0;
 #endif
-  for(uint k0=split*256;k0<min(total,(split+1)*256);k0+=TK) {
+  // The launch grid and scratch layout use the *same* bounded split plan.
+  // A fixed 256-span is fastest when memory permits; otherwise each split
+  // processes more positions without using additional scratch.
+  uint first=split*p.split_span;
+  uint end=first+min(p.split_span,total-first);
+  for(uint k0=first;k0<end;) {
     for(uint i=tid;i<TM*TK;i+=THREADS) {
       uint m=m0+i/TK, k=k0+i%TK, oc=group*co+m;
       a[i]=(m<co && k<total) ?
@@ -57,6 +63,9 @@ void main() {
     barrier();
     #include "conv2d_tile_accumulate.glsl"
     barrier();
+    // Avoid a uint32 wraparound on extreme but otherwise valid geometries.
+    if(end-k0<=TK) break;
+    k0+=TK;
   }
   #include "conv2d_tile_store.glsl"
 }

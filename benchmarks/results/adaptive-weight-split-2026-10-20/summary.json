@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-20",
+  "baseline_commit": "003bc8c",
+  "description": "FP32 bounded spatial split-K weight gradients with tile-aligned adaptive span",
+  "workload": "Lab02 MyNet FP32, N=1 HxW=128x128, fixed synthetic seeded input, MSE loss, backward and Adam optimizer",
+  "measurements": [
+    {
+      "version": "adaptive",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 64,
+      "run_medians_ms": [
+        63.7498,
+        61.4703
+      ],
+      "aggregate_median_ms": 62.61,
+      "timed_steps_per_run": 100,
+      "independent_processes": 2
+    },
+    {
+      "version": "adaptive",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 71,
+      "run_medians_ms": [
+        63.0395
+      ],
+      "aggregate_median_ms": 63.0395,
+      "timed_steps_per_run": 100,
+      "independent_processes": 1
+    },
+    {
+      "version": "adaptive",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 72,
+      "run_medians_ms": [
+        63.6329,
+        61.6071
+      ],
+      "aggregate_median_ms": 62.62,
+      "timed_steps_per_run": 100,
+      "independent_processes": 2
+    },
+    {
+      "version": "adaptive",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 96,
+      "run_medians_ms": [
+        62.5445
+      ],
+      "aggregate_median_ms": 62.5445,
+      "timed_steps_per_run": 100,
+      "independent_processes": 1
+    },
+    {
+      "version": "adaptive",
+      "gpu": "Tesla V100",
+      "workspace_mib": 64,
+      "run_medians_ms": [
+        58.2893,
+        57.7897
+      ],
+      "aggregate_median_ms": 58.0395,
+      "timed_steps_per_run": 100,
+      "independent_processes": 2
+    },
+    {
+      "version": "adaptive",
+      "gpu": "Tesla V100",
+      "workspace_mib": 72,
+      "run_medians_ms": [
+        59.5701,
+        59.6151
+      ],
+      "aggregate_median_ms": 59.5926,
+      "timed_steps_per_run": 100,
+      "independent_processes": 2
+    },
+    {
+      "version": "legacy",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 64,
+      "run_medians_ms": [
+        104.7121
+      ],
+      "aggregate_median_ms": 104.7121,
+      "timed_steps_per_run": 100,
+      "independent_processes": 1
+    },
+    {
+      "version": "legacy",
+      "gpu": "RTX 2080 Ti",
+      "workspace_mib": 96,
+      "run_medians_ms": [
+        63.1759
+      ],
+      "aggregate_median_ms": 63.1759,
+      "timed_steps_per_run": 100,
+      "independent_processes": 1
+    }
+  ],
+  "hashes": {
+    "input_sha256": "bfef9f43537384a7d2ce5959b4b57bac9a1c4edd426e9c68555117bde929daf4",
+    "model_sha256": "e519acb2ce37e69917f8cc871e1d49bca83d256185f9539fa64a87fef50c8de9"
+  },
+  "decoder_geometry": {
+    "weight_shape": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "spatial_positions": 16384
+  },
+  "decoder_plan_stats": {
+    "64": {
+      "partial_count": 54,
+      "positions_per_partial": 304,
+      "workspace_bytes": 63700992,
+      "weight_tiled_dispatches": 30,
+      "cpu_fallback_calls": 0
+    },
+    "71": {
+      "partial_count": 61,
+      "positions_per_partial": 272,
+      "workspace_bytes": 71958528,
+      "weight_tiled_dispatches": 30,
+      "cpu_fallback_calls": 0
+    },
+    "72": {
+      "partial_count": 64,
+      "positions_per_partial": 256,
+      "workspace_bytes": 75497472,
+      "weight_tiled_dispatches": 30,
+      "cpu_fallback_calls": 0
+    }
+  },
+  "correctness": {
+    "per_device_per_mode_convolution_tests": 143,
+    "full_rtx2080ti": "3689 passed",
+    "full_v100": "3689 passed",
+    "full_lavapipe": "3688 passed, 1 skipped",
+    "full_model_cpu_reference": "all 50 parameter gradients passed at 64 and 72 MiB; max output deviation 2.4437904e-6",
+    "cpu_fallback_calls_in_timed_runs": 0
+  }
+}

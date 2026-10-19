@@ -192,10 +192,47 @@ static uint64_t conv_count(const ConvParams& p,ConvPhase phase) {
     default: return p.cout;
   }
 }
-static uint64_t split_count(const ConvParams& p) { return div_up(uint64_t(p.n)*p.oh*p.ow,256); }
-static uint64_t workspace_bytes(const ConvParams& p,ConvPhase phase,ConvCandidate c) {
-  if(phase!=ConvPhase::Weight || c.kind!=ConvKind::Tiled || split_count(p)==1) return 0;
-  return conv_count(p,phase)*split_count(p)*sizeof(float);
+// Split-K work is partitioned independently of the scratch limit. A fast
+// tiled kernel must not become ineligible at an arbitrary tensor size when
+// fewer, longer splits fit the *same* budget. Leave the standard 256-position
+// splits unchanged when memory permits, so typical workloads do not regress.
+// Each split writes one complete dWeight partial. If fewer than two fit,
+// keep the current no-scratch reduction fallback rather than an extremely
+// long one-split tile; a future cost model can compare these algorithms.
+struct WeightSplitPlan {
+  uint32_t span=256;      // spatial positions per partial, aligned to tile K
+  uint32_t count=1;       // actual number of partials, not the budget maximum
+  uint64_t bytes=0;      // 0 for a one-part direct-to-dWeight tile
+};
+static WeightSplitPlan weight_split_plan(const ConvParams& p,uint64_t budget,
+                                           uint32_t tile_k) {
+  const uint64_t positions=uint64_t(p.n)*p.oh*p.ow;
+  const uint64_t default_span=div_up(256,tile_k)*tile_k;
+  if(positions<=default_span) return {static_cast<uint32_t>(default_span),1,0};
+  const auto& limits=conv_device_properties().limits;
+  const uint64_t weight_bytes=conv_count(p,ConvPhase::Weight)*sizeof(float);
+  // Clamp by device buffer range, shader uint32 indexing and dispatch-z limit,
+  // as well as the user-configured memory cap. Avoid uint64_t products until
+  // count is known; the weight tensor is checked by dispatch().
+  const uint64_t allowed=std::min({budget, uint64_t(limits.maxStorageBufferRange),
+                                   uint64_t(UINT32_MAX)*sizeof(float)});
+  const uint64_t max_parts=weight_bytes ? std::min({div_up(positions,default_span),
+      allowed/weight_bytes,uint64_t(limits.maxComputeWorkGroupCount[2])}) : 0;
+  if(max_parts<2) return {0,0,0}; // tiled split needs at least two partials
+  // Preserve the original 256-position partition (aligned to tile K),
+  // including its reduction order, whenever it fits. Otherwise use fewer,
+  // longer tile-aligned splits without exceeding the caller's scratch cap.
+  const uint64_t natural_parts=div_up(positions,default_span);
+  const uint64_t span=max_parts==natural_parts ? default_span :
+      div_up(div_up(positions,max_parts),tile_k)*tile_k;
+  const uint64_t parts=div_up(positions,span);
+  return {static_cast<uint32_t>(span),static_cast<uint32_t>(parts),
+          parts*weight_bytes};
+}
+static WeightSplitPlan split_plan(const ConvParams& p,ConvPhase phase,
+                                   ConvCandidate c,uint64_t budget) {
+  if(phase!=ConvPhase::Weight || c.kind!=ConvKind::Tiled) return {};
+  return weight_split_plan(p,budget,kTiles[c.tile].k);
 }
 static uint64_t workspace_limit() {
   const char* value=std::getenv("TORCH_VULKAN_CONV_WORKSPACE_MB");
@@ -211,7 +248,7 @@ static kp::Workgroup linear_grid(uint64_t groups,const vk::PhysicalDeviceLimits&
   return kp::Workgroup({static_cast<uint32_t>(gx),static_cast<uint32_t>(div_up(groups,gx)),1});
 }
 static kp::Workgroup candidate_grid(const ConvParams& p,ConvPhase phase,ConvCandidate c,
-                                    const vk::PhysicalDeviceLimits& limits) {
+                                    const vk::PhysicalDeviceLimits& limits,uint64_t budget) {
   if(c.kind==ConvKind::Tiled) {
     const auto t=kTiles[c.tile];
     const uint64_t rows=phase==ConvPhase::Weight ? uint64_t(p.cin/p.groups)*p.kh*p.kw :
@@ -219,7 +256,7 @@ static kp::Workgroup candidate_grid(const ConvParams& p,ConvPhase phase,ConvCand
     const uint32_t channels=phase==ConvPhase::Input ? p.cin/p.groups : p.cout/p.groups;
     return kp::Workgroup({static_cast<uint32_t>(div_up(rows,t.n)),
         static_cast<uint32_t>(div_up(channels,t.m)*p.groups),
-        phase==ConvPhase::Weight ? static_cast<uint32_t>(split_count(p)) : 1u});
+        phase==ConvPhase::Weight ? split_plan(p,phase,c,budget).count : 1u});
   }
   return linear_grid(c.kind==ConvKind::Reduce ? conv_count(p,phase) : div_up(conv_count(p,phase),128),limits);
 }
@@ -231,6 +268,9 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
   if(c.kind==ConvKind::Reduce && phase!=ConvPhase::Weight && phase!=ConvPhase::Bias) return false;
   if(c.kind==ConvKind::Tiled && phase==ConvPhase::Bias) return false;
   if(c.kind==ConvKind::Tiled) {
+    // dWeight tiled shaders use one extra push constant for the spatial
+    // split-span; the other phases keep their original 64-byte layout.
+    if(limits.maxPushConstantsSize<((phase==ConvPhase::Weight)?68u:64u)) return false;
     const auto t=kTiles[c.tile];
     if(t.fixed3x3 && (p.kh!=3 || p.kw!=3)) return false;
     const auto local_x=t.n/t.rn,local_y=t.m/t.rm;
@@ -238,9 +278,11 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
        limits.maxComputeWorkGroupSize[1]<local_y || limits.maxComputeSharedMemorySize<(t.m+t.n)*t.k*4) return false;
   } else if(limits.maxComputeWorkGroupInvocations<128 || limits.maxComputeWorkGroupSize[0]<128 ||
             (c.kind==ConvKind::Reduce && limits.maxComputeSharedMemorySize<512)) return false;
-  const auto bytes=workspace_bytes(p,phase,c);
+  const auto plan=split_plan(p,phase,c,budget);
+  if(phase==ConvPhase::Weight && c.kind==ConvKind::Tiled && !plan.count) return false;
+  const auto bytes=plan.bytes;
   if(bytes>budget || bytes>limits.maxStorageBufferRange || bytes/4>UINT32_MAX) return false;
-  const auto grid=candidate_grid(p,phase,c,limits);
+  const auto grid=candidate_grid(p,phase,c,limits,budget);
   for(int axis=0;axis<3;++axis)
     if(!grid[axis] || grid[axis]>limits.maxComputeWorkGroupCount[axis]) return false;
   if(bytes) {
@@ -340,23 +382,27 @@ static std::string shader_name(ConvPhase phase,ConvCandidate c) {
   return direct[static_cast<int>(phase)];
 }
 static void execute_candidate(const ConvParams& p,ConvPhase phase,ConvCandidate c,
-    const std::vector<TensorBuffer>& inputs,const at::Tensor& result,at::Tensor& scratch) {
+    const std::vector<TensorBuffer>& inputs,const at::Tensor& result,at::Tensor& scratch,
+    uint64_t budget) {
   auto& ctx=VulkanContext::instance();
   const auto& limits=conv_device_properties().limits;
   const auto out=buffer(result);
   const auto name=shader_name(phase,c);
   std::vector<TensorBuffer> bindings(inputs);
-  if(workspace_bytes(p,phase,c)) {
-    if(!scratch.defined()) scratch=at::empty({static_cast<int64_t>(split_count(p)),result.numel()},result.options());
+  const auto plan=split_plan(p,phase,c,budget);
+  auto push=p.as_push_constants();
+  if(phase==ConvPhase::Weight && c.kind==ConvKind::Tiled) push.push_back(plan.span);
+  if(plan.bytes) {
+    if(!scratch.defined()) scratch=at::empty({static_cast<int64_t>(plan.count),result.numel()},result.options());
     const auto tmp=buffer(scratch);
     bindings.push_back(tmp);
-    auto first=ctx.get_or_create_algorithm(name,bindings,candidate_grid(p,phase,c,limits),p.as_push_constants());
+    auto first=ctx.get_or_create_algorithm(name,bindings,candidate_grid(p,phase,c,limits,budget),push);
     auto second=ctx.get_or_create_algorithm("conv2d_backward_weight_finalize",{tmp,out},
-        linear_grid(div_up(result.numel(),128),limits),p.as_push_constants());
+        linear_grid(div_up(result.numel(),128),limits),push);
     ctx.run_compute_pair(first,second,inputs,{tmp},{out},std::string("conv2d_backward_weight_split_")+kTiles[c.tile].name);
   } else {
     bindings.push_back(out);
-    auto algo=ctx.get_or_create_algorithm(name,bindings,candidate_grid(p,phase,c,limits),p.as_push_constants());
+    auto algo=ctx.get_or_create_algorithm(name,bindings,candidate_grid(p,phase,c,limits,budget),push);
     if(ctx.can_enqueue(bindings)) ctx.enqueue_compute(algo,bindings,{out});
     else ctx.run_compute(algo,name,inputs,{out});
   }
@@ -432,7 +478,7 @@ static void dispatch(const ConvParams& p,ConvPhase phase,const std::vector<Tenso
         // Include candidate-specific scratch allocation and release. Input
         // packing/output allocation are shared by all candidates and excluded.
         at::Tensor trial_scratch;
-        execute_candidate(p,phase,c,inputs,result,trial_scratch);
+        execute_candidate(p,phase,c,inputs,result,trial_scratch,ctl.workspace);
         ctx.synchronize();
       };
       for(auto c:shortlist) trial(c);
@@ -468,10 +514,17 @@ static void dispatch(const ConvParams& p,ConvPhase phase,const std::vector<Tenso
   {
     std::lock_guard<std::mutex> lock(plan_mutex);
     ++plan_stats[std::string("selected_")+phase_name(phase)+"_"+candidate_name(selected)];
+    if(phase==ConvPhase::Weight && selected.kind==ConvKind::Tiled) {
+      const auto plan=split_plan(p,phase,selected,ctl.workspace);
+      plan_stats["dweight_tiled_split_count_total"]+=plan.count;
+      plan_stats["dweight_tiled_split_span_total"]+=plan.span;
+      plan_stats["dweight_tiled_workspace_bytes_total"]+=plan.bytes;
+      ++plan_stats["dweight_tiled_dispatches"];
+    }
   }
   // Tuning writes only fresh result/scratch tensors; execute the winner again
   // so the observable result always belongs to the cached plan.
-  execute_candidate(p,phase,selected,inputs,result,scratch);
+  execute_candidate(p,phase,selected,inputs,result,scratch,ctl.workspace);
 }
 
 static at::Tensor convolution_overrideable(
