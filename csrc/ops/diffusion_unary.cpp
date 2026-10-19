@@ -3,6 +3,7 @@
 // Supports arbitrary rank<=8 strides/offsets through native_utils::base.
 #include "native_utils.h"
 #include "device_copy.h"
+#include "fft.h"
 #include <torch/library.h>
 #include <ATen/Functions.h>
 #include <array>
@@ -38,6 +39,7 @@ at::Tensor cpu_unary(const at::Tensor& x,uint32_t op) {
 }
 
 at::Tensor unary(const at::Tensor& x,uint32_t op) {
+  if(x.scalar_type()==at::kComplexFloat&&enabled()&&(op==0||op==3||op==7))return complex_math_unary(x,op==0?4:op==3?3:5);
   if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){
     if(op==7){TORCH_CHECK(x.scalar_type()!=at::kBool,"Negation, the `-` operator, on a bool tensor is not supported. If you are trying to invert a mask, use the `~` or `logical_not()` operator instead.");return at::mul(x,-1);}
     return unary(x.to(at::kFloat),op);

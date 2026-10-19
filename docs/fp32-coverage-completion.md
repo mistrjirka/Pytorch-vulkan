@@ -1,6 +1,6 @@
 # FP32 coverage completion
 
-> Latest native correctness evidence: [checkpoint 11](../benchmarks/results/opinfo-native-primitives-checkpoint11/README.md).
+> Latest native correctness evidence: [checkpoint 12](../benchmarks/results/opinfo-native-primitives-checkpoint12/README.md).
 > The final full upstream recheck remains pending; this page is the earlier feature milestone.
 
 > **Subsequent upstream audit:** [OpInfo testing at this revision](upstream-opinfo-audit-863fc0b.md)

@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "fft.h"
 #include "device_copy.h"
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
@@ -81,6 +82,7 @@ at::Tensor boolean_not(const at::Tensor& x){
  auto out=at::empty(x.sizes(),x.options());if(out.numel()){auto a=packed(x,at::kBool);run("bool_logic",{base(a,at::kBool),base(a,at::kBool)},{write_base(out,at::kBool)},{u32(out.numel()),1},(out.numel()+511)/512);}return out;
 }
 at::Tensor power(const at::Tensor& x,const at::Scalar& exponent){
+ if(x.scalar_type()==at::kComplexFloat)return complex_power(x,exponent);
  if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){auto dtype=at::result_type(x,exponent);if(dtype==at::kFloat)return power(x.to(at::kFloat),exponent);if(dtype!=at::kBool&&exponent.isIntegral(false)){auto value=exponent.toLong();TORCH_CHECK(value>=0,"Integers to negative integer powers are not allowed.");auto base=x.to(dtype),result=at::ones_like(base);uint64_t n=value;while(n){if(n&1)result=at::mul(result,base);n>>=1;if(n)base=at::mul(base,base);}return result;}}
 
  if(x.scalar_type()!=at::kFloat||!can_pack_data(x))return at::pow(native::cpu_fallback_tensor(x,__func__),exponent).to(x.device());

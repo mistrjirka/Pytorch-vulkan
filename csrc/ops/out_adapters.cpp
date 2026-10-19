@@ -9,6 +9,14 @@
 #include <ATen/core/grad_mode.h>
 namespace torch_vulkan::ops {
 namespace {
+at::Tensor& narrow_copy_out_native(const at::Tensor& input,int64_t dim,c10::SymInt start,c10::SymInt length,at::Tensor& out){
+ TORCH_CHECK(input.device()==out.device(),"narrow_copy output must be on the input device");
+ TORCH_CHECK(input.scalar_type()==out.scalar_type(),"Expected self.dtype() == output.dtype() to be true, but got false.");
+ at::assert_no_internal_overlap(out);
+ // Materialize before resizing/writing: narrow_copy permits input/output aliases.
+ auto value=input.narrow(dim,start.expect_int(),length.expect_int()).clone(at::MemoryFormat::Contiguous);
+ at::native::resize_output(out,value.sizes());out.copy_(value);return out;
+}
 struct NativeOut : c10::OperatorKernel {
  std::string name,overload;
  NativeOut(std::string n,std::string o):name(std::move(n)),overload(std::move(o)){}
@@ -37,6 +45,7 @@ struct NativeOut : c10::OperatorKernel {
 };
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("narrow_copy.out",&narrow_copy_out_native);
  auto add=[&](const char* out,const char* name,const char* overload=""){
   m.impl(out,torch::CppFunction::makeFromBoxedFunctor(std::make_unique<NativeOut>(std::string("aten::")+name,overload)));
  };

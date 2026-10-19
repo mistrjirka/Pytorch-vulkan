@@ -1,0 +1,19 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "complex_linalg.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {vec2 x[];};
+layout(binding=1) writeonly buffer Y {vec2 y[];};
+layout(push_constant) uniform P {uint count,mode,re,im;} p;
+vec2 complex_exponential(vec2 z){float e=exp(z.x);if(z.y==0.0)return vec2(e,z.y);return vec2(e*cos(z.y),e*sin(z.y));}
+vec2 complex_power_value(vec2 z,vec2 exponent){
+ float scale=max(abs(z.x),abs(z.y));float logmag=scale==0.0?uintBitsToFloat(0xff800000u):log(scale)+.5*log(dot(z/scale,z/scale));float phase=atan(z.y,z.x);
+ if(exponent.y==0.0)return complex_exponential(vec2(exponent.x*logmag,exponent.x*phase));
+ return complex_exponential(complex_multiply(exponent,vec2(logmag,phase)));
+}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;
+ if(p.mode==3u)y[i]=complex_exponential(x[i]);
+ else if(p.mode==4u)y[i]=complex_divide(x[i],vec2(1.0,0.0)+complex_exponential(-x[i]));
+ else if(p.mode==5u)y[i]=uintBitsToFloat(floatBitsToUint(x[i])^uvec2(0x80000000u));
+ else y[i]=complex_power_value(x[i],vec2(uintBitsToFloat(p.re),uintBitsToFloat(p.im)));
+}

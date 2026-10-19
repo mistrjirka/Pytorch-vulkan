@@ -1,4 +1,5 @@
 """Independent semantic checks for failures exposed by the upstream audit."""
+import warnings
 import pytest
 import torch
 import torch_vulkan as vk
@@ -2464,3 +2465,136 @@ def test_integer_max_pool3d_exact_values_indices(ceil, dilation):
         expected = torch.nn.functional.max_pool3d(x.mT, 3, stride=2, padding=1,
                                                  dilation=dilation, ceil_mode=ceil, return_indices=True)
         for av, ev in zip(actual, expected): torch.testing.assert_close(av.cpu(), ev, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('shape', [(), (0, 3), (2, 3), (7, 11)])
+@pytest.mark.parametrize('op', ['silu', 'exp', 'neg'])
+def test_complex_unary_silu_exp_neg_strides(shape, op):
+    torch.manual_seed(752)
+    x = torch.randn(shape, dtype=torch.complex64)*3
+    if x.dim() > 1: x = x.mT
+    fn = torch.nn.functional.silu if op == 'silu' else getattr(torch, op)
+    xv = x.to('vulkan')
+    vk.reset_execution_stats(); actual = fn(xv); resident()
+    torch.testing.assert_close(actual.cpu(), fn(x))
+
+
+def test_complex_gradient_accumulation_alias_and_conjugation():
+    torch.manual_seed(753)
+    x = torch.randn(2, 3, 4, dtype=torch.complex64)
+    outputs = []
+    for device in ['cpu', 'vulkan']:
+        t = x.to(device).detach().requires_grad_()
+        out = t*t.conj()
+        grad = torch.autograd.grad(out.abs().sum(), t)[0]
+        outputs.append(grad.cpu())
+    torch.testing.assert_close(outputs[1], outputs[0])
+    target = x.to('vulkan').mT
+    expected = x.mT.clone(); expected.add_(expected, alpha=.25+.5j)
+    target.add_(target, alpha=.25+.5j)
+    torch.testing.assert_close(target.cpu(), expected)
+
+
+@pytest.mark.parametrize('exponent', [-3., -.5, 0., .5, 1., 2., 3., 2.+1.j])
+def test_complex_scalar_power_general(exponent):
+    torch.manual_seed(755)
+    x = (torch.randn(3, 5, dtype=torch.complex64)+2).mT
+    vk.reset_execution_stats();actual = x.to('vulkan').pow(exponent);resident()
+    torch.testing.assert_close(actual.cpu(), x.pow(exponent), rtol=2e-5, atol=2e-5)
+
+
+def test_complex_image_columns_training():
+    torch.manual_seed(756)
+    x = torch.randn(2, 3, 5, 7, dtype=torch.complex64)
+    values=[]
+    for device in ['cpu', 'vulkan']:
+        leaf=x.to(device).detach().requires_grad_(); t=leaf.mT
+        columns=torch.nn.functional.unfold(t,3,padding=1,stride=2)
+        out=torch.nn.functional.fold(columns,t.shape[-2:],3,padding=1,stride=2)
+        grad=torch.autograd.grad(out.abs().square().sum(),leaf)[0]
+        values.append([v.detach().cpu() for v in (columns,out,grad)])
+    for a,e in zip(values[1],values[0]):torch.testing.assert_close(a,e)
+
+
+@pytest.mark.parametrize('op', ['silu', 'exp', 'neg'])
+def test_complex_unary_inplace_alias(op):
+    torch.manual_seed(757)
+    x=torch.randn(3,5,dtype=torch.complex64).mT
+    actual=x.to('vulkan');pointer=actual.data_ptr()
+    if op=='silu':
+        expected=torch.nn.functional.silu(x,inplace=False)
+        torch.nn.functional.silu(actual,inplace=True)
+    else:
+        expected=getattr(torch,op)(x)
+        getattr(actual,op+'_')()
+    assert actual.data_ptr()==pointer
+    torch.testing.assert_close(actual.cpu(),expected)
+
+
+def test_complex_silu_preserves_upstream_autograd_rejection():
+    for device in ['cpu','vulkan']:
+        x=torch.ones(3,dtype=torch.complex64,device=device,requires_grad=True)
+        with pytest.raises(RuntimeError,match='automatic differentiation'):
+            torch.nn.functional.silu(x)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.complex64])
+@pytest.mark.parametrize('shape,grad_shape,dim,step', [((10,20),(1,6,10),1,2), ((2,3,20,4),(1,3,6,1,10),2,2), ((10,20),(10,1,10),1,2), ((10,20),(10,6,10),1,2), ((10,20),(1,8,10),1,2), ((10,20),(1,1,1),1,10)])
+def test_unfold_backward_broadcasts_non_window_axes(dtype, shape, grad_shape, dim, step):
+    torch.manual_seed(758)
+    grad=torch.randn(grad_shape,dtype=dtype)
+    if grad_shape==(10,6,10):
+        # A broadcast window is a size-10, zero-stride view. A raw size-1
+        # window is outside the overlapping kernel contract in PyTorch.
+        grad=grad[..., :1].expand(grad_shape)
+    expected=torch.ops.aten.unfold_backward(grad,list(shape),dim,10,step)
+    actual=torch.ops.aten.unfold_backward(grad.to('vulkan'),list(shape),dim,10,step)
+    torch.testing.assert_close(actual.cpu(),expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.complex64])
+def test_unfold_backward_empty_broadcast_window(dtype):
+    for shape,dim,grad_shape in [((3,8),1,(1,1,1)),((),0,())]:
+        grad=torch.ones(grad_shape,dtype=dtype)
+        expected=torch.ops.aten.unfold_backward(grad,list(shape),dim,0,2)
+        actual=torch.ops.aten.unfold_backward(grad.to('vulkan'),list(shape),dim,0,2)
+        torch.testing.assert_close(actual.cpu(),expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.complex64])
+def test_unfold_backward_nonoverlap_scalar_broadcast(dtype):
+    grad=torch.tensor(2.,dtype=dtype)
+    expected=torch.ops.aten.unfold_backward(grad,[3,20],1,10,10)
+    actual=torch.ops.aten.unfold_backward(grad.to('vulkan'),[3,20],1,10,10)
+    torch.testing.assert_close(actual.cpu(),expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.float32,torch.uint8,torch.int8,torch.int16,torch.int32,torch.int64,torch.bool,torch.complex64])
+@pytest.mark.parametrize('length', [0,2])
+def test_narrow_copy_out_native_typed(dtype,length):
+    x=torch.arange(60).reshape(3,4,5).to(dtype).transpose(0,2)
+    expected=torch.narrow_copy(x,1,-3,length)
+    actual=x.to('vulkan')
+    for out in [torch.empty(0,dtype=dtype,device='vulkan'),torch.empty((3,length,5),dtype=dtype,device='vulkan').transpose(0,2)]:
+        result=torch.narrow_copy(actual,1,-3,length,out=out)
+        assert result is out
+        torch.testing.assert_close(result.cpu(),expected)
+
+
+@pytest.mark.parametrize('alias', ['exact','partial'])
+def test_narrow_copy_out_native_alias(alias):
+    x=torch.arange(12.).reshape(3,4)
+    expected=x.narrow(1,1,2).clone()
+    actual=x.to('vulkan');out=actual if alias=='exact' else actual[:,:2]
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore',UserWarning)
+        result=torch.narrow_copy(actual,1,1,2,out=out)
+    assert result is out
+    torch.testing.assert_close(result.cpu(),expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.int64,torch.complex64])
+def test_narrow_copy_out_native_rejects_dtype_change(dtype):
+    for device in ['cpu','vulkan']:
+        with pytest.raises(RuntimeError,match=r'self.dtype\(\) == output.dtype\(\)'):
+            torch.narrow_copy(torch.ones(3,4,device=device),1,0,2,out=torch.empty(0,dtype=dtype,device=device))

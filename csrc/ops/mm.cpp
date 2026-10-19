@@ -388,13 +388,13 @@ static void binary_device_check(const at::Tensor& a,const at::Tensor& b){
 at::Tensor add_tensor(const at::Tensor& self, const at::Tensor& other,
                       const at::Scalar& alpha) {
   binary_device_check(self,other);auto dtype=at::result_type(self,other);at::native::alpha_check(dtype,alpha);
+  if(self.is_complex()||other.is_complex())return complex_binary(self,other,0,alpha);
   if(self.scalar_type()==at::kBool&&other.scalar_type()==at::kBool){
     if(alpha.toLong()!=0)return at::logical_or(self,other);
     auto shape=at::infer_size(self.sizes(),other.sizes());auto dev=self.is_cpu()?other.device():self.device();return self.to(dev).expand(shape).clone();
   }
   if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
   if(device_copy_supported(dtype)&&(self.scalar_type()!=dtype||other.scalar_type()!=dtype))return add_tensor(self.to(dtype),other.to(dtype),alpha);
-  if(self.is_complex()||other.is_complex())return complex_binary(self,other,0,alpha);
   if(integer_type(self.scalar_type())&&integer_type(other.scalar_type()))return integer_binary(self,other,alpha,false);
   if(auto out=cpu_scalar_binary(self,other,alpha.toFloat(),false))return *out;
   auto [a, b] = broadcast_binary_operands(self, other);

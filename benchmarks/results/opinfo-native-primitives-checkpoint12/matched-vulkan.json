@@ -1,0 +1,65 @@
+{
+  "device": "vulkan",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "input_sha256": "0a9dc0d06adf281ea8194f37ad1f2024ae6b7aaef7005e8ddc9521dc1af455ee",
+  "rtol": 2e-05,
+  "atol": 2e-05,
+  "records": [
+    {
+      "name": "silu",
+      "status": "passed"
+    },
+    {
+      "name": "exp",
+      "status": "passed"
+    },
+    {
+      "name": "neg",
+      "status": "passed"
+    },
+    {
+      "name": "power_-3",
+      "status": "passed"
+    },
+    {
+      "name": "power_-0.5",
+      "status": "passed"
+    },
+    {
+      "name": "power_0",
+      "status": "passed"
+    },
+    {
+      "name": "power_0.5",
+      "status": "passed"
+    },
+    {
+      "name": "power_1",
+      "status": "passed"
+    },
+    {
+      "name": "power_2",
+      "status": "passed"
+    },
+    {
+      "name": "power_3",
+      "status": "passed"
+    },
+    {
+      "name": "power_(2+1j)",
+      "status": "passed"
+    },
+    {
+      "name": "complex_training",
+      "status": "passed"
+    },
+    {
+      "name": "complex_fold_training",
+      "status": "passed"
+    },
+    {
+      "name": "overlap_outer_broadcast",
+      "status": "passed"
+    }
+  ]
+}

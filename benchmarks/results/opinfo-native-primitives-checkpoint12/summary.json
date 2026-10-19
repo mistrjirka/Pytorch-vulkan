@@ -1,0 +1,33 @@
+{
+  "scope": "Complex64 intermediates required by the FP32 suite; final full current-source upstream audit remains pending",
+  "backend_source_sha256": "741606b8826fc36233e00c34fc59ca38afbb999d87ff47d4e11a957dc61cb8d6",
+  "strict_regressions_each_device": 1650,
+  "ordinary_repository": {
+    "rtx": {
+      "passed": 3394
+    },
+    "v100": {
+      "passed": 3394
+    },
+    "lvp": {
+      "passed": 3393,
+      "skipped": 1
+    }
+  },
+  "strict_repository_v100": {
+    "passed": 3383,
+    "deferred_fp64_errors": 11
+  },
+  "original_complex64_only_samples": 31,
+  "composite_compliance_checks": 10,
+  "matched_controls": {
+    "cuda": {
+      "passed": 14
+    },
+    "vulkan": {
+      "passed": 14
+    }
+  },
+  "passed_case_fallback_calls_or_attempts": 0,
+  "interpretation": "Raw upstream statuses remain unchanged. Skips, xfails, xpasses, deferred fixtures and unvisited samples are not passes."
+}

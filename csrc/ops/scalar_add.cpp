@@ -96,6 +96,12 @@ at::Tensor& add_tensor_(at::Tensor& x,const at::Tensor& other,const at::Scalar& 
   // Check the original tensors before any copies obscure their aliases.
   at::assert_no_internal_overlap(x);
   at::assert_no_partial_overlap(x,other);
+  if(x.scalar_type()==at::kComplexFloat){
+    auto result=at::add(x,other,alpha);
+    TORCH_CHECK(result.sizes()==x.sizes(),"output with shape does not match the broadcast shape");
+    TORCH_CHECK(c10::canCast(result.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");
+    x.copy_(result);return x;
+  }
   if(other.device().is_cpu() && other.dim()==0 &&
       at::result_type(x,other)==x.scalar_type())return add_scalar_(x,other.item(),alpha);
   if(x.device()==other.device()&&device_copy_supported(x.scalar_type())&&device_copy_supported(other.scalar_type())&&(x.scalar_type()!=at::kFloat||other.scalar_type()!=at::kFloat)){auto result=at::add(x,other,alpha);TORCH_CHECK(result.sizes()==x.sizes(),"output with shape does not match the broadcast shape");TORCH_CHECK(c10::canCast(result.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(result);return x;}

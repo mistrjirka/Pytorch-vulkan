@@ -6,6 +6,12 @@ namespace torch_vulkan::ops {namespace {
 using namespace native;
 std::array<int64_t,2> image_pair(at::IntArrayRef values,const char* name,bool zero=false){TORCH_CHECK(values.size()==2,name," must have two entries");return {values[0],values[1]};}
 at::Tensor image_columns(const at::Tensor& raw,at::IntArrayRef image_size,at::IntArrayRef kernel,at::IntArrayRef dilation,at::IntArrayRef padding,at::IntArrayRef stride,bool reverse){
+ if(raw.scalar_type()==at::kComplexFloat){
+  auto real=image_columns(at::real(raw),image_size,kernel,dilation,padding,stride,reverse);
+  auto imag=image_columns(at::imag(raw),image_size,kernel,dilation,padding,stride,reverse);
+  return at::complex(real,imag);
+ }
+
  auto k=image_pair(kernel,"kernel_size"),d=image_pair(dilation,"dilation"),p=image_pair(padding,"padding",true),s=image_pair(stride,"stride");TORCH_CHECK(raw.scalar_type()==at::kFloat||(!reverse&&raw.scalar_type()==at::kBool),"Vulkan image columns requires FP32 data (or bool im2col)");
  TORCH_CHECK(reverse?(raw.dim()==2||raw.dim()==3):(raw.dim()==3||raw.dim()==4),"image columns input has invalid rank");if(reverse){auto size=image_pair(image_size,"output_size");at::native::col2im_shape_check(raw,{},size[0],size[1],k[0],k[1],d[0],d[1],p[0],p[1],s[0],s[1]);}else at::native::im2col_shape_check(raw,{},k[0],k[1],d[0],d[1],p[0],p[1],s[0],s[1]);bool batched=raw.dim()==(reverse?3:4);auto batch=batched?raw.size(0):1;int64_t h,w,c;
  if(reverse){auto size=image_pair(image_size,"output_size");h=size[0];w=size[1];auto columns=raw.size(-2);TORCH_CHECK(columns%(k[0]*k[1])==0,"col2im channels must be divisible by kernel area");c=columns/(k[0]*k[1]);}else{c=raw.size(-3);h=raw.size(-2);w=raw.size(-1);TORCH_CHECK(c&&h&&w,"im2col input spatial/channel dimensions must be nonzero");}
@@ -28,7 +34,30 @@ at::Tensor cdist_backward_native(const at::Tensor& grad,const at::Tensor& x,cons
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("_cdist_forward",&cdist_forward_native);m.impl("_cdist_backward",&cdist_backward_native);}
 }
 namespace torch_vulkan::ops {namespace {
-at::Tensor unfold_backward_native(const at::Tensor& grad,c10::SymIntArrayRef symbolic,int64_t dim,int64_t size,int64_t step){auto original=c10::asIntArrayRefSlow(symbolic,__FILE__,__LINE__).vec(),logical=original;if(logical.empty()){at::maybe_wrap_dim(dim,0);TORCH_CHECK(size>=0&&size<=1&&step>0,"invalid unfold window/step");return grad.sum().reshape({});}at::IntArrayRef input(logical);TORCH_CHECK(input.size()<=8,"Vulkan unfold backward supports at most 8 input dimensions");dim=at::maybe_wrap_dim(dim,input.size());TORCH_CHECK(size>=0&&size<=input[dim]&&step>0,"invalid unfold window/step");TORCH_CHECK(grad.scalar_type()==at::kFloat||grad.scalar_type()==at::kComplexFloat,"unfold backward requires FP32 or complex64 gradients");auto windows=(input[dim]-size)/step+1;auto shape=input.vec();shape[dim]=windows;shape.push_back(size);TORCH_CHECK(grad.sizes()==at::IntArrayRef(shape),"unfold backward gradient shape mismatch: got ",grad.sizes()," expected ",shape," input ",original," dim ",dim," size ",size," step ",step);auto out=at::empty(original,grad.options());if(!out.numel())return out;if(!grad.numel()){out.zero_();return out;}auto contiguous=grad.contiguous().view({-1});auto words=grad.scalar_type()==at::kComplexFloat?2u:1u;std::vector<uint32_t> params={u32(out.numel()*words),u32(input.size()),u32(dim),u32(size),u32(step),u32(windows),words};params.resize(15,1);for(size_t d=0;d<input.size();d++)params[7+d]=u32(input[d]);run("unfold_backward_general",{base(contiguous,grad.scalar_type())},{write_base(out,grad.scalar_type())},params,(out.numel()*words+127)/128);return out;}
+at::Tensor unfold_backward_native(const at::Tensor& grad,c10::SymIntArrayRef symbolic,int64_t dim,int64_t size,int64_t step){
+ auto original=c10::asIntArrayRefSlow(symbolic,__FILE__,__LINE__).vec();
+ if(original.empty()){
+  at::maybe_wrap_dim(dim,0);TORCH_CHECK(size>=0&&size<=1&&step>0,"invalid unfold window/step");if(size==0)return at::zeros({},grad.options());return grad.sum().reshape({});
+ }
+ TORCH_CHECK(original.size()<=8,"Vulkan unfold backward supports at most 8 input dimensions");
+ dim=at::maybe_wrap_dim(dim,original.size());
+ TORCH_CHECK(size>=0&&size<=original[dim]&&step>0,"invalid unfold window/step");
+ TORCH_CHECK(grad.scalar_type()==at::kFloat||grad.scalar_type()==at::kComplexFloat,"unfold backward requires FP32 or complex64 gradients");
+ TORCH_CHECK(step>=size||grad.dim()==int64_t(original.size()+1),"unfold backward gradient rank mismatch");
+ TORCH_CHECK(step>=size||grad.size(-1)==size,"unfold backward gradient window size mismatch");
+ // Overlapping CPU folds use the supplied frame count; non-overlapping folds
+ // copy into an unfolded output view, broadcasting a singleton frame axis.
+ int64_t windows=step>=size?(original[dim]-size)/step+1:grad.size(dim);
+ auto shape=original;shape[dim]=windows;shape.push_back(size);
+ auto expanded=grad.expand(shape);
+ auto out=at::empty(original,grad.options());if(!out.numel())return out;
+ if(size==0||!grad.numel()){out.zero_();return out;}
+ auto contiguous=packed(expanded.contiguous().view({-1}),grad.scalar_type());
+ auto words=grad.scalar_type()==at::kComplexFloat?2u:1u;
+ std::vector<uint32_t> params={u32(out.numel()*words),u32(original.size()),u32(dim),u32(size),u32(step),u32(windows),words};params.resize(15,1);
+ for(size_t d=0;d<original.size();d++)params[7+d]=u32(original[d]);
+ run("unfold_backward_general",{base(contiguous,grad.scalar_type())},{write_base(out,grad.scalar_type())},params,(out.numel()*words+127)/128);return out;
+}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("unfold_backward",&unfold_backward_native);}
 }

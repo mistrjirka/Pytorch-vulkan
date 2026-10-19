@@ -1,0 +1,85 @@
+{
+  "backend_commit": "af259ae362341f62d966ab900e828a1f65200938",
+  "backend_source_sha256": "54cf7d18d36653fdb8677a82098b46d134140e57e83c4c284bf95c6fa0fa80ac",
+  "extension_sha256": "8ac40f5d3f663eff64e02c8c1ca97782774b1cccb57ef7321201741f2cfded93",
+  "source_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+  "total_cases": 8696,
+  "raw_outcomes": {
+    "passed": 7834,
+    "error": 310,
+    "skipped": 446,
+    "unexpected_success": 30,
+    "expected_failure": 76
+  },
+  "passed_case_fallback_calls_or_attempts": 0,
+  "by_device": {
+    "NVIDIA GeForce RTX 2080 Ti": {
+      "passed": 3934,
+      "error": 146,
+      "skipped": 215,
+      "unexpected_success": 18,
+      "expected_failure": 38
+    },
+    "Tesla V100-SXM2-32GB": {
+      "passed": 3900,
+      "error": 164,
+      "skipped": 231,
+      "expected_failure": 38,
+      "unexpected_success": 12
+    }
+  },
+  "shard_source_identities": [
+    {
+      "shard": 0,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1412
+    },
+    {
+      "shard": 1,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1475
+    },
+    {
+      "shard": 2,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1479
+    },
+    {
+      "shard": 3,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1413
+    },
+    {
+      "shard": 4,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1460
+    },
+    {
+      "shard": 5,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1457
+    }
+  ],
+  "original_selection_count": 8696,
+  "complete_duplicate_free_selection": true,
+  "interpretation": [
+    "Each original test case executes once across the listed GPUs, not once on each GPU.",
+    "Skips, xfails, xpasses, errors and unvisited samples are not passes.",
+    "Concurrent correctness runs provide no performance comparison."
+  ],
+  "scope_classifications": {
+    "deferred_precision": 268,
+    "cross_device_rng_mask_comparison": 1,
+    "cuda_source_jit_gate": 40,
+    "unresolved": 1
+  },
+  "unresolved_cases": [
+    "TestCommonPRIVATEUSE1.test_out_warning_nn_functional_silu_complex_vulkan"
+  ]
+}

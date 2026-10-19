@@ -11,7 +11,7 @@ using namespace native;
 at::Tensor complex_unary(const at::Tensor& x,const at::Scalar& value,uint32_t mode){
  TORCH_CHECK(x.scalar_type()==at::kComplexFloat&&can_pack_view(x),"Vulkan complex operation requires packable complex64");auto out=at::empty(x.sizes(),x.options());if(!out.numel())return out;
  auto z=value.toComplexFloat();auto input=packed(x,at::kComplexFloat);auto in=base(input,at::kComplexFloat);
- run("complex_unary",{in},{write_base(out,at::kComplexFloat)},{u32(x.numel()),mode,bits(z.real()),bits(z.imag())},(out.numel()+127)/128);return out;
+ run(mode<3?"complex_unary":"complex_math_unary",{in},{write_base(out,at::kComplexFloat)},{u32(x.numel()),mode,bits(z.real()),bits(z.imag())},(out.numel()+127)/128);return out;
 }
 at::Tensor complex_construct(const at::Tensor& real,const at::Tensor& imag){TORCH_CHECK(real.scalar_type()==imag.scalar_type(),"Expected both inputs to be Half, Float or Double tensors but got ",real.scalar_type()," and ",imag.scalar_type());TORCH_CHECK(real.scalar_type()==at::kFloat&&real.device()==imag.device(),"complex requires FP32 tensors on the same device");auto shape=at::infer_size_dimvector(real.sizes(),imag.sizes());return at::view_as_complex(at::stack({real.expand(shape),imag.expand(shape)},-1));}
 at::Tensor polar_construct(const at::Tensor& radius,const at::Tensor& angle){return complex_construct(radius.mul(at::cos(angle)),radius.mul(at::sin(angle)));}
@@ -67,6 +67,12 @@ at::Tensor complex_binary(const at::Tensor& x,const at::Tensor& y,uint32_t mode,
  auto shape=at::infer_size_dimvector(x.sizes(),y.sizes());auto out=at::empty(shape,x.options().device(device).dtype(at::kComplexFloat));if(!out.numel())return out;
  auto a=x.is_cpu()?x.to(device):x,b=y.is_cpu()?y.to(device):y;a=packed(a.expand(shape),a.scalar_type());b=packed(b.expand(shape),b.scalar_type());auto scalar=alpha.toComplexFloat();
  run("complex_binary",{base(a,a.scalar_type()),base(b,b.scalar_type())},{write_base(out,at::kComplexFloat)},{u32(out.numel()),uint32_t(a.is_complex()),uint32_t(b.is_complex()),mode,bits(scalar.real()),bits(scalar.imag())},(out.numel()+127)/128);return out;
+}
+at::Tensor complex_math_unary(const at::Tensor& x,uint32_t mode){return complex_unary(x,0,mode);}
+at::Tensor complex_power(const at::Tensor& x,const at::Scalar& exponent){
+ auto e=exponent.toComplexFloat();
+ if(e.imag()==0){if(e.real()==0)return at::ones_like(x);if(e.real()==1)return x.clone();if(e.real()==2)return complex_binary(x,x,1);if(e.real()==3)return complex_binary(complex_binary(x,x,1),x,1);}
+ return complex_unary(x,exponent,6);
 }
 at::Tensor complex_scale(const at::Tensor& x,const at::Scalar& scale){return complex_unary(x,scale,0);}
 at::Tensor& complex_fill(at::Tensor& x,const at::Scalar& value){auto z=value.toComplexFloat();auto view=at::view_as_real(x);view.select(-1,0).fill_(z.real());view.select(-1,1).fill_(z.imag());return x;}
