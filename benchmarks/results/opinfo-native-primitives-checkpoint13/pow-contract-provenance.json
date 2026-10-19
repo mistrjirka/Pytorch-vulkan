@@ -1,0 +1,5 @@
+{
+  "url": "https://github.com/pytorch/pytorch/blob/5c4886908584029761b579af026dcfb627c84070/aten/src/ATen/native/cpu/PowKernel.cpp",
+  "sha256": "df8f16ecab4b7848483020c50efe5fe0750eb2acb7042fbe2d262136f10b763c",
+  "implementation": "Original shader code; mirrors the pinned CPU sqrt/rsqrt/reciprocal/-2 dispatch contracts."
+}

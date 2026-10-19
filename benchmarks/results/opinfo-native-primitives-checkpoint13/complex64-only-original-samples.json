@@ -1,0 +1,163 @@
+{
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "mode": "Independent CPU-reference checks of original complex64-only OpInfo samples; not a rewrite of the original upstream run",
+  "rtol": 0.001,
+  "atol": 0.001,
+  "records": [
+    {
+      "operator": "view_as_real",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "view_as_real",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 2,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 3,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 4,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 5,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 6,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 7,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 8,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "istft",
+      "sample_index": 9,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "imag",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "imag",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "imag",
+      "sample_index": 2,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "nn.functional.silu.complex",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "nn.functional.silu.complex",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "nn.functional.silu.complex",
+      "sample_index": 2,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.imag",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.imag",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.imag",
+      "sample_index": 2,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 0,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 1,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 2,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 3,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 4,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 5,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 6,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 7,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 8,
+      "fallback_calls_or_attempts": 0
+    },
+    {
+      "operator": "_refs.istft",
+      "sample_index": 9,
+      "fallback_calls_or_attempts": 0
+    }
+  ]
+}

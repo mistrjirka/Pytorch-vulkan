@@ -2598,3 +2598,14 @@ def test_narrow_copy_out_native_rejects_dtype_change(dtype):
     for device in ['cpu','vulkan']:
         with pytest.raises(RuntimeError,match=r'self.dtype\(\) == output.dtype\(\)'):
             torch.narrow_copy(torch.ones(3,4,device=device),1,0,2,out=torch.empty(0,dtype=dtype,device=device))
+
+
+@pytest.mark.parametrize('exponent', [-3,-2,-1,-.5,0,.5,1,1.5,2,2.5,3,2+1j,-2+1j,1j])
+def test_complex_scalar_power_poles_and_nonfinite(exponent):
+    coordinates=[0.,-0.,1.,-1.,float('inf'),float('-inf'),float('nan')]
+    x=torch.tensor([complex(a,b) for a in coordinates for b in coordinates],dtype=torch.complex64).reshape(7,7).mT
+    expected=x.pow(exponent)
+    actual=x.to('vulkan').pow(exponent)
+    # Compare components independently: a NaN imaginary component must not
+    # hide a wrong real infinity (or the reverse).
+    torch.testing.assert_close(torch.view_as_real(actual.cpu()),torch.view_as_real(expected),equal_nan=True,rtol=2e-5,atol=2e-5)

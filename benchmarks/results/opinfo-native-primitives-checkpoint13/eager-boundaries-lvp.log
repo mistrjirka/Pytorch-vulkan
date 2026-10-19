@@ -1,0 +1,3 @@
+..............                                                           [100%]
+14 passed, 1650 deselected in 3.73s
+[Oct 19 2026 13:01:11] [warn] [/workspace/Pytorch-vulkan-next/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

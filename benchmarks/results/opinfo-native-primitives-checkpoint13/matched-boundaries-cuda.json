@@ -1,0 +1,73 @@
+{
+  "device": "cuda",
+  "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+  "input_sha256": "fc3d37338a2f1c5a15ca649cfbf0c25a5756dada2dcb8432685910adc1f28c45",
+  "complex_values": 49,
+  "comparison": "CPU FP32 real/imag components independently; equal_nan=True; rtol=atol=2e-5",
+  "records": [
+    {
+      "exponent": "-3",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 8 / 98 (8.2%)\nGreatest absolute difference: nan at index (4, 6, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (4, 6, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "-2",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 40 / 98 (40.8%)\nGreatest absolute difference: nan at index (0, 4, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (0, 4, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "-1",
+      "status": "passed"
+    },
+    {
+      "exponent": "-0.5",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 34 / 98 (34.7%)\nGreatest absolute difference: nan at index (4, 0, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (0, 1, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "0",
+      "status": "passed"
+    },
+    {
+      "exponent": "0.5",
+      "status": "passed"
+    },
+    {
+      "exponent": "1",
+      "status": "passed"
+    },
+    {
+      "exponent": "1.5",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 4 / 98 (4.1%)\nGreatest absolute difference: nan at index (4, 6, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (4, 6, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "2",
+      "status": "passed"
+    },
+    {
+      "exponent": "2.5",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 4 / 98 (4.1%)\nGreatest absolute difference: nan at index (4, 6, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (4, 6, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "3",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 22 / 98 (22.4%)\nGreatest absolute difference: nan at index (0, 4, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (0, 4, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "(2+1j)",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 4 / 98 (4.1%)\nGreatest absolute difference: nan at index (4, 6, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (4, 6, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "(-2+1j)",
+      "status": "error",
+      "detail": "Tensor-likes are not close!\n\nMismatched elements: 8 / 98 (8.2%)\nGreatest absolute difference: nan at index (4, 6, 0) (up to 2e-05 allowed)\nGreatest relative difference: nan at index (4, 6, 0) (up to 2e-05 allowed)"
+    },
+    {
+      "exponent": "1j",
+      "status": "passed"
+    }
+  ]
+}

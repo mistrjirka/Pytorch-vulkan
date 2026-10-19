@@ -1,0 +1,10 @@
+{
+  "previous_source": "741606b8826fc36233e00c34fc59ca38afbb999d87ff47d4e11a957dc61cb8d6",
+  "current_source": "718f6b58fba20e0659af08feaca01dbe4b29c83a77b139e95507422709771b30",
+  "changed_backend_files": [
+    "csrc/shaders/complex_math_unary.comp",
+    "csrc/shaders/complex_math_unary.spv"
+  ],
+  "unchanged_extension_sha256": "8db9056eb0caac0268b9a33ecfb49f82ee0b88f43e77794705e50c557d783ec2",
+  "reason": "Runtime shader compiled with glslangValidator and checked with spirv-val; no C++ source/header/build-setting change"
+}

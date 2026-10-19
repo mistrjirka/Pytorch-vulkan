@@ -1,0 +1,168 @@
+{
+  "backend_commit": "d43d26735e7a86bb2de48167eb3263d39bd806fd",
+  "backend_source_sha256": "741606b8826fc36233e00c34fc59ca38afbb999d87ff47d4e11a957dc61cb8d6",
+  "extension_sha256": "0a6cca6ad0a8aa8cb5b8e41f7980e8900e108a0961277cf69ffff3c15927fa95",
+  "source_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+  "total_cases": 8696,
+  "raw_outcomes": {
+    "passed": 7830,
+    "error": 314,
+    "skipped": 446,
+    "unexpected_success": 32,
+    "expected_failure": 74
+  },
+  "passed_case_fallback_calls_or_attempts": 0,
+  "by_device": {
+    "NVIDIA GeForce RTX 2080 Ti": {
+      "passed": 3933,
+      "error": 147,
+      "skipped": 215,
+      "unexpected_success": 19,
+      "expected_failure": 37
+    },
+    "Tesla V100-SXM2-32GB": {
+      "passed": 3897,
+      "error": 167,
+      "skipped": 231,
+      "expected_failure": 37,
+      "unexpected_success": 13
+    }
+  },
+  "shard_source_identities": [
+    {
+      "shard": 0,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1412
+    },
+    {
+      "shard": 1,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1475
+    },
+    {
+      "shard": 2,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1479
+    },
+    {
+      "shard": 3,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1413
+    },
+    {
+      "shard": 4,
+      "device": "NVIDIA GeForce RTX 2080 Ti",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1460
+    },
+    {
+      "shard": 5,
+      "device": "Tesla V100-SXM2-32GB",
+      "source_identity": "recorded_after_build",
+      "planned_cases": 1457
+    }
+  ],
+  "original_selection_count": 8696,
+  "complete_duplicate_free_selection": true,
+  "interpretation": [
+    "Each original test case executes once across the listed GPUs, not once on each GPU.",
+    "Skips, xfails, xpasses, errors and unvisited samples are not passes.",
+    "Concurrent correctness runs provide no performance comparison."
+  ],
+  "scope_classifications": {
+    "deferred_precision": 273,
+    "cross_device_rng_mask_comparison": 1,
+    "cuda_source_jit_gate": 40
+  },
+  "unresolved_cases": [],
+  "fallback_calls_or_attempts_by_raw_status": {
+    "passed": 0,
+    "unexpected_success": 0,
+    "error": 216,
+    "skipped": 0,
+    "expected_failure": 0
+  },
+  "successful_case_fallback_calls_or_attempts": 0,
+  "upstream_expected_failures_without_fallback": [
+    "TestCommonPRIVATEUSE1.test_compare_cpu__refs_as_strided_partial_views_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_compare_cpu__refs_special_zeta_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_compare_cpu_as_strided_partial_views_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_compare_cpu_special_zeta_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_errors_clamp_max_vulkan",
+    "TestCommonPRIVATEUSE1.test_errors_clamp_min_vulkan",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_copy_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_copy_vulkan_int64",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_partial_views_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_partial_views_vulkan_int64",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_as_strided_vulkan_int64",
+    "TestCommonPRIVATEUSE1.test_noncontiguous_samples_view_as_complex_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out__batch_norm_with_update_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out__refs_cumprod_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out__refs_cumsum_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out__refs_prod_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out__refs_sum_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_fft_ihfft2_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_fft_ihfftn_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_lu_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_matmul_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_nn_functional_linear_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_nonzero_static_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_nonzero_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_randint_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_requires_grad_error_split_with_sizes_copy_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_out_warning__batch_norm_with_update_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_arange_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_eye_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_fft_ihfft2_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_fft_ihfftn_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_full_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_linspace_tensor_overload_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_linspace_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_logspace_tensor_overload_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_logspace_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_lu_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_max_pool2d_with_indices_backward_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_nonzero_static_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_nonzero_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_ones_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_randint_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_randn_vulkan",
+    "TestCommonPRIVATEUSE1.test_out_warning_zeros_vulkan",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_addcdiv_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_addcmul_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_arange_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_as_strided_partial_views_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_cauchy_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_exponential_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_full_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_geometric_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_linspace_tensor_overload_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_linspace_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_log_normal_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_logspace_tensor_overload_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_logspace_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_normal_in_place_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_ones_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_randint_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_randn_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_uniform_vulkan_float32",
+    "TestCommonPRIVATEUSE1.test_variant_consistency_eager_zeros_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_backward_narrow_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_backward_nn_functional_gaussian_nll_loss_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_backward_tensor_split_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_forward_ad_narrow_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_forward_ad_nn_functional_gaussian_nll_loss_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_forward_ad_tensor_split_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_operator_item_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_operator_narrow_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_operator_nn_functional_gaussian_nll_loss_vulkan_float32",
+    "TestCompositeComplianceVULKAN.test_operator_tensor_split_vulkan_float32"
+  ],
+  "completion_gate_passed": true,
+  "scope_note": "Deferred precision and upstream API/RNG controls are not passes. No original outcome is changed."
+}

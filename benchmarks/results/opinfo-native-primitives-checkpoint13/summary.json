@@ -1,0 +1,34 @@
+{
+  "scope": "Boundary fix; full immutable upstream audit on the new source remains pending",
+  "backend_source_sha256": "718f6b58fba20e0659af08feaca01dbe4b29c83a77b139e95507422709771b30",
+  "strict_regressions_each_device": 1664,
+  "ordinary_repository": {
+    "rtx": {
+      "passed": 3408
+    },
+    "v100": {
+      "passed": 3408
+    },
+    "lvp": {
+      "passed": 3407,
+      "skipped": 1
+    }
+  },
+  "strict_repository_v100": {
+    "passed": 3397,
+    "deferred_fp64_errors": 11
+  },
+  "boundary_combinations_per_device": 686,
+  "strict_eager_boundary_tests": 14,
+  "original_complex64_only_samples": 31,
+  "composite_compliance_checks": 10,
+  "matched_boundary_controls": {
+    "cuda": {
+      "error": 8,
+      "passed": 6
+    },
+    "vulkan": {
+      "passed": 14
+    }
+  }
+}

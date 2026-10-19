@@ -6,9 +6,43 @@ layout(binding=0) readonly buffer X {vec2 x[];};
 layout(binding=1) writeonly buffer Y {vec2 y[];};
 layout(push_constant) uniform P {uint count,mode,re,im;} p;
 vec2 complex_exponential(vec2 z){float e=exp(z.x);if(z.y==0.0)return vec2(e,z.y);return vec2(e*cos(z.y),e*sin(z.y));}
+float power_infinity(){return uintBitsToFloat(0x7f800000u);}
+float power_nan(){return uintBitsToFloat(0x7fc00000u);}
+float power_copy_sign(float magnitude,float source){return uintBitsToFloat((floatBitsToUint(magnitude)&0x7fffffffu)|(floatBitsToUint(source)&0x80000000u));}
+vec2 power_square_root(vec2 z){
+ float inf=power_infinity();
+ if(isinf(z.y))return vec2(inf,z.y);
+ if(isinf(z.x)){if(isnan(z.y))return z.x>0.0?vec2(inf,power_nan()):vec2(power_nan(),power_copy_sign(inf,z.y));if(z.x>0.0)return vec2(inf,power_copy_sign(0.0,z.y));return vec2(0.0,power_copy_sign(inf,z.y));}
+ if(any(isnan(z)))return vec2(power_nan());
+ if(z.y==0.0){if(z.x<0.0)return vec2(0.0,power_copy_sign(sqrt(-z.x),z.y));return vec2(sqrt(abs(z.x)),z.y);}
+ float scale=max(abs(z.x),abs(z.y));vec2 normalized=z/scale;
+ float t=sqrt(scale)*sqrt(.5*(abs(normalized.x)+length(normalized)));
+ if(z.x>=0.0)return vec2(t,z.y/(2.0*t));return vec2(abs(z.y)/(2.0*t),power_copy_sign(t,z.y));
+}
 vec2 complex_power_value(vec2 z,vec2 exponent){
- float scale=max(abs(z.x),abs(z.y));float logmag=scale==0.0?uintBitsToFloat(0xff800000u):log(scale)+.5*log(dot(z/scale,z/scale));float phase=atan(z.y,z.x);
- if(exponent.y==0.0)return complex_exponential(vec2(exponent.x*logmag,exponent.x*phase));
+ float inf=power_infinity(),nan=power_nan();bool real_exponent=exponent.y==0.0;
+ // Match PyTorch's sqrt/rsqrt/reciprocal and -2 specializations, including
+ // their pole and nonfinite contracts. atan(0,0) is undefined in GLSL.
+ if(real_exponent&&exponent.x==.5)return power_square_root(z);
+ if(all(equal(z,vec2(0.0)))){
+  if(exponent.x>0.0)return vec2(0.0);
+  if(exponent.x<0.0)return vec2(inf,nan);
+  return vec2(nan);
+ }
+ if(real_exponent&&(exponent.x==-1.0||exponent.x==-.5||exponent.x==-2.0)){
+  if(any(isnan(z)))return vec2(nan);
+  if(any(isinf(z))){
+   if(exponent.x==-2.0||all(isinf(z))||(exponent.x==-.5&&isinf(z.y)))return vec2(nan);
+   return vec2(0.0);
+  }
+  vec2 divisor=exponent.x==-.5?power_square_root(z):(exponent.x==-2.0?complex_multiply(z,z):z);
+  return complex_divide(vec2(1.0,0.0),divisor);
+ }
+ if(any(isinf(z))){if(exponent.x>0.0)return vec2(inf,nan);if(exponent.x<0.0)return vec2(0.0);return vec2(nan);}
+ if(any(isnan(z)))return vec2(nan);
+ float scale=max(abs(z.x),abs(z.y));float logmag=log(scale)+.5*log(dot(z/scale,z/scale));
+ float phase=z.y==0.0?(z.x<0.0?power_copy_sign(3.14159265358979323846,z.y):z.y):atan(z.y,z.x);
+ if(real_exponent)return complex_exponential(vec2(exponent.x*logmag,exponent.x*phase));
  return complex_exponential(complex_multiply(exponent,vec2(logmag,phase)));
 }
 void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;
