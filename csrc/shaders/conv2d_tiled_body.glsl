@@ -8,6 +8,12 @@ layout(push_constant) uniform Params {
   uint n,cin,cout,h,w,kh,kw,oh,ow;
   uint sh,sw,ph,pw,dh,dw,groups;
 } p;
+#ifdef CONV_FIXED_3X3
+const uint KERNEL_H=3u, KERNEL_W=3u;
+#else
+#define KERNEL_H p.kh
+#define KERNEL_W p.kw
+#endif
 shared float a[TM*TK];
 shared float b[TK*TN];
 void store_result(uint m,uint spatial,uint group,float value) {
@@ -25,7 +31,7 @@ void main() {
   uint group=gl_WorkGroupID.y/tiles;
   uint m0=(gl_WorkGroupID.y%tiles)*TM;
   uint n0=gl_WorkGroupID.x*TN;
-  uint size_n=p.n*p.oh*p.ow, total=ci*p.kh*p.kw;
+  uint size_n=p.n*p.oh*p.ow, total=ci*KERNEL_H*KERNEL_W;
 #if CONV_RM == 2
   vec4 acc=vec4(0.0);
 #else
@@ -43,9 +49,9 @@ void main() {
       float v=0.0;
       if(pos<size_n && k<total) {
         uint batch=pos/(p.oh*p.ow), outpos=pos%(p.oh*p.ow);
-        uint inch=group*ci+k/(p.kh*p.kw), rem=k%(p.kh*p.kw);
-        int iy=int((outpos/p.ow)*p.sh)-int(p.ph)+int((rem/p.kw)*p.dh);
-        int ix=int((outpos%p.ow)*p.sw)-int(p.pw)+int((rem%p.kw)*p.dw);
+        uint inch=group*ci+k/(KERNEL_H*KERNEL_W), rem=k%(KERNEL_H*KERNEL_W);
+        int iy=int((outpos/p.ow)*p.sh)-int(p.ph)+int((rem/KERNEL_W)*p.dh);
+        int ix=int((outpos%p.ow)*p.sw)-int(p.pw)+int((rem%KERNEL_W)*p.dw);
         if(iy>=0 && iy<int(p.h) && ix>=0 && ix<int(p.w))
           v=x[((batch*p.cin+inch)*p.h+uint(iy))*p.w+uint(ix)];
       }

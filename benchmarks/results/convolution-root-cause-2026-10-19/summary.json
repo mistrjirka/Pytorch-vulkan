@@ -1,0 +1,638 @@
+{
+  "device": "RTX 2080 Ti",
+  "dtype": "float32",
+  "tf32": false,
+  "provenance": {
+    "ext_sha256": "197161a2d2705b4eb993b970d0531cde4921c01be9191fcb61ddbb8e3a159925",
+    "convolution_source_sha256": "a9beb5c422aa01beab1968f4529930e06659603a807116f8fec80e423685258b",
+    "methodology": "Exclusive GPU processes; FP32 TF32 disabled; seeded float64 CPU parity; 5 warmups 15 operator timings; GPU timestamps in eager resident mode; timings across separate runs are diagnostic"
+  },
+  "cases": [
+    {
+      "case": "pointwise",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.08369499118998647,
+      "vulkan_gpu_shader_ms": 0.021599999999999994,
+      "wall_cuda_ms": 0.04024402005597949,
+      "cuda_kernel_sum_ms": 0.011065800000000035,
+      "cuda_kernel_top": [
+        {
+          "name": "void implicit_convolve_sgemm<float, float, int, 1024, 5, 5, 3, 3, 3, 1, false, false, true>(int, int, int, float const*, int, float*, float const*, kernel_conv_params, unsigned long long, int, float, float, int, float const*, float const*, bool, bool, int, int)",
+          "time_ms": 0.007449799999999914
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "time_ms": 0.0036160000000001217
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.001092266666666667,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "pointwise",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.10289001511409879,
+      "vulkan_gpu_shader_ms": 0.025390933333333327,
+      "wall_cuda_ms": 0.05490100011229515,
+      "cuda_kernel_sum_ms": 0.011622400000000017,
+      "cuda_kernel_top": [
+        {
+          "name": "volta_sgemm_64x64_nt",
+          "time_ms": 0.011622400000000017
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0010197333333333322,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "pointwise",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.13907699030824006,
+      "vulkan_gpu_shader_ms": 0.06100266666666666,
+      "wall_cuda_ms": 0.08503699791617692,
+      "cuda_kernel_sum_ms": 0.038431599999999934,
+      "cuda_kernel_top": [
+        {
+          "name": "void wgrad_alg0_engine<float, 128, 5, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+          "time_ms": 0.038431599999999934
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0010837333333333333,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "pointwise",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.08782200166024268,
+      "vulkan_gpu_shader_ms": 0.010515200000000002,
+      "wall_cuda_ms": 0.04862999776378274,
+      "cuda_kernel_sum_ms": 0.013760000000000038,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.013760000000000038
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0007253333333333334,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "filter11x11",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.42108798515982926,
+      "vulkan_gpu_shader_ms": 0.3567381333333332,
+      "wall_cuda_ms": 0.16631701146252453,
+      "cuda_kernel_sum_ms": 0.11804660000000004,
+      "cuda_kernel_top": [
+        {
+          "name": "void fft2d_r2c_32x32<float, false, 0u, false>(float2*, float const*, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)",
+          "time_ms": 0.0427
+        },
+        {
+          "name": "void fft2d_c2r_32x32<float, false, false, 0u, false, false>(float*, float2 const*, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, float*, float*, int2, cudnnActivationStruct, int, int)",
+          "time_ms": 0.04250899999999992
+        },
+        {
+          "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, float2, float2, float2, float2, true, true, false, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2 const>, cublasGemvTensorStridedBatched<float2>, float2>)",
+          "time_ms": 0.01890520000000015
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.001070933333333335,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.6208359845913947,
+      "vulkan_gpu_shader_ms": 0.5375594666666667,
+      "wall_cuda_ms": 0.17554400255903602,
+      "cuda_kernel_sum_ms": 0.13158220000000007,
+      "cuda_kernel_top": [
+        {
+          "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+          "time_ms": 0.1298544000000001
+        },
+        {
+          "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+          "time_ms": 0.0017277999999999794
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0007274666666666661,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.44346798676997423,
+      "vulkan_gpu_shader_ms": 0.3513493333333333,
+      "wall_cuda_ms": 0.10822000331245363,
+      "cuda_kernel_sum_ms": 0.061041799999999966,
+      "cuda_kernel_top": [
+        {
+          "name": "void wgrad_alg0_engine<float, 512, 6, 5, 3, 3, 3, false, 512>(int, int, int, float const*, int, float*, float const*, kernel_grad_params, unsigned long long, int, float, int, int, int, int)",
+          "time_ms": 0.061041799999999966
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0018154666666666671,
+      "vulkan_download_slot_ms": 0.0010794666666666666
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.08650001836940646,
+      "vulkan_gpu_shader_ms": 0.009614933333333334,
+      "wall_cuda_ms": 0.04755798727273941,
+      "cuda_kernel_sum_ms": 0.00613759999999993,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.00613759999999993
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0011840000000000002,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "grouped",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.09994400897994637,
+      "vulkan_gpu_shader_ms": 0.03793919999999993,
+      "wall_cuda_ms": 0.089003995526582,
+      "cuda_kernel_sum_ms": 0.03808000000000011,
+      "cuda_kernel_top": [
+        {
+          "name": "void implicit_convolve_sgemm<float, float, int, 1024, 5, 5, 3, 3, 3, 1, false, false, true>(int, int, int, float const*, int, float*, float const*, kernel_conv_params, unsigned long long, int, float, float, int, float const*, float const*, bool, bool, int, int)",
+          "time_ms": 0.0353340000000001
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "time_ms": 0.0027460000000000036
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008917333333333351,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "grouped",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.1148020091932267,
+      "vulkan_gpu_shader_ms": 0.03861119999999995,
+      "wall_cuda_ms": 0.10881002526730299,
+      "cuda_kernel_sum_ms": 0.0942176000000001,
+      "cuda_kernel_top": [
+        {
+          "name": "void cudnn::detail::dgrad_alg1_engine<float, 512, 6, 5, 3, 3, 3, false, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, float, int)",
+          "time_ms": 0.08708860000000011
+        },
+        {
+          "name": "void cudnn::engines_precompiled::scaleTensor_kernel<float, float, 16, 16>(cudnnTensor4dStruct, float*, float)",
+          "time_ms": 0.007128999999999974
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0010453333333333352,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "grouped",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.16515501192770898,
+      "vulkan_gpu_shader_ms": 0.08433066666666669,
+      "wall_cuda_ms": 0.07032000576145947,
+      "cuda_kernel_sum_ms": 0.031986199999999985,
+      "cuda_kernel_top": [
+        {
+          "name": "void cudnn::cnn::wgrad2d_grouped_direct_kernel<false, true, int, float, float, float>(cudnn::cnn::WgradGroupedDirectParams, float const*, float const*, float*, float, float)",
+          "time_ms": 0.031986199999999985
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008725333333333335,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "grouped",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.08726102532818913,
+      "vulkan_gpu_shader_ms": 0.00996266666666666,
+      "wall_cuda_ms": 0.048779998905956745,
+      "cuda_kernel_sum_ms": 0.011762599999999974,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.011762599999999974
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0009450666666666667,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "depthwise",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.07304499740712345,
+      "vulkan_gpu_shader_ms": 0.010513066666666666,
+      "wall_cuda_ms": 0.03132800338789821,
+      "cuda_kernel_sum_ms": 0.006790200000000004,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::(anonymous namespace)::conv_depthwise2d_forward_kernel<3, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, float const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+          "time_ms": 0.006790200000000004
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008767999999999993,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "depthwise",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.09715900523588061,
+      "vulkan_gpu_shader_ms": 0.01977173333333333,
+      "wall_cuda_ms": 0.045083987060934305,
+      "cuda_kernel_sum_ms": 0.005196799999999985,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::(anonymous namespace)::conv_depthwise2d_backward_kernel<3, 1, float, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+          "time_ms": 0.005196799999999985
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0006336000000000003,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "depthwise",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.0957669981289655,
+      "vulkan_gpu_shader_ms": 0.01805866666666661,
+      "wall_cuda_ms": 0.044392014387995005,
+      "cuda_kernel_sum_ms": 0.007334400000000005,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::(anonymous namespace)::conv_depthwise2d_grad_weight_kernel<float, unsigned int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, float, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, float, 4ul, torch::headeronly::DefaultPtrTraits, int>, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+          "time_ms": 0.007334400000000005
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0009599999999999997,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "depthwise",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.08738102042116225,
+      "vulkan_gpu_shader_ms": 0.009742933333333322,
+      "wall_cuda_ms": 0.04789800732396543,
+      "cuda_kernel_sum_ms": 0.011794400000000019,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.011794400000000019
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0007381333333333323,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.20633102394640446,
+      "vulkan_gpu_shader_ms": 0.14071253333333333,
+      "wall_cuda_ms": 0.074097013566643,
+      "cuda_kernel_sum_ms": 0.040715600000000025,
+      "cuda_kernel_top": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+          "time_ms": 0.03205019999999997
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "time_ms": 0.006361400000000003
+        },
+        {
+          "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+          "time_ms": 0.002304000000000042
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0006378666666666662,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.23752902052365243,
+      "vulkan_gpu_shader_ms": 0.15682773333333333,
+      "wall_cuda_ms": 0.07240302511490881,
+      "cuda_kernel_sum_ms": 0.028626199999999973,
+      "cuda_kernel_top": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+          "time_ms": 0.026379999999999994
+        },
+        {
+          "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+          "time_ms": 0.002246199999999976
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0006314666666666672,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.27628999669104815,
+      "vulkan_gpu_shader_ms": 0.18381226666666664,
+      "wall_cuda_ms": 0.13870600378140807,
+      "cuda_kernel_sum_ms": 0.0930998,
+      "cuda_kernel_top": [
+        {
+          "name": "volta_sgemm_64x64_nt",
+          "time_ms": 0.0603387999999999
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradDelta4x4<float, float>(cudnn::winograd_nonfused::WinogradDeltaParams<float, float>)",
+          "time_ms": 0.013682600000000046
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradWgradOutputParams<float, float>)",
+          "time_ms": 0.011795000000000026
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0018880000000000006,
+      "vulkan_download_slot_ms": 0.0011776
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.10174800991080701,
+      "vulkan_gpu_shader_ms": 0.024467199999999932,
+      "wall_cuda_ms": 0.04745798651129007,
+      "cuda_kernel_sum_ms": 0.006240000000000009,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.006240000000000009
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008789333333333325,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "forward",
+      "wall_vulkan_ms": 0.1560079981572926,
+      "vulkan_gpu_shader_ms": 0.09241386666666666,
+      "wall_cuda_ms": 0.06189499981701374,
+      "cuda_kernel_sum_ms": 0.025446399999999997,
+      "cuda_kernel_top": [
+        {
+          "name": "_5x_cudnn_volta_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148t_nt_v1",
+          "time_ms": 0.02076800000000001
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "time_ms": 0.0024192000000000007
+        },
+        {
+          "name": "void cudnn::winograd::generateWinogradTilesKernel<0, float, float>(cudnn::winograd::GenerateWinogradTilesParams<float, float>)",
+          "time_ms": 0.002259199999999987
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008362666666666666,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dinput",
+      "wall_vulkan_ms": 0.1825969957280904,
+      "vulkan_gpu_shader_ms": 0.1044607999999999,
+      "wall_cuda_ms": 0.06421899888664484,
+      "cuda_kernel_sum_ms": 0.021798,
+      "cuda_kernel_top": [
+        {
+          "name": "void cudnn::detail::dgrad_engine<float, 512, 6, 5, 3, 3, 3, false>(int, int, int, float const*, int, float const*, int, float*, kernel_grad_params, unsigned long long, int, unsigned long long, int, float, int, int, int)",
+          "time_ms": 0.020063599999999997
+        },
+        {
+          "name": "void cudnn::engines_precompiled::scalePackedTensor_kernel<float, float>(long, float*, float)",
+          "time_ms": 0.001734400000000005
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.001117866666666667,
+      "vulkan_download_slot_ms": 0.0
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dweight",
+      "wall_vulkan_ms": 0.18493100651539862,
+      "vulkan_gpu_shader_ms": 0.0948565333333334,
+      "wall_cuda_ms": 0.07942601223476231,
+      "cuda_kernel_sum_ms": 0.02775560000000005,
+      "cuda_kernel_top": [
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradWgradOutputParams<float, float>)",
+          "time_ms": 0.011468200000000024
+        },
+        {
+          "name": "volta_sgemm_64x64_nt",
+          "time_ms": 0.009042799999999965
+        },
+        {
+          "name": "void cudnn::winograd_nonfused::winogradWgradData4x4<float, float>(cudnn::winograd_nonfused::WinogradDataParams<float, float>)",
+          "time_ms": 0.004018800000000032
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.001951999999999999,
+      "vulkan_download_slot_ms": 0.0009557333333333334
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dbias",
+      "wall_vulkan_ms": 0.08271299884654582,
+      "vulkan_gpu_shader_ms": 0.00672213333333335,
+      "wall_cuda_ms": 0.04884001100435853,
+      "cuda_kernel_sum_ms": 0.006252599999999984,
+      "cuda_kernel_top": [
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4> >(at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator()(at::TensorIterator&)::{lambda(float, float)#1}>, unsigned int, float, 4, 4>)",
+          "time_ms": 0.006252599999999984
+        }
+      ],
+      "vulkan_upload_slot_ms": 0.0008085333333333333,
+      "vulkan_download_slot_ms": 0.0
+    }
+  ],
+  "weight_split": [
+    {
+      "case": "pointwise",
+      "shader": "conv2d_backward_weight_reduce",
+      "partial_ms": 0.0,
+      "barrier_ms": 0.0,
+      "finalize_ms": 0.0,
+      "combined_ms": 0.060940800000000024,
+      "wall_ms": 0.14565899618901312
+    },
+    {
+      "case": "filter10x10",
+      "shader": "conv2d_backward_weight_split_base",
+      "partial_ms": 0.30302464000000007,
+      "barrier_ms": 0.0010931200000000002,
+      "finalize_ms": 0.00480512,
+      "combined_ms": 0.30892288000000007,
+      "wall_ms": 0.4289619973860681
+    },
+    {
+      "case": "filter11x11",
+      "shader": "conv2d_backward_weight_split_base",
+      "partial_ms": 0.3457075200000003,
+      "barrier_ms": 0.0010432000000000002,
+      "finalize_ms": 0.00496128,
+      "combined_ms": 0.35171199999999964,
+      "wall_ms": 0.4856069863308221
+    },
+    {
+      "case": "grouped",
+      "shader": "conv2d_backward_weight_reduce",
+      "partial_ms": 0.0,
+      "barrier_ms": 0.0,
+      "finalize_ms": 0.0,
+      "combined_ms": 0.08482816000000001,
+      "wall_ms": 0.20052000763826072
+    },
+    {
+      "case": "conv3x3_large",
+      "shader": "conv2d_backward_weight_split_register3",
+      "partial_ms": 0.1769856,
+      "barrier_ms": 0.0011750399999999998,
+      "finalize_ms": 0.006307840000000002,
+      "combined_ms": 0.18446847999999996,
+      "wall_ms": 0.281508982880041
+    },
+    {
+      "case": "conv3x3_small",
+      "shader": "conv2d_backward_weight_split_base",
+      "partial_ms": 0.09003263999999987,
+      "barrier_ms": 0.0009984000000000008,
+      "finalize_ms": 0.0042931199999999906,
+      "combined_ms": 0.09532415999999984,
+      "wall_ms": 0.1875569869298488
+    }
+  ],
+  "unet": {
+    "vulkan_deferred_wall_ms": 52.01343598309904,
+    "vulkan_eager_gpu_shader_ms": 25.530976000000017,
+    "vulkan_eager_gpu_conv_shader_ms": 18.96395093333334,
+    "cuda_profiled_kernel_sum_ms": 10.79248066666672,
+    "queue_three_profiled_steps": {
+      "submissions": 3,
+      "recorded_ops": 552,
+      "largest_batch": 0
+    },
+    "cache_three_profiled_steps": {
+      "algo_hits": 59,
+      "algo_misses": 493,
+      "seq_reuses": 0,
+      "seq_creates": 0,
+      "algo_evictions": 493,
+      "bound_algorithms": 0,
+      "pipeline_hits": 493,
+      "pipeline_misses": 0,
+      "pipeline_evictions": 0,
+      "pipeline_entries": 0
+    },
+    "total_vulkan_shader_events": 512.0
+  },
+  "nonresident": [
+    {
+      "case": "filter11x11",
+      "phase": "forward",
+      "wall_nonresident_ms": 0.5376030167099088,
+      "wall_resident_ms": 0.42108798515982926,
+      "upload_slot_ms": 0.03675733333333332,
+      "download_slot_ms": 0.07070506666666664
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dinput",
+      "wall_nonresident_ms": 0.692899979185313,
+      "wall_resident_ms": 0.6208359845913947,
+      "upload_slot_ms": 0.040441599999999994,
+      "download_slot_ms": 0.024428799999999997
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dweight",
+      "wall_nonresident_ms": 0.555395003175363,
+      "wall_resident_ms": 0.44346798676997423,
+      "upload_slot_ms": 0.03400106666666667,
+      "download_slot_ms": 0.07566293333333335
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dbias",
+      "wall_nonresident_ms": 0.1154429919552058,
+      "wall_resident_ms": 0.08650001836940646,
+      "upload_slot_ms": 0.021218133333333333,
+      "download_slot_ms": 0.0037461333333333336
+    },
+    {
+      "case": "depthwise",
+      "phase": "forward",
+      "wall_nonresident_ms": 0.21130999084562063,
+      "wall_resident_ms": 0.07304499740712345,
+      "upload_slot_ms": 0.019729066666666666,
+      "download_slot_ms": 0.11045973333333328
+    },
+    {
+      "case": "depthwise",
+      "phase": "dinput",
+      "wall_nonresident_ms": 0.19460899056866765,
+      "wall_resident_ms": 0.09715900523588061,
+      "upload_slot_ms": 0.03270826666666667,
+      "download_slot_ms": 0.05609386666666668
+    },
+    {
+      "case": "depthwise",
+      "phase": "dweight",
+      "wall_nonresident_ms": 0.1489449932705611,
+      "wall_resident_ms": 0.0957669981289655,
+      "upload_slot_ms": 0.043904000000000006,
+      "download_slot_ms": 0.0034602666666666655
+    },
+    {
+      "case": "depthwise",
+      "phase": "dbias",
+      "wall_nonresident_ms": 0.12151402188464999,
+      "wall_resident_ms": 0.08738102042116225,
+      "upload_slot_ms": 0.030769066666666657,
+      "download_slot_ms": 0.0033813333333333343
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "forward",
+      "wall_nonresident_ms": 0.9562260238453746,
+      "wall_resident_ms": 0.20633102394640446,
+      "upload_slot_ms": 0.09148800000000001,
+      "download_slot_ms": 0.6502826666666669
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dinput",
+      "wall_nonresident_ms": 0.7462080102413893,
+      "wall_resident_ms": 0.23752902052365243,
+      "upload_slot_ms": 0.17098239999999995,
+      "download_slot_ms": 0.3289322666666666
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dweight",
+      "wall_nonresident_ms": 0.5501859996002167,
+      "wall_resident_ms": 0.27628999669104815,
+      "upload_slot_ms": 0.2443349333333333,
+      "download_slot_ms": 0.012927999999999999
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dbias",
+      "wall_nonresident_ms": 0.37998100742697716,
+      "wall_resident_ms": 0.10174800991080701,
+      "upload_slot_ms": 0.16375679999999998,
+      "download_slot_ms": 0.003411200000000003
+    }
+  ]
+}

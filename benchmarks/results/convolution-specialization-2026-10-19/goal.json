@@ -1,0 +1,332 @@
+{
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "dtype": "float32",
+  "target_ratio": 1.5,
+  "cases": 8,
+  "phases": 32,
+  "within_target": 0,
+  "worst": [
+    {
+      "case": "filter11x11",
+      "phase": "dweight",
+      "vulkan_ms": 0.5423410038929433,
+      "cuda_ms": 0.1000339980237186,
+      "ratio": 5.421566813358307,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "dweight",
+      "vulkan_ms": 0.4314859979785979,
+      "cuda_ms": 0.09334200876764953,
+      "ratio": 4.6226345851702115,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "dinput",
+      "vulkan_ms": 0.5314809968695045,
+      "cuda_ms": 0.12314799823798239,
+      "ratio": 4.315790792168803,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dinput",
+      "vulkan_ms": 0.6550390098709613,
+      "cuda_ms": 0.16170801245607436,
+      "ratio": 4.050751721711336,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dinput",
+      "vulkan_ms": 0.23938101367093623,
+      "cuda_ms": 0.06287600263021886,
+      "ratio": 3.8071919914941796,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dbias",
+      "vulkan_ms": 0.1438350009266287,
+      "cuda_ms": 0.038080994272604585,
+      "ratio": 3.7770810262195127,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "forward",
+      "vulkan_ms": 0.42554500396363437,
+      "cuda_ms": 0.12150401016697288,
+      "ratio": 3.5023124206258145,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dinput",
+      "vulkan_ms": 0.18461100989952683,
+      "cuda_ms": 0.0555529841221869,
+      "ratio": 3.323151992942111,
+      "within_goal": false
+    }
+  ],
+  "rows": [
+    {
+      "case": "conv3x3_large",
+      "phase": "forward",
+      "vulkan_ms": 0.20793400472030044,
+      "cuda_ms": 0.06465899059548974,
+      "ratio": 3.2158560287639997,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dinput",
+      "vulkan_ms": 0.23938101367093623,
+      "cuda_ms": 0.06287600263021886,
+      "ratio": 3.8071919914941796,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dweight",
+      "vulkan_ms": 0.2737549948506057,
+      "cuda_ms": 0.13027101522311568,
+      "ratio": 2.1014267401059588,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_large",
+      "phase": "dbias",
+      "vulkan_ms": 0.1028600090648979,
+      "cuda_ms": 0.038852012949064374,
+      "ratio": 2.647482106004367,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "forward",
+      "vulkan_ms": 0.15624900697730482,
+      "cuda_ms": 0.05143499583937228,
+      "ratio": 3.037795656973688,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dinput",
+      "vulkan_ms": 0.18461100989952683,
+      "cuda_ms": 0.0555529841221869,
+      "ratio": 3.323151992942111,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dweight",
+      "vulkan_ms": 0.1797720033209771,
+      "cuda_ms": 0.06712399772368371,
+      "ratio": 2.6782076368724264,
+      "within_goal": false
+    },
+    {
+      "case": "conv3x3_small",
+      "phase": "dbias",
+      "vulkan_ms": 0.08474700734950602,
+      "cuda_ms": 0.038201018469408154,
+      "ratio": 2.2184488986169955,
+      "within_goal": false
+    },
+    {
+      "case": "depthwise",
+      "phase": "forward",
+      "vulkan_ms": 0.07442798232659698,
+      "cuda_ms": 0.022782012820243835,
+      "ratio": 3.2669625337257786,
+      "within_goal": false
+    },
+    {
+      "case": "depthwise",
+      "phase": "dinput",
+      "vulkan_ms": 0.09896300616674125,
+      "cuda_ms": 0.034483004128560424,
+      "ratio": 2.8699067458793563,
+      "within_goal": false
+    },
+    {
+      "case": "depthwise",
+      "phase": "dweight",
+      "vulkan_ms": 0.0976510054897517,
+      "cuda_ms": 0.03461400046944618,
+      "ratio": 2.82114185489621,
+      "within_goal": false
+    },
+    {
+      "case": "depthwise",
+      "phase": "dbias",
+      "vulkan_ms": 0.08771198918111622,
+      "cuda_ms": 0.04022399662062526,
+      "ratio": 2.180588617495583,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "forward",
+      "vulkan_ms": 0.3907409845851362,
+      "cuda_ms": 0.120542012155056,
+      "ratio": 3.241533616367022,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "dinput",
+      "vulkan_ms": 0.5314809968695045,
+      "cuda_ms": 0.12314799823798239,
+      "ratio": 4.315790792168803,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "dweight",
+      "vulkan_ms": 0.4314859979785979,
+      "cuda_ms": 0.09334200876764953,
+      "ratio": 4.6226345851702115,
+      "within_goal": false
+    },
+    {
+      "case": "filter10x10",
+      "phase": "dbias",
+      "vulkan_ms": 0.11463099508546293,
+      "cuda_ms": 0.038730999222025275,
+      "ratio": 2.9596704807005176,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "forward",
+      "vulkan_ms": 0.42554500396363437,
+      "cuda_ms": 0.12150401016697288,
+      "ratio": 3.5023124206258145,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dinput",
+      "vulkan_ms": 0.6550390098709613,
+      "cuda_ms": 0.16170801245607436,
+      "ratio": 4.050751721711336,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dweight",
+      "vulkan_ms": 0.5423410038929433,
+      "cuda_ms": 0.1000339980237186,
+      "ratio": 5.421566813358307,
+      "within_goal": false
+    },
+    {
+      "case": "filter11x11",
+      "phase": "dbias",
+      "vulkan_ms": 0.1438350009266287,
+      "cuda_ms": 0.038080994272604585,
+      "ratio": 3.7770810262195127,
+      "within_goal": false
+    },
+    {
+      "case": "grouped",
+      "phase": "forward",
+      "vulkan_ms": 0.1215049996972084,
+      "cuda_ms": 0.0657110067550093,
+      "ratio": 1.8490813898228065,
+      "within_goal": false
+    },
+    {
+      "case": "grouped",
+      "phase": "dinput",
+      "vulkan_ms": 0.1453380100429058,
+      "cuda_ms": 0.08699001045897603,
+      "ratio": 1.670743678223218,
+      "within_goal": false
+    },
+    {
+      "case": "grouped",
+      "phase": "dweight",
+      "vulkan_ms": 0.19214401254430413,
+      "cuda_ms": 0.06310598109848797,
+      "ratio": 3.0447829064638046,
+      "within_goal": false
+    },
+    {
+      "case": "grouped",
+      "phase": "dbias",
+      "vulkan_ms": 0.11521298438310623,
+      "cuda_ms": 0.040794984670355916,
+      "ratio": 2.824194819880075,
+      "within_goal": false
+    },
+    {
+      "case": "pointwise",
+      "phase": "forward",
+      "vulkan_ms": 0.08459598757326603,
+      "cuda_ms": 0.04103599349036813,
+      "ratio": 2.061506993686462,
+      "within_goal": false
+    },
+    {
+      "case": "pointwise",
+      "phase": "dinput",
+      "vulkan_ms": 0.10469299741089344,
+      "cuda_ms": 0.044342014007270336,
+      "ratio": 2.361033880728285,
+      "within_goal": false
+    },
+    {
+      "case": "pointwise",
+      "phase": "dweight",
+      "vulkan_ms": 0.14031902537681162,
+      "cuda_ms": 0.07533901953138411,
+      "ratio": 1.8625013472382486,
+      "within_goal": false
+    },
+    {
+      "case": "pointwise",
+      "phase": "dbias",
+      "vulkan_ms": 0.08928499300964177,
+      "cuda_ms": 0.04281901055946946,
+      "ratio": 2.0851717926932882,
+      "within_goal": false
+    },
+    {
+      "case": "rect3x5",
+      "phase": "forward",
+      "vulkan_ms": 0.10128700523637235,
+      "cuda_ms": 0.042589002987369895,
+      "ratio": 2.3782431644715847,
+      "within_goal": false
+    },
+    {
+      "case": "rect3x5",
+      "phase": "dinput",
+      "vulkan_ms": 0.15962400357238948,
+      "cuda_ms": 0.051404989790171385,
+      "ratio": 3.105223913553029,
+      "within_goal": false
+    },
+    {
+      "case": "rect3x5",
+      "phase": "dweight",
+      "vulkan_ms": 0.13294501695781946,
+      "cuda_ms": 0.0672939931973815,
+      "ratio": 1.9755851992298257,
+      "within_goal": false
+    },
+    {
+      "case": "rect3x5",
+      "phase": "dbias",
+      "vulkan_ms": 0.08594899554736912,
+      "cuda_ms": 0.03884101170115173,
+      "ratio": 2.212841318569993,
+      "within_goal": false
+    }
+  ]
+}

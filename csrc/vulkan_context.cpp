@@ -213,6 +213,9 @@ void VulkanContext::run_compute_pair(
     if(std::is_sorted(ts.begin(),ts.end())) {
       v.upload_ms+=(ts[2]-ts[0])*scale;
       v.shader_ms+=(ts[5]-ts[2])*scale;
+      v.pair_first_ms+=(ts[3]-ts[2])*scale;
+      v.pair_barrier_ms+=(ts[4]-ts[3])*scale;
+      v.pair_second_ms+=(ts[5]-ts[4])*scale;
       v.download_ms+=(ts[6]-ts[5])*scale;
     }
   }

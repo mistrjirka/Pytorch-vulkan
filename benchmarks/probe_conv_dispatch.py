@@ -105,7 +105,8 @@ def timestamp_delta(before, after, repeats):
             continue
         result[key] = dict(samples=count, **{
             field + "_per_invocation": (values[field] - previous.get(field, 0)) / repeats
-            for field in ("shader_ms", "upload_ms", "download_ms", "host_eval_ms")
+            for field in ("shader_ms", "upload_ms", "download_ms", "host_eval_ms",
+                          "pair_first_ms", "pair_barrier_ms", "pair_second_ms")
             if field in values
         })
     return result

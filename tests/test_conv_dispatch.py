@@ -320,14 +320,16 @@ def test_register_tile_batch_group_and_channel_boundaries(
         assert after.get(key, 0) > before.get(key, 0), (phase, before, after)
 
 
-@pytest.mark.parametrize("xshape,kernel,padding,groups,expected", [
-    pytest.param((1, 32, 64, 64), (3, 3), (1, 1), 1, "register", id="dense-large-3x3"),
-    pytest.param((1, 32, 32, 32), (3, 3), (1, 1), 1, "base", id="dense-small-3x3"),
-    pytest.param((1, 32, 64, 64), (3, 5), (1, 2), 1, "base", id="dense-large-3x5"),
-    pytest.param((1, 32, 64, 64), (3, 3), (1, 1), 2, "base", id="grouped-large-3x3"),
+@pytest.mark.parametrize("xshape,cout,kernel,padding,groups,expected", [
+    pytest.param((1, 32, 64, 64), 32, (3, 3), (1, 1), 1, "register3", id="dense-large-3x3"),
+    pytest.param((1, 32, 32, 32), 32, (3, 3), (1, 1), 1, "base", id="dense-small-3x3"),
+    pytest.param((1, 64, 32, 32), 64, (3, 3), (1, 1), 1, "register3", id="dense-medium-high-channels"),
+    pytest.param((2, 32, 32, 32), 32, (3, 3), (1, 1), 1, "register3", id="dense-medium-batched"),
+    pytest.param((1, 32, 64, 64), 32, (3, 5), (1, 2), 1, "base", id="dense-large-3x5"),
+    pytest.param((1, 32, 64, 64), 32, (3, 3), (1, 1), 2, "base", id="grouped-large-3x3"),
 ])
 def test_default_large_dense_conv_dispatch_and_gradients(
-    xshape, kernel, padding, groups, expected, monkeypatch
+    xshape, cout, kernel, padding, groups, expected, monkeypatch
 ):
     # Test the ordinary heuristic rather than forcing a tile or using tuning.
     for key in ("TORCH_VULKAN_CONV_ALGO", "TORCH_VULKAN_CONV_BACKWARD_ALGO",
@@ -335,8 +337,29 @@ def test_default_large_dense_conv_dispatch_and_gradients(
         monkeypatch.delenv(key, raising=False)
     monkeypatch.setenv("TORCH_VULKAN_CONV_AUTOTUNE", "0")
     before = torch_vulkan.conv_dispatch_stats()
-    _check_case(xshape, 32, kernel, (1, 1), padding, (1, 1), groups)
+    _check_case(xshape, cout, kernel, (1, 1), padding, (1, 1), groups)
     after = torch_vulkan.conv_dispatch_stats()
     for phase in ("forward", "dinput", "dweight"):
         key = f"selected_{phase}_tiled_{expected}"
         assert after.get(key, 0) == before.get(key, 0) + 1, (phase, before, after)
+
+
+@pytest.mark.parametrize("shape,kernel,padding,stride,dilation,groups", [
+    ((2, 32, 19, 21), (3, 3), (1, 1), (1, 1), (1, 1), 1),
+    ((1, 32, 11, 13), (3, 3), (2, 1), (2, 1), (1, 2), 2),
+    ((2, 17, 17, 19), (3, 3), (2, 0), (1, 1), (2, 1), 1),
+])
+def test_fixed_3x3_register_parity(shape, kernel, padding, stride, dilation, groups, monkeypatch):
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "register3")
+    _check_case(shape, 32, kernel, stride, padding, dilation, groups)
+
+
+def test_fixed_3x3_rejects_incompatible_filters(monkeypatch):
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "register3")
+    x = torch.zeros((1, 32, 9, 13), device="vulkan")
+    w = torch.zeros((32, 32, 3, 5), device="vulkan")
+    with pytest.raises(RuntimeError, match="incompatible|exceeds"):
+        F.conv2d(x, w)

@@ -86,6 +86,9 @@ public:
     uint64_t samples = 0;
     double upload_ms = 0, shader_ms = 0, download_ms = 0;
     double host_eval_ms = 0;
+    // Split-weight profiling: GPU execution of the partial kernel, the
+    // intermediate dependency barrier and the final reduction independently.
+    double pair_first_ms = 0, pair_barrier_ms = 0, pair_second_ms = 0;
   };
   std::map<std::string,GpuTiming> gpu_timing_stats() const;
 

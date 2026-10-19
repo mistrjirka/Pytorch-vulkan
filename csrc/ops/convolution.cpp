@@ -160,11 +160,12 @@ static ConvParams convolution_params(const at::Tensor& input,
 // Shapes stay runtime constants; only the finite tile menu changes GPU code.
 enum class ConvPhase { Forward, Input, Weight, Bias };
 enum class ConvKind { Direct, Depthwise, Tiled, Reduce };
-struct ConvTile { const char* name; uint32_t m, n, k, rm=1, rn=1; };
+struct ConvTile { const char* name; uint32_t m, n, k, rm=1, rn=1; bool fixed3x3=false; };
 // Output tiles and workgroup sizes are distinct: register blocking computes
 // multiple outputs per invocation without requiring larger workgroups.
 static constexpr ConvTile kTiles[]={{"base",8,16,16},{"wide",8,32,16},
-    {"tall",16,16,16},{"register",32,32,16,2,2}};
+    {"tall",16,16,16},{"register",32,32,16,2,2},
+    {"register3",32,32,16,2,2,true}};
 static constexpr int kTileCount=sizeof(kTiles)/sizeof(kTiles[0]);
 struct ConvCandidate {
   ConvKind kind=ConvKind::Direct;
@@ -231,6 +232,7 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
   if(c.kind==ConvKind::Tiled && phase==ConvPhase::Bias) return false;
   if(c.kind==ConvKind::Tiled) {
     const auto t=kTiles[c.tile];
+    if(t.fixed3x3 && (p.kh!=3 || p.kw!=3)) return false;
     const auto local_x=t.n/t.rn,local_y=t.m/t.rm;
     if(limits.maxComputeWorkGroupInvocations<local_x*local_y || limits.maxComputeWorkGroupSize[0]<local_x ||
        limits.maxComputeWorkGroupSize[1]<local_y || limits.maxComputeSharedMemorySize<(t.m+t.n)*t.k*4) return false;
@@ -273,7 +275,7 @@ static ConvControls controls(ConvPhase phase) {
   const char* tile=std::getenv("TORCH_VULKAN_CONV_TILE");
   if(tile && *tile && std::strcmp(tile,"auto")) {
     for(int i=0;i<kTileCount;++i) if(!std::strcmp(tile,kTiles[i].name)) c.tile=i;
-    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall/register");
+    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall/register/register3");
   }
   const char* tune=std::getenv("TORCH_VULKAN_CONV_AUTOTUNE");
   TORCH_CHECK(!tune || !*tune || !std::strcmp(tune,"0") || !std::strcmp(tune,"1"),
@@ -290,10 +292,16 @@ static ConvCandidate heuristic(const ConvParams& p,ConvPhase phase,const ConvCon
   // A register-blocked tile amortizes gathers for dense 3x3 convolutions
   // with enough spatial and channel work. Other shapes keep the conservative
   // base tile; eligibility and workspace checks still guard every selection.
-  const bool large_dense_3x3 = p.kh==3 && p.kw==3 &&
+  // Register blocking becomes worthwhile when spatial work amortizes tile
+  // setup. Extra channel reuse makes 1024 positions enough for 64x64 dense
+  // channels; with 32 channels it needs at least 2048 positions. Smaller
+  // convolutions retain the base tile (measured on both Turing and Volta).
+  const uint64_t positions=uint64_t(p.n)*p.oh*p.ow;
+  const bool dense_3x3 = p.kh==3 && p.kw==3 &&
       p.sh==1 && p.sw==1 && p.dh==1 && p.dw==1 && p.groups==1 &&
-      p.cin>=32 && p.cout>=32 && uint64_t(p.n)*p.oh*p.ow>=4096;
-  const int auto_tile = large_dense_3x3 && has({ConvKind::Tiled,3}) ? 3 : 0;
+      p.cin>=32 && p.cout>=32 &&
+      (positions>=2048 || (p.cin>=64 && p.cout>=64 && positions>=1024));
+  const int auto_tile = dense_3x3 && has({ConvKind::Tiled,4}) ? 4 : 0;
   const ConvCandidate tiled{ConvKind::Tiled,ctl.tile<0 ? auto_tile : ctl.tile};
   bool strict=false;
   if(ctl.algorithm=="direct") { preferred={ConvKind::Direct,0}; strict=true; }

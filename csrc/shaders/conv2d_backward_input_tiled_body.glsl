@@ -8,6 +8,12 @@ layout(push_constant) uniform Params {
   uint n,cin,cout,h,w,kh,kw,oh,ow;
   uint sh,sw,ph,pw,dh,dw,groups;
 } p;
+#ifdef CONV_FIXED_3X3
+const uint KERNEL_H=3u, KERNEL_W=3u;
+#else
+#define KERNEL_H p.kh
+#define KERNEL_W p.kw
+#endif
 shared float a[TM*TK];
 shared float b[TK*TN];
 void store_result(uint c,uint spatial,uint group,float value) {
@@ -22,7 +28,7 @@ void main() {
   uint ci=p.cin/p.groups, co=p.cout/p.groups;
   uint tiles=(ci+TM-1)/TM, group=gl_WorkGroupID.y/tiles;
   uint m0=(gl_WorkGroupID.y%tiles)*TM, n0=gl_WorkGroupID.x*TN;
-  uint total=co*p.kh*p.kw, size_n=p.n*p.h*p.w;
+  uint total=co*KERNEL_H*KERNEL_W, size_n=p.n*p.h*p.w;
 #if CONV_RM == 2
   vec4 acc=vec4(0.0);
 #else
@@ -33,8 +39,8 @@ void main() {
       uint c=m0+i/TK, k=k0+i%TK;
       float v=0.0;
       if(c<ci && k<total) {
-        uint oc=group*co+k/(p.kh*p.kw);
-        v=weight[(oc*ci+c)*p.kh*p.kw+k%(p.kh*p.kw)];
+        uint oc=group*co+k/(KERNEL_H*KERNEL_W);
+        v=weight[(oc*ci+c)*KERNEL_H*KERNEL_W+k%(KERNEL_H*KERNEL_W)];
       }
       a[i]=v;
     }
@@ -43,9 +49,9 @@ void main() {
       float v=0.0;
       if(spatial<size_n && k<total) {
         uint batch=spatial/(p.h*p.w), pos=spatial%(p.h*p.w);
-        uint oc=group*co+k/(p.kh*p.kw), rem=k%(p.kh*p.kw);
-        int yh=int(pos/p.w)+int(p.ph)-int((rem/p.kw)*p.dh);
-        int xw=int(pos%p.w)+int(p.pw)-int((rem%p.kw)*p.dw);
+        uint oc=group*co+k/(KERNEL_H*KERNEL_W), rem=k%(KERNEL_H*KERNEL_W);
+        int yh=int(pos/p.w)+int(p.ph)-int((rem/KERNEL_W)*p.dh);
+        int xw=int(pos%p.w)+int(p.pw)-int((rem%KERNEL_W)*p.dw);
         if(yh>=0 && xw>=0) {
           uint oy=uint(yh), ox=uint(xw);
           bool aligned=true;

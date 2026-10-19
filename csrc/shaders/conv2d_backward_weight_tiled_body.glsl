@@ -8,10 +8,16 @@ layout(push_constant) uniform Params {
   uint n,cin,cout,h,w,kh,kw,oh,ow;
   uint sh,sw,ph,pw,dh,dw,groups;
 } p;
+#ifdef CONV_FIXED_3X3
+const uint KERNEL_H=3u, KERNEL_W=3u;
+#else
+#define KERNEL_H p.kh
+#define KERNEL_W p.kw
+#endif
 shared float a[TM*TK];
 shared float b[TK*TN];
 void store_result(uint m,uint col,uint group,float value) {
-  uint co=p.cout/p.groups,cols=(p.cin/p.groups)*p.kh*p.kw;
+  uint co=p.cout/p.groups,cols=(p.cin/p.groups)*KERNEL_H*KERNEL_W;
   if(m<co && col<cols) {
     uint oc=group*co+m,split=gl_WorkGroupID.z;
     out_data[(split*p.cout+oc)*cols+col]=value;
@@ -20,7 +26,7 @@ void store_result(uint m,uint col,uint group,float value) {
 void main() {
   uint lx=gl_LocalInvocationID.x, ly=gl_LocalInvocationID.y, tid=ly*WG_N+lx;
   uint ci=p.cin/p.groups, co=p.cout/p.groups;
-  uint cols=ci*p.kh*p.kw, tiles=(co+TM-1)/TM;
+  uint cols=ci*KERNEL_H*KERNEL_W, tiles=(co+TM-1)/TM;
   uint group=gl_WorkGroupID.y/tiles, m0=(gl_WorkGroupID.y%tiles)*TM;
   uint n0=gl_WorkGroupID.x*TN;
   uint spatial=p.oh*p.ow, total=p.n*spatial, split=gl_WorkGroupID.z;
@@ -39,7 +45,7 @@ void main() {
       uint k=k0+i/TN, col=n0+i%TN;
       float v=0.0;
       if(col<cols && k<total) {
-        uint ic=group*ci+col/(p.kh*p.kw), ky=(col/p.kw)%p.kh, kx=col%p.kw;
+        uint ic=group*ci+col/(KERNEL_H*KERNEL_W), ky=(col/KERNEL_W)%KERNEL_H, kx=col%KERNEL_W;
         uint pos=k%spatial;
         int iy=int((pos/p.ow)*p.sh)-int(p.ph)+int(ky*p.dh);
         int ix=int((pos%p.ow)*p.sw)-int(p.pw)+int(kx*p.dw);

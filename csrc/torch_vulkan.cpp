@@ -234,6 +234,9 @@ py::dict gpu_timing_stats() {
     stats["shader_ms"]=v.shader_ms;
     stats["download_ms"]=v.download_ms;
     stats["host_eval_ms"]=v.host_eval_ms;
+    stats["pair_first_ms"]=v.pair_first_ms;
+    stats["pair_barrier_ms"]=v.pair_barrier_ms;
+    stats["pair_second_ms"]=v.pair_second_ms;
     res[py::str(name)]=std::move(stats);
   }
   return res;
