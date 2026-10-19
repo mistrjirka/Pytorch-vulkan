@@ -1,0 +1,62 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) readonly buffer B {float b[];};
+layout(binding=2) readonly buffer C {float c[];};
+layout(binding=3) readonly buffer Metadata {uint data[];};
+layout(binding=4) writeonly buffer Out {uint outv[];};
+layout(push_constant) uniform P {
+  uint count,rank,offset_a,offset_b,offset_c,offset_out,scalar_mask,op,value;
+} p;
+// Preserve infinity times a nonzero subnormal even on FTZ hardware.
+float multiply(float a,float b) {
+  uint ua=floatBitsToUint(a),ub=floatBitsToUint(b);
+  uint aa=ua&0x7fffffffu,bb=ub&0x7fffffffu;
+  if((aa==0x7f800000u && bb>0u && bb<=0x7f800000u) ||
+     (bb==0x7f800000u && aa>0u && aa<=0x7f800000u))
+    return uintBitsToFloat(((ua^ub)&0x80000000u)|0x7f800000u);
+  precise float result=a*b;return result;
+}
+void main() {
+  uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
+  if(group>=p.count/128+uint(p.count%128!=0))return;
+  uint i=group*128+gl_LocalInvocationID.x;
+  if(i>=p.count)return;
+  uint ia=p.offset_a,ib=p.offset_b,ic=p.offset_c,io=p.offset_out;
+  if(p.rank==0) {
+    if((p.scalar_mask&1)==0)ia+=i;
+    if((p.scalar_mask&2)==0)ib+=i;
+    if((p.scalar_mask&4)==0)ic+=i;
+    io+=i;
+  } else {
+    uint rest=i;
+    for(uint d=p.rank;d>0;--d) {
+      uint axis=d-1,coordinate=rest%data[axis];rest/=data[axis];
+      ia+=coordinate*data[p.rank+axis];ib+=coordinate*data[2*p.rank+axis];
+      ic+=coordinate*data[3*p.rank+axis];io+=coordinate*data[4*p.rank+axis];
+    }
+  }
+  float x=a[ia],y=b[ib],value=uintBitsToFloat(p.value);
+  precise float result;
+  if(p.op<=1) {
+    float weight=p.op==0?value:c[ic];
+    precise float difference=y-x;
+    precise float term;
+    // Match ATen/native/Lerp.h, including weights near one and nonfinite data.
+    if(abs(weight)<0.5) {term=weight*difference;result=x+term;}
+    else {term=difference*(1.0-weight);result=y-term;}
+  } else if(p.op<=3) {
+    // CPU pointwise order: self + value * tensor1 * tensor2 (or / tensor2).
+    precise float term=multiply(value,y);
+    if(p.op==2)term=multiply(term,c[ic]);else term=divide_refined(term,c[ic]);
+    result=x+term;
+  } else {
+    // Integer selection prevents min/max lowering from changing a zero tie.
+    uint ux=floatBitsToUint(x),uy=floatBitsToUint(y);
+    bool first=isnan(x) || (!isnan(y) && (p.op==5?x<=y:x>=y));
+    outv[io]=first?ux:uy;return;
+  }
+  outv[io]=floatBitsToUint(result);
+}

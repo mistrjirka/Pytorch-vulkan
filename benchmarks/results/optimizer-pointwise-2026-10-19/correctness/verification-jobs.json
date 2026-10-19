@@ -1,0 +1,63 @@
+{
+  "session_id": "s_2ec8e7c05f2dbfa8",
+  "jobs": [
+    {
+      "job_id": "j_7e8725f8da8e282f",
+      "exit_code": 0,
+      "status": "finished",
+      "duration_ms": 91056.321,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-optimizer-full-rtx.log 2>&1\nTORCH_VULKAN_FORBID_CPU_FALLBACK=1 .venv/bin/python -m pytest -q tests/test_optimizer_pointwise.py tests/test_complete_training_primitives.py > /tmp/pv-optimizer-focused-rtx.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/correctness/upstream-rtx-final --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ > /tmp/pv-optimizer-upstream-rtx.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_3e4c971e2a45d761",
+      "exit_code": 0,
+      "status": "finished",
+      "duration_ms": 76059.425,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-optimizer-full-v100.log 2>&1\nTORCH_VULKAN_FORBID_CPU_FALLBACK=1 .venv/bin/python -m pytest -q tests/test_optimizer_pointwise.py tests/test_complete_training_primitives.py > /tmp/pv-optimizer-focused-v100.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/correctness/upstream-v100-final --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ > /tmp/pv-optimizer-upstream-v100.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_9aafaefcb63e4a1f",
+      "exit_code": 0,
+      "status": "finished",
+      "duration_ms": 107378.03,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-optimizer-full-lvp.log 2>&1\nTORCH_VULKAN_FORBID_CPU_FALLBACK=1 .venv/bin/python -m pytest -q tests/test_optimizer_pointwise.py tests/test_complete_training_primitives.py > /tmp/pv-optimizer-focused-lvp.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/correctness/upstream-lvp-final --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ > /tmp/pv-optimizer-upstream-lvp.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX",
+        "VK_ICD_FILENAMES"
+      ]
+    }
+  ],
+  "device_mapping": [
+    {
+      "job_id": "j_7e8725f8da8e282f",
+      "physical_device_index": 0,
+      "device": "RTX 2080 Ti"
+    },
+    {
+      "job_id": "j_3e4c971e2a45d761",
+      "physical_device_index": 1,
+      "device": "Tesla V100"
+    },
+    {
+      "job_id": "j_9aafaefcb63e4a1f",
+      "physical_device_index": 0,
+      "device": "Lavapipe",
+      "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json"
+    }
+  ]
+}

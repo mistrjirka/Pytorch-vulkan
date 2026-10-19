@@ -1,0 +1,35 @@
+{
+  "rtx": {
+    "outcomes": {
+      "error": 4,
+      "passed": 67,
+      "expected_failure": 2
+    },
+    "status_changes": [],
+    "source_identity": "recorded_after_build",
+    "backend_source_sha256": "ce27f6fc64fdac42713340fde1ed1afdaf3ed684ae2ffe9e3c621d2ad606562e",
+    "extension_sha256": "7e0c103349289166b5402329402bcdc660cfdced19b5e4a956afa5810ab1aec2"
+  },
+  "v100": {
+    "outcomes": {
+      "error": 4,
+      "passed": 67,
+      "expected_failure": 2
+    },
+    "status_changes": [],
+    "source_identity": "recorded_after_build",
+    "backend_source_sha256": "ce27f6fc64fdac42713340fde1ed1afdaf3ed684ae2ffe9e3c621d2ad606562e",
+    "extension_sha256": "7e0c103349289166b5402329402bcdc660cfdced19b5e4a956afa5810ab1aec2"
+  },
+  "lvp": {
+    "outcomes": {
+      "error": 4,
+      "passed": 67,
+      "expected_failure": 2
+    },
+    "status_changes": [],
+    "source_identity": "recorded_after_build",
+    "backend_source_sha256": "ce27f6fc64fdac42713340fde1ed1afdaf3ed684ae2ffe9e3c621d2ad606562e",
+    "extension_sha256": "7e0c103349289166b5402329402bcdc660cfdced19b5e4a956afa5810ab1aec2"
+  }
+}
