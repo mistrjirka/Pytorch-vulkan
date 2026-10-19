@@ -9,7 +9,7 @@ namespace {
 using namespace native;
 at::Tensor& eye_out(int64_t n,int64_t m,at::Tensor& out){
  TORCH_CHECK(n>=0,"n must be greater or equal to 0, got ",n);TORCH_CHECK(m>=0,"m must be greater or equal to 0, got ",m);
- TORCH_CHECK((out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong||out.scalar_type()==at::kComplexFloat),"Vulkan eye requires nonnegative sizes and FP32/complex64/int32/int64 output");
+ TORCH_CHECK((out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong||out.scalar_type()==at::kComplexFloat||out.scalar_type()==at::kBool||out.scalar_type()==at::kByte||out.scalar_type()==at::kChar||out.scalar_type()==at::kShort),"Vulkan eye requires nonnegative sizes and FP32/complex64/int32/int64 output");
  out.resize_({n,m});at::assert_no_internal_overlap(out);out.zero_();if(std::min(n,m)>0)out.as_strided({std::min(n,m)},{out.stride(0)+out.stride(1)}).fill_(1);return out;
 }
 at::Tensor& eye_square(int64_t n,at::Tensor& out){return eye_out(n,n,out);}
@@ -18,26 +18,28 @@ void check_info(const at::Tensor& info,c10::string_view api,bool matrix){
  at::native::_linalg_check_errors(info.cpu(),api,matrix);
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor> lu_factor(const at::Tensor& a,bool pivot,bool check_errors){
- TORCH_CHECK(a.dim()>=2&&a.scalar_type()==at::kFloat&&can_pack_view(a),"Vulkan LU requires rank>=2 packable FP32 matrices");
+ TORCH_CHECK(a.dim()>=2&&(a.scalar_type()==at::kFloat||a.scalar_type()==at::kComplexFloat)&&can_pack_view(a),"Vulkan LU requires rank>=2 packable FP32/complex64 matrices");
  auto lu=at::empty(a.sizes(),a.options());int64_t m=a.size(-2),n=a.size(-1),k=std::min(m,n);
  auto batch=a.sizes().vec();batch.resize(a.dim()-2);auto pivshape=batch;pivshape.push_back(k);
  auto piv=at::empty(pivshape,a.options().dtype(at::kInt)),info=at::empty(batch,a.options().dtype(at::kInt));
  if(!info.numel())return {lu,piv,info};
  if(!k){info.zero_();return {lu,piv,info};}
- run("lu_factor",{base(packed(a))},{write_base(lu),write_base(piv,at::kInt),write_base(info,at::kInt)},
-  {u32(info.numel()),u32(m),u32(n),uint32_t(pivot)},info.numel(),8);
+ auto input=packed(a,a.scalar_type());
+ run(a.is_complex()?"lu_factor_complex":"lu_factor",{base(input,a.scalar_type())},{write_base(lu,a.scalar_type()),write_base(piv,at::kInt),write_base(info,at::kInt)},
+  {u32(info.numel()),u32(m),u32(n),uint32_t(pivot)},info.numel(),a.is_complex()?16:8);
  if(check_errors)check_info(info,"torch.linalg.lu_factor_ex",a.dim()==2);return {lu,piv,info};
 }
 at::Tensor lu_solve(const at::Tensor& lu,const at::Tensor& piv,const at::Tensor& b,bool left,bool adjoint){
- TORCH_CHECK(piv.dim()>=1&&lu.dim()>=2&&lu.size(-2)==lu.size(-1)&&b.dim()>=2&&b.scalar_type()==at::kFloat&&lu.scalar_type()==at::kFloat&&piv.scalar_type()==at::kInt&&lu.device()==b.device()&&piv.device()==lu.device(),"LU solve input mismatch");
+ TORCH_CHECK(piv.dim()>=1&&lu.dim()>=2&&lu.size(-2)==lu.size(-1)&&b.dim()>=2&&b.scalar_type()==lu.scalar_type()&&(lu.scalar_type()==at::kFloat||lu.scalar_type()==at::kComplexFloat)&&piv.scalar_type()==at::kInt&&lu.device()==b.device()&&piv.device()==lu.device(),"LU solve input mismatch");
  TORCH_CHECK(piv.sizes().slice(0,piv.dim()-1)==lu.sizes().slice(0,lu.dim()-2),"LU pivots batch shape mismatch");
  int64_t n=lu.size(-1);TORCH_CHECK((left?b.size(-2):b.size(-1))==n&&piv.dim()==lu.dim()-1&&piv.size(-1)==n,"LU solve shape mismatch");
  auto rhs=left?b:b.transpose(-2,-1);auto lb=lu.sizes().slice(0,lu.dim()-2),bb=rhs.sizes().slice(0,rhs.dim()-2);auto shape=at::infer_size_dimvector(lb,bb);auto ls=shape,ps=shape,bs=shape;ls.push_back(n);ls.push_back(n);ps.push_back(n);bs.push_back(n);bs.push_back(rhs.size(-1));
  auto out=at::empty(bs,b.options());if(!out.numel())return left?out:out.transpose(-2,-1);
- auto l=packed(lu.expand(ls)),p=packed(piv.expand(ps),at::kInt),r=packed(rhs.expand(bs));int64_t cols=rhs.size(-1),batch=out.numel()/(n*cols);
- auto flags=at::empty({std::min<int64_t>(256,(p.numel()+4095)/4096)},lu.options());run("lu_validate",{base(p,at::kInt)},{write_base(flags)},{u32(p.numel()),u32(n)},flags.numel(),4);TORCH_CHECK((flags.numel()==1?flags:flags.sum()).cpu().item<float>()==0,"LU pivot index out of range");
- run("lu_solve",{base(l),base(p,at::kInt),base(r)},{write_base(out)},
-  {u32(batch),u32(n),u32(cols),uint32_t(left?adjoint:!adjoint)},(batch*cols+127)/128);
+ auto l=packed(lu.expand(ls),lu.scalar_type()),p=packed(piv.expand(ps),at::kInt),r=packed(rhs.expand(bs),b.scalar_type());int64_t cols=rhs.size(-1),batch=out.numel()/(n*cols);
+ auto flags=at::empty({std::min<int64_t>(256,(p.numel()+4095)/4096)},lu.options().dtype(at::kFloat));run("lu_validate",{base(p,at::kInt)},{write_base(flags)},{u32(p.numel()),u32(n)},flags.numel(),4);TORCH_CHECK((flags.numel()==1?flags:flags.sum()).cpu().item<float>()==0,"LU pivot index out of range");
+ std::vector<uint32_t> parameters{u32(batch),u32(n),u32(cols),uint32_t(left?adjoint:!adjoint)};
+ if(lu.is_complex())parameters.push_back(uint32_t(adjoint));
+ run(lu.is_complex()?"lu_solve_complex":"lu_solve",{base(l,lu.scalar_type()),base(p,at::kInt),base(r,b.scalar_type())},{write_base(out,out.scalar_type())},parameters,(batch*cols+127)/128);
  return left?out:out.transpose(-2,-1);
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> solve_ex(const at::Tensor& a,const at::Tensor& b,bool left,bool check_errors){
@@ -174,4 +176,28 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> ldl_factor_native(const at::Tensor&
 at::Tensor ldl_solve_native(const at::Tensor& ld,const at::Tensor& pivots,const at::Tensor& b,bool){TORCH_CHECK(ld.dim()>=2&&ld.size(-1)==ld.size(-2),"torch.linalg.ldl_solve: LD must be batches of square matrices");TORCH_CHECK(b.dim()>=2&&b.size(-2)==ld.size(-1),"torch.linalg.ldl_solve: Incompatible matrix sizes for LD and B");TORCH_CHECK(ld.scalar_type()==at::kFloat&&b.scalar_type()==at::kFloat&&pivots.scalar_type()==at::kInt,"Vulkan LDL solve requires FP32 matrices and int32 pivots");TORCH_CHECK(ld.device()==b.device()&&ld.device()==pivots.device(),"LD, pivots and B must have the same device");TORCH_CHECK(pivots.dim()==ld.dim()-1&&pivots.sizes()==ld.sizes().slice(0,ld.dim()-1),"LDL pivots shape mismatch");auto batch=at::infer_size_dimvector(ld.sizes().slice(0,ld.dim()-2),b.sizes().slice(0,b.dim()-2));auto n=ld.size(-1),rhs=b.size(-1);auto shape=batch;shape.push_back(n);shape.push_back(rhs);auto out=at::empty(shape,b.options());if(!out.numel())return out;auto matrix_shape=batch;matrix_shape.push_back(n);matrix_shape.push_back(n);auto pivot_shape=batch;pivot_shape.push_back(n);auto a=packed(ld.expand(matrix_shape)),p=packed(pivots.expand(pivot_shape),at::kInt),input=packed(b.expand(shape));auto status=at::zeros({1},b.options().dtype(at::kInt));run("ldl_solve_general",{base(a),base(p,at::kInt),base(input)},{write_base(out),write_base(status,at::kInt)},{u32(out.numel()/(n*rhs)),u32(n),u32(rhs),u32((rhs+127)/128)},(out.numel()/(n*rhs))*((rhs+127)/128));TORCH_CHECK(status.cpu().item<int32_t>()==0,"LDL pivot index is invalid");return out;}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_ldl_factor_ex",&ldl_factor_native);m.impl("linalg_ldl_solve",&ldl_solve_native);}
+}
+
+namespace torch_vulkan::ops {namespace {
+std::tuple<at::Tensor,at::Tensor> eig_real_native(const at::Tensor& x){
+ at::native::squareCheckInputs(x,"linalg.eig");
+ at::native::checkFloatingOrComplex(x,"linalg.eig",false);
+ TORCH_CHECK(x.scalar_type()==at::kFloat&&can_pack_view(x),"Vulkan linalg.eig requires packable FP32 matrices");
+ auto shape=x.sizes().vec();shape.pop_back();auto n=x.size(-1);
+ auto values=at::empty(shape,x.options().dtype(at::kComplexFloat));
+ auto vectors=at::empty(x.sizes(),x.options().dtype(at::kComplexFloat));
+ if(x.numel()){
+  auto input=packed(x),work=at::empty(x.sizes(),x.options()),ort=at::empty({values.numel()*2},x.options());
+  shape.resize(x.dim()-2);auto info=at::empty(shape,x.options().dtype(at::kInt));
+  run("eig_general",{base(input)},{write_base(values,at::kComplexFloat),write_base(vectors,at::kComplexFloat),write_base(work),write_base(ort),write_base(info,at::kInt)},
+      {u32(info.numel()),u32(n)},(info.numel()+127)/128);
+  // Only convergence/status integers leave the device, never the matrices.
+  auto status=info.cpu();TORCH_CHECK(!at::any(status.lt(0)).item<bool>(),"torch.linalg.eig: input tensor should not contain infs or NaNs");
+  at::native::_linalg_check_errors(status,"torch.linalg.eig",x.dim()==2);
+ }
+ return {values,vectors};
+}
+at::Tensor eigvals_real_native(const at::Tensor& x){return std::get<0>(eig_real_native(x));}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_eig",&eig_real_native);m.impl("_linalg_eigvals",&eigvals_real_native);}
 }

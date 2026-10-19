@@ -30,3 +30,10 @@ v3.12.1. The permissive modified BSD notice is retained in
 `licenses/lapack-LICENSE.txt` and included by package license metadata.
 Pinned source and license hashes are in `lapack/NOTICE.md`. The Vulkan buffer,
 parallel update, synchronization and device dispatch code is backend-specific.
+
+## JAMA 1.0.3
+
+The general real eigenvalue shader adapts the public-domain NIST/MathWorks
+JAMA Hessenberg/Schur routines. Original source, release metadata and changes
+are documented in [jama/NOTICE.md](jama/NOTICE.md). The distribution notice is
+in [licenses/jama-PUBLIC-DOMAIN.txt](licenses/jama-PUBLIC-DOMAIN.txt).

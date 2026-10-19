@@ -155,7 +155,7 @@ at::Tensor to_compressed_native(const at::Tensor& raw,at::Layout layout,at::Opti
  using namespace native;TORCH_CHECK(compressed_layout(layout),"expected a sparse compressed layout");
  if(raw.layout()==layout&&!blocked_layout(layout))return raw;
  auto x=raw.layout()==at::kStrided?raw:raw.to_dense();auto dense=requested_dense.value_or(0);
- TORCH_CHECK(x.dim()>=2&&dense>=0&&dense<=x.dim()-2,"dense_to_sparse_compressed: invalid dense_dim or matrix rank");TORCH_CHECK(value_dtype(x.scalar_type()),"Vulkan sparse compressed values require a supported dtype");
+ TORCH_CHECK(x.dim()>=2&&dense>=0&&dense<=x.dim()-2,"dense_to_sparse_compressed: invalid dense_dim or matrix rank");TORCH_CHECK(value_dtype(x.scalar_type()),"Vulkan sparse compressed values require a supported dtype; got ",x.scalar_type());
  auto batch_dims=x.dim()-2-dense,batch=product(x.sizes().slice(0,batch_dims));int64_t br=1,bc=1;
  if(blocked_layout(layout)){TORCH_CHECK(block&&block->size()==2,"blocksize needs to be a tuple of size 2");br=(*block)[0];bc=(*block)[1];}
  TORCH_CHECK(br>0&&bc>0&&x.size(batch_dims)%br==0&&x.size(batch_dims+1)%bc==0,"matrix sizes must be divisible by positive block sizes");

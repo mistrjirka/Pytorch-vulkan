@@ -40,7 +40,7 @@ at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> t
   auto integers=at::empty(out.sizes(),out.options().dtype(at::kLong));
   integer_random(integers,from,upper,generator);copy_on_device(out,integers);return out;
  }
- TORCH_CHECK((out.scalar_type()==at::kInt||out.scalar_type()==at::kLong)&&can_pack_view(out),"Vulkan integer RNG supports int32/int64 output");at::assert_no_internal_overlap(out);
+ TORCH_CHECK((out.scalar_type()==at::kInt||out.scalar_type()==at::kLong)&&can_pack_view(out),"Vulkan integer RNG supports int32/int64 output; got ",out.scalar_type());at::assert_no_internal_overlap(out);
  __int128 upper=to?__int128(*to):(out.scalar_type()==at::kInt?__int128(INT32_MAX)+1:__int128(INT64_MAX)+1);
  TORCH_CHECK(upper>from,"random_ expects from < to");if(out.scalar_type()==at::kInt)TORCH_CHECK(from>=INT32_MIN&&upper<=__int128(INT32_MAX)+1,"random range exceeds int32");
  if(!out.numel())return out;__uint128_t range=upper-__int128(from),mask=1;while(mask<range)mask<<=1;mask-=1;

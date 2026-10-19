@@ -16,13 +16,13 @@ inline bool batch_norm_resize_enabled() {
 }
 // Inline CPU implementations must obey the same strict gate as dispatcher fallback.
 // Explicit user transfers and scalar validation/status downloads do not use this.
-inline void cpu_fallback_check(const char* operation) {
+inline void cpu_fallback_check(const char* operation,const std::string& context={}) {
   audit::fallback_calls.fetch_add(1);
   TORCH_CHECK(!std::getenv("TORCH_VULKAN_FORBID_CPU_FALLBACK"),
-              "CPU fallback forbidden: Vulkan inline::",operation);
+              "CPU fallback forbidden: Vulkan inline::",operation,context.empty()?"":"\n",context);
 }
 inline at::Tensor cpu_fallback_tensor(const at::Tensor& t,const char* operation) {
-  cpu_fallback_check(operation);return t.cpu();
+  cpu_fallback_check(operation,std::string("input dtype: ")+c10::toString(t.scalar_type()));return t.cpu();
 }
 using Buffer = std::shared_ptr<kp::Tensor>;
 inline uint32_t u32(int64_t v) {

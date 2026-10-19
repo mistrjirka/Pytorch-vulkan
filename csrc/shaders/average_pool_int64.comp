@@ -1,0 +1,26 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "integer64_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uvec2 x[];};
+layout(binding=1) writeonly buffer Y {uvec2 y[];};
+layout(push_constant) uniform P {uint planes,id,ih,iw,od,oh,ow,kd,kh,kw,sd,sh,sw,pd,ph,pw,backward,include_padding,divisor_lo,divisor_hi,has_divisor;}p;
+void window(ivec3 outpos,out ivec3 low,out ivec3 high,out uvec2 divisor){
+ ivec3 input_size=ivec3(p.id,p.ih,p.iw),pad=ivec3(p.pd,p.ph,p.pw),kernel=ivec3(p.kd,p.kh,p.kw),stride=ivec3(p.sd,p.sh,p.sw);
+ ivec3 start=outpos*stride-pad,end=min(start+kernel,input_size+pad),padded=end-start;
+ low=max(start,ivec3(0));high=min(end,input_size);ivec3 valid=max(high-low,ivec3(0));ivec3 count=p.include_padding!=0u?padded:valid;
+ divisor=p.has_divisor!=0u?uvec2(p.divisor_lo,p.divisor_hi):times64(times64(uvec2(uint(count.x),0u),uvec2(uint(count.y),0u)),uvec2(uint(count.z),0u));
+}
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;
+ if(p.backward==0u){
+  uint volume=p.od*p.oh*p.ow;if(i>=p.planes*volume)return;uint plane=i/volume,local=i%volume;ivec3 pos=ivec3(local/(p.oh*p.ow),(local/p.ow)%p.oh,local%p.ow),lo,hi;uvec2 divisor;window(pos,lo,hi,divisor);uvec2 sum=uvec2(0u);
+  for(int z=lo.x;z<hi.x;z++)for(int h=lo.y;h<hi.y;h++)for(int w=lo.z;w<hi.z;w++)sum=plus64(sum,x[((plane*p.id+uint(z))*p.ih+uint(h))*p.iw+uint(w)]);
+  y[i]=divide_trunc64(sum,divisor);return;
+ }
+ uint volume=p.id*p.ih*p.iw;if(i>=p.planes*volume)return;uint plane=i/volume,local=i%volume;
+ ivec3 pos=ivec3(local/(p.ih*p.iw),(local/p.iw)%p.ih,local%p.iw),pad=ivec3(p.pd,p.ph,p.pw),stride=ivec3(p.sd,p.sh,p.sw),kernel=ivec3(p.kd,p.kh,p.kw);
+ ivec3 lower=max(ivec3(0),(pos+pad-kernel+stride)/stride),upper=min(ivec3(p.od,p.oh,p.ow)-1,(pos+pad)/stride);uvec2 sum=uvec2(0u);
+ for(int z=lower.x;z<=upper.x;z++)for(int h=lower.y;h<=upper.y;h++)for(int w=lower.z;w<=upper.z;w++){ivec3 lo,hi;uvec2 divisor;window(ivec3(z,h,w),lo,hi,divisor);sum=plus64(sum,divide_trunc64(x[((plane*p.od+uint(z))*p.oh+uint(h))*p.ow+uint(w)],divisor));}
+ y[i]=sum;
+}

@@ -1,0 +1,59 @@
+// Integer linspace follows ATen's binary64 scalar interpolation contract.
+// Original word arithmetic: no shaderFloat64 or shaderInt64 capability needed.
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "integer64_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) writeonly buffer Y {uvec2 values[];};
+layout(push_constant) uniform P {uint count,alo,ahi,blo,bhi,slo,shi;}p;
+uvec2 shift_left(uvec2 v,uint d){if(d==0u)return v;if(d<32u)return uvec2(v.x<<d,(v.y<<d)|(v.x>>(32u-d)));if(d<64u)return uvec2(0u,v.x<<(d-32u));return uvec2(0u);}
+uvec2 shift_right(uvec2 v,uint d){if(d==0u)return v;if(d<32u)return uvec2((v.x>>d)|(v.y<<(32u-d)),v.y>>d);if(d<64u)return uvec2(v.y>>(d-32u),0u);return uvec2(0u);}
+uvec2 shift_jam(uvec2 v,uint d){if(d==0u)return v;uvec2 q=shift_right(v,d);bool lost=d<32u?(v.x<<(32u-d))!=0u:d==32u?v.x!=0u:d<64u?(v.x!=0u||(v.y<<(64u-d))!=0u):any(notEqual(v,uvec2(0u)));q.x|=uint(lost);return q;}
+int highest(uvec2 v){return v.y!=0u?32+findMSB(v.y):findMSB(v.x);}
+bool zero_bits(uvec2 v){return ((v.y&0x7fffffffu)|v.x)==0u;}
+uvec2 significand(uvec2 v){return uvec2(v.x,(v.y&0xfffffu)|0x100000u);}
+uvec2 rounded(uint sign,int exponent,uvec2 extended){
+ if(all(equal(extended,uvec2(0u))))return uvec2(0u);
+ int delta=highest(extended)-55;
+ extended=delta>0?shift_jam(extended,uint(delta)):shift_left(extended,uint(-delta));exponent+=delta;
+ uint tail=extended.x&7u;uvec2 m=shift_right(extended,3u);
+ if(tail>4u||(tail==4u&&(m.x&1u)!=0u))m=plus64(m,uvec2(1u,0u));
+ if((m.y&0x200000u)!=0u){m=shift_right(m,1u);exponent++;}
+ return uvec2(m.x,sign|(uint(exponent)<<20)|(m.y&0xfffffu));
+}
+uvec3 left96(uvec3 v,uint d){uvec3 q=uvec3(0u);if(d>=96u)return q;uint words=d/32u,bits=d%32u;for(uint i=0u;i<3u;i++){if(i<words)continue;uint j=i-words;q[i]=v[j]<<bits;if(bits!=0u&&j>0u)q[i]|=v[j-1u]>>(32u-bits);}return q;}
+uvec3 right96(uvec3 v,uint d){uvec3 q=uvec3(0u);if(d>=96u)return q;uint words=d/32u,bits=d%32u;for(uint i=0u;i<3u;i++){uint j=i+words;if(j>=3u)continue;q[i]=v[j]>>bits;if(bits!=0u&&j+1u<3u)q[i]|=v[j+1u]<<(32u-bits);}return q;}
+uvec3 jam96(uvec3 v,uint d){uvec3 q=right96(v,d);q.x|=uint(any(notEqual(left96(q,d),v)));return q;}
+uvec3 add96(uvec3 a,uvec3 b){uvec3 q;uint carry=0u;for(uint i=0u;i<3u;i++){uint t=a[i]+b[i];bool overflow=t<a[i];q[i]=t+carry;carry=uint(overflow||q[i]<t);}return q;}
+uvec3 sub96(uvec3 a,uvec3 b){uvec3 q;uint borrow=0u;for(uint i=0u;i<3u;i++){uint t=a[i]-b[i];bool underflow=a[i]<b[i];q[i]=t-borrow;borrow=uint(underflow||t<borrow);}return q;}
+bool less96(uvec3 a,uvec3 b){return a.z==b.z?(a.y==b.y?a.x<b.x:a.y<b.y):a.z<b.z;}
+int highest96(uvec3 v){return v.z!=0u?64+findMSB(v.z):highest(v.xy);}
+uvec2 fused_index(uvec2 step,uint i,uvec2 endpoint){
+ if(i==0u||zero_bits(step))return endpoint;
+ uvec2 m=significand(step);uint hi0,lo0,hi1,lo1;umulExtended(m.x,i,hi0,lo0);umulExtended(m.y,i,hi1,lo1);
+ uint middle=hi0+lo1;uvec3 product=uvec3(lo0,middle,hi1+uint(middle<hi0));int pos=highest96(product);
+ int exponent=int((step.y>>20)&0x7ffu)+pos-52;uint sign=step.y&0x80000000u;
+ product=left96(product,uint(94-pos));
+ if(!zero_bits(endpoint)){
+  int ee=int((endpoint.y>>20)&0x7ffu);uint se=endpoint.y&0x80000000u;uvec3 other=left96(uvec3(significand(endpoint),0u),42u);
+  if(exponent<ee){uvec3 t=product;product=other;other=t;int e=exponent;exponent=ee;ee=e;uint st=sign;sign=se;se=st;}
+  other=jam96(other,uint(exponent-ee));
+  if(sign==se)product=add96(product,other);
+  else if(less96(product,other)){product=sub96(other,product);sign=se;}
+  else product=sub96(product,other);
+ }
+ if(all(equal(product,uvec3(0u))))return uvec2(0u);
+ pos=highest96(product);uvec3 ext=pos>55?jam96(product,uint(pos-55)):left96(product,uint(55-pos));
+ return rounded(sign,exponent+pos-94,ext.xy);
+}
+uvec2 to_integer(uvec2 v){
+ if(zero_bits(v))return uvec2(0u);int e=int((v.y>>20)&0x7ffu)-1023;if(e<0)return uvec2(0u);
+ // ATen's CPU binary64-to-int64 conversion uses the signed minimum on overflow.
+ if(e>=63)return uvec2(0u,0x80000000u);
+ uvec2 m=significand(v);m=e>=52?shift_left(m,uint(e-52)):shift_right(m,uint(52-e));return (v.y&0x80000000u)!=0u?neg64(m):m;
+}
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;
+ bool first=i<p.count/2u;uvec2 step=uvec2(p.slo,p.shi);if(!first)step.y^=0x80000000u;
+ values[i]=to_integer(fused_index(step,first?i:p.count-i-1u,first?uvec2(p.alo,p.ahi):uvec2(p.blo,p.bhi)));
+}

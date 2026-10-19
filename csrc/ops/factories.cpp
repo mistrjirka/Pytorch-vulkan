@@ -20,12 +20,15 @@ at::Tensor& arange_out(const at::Scalar& start,const at::Scalar& end,const at::S
  double a=start.toDouble(),b=end.toDouble(),s=step.toDouble();
  TORCH_CHECK(s!=0,"step must be nonzero");TORCH_CHECK(std::isfinite(a)&&std::isfinite(b)&&std::isfinite(s),"unsupported range: non-finite bounds or step");
  TORCH_CHECK((s>0&&b>=a)||(s<0&&b<=a),"upper bound and larger bound inconsistent with step sign");
+ if(out.scalar_type()==at::kByte||out.scalar_type()==at::kChar||out.scalar_type()==at::kShort){
+  auto values=at::empty({0},out.options().dtype(at::kLong));arange_out(start,end,step,values);at::assert_no_internal_overlap(out);at::native::resize_output(out,values.sizes());out.copy_(values);return out;
+ }
  bool integer=out.scalar_type()==at::kLong||out.scalar_type()==at::kInt;
- TORCH_CHECK(integer||out.scalar_type()==at::kFloat,"Vulkan arange supports FP32/int32/int64");
+ TORCH_CHECK(integer||out.scalar_type()==at::kFloat,"Vulkan arange supports FP32/int32/int64; got ",out.scalar_type());
  uint64_t n;
  int64_t ia=0,is=0;
- if(integer){ia=start.toLong();auto ib=end.toLong();is=step.toLong();TORCH_CHECK(is,"step must be nonzero");__int128 d=__int128(ib)-ia;if(is<0)d=-d;auto delta=is<0?-__int128(is):__int128(is);TORCH_CHECK(d>=0,"upper bound and larger bound inconsistent with step sign");auto count=(d+delta-1)/delta;TORCH_CHECK(count<=UINT32_MAX,"arange exceeds Vulkan indexing limits");n=count;}
- else {double count=std::ceil((b-a)/s);TORCH_CHECK(count>=0&&count<=UINT32_MAX,"arange exceeds Vulkan indexing limits");n=uint64_t(count);}
+ if(integer&&start.isIntegral(false)&&end.isIntegral(false)&&step.isIntegral(false)){ia=start.toLong();auto ib=end.toLong();is=step.toLong();TORCH_CHECK(is,"step must be nonzero");__int128 d=__int128(ib)-ia;if(is<0)d=-d;auto delta=is<0?-__int128(is):__int128(is);TORCH_CHECK(d>=0,"upper bound and larger bound inconsistent with step sign");auto count=(d+delta-1)/delta;TORCH_CHECK(count<=UINT32_MAX,"arange exceeds Vulkan indexing limits");n=count;}
+ else {double count=std::ceil((b-a)/s);TORCH_CHECK(count>=0&&count<=UINT32_MAX,"arange exceeds Vulkan indexing limits");n=uint64_t(count);if(integer){ia=start.toLong();is=step.toLong();}}
  at::assert_no_internal_overlap(out);at::native::resize_output(out,{int64_t(n)});if(!n)return out;
  auto value=at::empty({int64_t(n)},out.options());uint64_t aa=uint64_t(ia),ss=uint64_t(is);
  run("sequence_factory",{},{write_base(value,value.scalar_type())},{u32(n),integer?uint32_t(out.element_size()/4):0u,0,bits(float(a)),bits(float(s)),uint32_t(aa),uint32_t(aa>>32),uint32_t(ss),uint32_t(ss>>32)},(n+127)/128);out.copy_(value);return out;
@@ -33,8 +36,15 @@ at::Tensor& arange_out(const at::Scalar& start,const at::Scalar& end,const at::S
 at::Tensor& arange_end(const at::Scalar& end,at::Tensor& out){return arange_out(0,end,1,out);}
 at::Tensor& linspace_out(const at::Scalar& start,const at::Scalar& end,int64_t steps,at::Tensor& out){
  TORCH_CHECK(steps>=0,"number of steps must be non-negative");u32(steps);
- TORCH_CHECK(out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong,"Vulkan linspace supports FP32/int32/int64");
+ TORCH_CHECK(out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong||out.scalar_type()==at::kByte||out.scalar_type()==at::kChar||out.scalar_type()==at::kShort,"Vulkan linspace supports FP32/integer output; got ",out.scalar_type());
  at::assert_no_internal_overlap(out);at::native::resize_output(out,{steps});if(!steps)return out;
+ if(out.scalar_type()!=at::kFloat){
+  if(steps==1){out.fill_(start);return out;}
+  auto endpoint=[&](const at::Scalar& v)->int64_t{switch(out.scalar_type()){case at::kByte:return v.toByte();case at::kChar:return v.toChar();case at::kShort:return v.toShort();case at::kInt:return v.toInt();default:return v.toLong();}};
+  double a=double(endpoint(start)),b=double(endpoint(end)),step=(b-a)/double(steps-1);
+  auto words=[](double v){uint64_t raw;std::memcpy(&raw,&v,8);return std::array<uint32_t,2>{uint32_t(raw),uint32_t(raw>>32)};};auto aa=words(a),bb=words(b),ss=words(step);
+  auto value=at::empty({steps},out.options().dtype(at::kLong));run("linspace_integer",{},{write_base(value,at::kLong)},{u32(steps),aa[0],aa[1],bb[0],bb[1],ss[0],ss[1]},(steps+127)/128);out.copy_(value);return out;
+ }
  auto value=at::empty({steps},out.options().dtype(at::kFloat));
  run("sequence_factory",{},{write_base(value)},{u32(steps),0,1,bits(start.toFloat()),bits(end.toFloat()),0,0,0,0},(steps+127)/128);out.copy_(value);return out;
 }

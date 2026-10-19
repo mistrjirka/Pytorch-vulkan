@@ -1,0 +1,120 @@
+{
+  "runtime_equivalence_from_preformat_source": {
+    "before_source_sha256": "8f5af46fde08d07f30b2f25c8d50ba6a89cf96a93f5fe5c0923e8266923de3c1",
+    "after_source_sha256": "54cf7d18d36653fdb8677a82098b46d134140e57e83c4c284bf95c6fa0fa80ac",
+    "changed_source_files": [
+      "csrc/shaders/eig_general.comp"
+    ],
+    "same_extension_sha256": "5fac11ed9dd991ffab1376f1439dba28cd4baf64e6e81a9966a559bb208ae0cd",
+    "same_eig_spirv_sha256": "f341669080a11988b6fe01928cc6e83d6ccaa28f99368433ca20f627375a80d8",
+    "all_runtime_spirv_python_and_extension_bytes_unchanged": true
+  },
+  "scope": "Focused native fixes and portability checks; full current-source audit remains pending",
+  "backend_source_sha256": "54cf7d18d36653fdb8677a82098b46d134140e57e83c4c284bf95c6fa0fa80ac",
+  "strict_regressions_each_device": 1588,
+  "ordinary_repository_rtx": {
+    "passed": 3332
+  },
+  "ordinary_repository_lvp": {
+    "passed": 3331,
+    "skipped": 1
+  },
+  "strict_repository_v100": {
+    "passed": 3321,
+    "deferred_fp64_errors": 11
+  },
+  "runs": {
+    "focused56": {
+      "cases": 82,
+      "outcomes": {
+        "passed": 82
+      },
+      "backend_source_sha256": "481ac0603c642bec0724d36013353a24a867c9c979b6cac2a9358f12350e282c",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused57": {
+      "cases": 22,
+      "outcomes": {
+        "passed": 15,
+        "error": 7
+      },
+      "backend_source_sha256": "a75a4ec495632c444816e081cde6a41a1b1364df2fe55757319164abf5482c5e",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused58": {
+      "cases": 22,
+      "outcomes": {
+        "passed": 20,
+        "error": 2
+      },
+      "backend_source_sha256": "95d2dff520720bf92c3a194e96dec0a17fbcdcdf63242697018cebbf2ac771aa",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused59": {
+      "cases": 22,
+      "outcomes": {
+        "passed": 22
+      },
+      "backend_source_sha256": "65f15b767d65f08ad904cc6c1316967db2ac2c6891c1e5d58a9a24ef1c03af11",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused60": {
+      "cases": 22,
+      "outcomes": {
+        "passed": 22
+      },
+      "backend_source_sha256": "50738dec95bccea8636d0b4d328de945addca3d483d0ab27b12fee2efedf5544",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused62": {
+      "cases": 160,
+      "outcomes": {
+        "passed": 141,
+        "error": 8,
+        "skipped": 7,
+        "expected_failure": 4
+      },
+      "backend_source_sha256": "18b90555fdaee6151a7c474cf76fed06b14e32cc1d2b2ec91fd084c9e63c0538",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused63": {
+      "cases": 47,
+      "outcomes": {
+        "error": 15,
+        "passed": 24,
+        "skipped": 5,
+        "expected_failure": 3
+      },
+      "backend_source_sha256": "588a534e38f2e4afd548e6f64b3845794ccc804b215bdc015473be0bb7076bab",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused65": {
+      "cases": 368,
+      "outcomes": {
+        "error": 315,
+        "passed": 53
+      },
+      "backend_source_sha256": "aafaf0637625aa17a137e1a54e302fceb1234133bc1dbade4131e0feb789c11a",
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused66": {
+      "cases": 368,
+      "outcomes": {
+        "error": 314,
+        "passed": 54
+      },
+      "backend_source_sha256": "8f5af46fde08d07f30b2f25c8d50ba6a89cf96a93f5fe5c0923e8266923de3c1",
+      "passed_case_fallback_calls_or_attempts": 0
+    }
+  },
+  "rechecked_prior_errors": 368,
+  "recovered_prior_error_cases": 54,
+  "remaining_raw_errors": 314,
+  "remaining_case_classifications": {
+    "deferred_precision": 273,
+    "cross_device_rng_mask_comparison": 1,
+    "cuda_source_jit_gate": 40
+  },
+  "passed_case_fallback_calls_or_attempts": 0,
+  "interpretation": "Mixed-dtype fixture blockers, skips, xfails, xpasses and unvisited samples are not counted as passes."
+}

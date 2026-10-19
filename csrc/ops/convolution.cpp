@@ -465,7 +465,7 @@ static at::Tensor convolution_overrideable(
     c10::SymIntArrayRef stride, c10::SymIntArrayRef padding,
     c10::SymIntArrayRef dilation, bool transposed,
     c10::SymIntArrayRef output_padding, c10::SymInt groups) {
-  if(transposed || input.dim()==5) return convolution_nd(input,weight,bias,stride,padding,dilation,transposed,output_padding,groups);
+  if(transposed || input.dim()==5 || input.scalar_type()==at::kLong) return convolution_nd(input,weight,bias,stride,padding,dilation,transposed,output_padding,groups);
   auto p = convolution_params(input, weight, stride, padding, dilation,
                                transposed, output_padding, groups);
   const auto input_c=packed(input), weight_c=packed(weight);

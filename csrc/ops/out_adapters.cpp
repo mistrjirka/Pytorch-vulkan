@@ -17,7 +17,7 @@ struct NativeOut : c10::OperatorKernel {
   std::vector<at::Tensor> outputs;for(size_t i=stack->size()-noutputs;i<stack->size();i++){auto out=(*stack)[i].toTensor();at::assert_no_internal_overlap(out);for(const auto& previous:outputs)at::assert_no_overlap(out,previous);outputs.push_back(out);}
   if(name=="aten::hash_tensor")for(const auto& out:outputs)TORCH_CHECK(out.scalar_type()==at::kUInt64,"Expected result to be of dtype uint64, but got ",out.scalar_type());
   torch::jit::Stack args(stack->begin()+begin,stack->end()-noutputs);
-  if(name=="aten::aminmax"){auto dtype=args[0].toTensor().scalar_type();for(const auto& out:outputs)if(out.scalar_type()!=dtype){auto expected=std::string(c10::toString(dtype)),actual=std::string(c10::toString(out.scalar_type()));for(auto& c:expected)c=std::tolower(c);for(auto& c:actual)c=std::tolower(c);TORCH_CHECK(false,"Expected out tensor to have dtype ",expected,", but got ",actual," instead");}}
+  if(name=="aten::aminmax"||name=="aten::avg_pool2d"||name=="aten::avg_pool3d"){auto dtype=args[0].toTensor().scalar_type();for(const auto& out:outputs)if(out.scalar_type()!=dtype){auto expected=std::string(c10::toString(dtype)),actual=std::string(c10::toString(out.scalar_type()));for(auto& c:expected)c=std::tolower(c);for(auto& c:actual)c=std::tolower(c);TORCH_CHECK(false,"Expected out tensor to have dtype ",expected,", but got ",actual," instead");}}
 
   for(const auto& out:outputs)for(const auto& v:args){
     auto validate=[&](const at::Tensor& t){if(!t.defined())return;if(name=="aten::cat"){TORCH_CHECK(!t.is_same(out),"unsupported operation: some elements of the input tensor and the written-to tensor refer to a single memory location.");at::assert_no_overlap(out,t);}else if(name=="aten::kthvalue"||name=="aten::median"||name=="aten::nanmedian"||name=="aten::mode")at::assert_no_overlap(out,t);else at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
@@ -26,7 +26,7 @@ struct NativeOut : c10::OperatorKernel {
   const auto target=c10::Dispatcher::singleton().findSchemaOrThrow(name.c_str(),overload.c_str());
   TORCH_INTERNAL_ASSERT(target.schema().arguments().size()==args.size());target.callBoxed(&args);
   TORCH_INTERNAL_ASSERT(args.size()==outputs.size());
-  for(size_t i=0;i<outputs.size();i++){TORCH_INTERNAL_ASSERT(args[i].isTensor());TORCH_CHECK(c10::canCast(args[i].toTensor().scalar_type(),outputs[i].scalar_type()),"result type cannot be cast to the desired output type");}
+  for(size_t i=0;i<outputs.size();i++){TORCH_INTERNAL_ASSERT(args[i].isTensor());if(name=="aten::_chunk_cat"||name=="aten::cat")TORCH_CHECK_TYPE(c10::canCast(args[i].toTensor().scalar_type(),outputs[i].scalar_type()),"torch.cat(): input types can't be cast to the desired output type ",outputs[i].scalar_type());TORCH_CHECK(c10::canCast(args[i].toTensor().scalar_type(),outputs[i].scalar_type()),"result type cannot be cast to the desired output type");}
   for(size_t i=0;i<outputs.size();i++)for(size_t j=begin;j<stack->size()-noutputs;j++){
    auto check=[&](const at::Tensor& input){if(input.defined()&&input.is_same(outputs[i]))TORCH_CHECK(outputs[i].sizes()==args[i].toTensor().sizes(),"output with shape ",outputs[i].sizes()," does not match the broadcast shape ",args[i].toTensor().sizes());};
    if((*stack)[j].isTensor())check((*stack)[j].toTensor());else if((*stack)[j].isTensorList())for(const auto& t:(*stack)[j].toTensorVector())check(t);
@@ -63,6 +63,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  for(auto name:{"elu","hardshrink","softshrink","softplus","hardsigmoid","hardswish","mish","threshold","logit","glu","nan_to_num","mvlgamma","nonzero_static","trace","addbmm"})add((std::string(name)+".out").c_str(),name);
  add("elu_backward.grad_input","elu_backward");add("hardshrink_backward.grad_input","hardshrink_backward");add("softshrink_backward.grad_input","softshrink_backward");add("softplus_backward.grad_input","softplus_backward");add("hardsigmoid_backward.grad_input","hardsigmoid_backward");add("hardswish_backward.out","hardswish_backward");add("hardtanh_backward.grad_input","hardtanh_backward");add("logit_backward.grad_input","logit_backward");add("glu_backward.grad_input","glu_backward");add("rrelu_with_noise.out","rrelu_with_noise");add("rrelu_with_noise_backward.out","rrelu_with_noise_backward");
  add("_fft_r2c.out","_fft_r2c");add("_fft_c2c.out","_fft_c2c");add("_fft_c2r.out","_fft_c2r");add("conj_physical.out","_conj_physical");
+ add("linalg_eig.out","linalg_eig");add("linalg_eigvals.out","_linalg_eigvals");
  add("_linalg_det.result","_linalg_det");add("_linalg_slogdet.sign","_linalg_slogdet");add("_linalg_eigh.eigenvalues","_linalg_eigh");
  add("gelu_backward.grad_input","gelu_backward");add("complex.out","complex");add("polar.out","polar");
  add("geqrf.a","geqrf");add("ormqr.out","ormqr");add("linalg_householder_product.out","linalg_householder_product");add("linalg_qr.out","linalg_qr");
@@ -149,6 +150,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("fractional_max_pool2d.output","fractional_max_pool2d");add("fractional_max_pool3d.output","fractional_max_pool3d");add("fractional_max_pool2d_backward.grad_input","fractional_max_pool2d_backward");add("fractional_max_pool3d_backward.grad_input","fractional_max_pool3d_backward");
  add("_pdist_forward.out","_pdist_forward");add("_pdist_backward.out","_pdist_backward");add("log_sigmoid_forward.output","log_sigmoid_forward");add("log_sigmoid_backward.grad_input","log_sigmoid_backward");
  add("histc.out","histc");add("histogram.bins_tensor_out","histogram","bins_tensor");add("histogram.bin_ct_out","histogram","bin_ct");add("_histogramdd_from_bin_cts.out","_histogramdd_from_bin_cts");add("_histogramdd_from_bin_tensors.out","_histogramdd_from_bin_tensors");
+ add("avg_pool2d.out","avg_pool2d");add("avg_pool3d.out","avg_pool3d");add("avg_pool2d_backward.grad_input","avg_pool2d_backward");add("avg_pool3d_backward.grad_input","avg_pool3d_backward");
  add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");add("var.correction_out","var","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");

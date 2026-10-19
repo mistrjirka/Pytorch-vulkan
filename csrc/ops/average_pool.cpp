@@ -1,7 +1,13 @@
 #include "native_utils.h"
+#include "integer_pooling.h"
 #include <ATen/native/Pool.h>
 #include <torch/library.h>
 namespace torch_vulkan::ops {
+at::Tensor average_pool_long_native(const at::Tensor& input,at::IntArrayRef shape,const std::vector<uint32_t>& geometry,std::optional<int64_t> divisor,bool backward,bool include){
+ using namespace native;TORCH_CHECK(input.scalar_type()==at::kLong&&geometry.size()==16,"integer pooling requires Long input and valid spatial geometry");u32(input.numel());auto out=at::empty(shape,input.options());u32(out.numel());if(!out.numel())return out;
+ auto packed_input=packed(input,at::kLong);auto p=geometry;uint64_t raw=uint64_t(divisor.value_or(1));p.insert(p.end(),{uint32_t(backward),uint32_t(include),uint32_t(raw),uint32_t(raw>>32),uint32_t(divisor.has_value())});
+ run("average_pool_int64",{base(packed_input,at::kLong)},{write_base(out,at::kLong)},p,(out.numel()+127)/128);return out;
+}
 namespace {
 using namespace native;
 std::array<int64_t,2> pair(at::IntArrayRef v){TORCH_CHECK(v.size()==1||v.size()==2,"Vulkan pooling: expected one or two dimensions");return {v[0],v.size()==1?v[0]:v[1]};}
@@ -28,19 +34,27 @@ at::Tensor dispatch(const at::Tensor& input,const at::Tensor& shape_input,const 
  auto shape=shape_input.sizes().vec();if(!p[12]){shape[shape.size()-2]=p[3];shape.back()=p[4];}
  auto out=at::empty(shape,input.options());if(out.numel()){auto x=packed(input);run("average_pool2d",{base(x)},{write_base(out)},p,p[14]?out.numel():(out.numel()+127)/128,512);}return out;
 }
+at::Tensor long_pool2d(const at::Tensor& input,const at::Tensor& reference,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef padding,bool ceil,bool include,std::optional<int64_t> divisor,bool backward){
+ auto q=params(reference,k,s,padding,ceil,include,divisor,{},false,backward);auto shape=reference.sizes().vec();if(!backward){shape[shape.size()-2]=q[3];shape.back()=q[4];}else {auto expected=reference.sizes().vec();expected[expected.size()-2]=q[3];expected.back()=q[4];TORCH_CHECK(input.device()==reference.device()&&input.scalar_type()==at::kLong&&input.sizes()==at::IntArrayRef(expected),"integer pooling gradient shape/device/dtype mismatch");}
+ return average_pool_long_native(input,shape,{q[0],1,q[1],q[2],1,q[3],q[4],1,q[5],q[6],1,q[7],q[8],0,q[9],q[10]},divisor,backward,include);
+}
 at::Tensor forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> d){
+ if(x.scalar_type()==at::kLong&&can_pack_view(x))return long_pool2d(x,x,k,s,p,ceil,include,d,false);
  if(x.scalar_type()!=at::kFloat||!can_pack_view(x))return at::avg_pool2d(native::cpu_fallback_tensor(x,__func__),k,s,p,ceil,include,d).to(x.device());
  return dispatch(x,x,params(x,k,s,p,ceil,include,d,{},false,false));
 }
 at::Tensor backward(const at::Tensor& g,const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> d){
+ if(x.scalar_type()==at::kLong&&can_pack_view(x)&&can_pack_view(g))return long_pool2d(g,x,k,s,p,ceil,include,d,true);
  if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::avg_pool2d_backward(native::cpu_fallback_tensor(g,__func__),native::cpu_fallback_tensor(x,__func__),k,s,p,ceil,include,d).to(x.device());
  auto q=params(x,k,s,p,ceil,include,d,{},false,true);auto shape=x.sizes().vec();shape[shape.size()-2]=q[3];shape.back()=q[4];TORCH_CHECK(g.device()==x.device()&&g.sizes()==at::IntArrayRef(shape),"Vulkan pooling gradient mismatch");return dispatch(g,x,q);
 }
 at::Tensor adaptive_forward(const at::Tensor& x,at::IntArrayRef size){
- if(x.scalar_type()!=at::kFloat||!can_pack_view(x)||(size.size()==2&&(size[0]==0||size[1]==0)))return at::_adaptive_avg_pool2d(native::cpu_fallback_tensor(x,__func__),size).to(x.device());
+ if(x.scalar_type()==at::kFloat&&size.size()==2&&(size[0]==0||size[1]==0)){TORCH_CHECK(size[0]>=0&&size[1]>=0,"Trying to create tensor with negative dimension");TORCH_CHECK(x.dim()==3||x.dim()==4,"adaptive_avg_pool2d expects CHW/NCHW input");TORCH_CHECK(x.size(-2)>0&&x.size(-1)>0,"adaptive_avg_pool2d(): Expected input to have non-zero size for non-batch dimensions");auto shape=x.sizes().vec();shape[shape.size()-2]=size[0];shape.back()=size[1];return at::empty(shape,x.options());}
+ if(x.scalar_type()!=at::kFloat||!can_pack_view(x))return at::_adaptive_avg_pool2d(native::cpu_fallback_tensor(x,__func__),size).to(x.device());
  return dispatch(x,x,params(x,{},{},{},false,false,{},size,true,false));
 }
 at::Tensor adaptive_backward(const at::Tensor& g,const at::Tensor& x){
+ if(x.scalar_type()==at::kFloat&&g.scalar_type()==at::kFloat&&(g.dim()==3||g.dim()==4))for(int64_t d=1;d<g.dim();d++)TORCH_CHECK(g.size(d)>0,"adaptive_avg_pool2d_backward(): Expected grad_output to have non-zero size for non-batch dimensions, but grad_output has sizes ",g.sizes()," with dimension ",d," being empty");
  if(x.scalar_type()!=at::kFloat||g.scalar_type()!=at::kFloat||!can_pack_view(g)||!can_pack_view(x))return at::_adaptive_avg_pool2d_backward(native::cpu_fallback_tensor(g,__func__),native::cpu_fallback_tensor(x,__func__)).to(x.device());
  TORCH_CHECK(g.dim()==x.dim()&&g.device()==x.device()&&g.size(-3)==x.size(-3)&&(x.dim()==3||g.size(0)==x.size(0)),"Vulkan adaptive pooling gradient mismatch");
  return dispatch(g,x,params(x,{},{},{},false,false,{},g.sizes().slice(g.dim()-2),true,true));

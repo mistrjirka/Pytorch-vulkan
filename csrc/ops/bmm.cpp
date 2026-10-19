@@ -16,7 +16,14 @@ at::Tensor bmm(const at::Tensor& a,const at::Tensor& b) {
               a.size(0)==b.size(0) && a.size(2)==b.size(1),
               "Vulkan bmm: expected matching batch dimensions and contraction size");
   TORCH_CHECK(a.scalar_type()==b.scalar_type(),"Vulkan bmm: dtype mismatch");
+  if(a.scalar_type()==at::kComplexFloat){
+    // Reuse the general FP32 GEMM implementation for complex64 arithmetic.
+    // ATen real/imag views preserve lazy conjugation and arbitrary strides.
+    auto ar=at::real(a),ai=at::imag(a),br=at::real(b),bi=at::imag(b);
+    return at::complex(at::bmm(ar,br).sub(at::bmm(ai,bi)),at::bmm(ar,bi).add(at::bmm(ai,br)));
+  }
   if(integer_type(a.scalar_type()))return integer_matmul(a,b);
+  if(a.scalar_type()==at::kFloat&&(a.is_neg()||b.is_neg()))return at::bmm(packed(a),packed(b));
   const int64_t batch=a.size(0),m=a.size(1),k=a.size(2),n=b.size(2);
   if(batch==0 || m==0 || n==0)return at::empty({batch,m,n},a.options());
   // Skip accelerator dispatch when a view or dtype is outside the native

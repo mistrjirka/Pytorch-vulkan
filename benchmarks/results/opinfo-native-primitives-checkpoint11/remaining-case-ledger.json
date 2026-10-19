@@ -1,0 +1,1886 @@
+[
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs__conversions_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs__conversions_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs__conversions_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs__conversions_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs__conversions_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_addcdiv_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_addcmul_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_linspace_tensor_overload_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_logspace_tensor_overload_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_logspace_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_nn_functional_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_nn_functional_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_special_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_special_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_addcdiv_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_addcmul_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_bincount_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The unchanged sample generator uses integral weights for this integral-dtype case. CPU produces Float64 weighted output (independently verified)."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_nn_functional_alpha_dropout_vulkan_float32",
+    "status": "error",
+    "category": "cross_device_rng_mask_comparison",
+    "reason": "Same exact captured failing fixture differs from CPU on CUDA too; both GPU outputs obey the alpha-dropout affine rule and mask gradients. Upstream already xfails this test for CUDA/XPU."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_randint_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_compare_cpu_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_cat_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_complex_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_dot_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv1d_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv2d_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv3d_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_scatter_add_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_scatter_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout0_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout1_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout2_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout3_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout4_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_vdot_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_bfloat16_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_cdouble_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_chalf_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_double_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_float_power_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_full_like_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_half_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_jiterator_2inputs_2outputs_vulkan_bool",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_jiterator_4inputs_with_extra_args_vulkan_bool",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_jiterator_binary_return_by_ref_vulkan_bool",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_jiterator_binary_vulkan_bool",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_jiterator_unary_vulkan_bool",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_log_softmax_with_dtype_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_new_full_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_new_ones_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_new_zeros_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_ones_like_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_randint_like_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_randint_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_softmax_with_dtype_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_to_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_non_standard_bool_values_zeros_like_vulkan_bool",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_bfloat16_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_bincount_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The unchanged sample generator uses integral weights for this integral-dtype case. CPU produces Float64 weighted output (independently verified)."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_cdouble_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_chalf_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_double_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_float_power_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_full_like_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_half_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_2inputs_2outputs_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_2inputs_2outputs_vulkan_int64",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_4inputs_with_extra_args_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_4inputs_with_extra_args_vulkan_int64",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_binary_return_by_ref_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_binary_return_by_ref_vulkan_int64",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_binary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_binary_vulkan_int64",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_unary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_jiterator_unary_vulkan_int64",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_log_softmax_with_dtype_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_full_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_ones_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_new_zeros_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_nn_functional_softmin_with_dtype_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_ones_like_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_rand_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_randint_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_randint_like_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_randn_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_softmax_with_dtype_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_to_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_noncontiguous_samples_zeros_like_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs__conversions_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs__conversions_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs__conversions_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs__conversions_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs__conversions_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_linspace_tensor_overload_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_logspace_tensor_overload_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_logspace_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_nn_functional_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_nn_functional_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_special_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_special_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_tril_indices_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out__refs_triu_indices_vulkan_int64",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_jiterator_2inputs_2outputs_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_jiterator_4inputs_with_extra_args_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_jiterator_binary_return_by_ref_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_jiterator_binary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_jiterator_unary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_requires_grad_error_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_requires_grad_error_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_requires_grad_error_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs__conversions_bfloat16_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs__conversions_cdouble_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs__conversions_chalf_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs__conversions_double_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs__conversions_half_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_float_power_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_imag_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_istft_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_linspace_tensor_overload_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_log_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_logspace_tensor_overload_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_logspace_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_nn_functional_log_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_nn_functional_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_nn_functional_softmin_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_special_log_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_special_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_to_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_tril_indices_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_triu_indices_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_bfloat16_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_cdouble_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_chalf_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_double_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_float_power_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_half_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_imag_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_istft_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_jiterator_2inputs_2outputs_vulkan",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_jiterator_4inputs_with_extra_args_vulkan",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_jiterator_binary_return_by_ref_vulkan",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_jiterator_binary_vulkan",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_jiterator_unary_vulkan",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_log_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_nn_functional_silu_complex_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_nn_functional_softmin_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_softmax_with_dtype_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_to_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_torch__scaled_mm_v2_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Float8_e4m3fn. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_torch__scaled_mm_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Float8_e4m3fn. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_out_warning_view_as_real_vulkan",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_jiterator_2inputs_2outputs_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_jiterator_4inputs_with_extra_args_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_jiterator_binary_return_by_ref_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_jiterator_binary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_jiterator_unary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_rand_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_randint_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_randn_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_variant_consistency_eager_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_backward_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_jiterator_2inputs_2outputs_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_jiterator_4inputs_with_extra_args_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_jiterator_binary_return_by_ref_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_jiterator_binary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_jiterator_unary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_rand_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_randint_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_randint_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_randn_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_cow_input_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_forward_ad_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_rand_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_randint_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_randint_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_randn_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_operator_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_bfloat16_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires BFloat16. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_cdouble_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexDouble. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_chalf_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires ComplexHalf. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_double_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_float_power_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_full_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_half_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Half. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_jiterator_2inputs_2outputs_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_jiterator_4inputs_with_extra_args_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_jiterator_binary_return_by_ref_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_jiterator_binary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_jiterator_unary_vulkan_float32",
+    "status": "error",
+    "category": "cuda_source_jit_gate",
+    "reason": "The upstream Python Jiterator API only accepts CUDA/ROCm; it is outside the audited ATen/default-compile feature contracts."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_log_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_new_full_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_new_ones_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_new_zeros_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_nn_functional_softmin_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_ones_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_rand_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_randint_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_randint_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_randn_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_softmax_with_dtype_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_to_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  },
+  {
+    "id": "TestCompositeComplianceVULKAN.test_view_replay_zeros_like_vulkan_float32",
+    "status": "error",
+    "category": "deferred_precision",
+    "reason": "The failing operation explicitly requires Double. The raw case is not a pass; later unvisited samples are not assumed to pass."
+  }
+]

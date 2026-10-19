@@ -1,0 +1,22 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "complex_linalg.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer L {vec2 lu[];};
+layout(binding=1) readonly buffer Piv {int piv[];};
+layout(binding=2) readonly buffer B {vec2 b[];};
+layout(binding=3) buffer X {vec2 x[];};
+layout(push_constant) uniform P {uint batch,n,cols,transpose,conjugate;} p;
+vec2 coefficient(uint i){vec2 v=lu[i];return p.conjugate!=0?vec2(v.x,-v.y):v;}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.batch*p.cols)return;uint batch=id/p.cols,col=id%p.cols,lb=batch*p.n*p.n,base=batch*p.n*p.cols+col;
+ for(uint r=0;r<p.n;r++)x[base+r*p.cols]=b[base+r*p.cols];
+ if(p.transpose==0){
+  for(uint k=0;k<p.n;k++){uint r=uint(piv[batch*p.n+k]-1);vec2 temp=x[base+k*p.cols];x[base+k*p.cols]=x[base+r*p.cols];x[base+r*p.cols]=temp;}
+  for(uint r=0;r<p.n;r++){vec2 v=x[base+r*p.cols];for(uint k=0;k<r;k++)v-=complex_multiply(coefficient(lb+r*p.n+k),x[base+k*p.cols]);x[base+r*p.cols]=v;}
+  for(int r=int(p.n)-1;r>=0;r--){vec2 v=x[base+uint(r)*p.cols];for(uint k=uint(r)+1;k<p.n;k++)v-=complex_multiply(coefficient(lb+uint(r)*p.n+k),x[base+k*p.cols]);x[base+uint(r)*p.cols]=complex_divide(v,coefficient(lb+uint(r)*p.n+uint(r)));}
+ }else{
+  for(uint r=0;r<p.n;r++){vec2 v=x[base+r*p.cols];for(uint k=0;k<r;k++)v-=complex_multiply(coefficient(lb+k*p.n+r),x[base+k*p.cols]);x[base+r*p.cols]=complex_divide(v,coefficient(lb+r*p.n+r));}
+  for(int r=int(p.n)-1;r>=0;r--){vec2 v=x[base+uint(r)*p.cols];for(uint k=uint(r)+1;k<p.n;k++)v-=complex_multiply(coefficient(lb+k*p.n+uint(r)),x[base+k*p.cols]);x[base+uint(r)*p.cols]=v;}
+  for(int k=int(p.n)-1;k>=0;k--){uint r=uint(piv[batch*p.n+uint(k)]-1);vec2 temp=x[base+uint(k)*p.cols];x[base+uint(k)*p.cols]=x[base+r*p.cols];x[base+r*p.cols]=temp;}
+ }
+}

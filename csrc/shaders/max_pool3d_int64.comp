@@ -1,0 +1,22 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "integer64_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uvec2 x[];};
+layout(binding=1) readonly buffer I {uvec2 arg[];};
+layout(binding=2) writeonly buffer Y {uvec2 y[];};
+layout(binding=3) writeonly buffer O {uvec2 indices[];};
+layout(push_constant) uniform P {uint planes;uint ins[3],outs[3],kernel[3],stride[3],padding[3],dilation[3];uint maximum,backward,adaptive,include_pad,divisor;} p;
+int begin_at(uint q,uint a){return p.adaptive!=0?int(q*p.ins[a]/p.outs[a]):int(q*p.stride[a])-int(p.padding[a]);}
+int end_at(uint q,uint a){return p.adaptive!=0?int(((q+1)*p.ins[a]+p.outs[a]-1)/p.outs[a]):begin_at(q,a)+int((p.kernel[a]-1)*p.dilation[a])+1;}
+void main(){
+ uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;
+ uint ni=p.ins[0]*p.ins[1]*p.ins[2],no=p.outs[0]*p.outs[1]*p.outs[2];if(id>=p.planes*no)return;uint plane=id/no,r=id%no;
+ uvec3 q=uvec3(r/(p.outs[1]*p.outs[2]),(r/p.outs[2])%p.outs[1],r%p.outs[2]);uvec2 result=uvec2(0u,0x80000000u);uint best=0u;bool found=false;
+ for(int z=begin_at(q.x,0u);z<end_at(q.x,0u);z+=int(p.dilation[0]))for(int h=begin_at(q.y,1u);h<end_at(q.y,1u);h+=int(p.dilation[1]))for(int w=begin_at(q.z,2u);w<end_at(q.z,2u);w+=int(p.dilation[2])){
+  if(z<0||h<0||w<0||z>=p.ins[0]||h>=p.ins[1]||w>=p.ins[2])continue;
+  uint at=(uint(z)*p.ins[1]+uint(h))*p.ins[2]+uint(w);uvec2 v=x[plane*ni+at];
+  if(!found||(result.y==v.y?result.x<v.x:int(result.y)<int(v.y))){result=v;best=at;found=true;}
+ }
+ y[id]=result;indices[id]=uvec2(best,0u);
+}

@@ -1,0 +1,8 @@
+{
+  "commit": "b7aa2878b85f8dc99da0581477cd188e04667358",
+  "tree": "73b4ad882eab205cdcfe58b498c18990f5a4d492",
+  "backend_source_sha256": "feafd52d57545c537af6d925d875d8cf586cff3b28fc72113bf5ae5e6c0237c2",
+  "extension_sha256": "d765d57d7184570cf01824420a3d7de16fb0dbba36eb77f24b8e8e6732e40554",
+  "worktree": "clean main",
+  "verification": "recompiled exact published sources and validated every source-file hash"
+}

@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "integer_pooling.h"
 #include <ATen/native/Pool.h>
 #include <torch/library.h>
 namespace torch_vulkan::ops {
@@ -6,7 +7,7 @@ namespace {
 using namespace native;
 std::array<int64_t,3> triple(at::IntArrayRef a){TORCH_CHECK(a.size()==1||a.size()==3,"3D pooling expects one or three values");return {a[0],a.size()==1?a[0]:a[1],a.size()==1?a[0]:a[2]};}
 std::vector<uint32_t> parameters(const at::Tensor& x,at::IntArrayRef kernel,at::IntArrayRef stride,at::IntArrayRef padding,at::IntArrayRef dilation,bool ceil,bool maximum,bool include,std::optional<int64_t> divisor,at::IntArrayRef adaptive,bool backward){
- TORCH_CHECK((x.dim()==4||x.dim()==5)&&x.scalar_type()==at::kFloat&&can_pack_view(x),"Vulkan 3D pooling requires packable FP32 CDHW/NCDHW input");bool ad=!adaptive.empty();
+ TORCH_CHECK((x.dim()==4||x.dim()==5)&&(x.scalar_type()==at::kFloat||(x.scalar_type()==at::kLong&&adaptive.empty()&&(!maximum||!backward)))&&can_pack_view(x),"Vulkan 3D pooling requires packable FP32 CDHW/NCDHW input");bool ad=!adaptive.empty();
  auto k=ad?std::array<int64_t,3>{1,1,1}:triple(kernel),s=ad?k:stride.empty()?k:triple(stride),p=ad?std::array<int64_t,3>{0,0,0}:triple(padding),d=ad?std::array<int64_t,3>{1,1,1}:triple(dilation);
  TORCH_CHECK(!divisor||*divisor!=0,"pool divisor must not be zero");TORCH_CHECK(!ad||adaptive.size()==3,"adaptive 3D pooling requires three output sizes");
  std::vector<uint32_t> params(24);params[0]=u32(x.dim()==5?x.size(0)*x.size(1):x.size(0));
@@ -23,16 +24,16 @@ std::vector<uint32_t> parameters(const at::Tensor& x,at::IntArrayRef kernel,at::
  uint64_t count=params[0];for(int a=0;a<3;a++){TORCH_CHECK(count<=UINT32_MAX/params[4+a],"pooling output overflow");count*=params[4+a];}
  params[19]=maximum;params[20]=backward;params[21]=ad;params[22]=include;params[23]=bits(divisor?float(*divisor):0);return params;
 }
-std::tuple<at::Tensor,at::Tensor> dispatch(const at::Tensor& input,const at::Tensor& shape_input,const at::Tensor& indices,const std::vector<uint32_t>& p){
- if(p[20]){auto expected=shape_input.sizes().vec();for(int a=0;a<3;a++)expected[expected.size()-3+a]=p[4+a];TORCH_CHECK(input.device()==shape_input.device()&&input.scalar_type()==at::kFloat&&input.sizes()==at::IntArrayRef(expected),"pool3d gradient mismatch");if(p[19])TORCH_CHECK(indices.device()==input.device()&&indices.scalar_type()==at::kLong&&indices.sizes()==input.sizes(),"pool3d indices mismatch");}
- auto shape=shape_input.sizes().vec();if(!p[20])for(int a=0;a<3;a++)shape[shape.size()-3+a]=p[4+a];auto out=at::empty(shape,input.options());auto arg=p[19]&&!p[20]?at::empty(shape,input.options().dtype(at::kLong)):at::Tensor();
+std::tuple<at::Tensor,at::Tensor> dispatch(const at::Tensor& input,const at::Tensor& shape_input,const at::Tensor& indices,const std::vector<uint32_t>& p,std::optional<int64_t> exact_divisor={}){
+ if(p[20]){auto expected=shape_input.sizes().vec();for(int a=0;a<3;a++)expected[expected.size()-3+a]=p[4+a];TORCH_CHECK(input.device()==shape_input.device()&&input.scalar_type()==shape_input.scalar_type()&&input.sizes()==at::IntArrayRef(expected),"pool3d gradient mismatch");if(p[19])TORCH_CHECK(indices.device()==input.device()&&indices.scalar_type()==at::kLong&&indices.sizes()==input.sizes(),"pool3d indices mismatch");}
+ auto shape=shape_input.sizes().vec();if(!p[20])for(int a=0;a<3;a++)shape[shape.size()-3+a]=p[4+a];if(input.scalar_type()==at::kLong&&!p[19])return {average_pool_long_native(input,shape,std::vector<uint32_t>(p.begin(),p.begin()+16),exact_divisor,p[20],p[22]),at::Tensor()};auto out=at::empty(shape,input.options());auto arg=p[19]&&!p[20]?at::empty(shape,input.options().dtype(at::kLong)):at::Tensor();
  if(out.numel()){
-  auto x=packed(input),idx=indices.defined()?packed(indices,at::kLong):at::Tensor();auto dummy=VulkanAllocator::instance().constant_float_buffer(2,0);
-  run("pool3d_general",{base(x),idx.defined()?base(idx,at::kLong):dummy},{write_base(out),arg.defined()?write_base(arg,at::kLong):dummy},p,(out.numel()+127)/128);
+  auto x=packed(input,input.scalar_type()),idx=indices.defined()?packed(indices,at::kLong):at::Tensor();auto dummy=VulkanAllocator::instance().constant_float_buffer(2,0);
+  run(input.scalar_type()==at::kLong?"max_pool3d_int64":"pool3d_general",{base(x,input.scalar_type()),idx.defined()?base(idx,at::kLong):dummy},{write_base(out,out.scalar_type()),arg.defined()?write_base(arg,at::kLong):dummy},p,(out.numel()+127)/128);
  }return {out,arg};
 }
-at::Tensor avg_forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> divisor){return std::get<0>(dispatch(x,x,{},parameters(x,k,s,p,{1},ceil,false,include,divisor,{},false)));}
-at::Tensor avg_backward(const at::Tensor& g,const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> divisor){return std::get<0>(dispatch(g,x,{},parameters(x,k,s,p,{1},ceil,false,include,divisor,{},true)));}
+at::Tensor avg_forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> divisor){return std::get<0>(dispatch(x,x,{},parameters(x,k,s,p,{1},ceil,false,include,divisor,{},false),divisor));}
+at::Tensor avg_backward(const at::Tensor& g,const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,bool ceil,bool include,std::optional<int64_t> divisor){return std::get<0>(dispatch(g,x,{},parameters(x,k,s,p,{1},ceil,false,include,divisor,{},true),divisor));}
 std::tuple<at::Tensor,at::Tensor> max_forward(const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,at::IntArrayRef d,bool ceil){return dispatch(x,x,{},parameters(x,k,s,p,d,ceil,true,false,{}, {},false));}
 at::Tensor max_backward(const at::Tensor& g,const at::Tensor& x,at::IntArrayRef k,at::IntArrayRef s,at::IntArrayRef p,at::IntArrayRef d,bool ceil,const at::Tensor& indices){return std::get<0>(dispatch(g,x,indices,parameters(x,k,s,p,d,ceil,true,false,{}, {},true)));}
 at::Tensor adaptive_avg(const at::Tensor& x,at::IntArrayRef size){return std::get<0>(dispatch(x,x,{},parameters(x,{},{},{},{},false,false,false,{},size,false)));}

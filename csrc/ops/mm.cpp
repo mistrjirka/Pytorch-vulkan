@@ -244,8 +244,15 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   TORCH_CHECK(self.dim() == 2 && mat2.dim() == 2, "mm: inputs must be 2D");
   TORCH_CHECK(self.size(1) == mat2.size(0), "mm: dimension mismatch");
   TORCH_CHECK(self.scalar_type() == mat2.scalar_type(), "mm: expected both matrices to have the same dtype");
+  if(self.scalar_type()==at::kComplexFloat){
+    // Reuse the general FP32 GEMM implementation for complex64 arithmetic.
+    // ATen real/imag views preserve lazy conjugation and arbitrary strides.
+    auto ar=at::real(self),ai=at::imag(self),br=at::real(mat2),bi=at::imag(mat2);
+    return at::complex(at::mm(ar,br).sub(at::mm(ai,bi)),at::mm(ar,bi).add(at::mm(ai,br)));
+  }
   if(integer_type(self.scalar_type()))return integer_matmul(self,mat2);
   TORCH_CHECK(self.scalar_type() == at::kFloat, "mm: only float32 for now");
+  if(self.is_neg()||mat2.is_neg())return at::mm(native::packed(self),native::packed(mat2));
   TORCH_CHECK(self.device() == mat2.device() && self.device().type() == c10::DeviceType::PrivateUse1,
               "mm: expected both matrices on the same Vulkan device");
 
@@ -480,7 +487,7 @@ at::Tensor vulkan_to_copy(
         }return result;
       }
     }
-    if(self.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__);
+    if(self.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__,std::string("source dtype: ")+c10::toString(self.scalar_type())+"; target dtype: "+c10::toString(target_dtype));
     auto self_cpu = host_mirror(self).contiguous();
     auto self_cast = self_cpu.to(target_dtype).contiguous();
     auto result = at::empty(self_cast.sizes(),
@@ -569,7 +576,7 @@ at::Tensor& vulkan_copy_(at::Tensor& self, const at::Tensor& src, bool non_block
   // A Vulkan allocation is represented by a mapped host mirror. CPU's
   // stride-aware copy correctly handles offsets, permutations and casting.
   // Inputs are synchronized to the GPU by the next shader submission.
-  if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__);
+  if(self.device().type()==c10::DeviceType::PrivateUse1&&src.device().type()==c10::DeviceType::PrivateUse1)native::cpu_fallback_check(__func__,std::string("source dtype: ")+c10::toString(src.scalar_type())+"; target dtype: "+c10::toString(self.scalar_type()));
   host_mirror(self).copy_(host_mirror(src));
   VulkanAllocator::instance().mark_host_dirty(self.storage().data_ptr().get());
   return self;

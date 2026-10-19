@@ -19,8 +19,8 @@ std::array<int64_t,2> pair(at::IntArrayRef values,const char* name) {
 }
 Pool params(const at::Tensor& input,at::IntArrayRef kernel,at::IntArrayRef stride,
     at::IntArrayRef padding,at::IntArrayRef dilation,bool ceil) {
-  TORCH_CHECK(input.device().type()==c10::DeviceType::PrivateUse1 && input.scalar_type()==at::kFloat,
-              "Vulkan max_pool2d requires FP32 Vulkan input");
+  TORCH_CHECK(input.device().type()==c10::DeviceType::PrivateUse1 && (input.scalar_type()==at::kFloat||input.scalar_type()==at::kLong),
+              "Vulkan max_pool2d requires FP32/int64 Vulkan input");
   TORCH_CHECK(input.dim()==3 || input.dim()==4,"Vulkan max_pool2d requires CHW or NCHW input");
   auto k=pair(kernel,"kernel"),s=stride.empty()?k:pair(stride,"stride"),
        p=pair(padding,"padding"),d=pair(dilation,"dilation");
@@ -54,8 +54,8 @@ std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,at::IntArrayRe
   auto out=at::empty(shape,input.options());
   auto indices=at::empty(shape,input.options().dtype(at::kLong));
   if(out.numel()) {
-    auto x=packed(input);
-    run("max_pool2d_forward",{base(x)},{write_base(out),write_base(indices,at::kLong)},p.push(),(out.numel()+127)/128);
+    auto x=packed(input,input.scalar_type());
+    run(input.scalar_type()==at::kLong?"max_pool2d_int64":"max_pool2d_forward",{base(x,input.scalar_type())},{write_base(out,input.scalar_type()),write_base(indices,at::kLong)},p.push(),(out.numel()+127)/128);
   }
   return {out,indices};
 }

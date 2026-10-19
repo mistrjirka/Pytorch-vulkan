@@ -1,5 +1,8 @@
 # FP32 coverage completion
 
+> Latest native correctness evidence: [checkpoint 11](../benchmarks/results/opinfo-native-primitives-checkpoint11/README.md).
+> The final full upstream recheck remains pending; this page is the earlier feature milestone.
+
 > **Subsequent upstream audit:** [OpInfo testing at this revision](upstream-opinfo-audit-863fc0b.md)
 > found missing dispatches and an `addmm` scaling bug beyond these selected tests.
 > This report records the narrower feature milestone, not general FP32 correctness.

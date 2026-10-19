@@ -1,7 +1,7 @@
 """Summarize raw upstream outcomes without treating skips or blockers as passes."""
 import argparse,collections,gzip,hashlib,json,re
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);a=p.parse_args();root=a.directory
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);p.add_argument('--device',default='rtx',help='Run subdirectory, e.g. rtx or v100');a=p.parse_args();root=a.directory
 
 def read_rows(path):
     if path.exists():text=path.read_text()
@@ -9,8 +9,8 @@ def read_rows(path):
         with gzip.open(str(path)+'.gz','rt') as f:text=f.read()
     return [json.loads(s) for s in text.splitlines() if s]
 
-rows=read_rows(root/'rtx/results.jsonl')
-ip=root/'rtx/inventory.json'
+rows=read_rows(root/a.device/'results.jsonl')
+ip=root/a.device/'inventory.json'
 if ip.exists():inv=json.loads(ip.read_text())
 else:
     with gzip.open(str(ip)+'.gz','rt') as f:inv=json.load(f)

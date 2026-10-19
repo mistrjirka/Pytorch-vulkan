@@ -36,7 +36,7 @@ at::Tensor with_dims(int64_t sd,int64_t dd,at::IntArrayRef shape,std::optional<a
 }
 at::Tensor to_sparse_dim(const at::Tensor& x,int64_t sd){
  TORCH_CHECK(sd>0||x.dim()==0,"dense_to_sparse: sparse_dim argument must be in >0 when self.dim()>0");
- TORCH_CHECK(sparse_dtype(x.scalar_type())&&can_pack_view(x)&&sd>=0&&sd<=x.dim(),"Vulkan to_sparse requires supported storage and valid sparse_dim");if(!x.numel()){auto shape=x.sizes().slice(sd).vec();shape.insert(shape.begin(),0);return make_sparse(sd,x.dim()-sd,x.sizes(),at::empty({sd,0},x.options().dtype(at::kLong)),at::empty(shape,x.options()),true);}
+ TORCH_CHECK(sparse_dtype(x.scalar_type())&&can_pack_view(x)&&sd>=0&&sd<=x.dim(),"Vulkan to_sparse requires supported storage and valid sparse_dim; got ",x.scalar_type());if(!x.numel()){auto shape=x.sizes().slice(sd).vec();shape.insert(shape.begin(),0);return make_sparse(sd,x.dim()-sd,x.sizes(),at::empty({sd,0},x.options().dtype(at::kLong)),at::empty(shape,x.options()),true);}
  int64_t rows=1,features=1;for(int d=0;d<x.dim();d++)(d<sd?rows:features)*=x.size(d);
  auto ranks=at::empty({rows},x.options().dtype(at::kInt)),count=at::empty({},ranks.options());auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);auto input=x.numel()?packed(x,x.scalar_type()):at::Tensor();auto count_input=input.defined()&&x.scalar_type()!=at::kFloat?at::ne(input,0).to(at::kFloat):input;
  run("sparse_count",{count_input.defined()?base(count_input):dummy},{rows?write_base(ranks,at::kInt):dummy,write_base(count,at::kInt)},{u32(rows),u32(features)},1);int64_t nnz=count.cpu().item<int>();

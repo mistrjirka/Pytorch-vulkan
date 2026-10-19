@@ -12,7 +12,7 @@ Geometry geometry(const at::Tensor& x,const at::Tensor& w,c10::SymIntArrayRef st
  c10::SymIntArrayRef dilation,bool transposed,c10::SymIntArrayRef output_pad,c10::SymInt groups_) {
  const int rank=x.dim()-2;const int64_t groups=groups_.expect_int();
  TORCH_CHECK(rank>=1&&rank<=3&&w.dim()==x.dim(),"convolution: expected matching rank 3, 4 or 5 tensors");
- TORCH_CHECK(x.scalar_type()==at::kFloat&&w.scalar_type()==at::kFloat&&x.device()==w.device(),"convolution: expected FP32 tensors on the same device");
+ TORCH_CHECK((x.scalar_type()==at::kFloat||x.scalar_type()==at::kLong)&&w.scalar_type()==x.scalar_type()&&x.device()==w.device(),"convolution: expected matching FP32/int64 tensors on the same device");
  TORCH_CHECK(stride.size()==rank&&pad.size()==rank&&dilation.size()==rank&&output_pad.size()==rank,"convolution: spatial parameter rank mismatch");
  TORCH_CHECK(groups>0&&x.size(1)>0&&x.size(1)%groups==0,"convolution: invalid groups/input channels");
  for(auto s:w.sizes())TORCH_CHECK(s>0,"convolution: empty weight dimension");
@@ -47,8 +47,12 @@ at::Tensor convolution_nd(const at::Tensor& x,const at::Tensor& w,const std::opt
  c10::SymIntArrayRef stride,c10::SymIntArrayRef pad,c10::SymIntArrayRef dilation,bool transposed,c10::SymIntArrayRef output_pad,c10::SymInt groups) {
  auto g=geometry(x,w,stride,pad,dilation,transposed,output_pad,groups);auto out=at::empty(g.shape,x.options());
  at::Tensor b;
- if(bias&&bias->defined()) {TORCH_CHECK(bias->dim()==1&&bias->numel()==g.p[2]&&bias->device()==x.device()&&bias->scalar_type()==at::kFloat,"convolution: invalid bias");b=packed(*bias);}
- if(out.numel())execute(g,0,packed(x),packed(w),{},b,out);
+ if(bias&&bias->defined()) {TORCH_CHECK(bias->dim()==1&&bias->numel()==g.p[2]&&bias->device()==x.device()&&bias->scalar_type()==x.scalar_type(),"convolution: invalid bias");b=packed(*bias,x.scalar_type());}
+ if(out.numel()&&x.scalar_type()==at::kLong){
+  auto xc=packed(x,at::kLong),wc=packed(w,at::kLong);g.p[24]=u32(out.numel());g.p[25]=b.defined();
+  auto bb=b.defined()?base(b,at::kLong):VulkanAllocator::instance().constant_float_buffer(2,0);
+  run("convolution_nd_int64",{base(xc,at::kLong),base(wc,at::kLong),bb},{write_base(out,at::kLong)},g.p,(out.numel()+127)/128);
+ }else if(out.numel())execute(g,0,packed(x),packed(w),{},b,out);
  return out;
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor> convolution_nd_backward(const at::Tensor& grad,const at::Tensor& x,const at::Tensor& w,

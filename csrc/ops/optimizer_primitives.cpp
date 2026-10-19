@@ -1,5 +1,6 @@
 #include "native_utils.h"
 #include "device_copy.h"
+#include "integer_ops.h"
 #include <ATen/MemoryOverlap.h>
 #include <ATen/ExpandUtils.h>
 #include <ATen/native/Resize.h>
@@ -9,7 +10,7 @@ namespace {
 void fp32(const at::Tensor& x){TORCH_CHECK(x.scalar_type()==at::kFloat&&native::can_pack_view(x),"Vulkan optimizer primitives require packable FP32 tensors");}
 at::Tensor lerp_scalar(const at::Tensor& x,const at::Tensor& end,const at::Scalar& weight){fp32(x);fp32(end);return x.add(end.sub(x).mul(weight));}
 at::Tensor lerp_tensor(const at::Tensor& x,const at::Tensor& end,const at::Tensor& weight){fp32(weight);fp32(x);fp32(end);return x.add(end.sub(x).mul(weight));}
-at::Tensor addcmul_native(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& value){fp32(x);fp32(a);fp32(b);return x.add(a.mul(b),value);}
+at::Tensor addcmul_native(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& value){if(integer_type(x.scalar_type())&&a.scalar_type()==x.scalar_type()&&b.scalar_type()==x.scalar_type())return x.add(a.mul(b).mul(value.toLong()));fp32(x);fp32(a);fp32(b);return x.add(a.mul(b),value);}
 at::Tensor addcdiv_native(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& value){fp32(x);fp32(a);fp32(b);return x.add(a.div(b),value);}
 at::Tensor& output(at::Tensor& out,const at::Tensor& result){TORCH_CHECK(out.device()==result.device()&&out.scalar_type()==result.scalar_type(),"optimizer output device/dtype mismatch");at::assert_no_internal_overlap(out);at::native::resize_output(out,result.sizes());out.copy_(result);return out;}
 at::Tensor extrema(const at::Tensor& x,const at::Tensor& y,bool minimum){

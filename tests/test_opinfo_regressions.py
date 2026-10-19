@@ -2160,3 +2160,307 @@ def test_sparse_csr_native_sampled_addmm_training(shape,alpha,beta):
     torch.testing.assert_close(actual.to_dense().cpu(),expected.to_dense())
     torch.testing.assert_close(a.grad.to_dense().cpu(),cpu.grad.to_dense())
     torch.testing.assert_close(bv.grad.cpu(),b.grad);torch.testing.assert_close(cv.grad.cpu(),c.grad)
+
+
+@pytest.mark.parametrize('spatial',[2,3])
+@pytest.mark.parametrize('ceil',[False,True])
+@pytest.mark.parametrize('include',[False,True])
+@pytest.mark.parametrize('divisor',[None,3,-3,2**54+3])
+def test_average_pool_long_native_exact_strides_divisors_and_backward(spatial,ceil,include,divisor):
+    torch.manual_seed(891)
+    shape=(2,3)+((11,15) if spatial==2 else (9,11,15))
+    raw=torch.randint(-1023,1024,shape,dtype=torch.long);raw+=raw.sign()*(2**54)
+    base=raw.to('vulkan');index=(slice(None),slice(None))+(slice(1,None,2),)*spatial
+    x=raw[index];v=base[index]
+    kernel=(3,2) if spatial==2 else (2,3,2);stride=(2,2) if spatial==2 else (2,2,2);padding=(1,1) if spatial==2 else (0,1,1)
+    fn=getattr(torch.nn.functional,'avg_pool'+str(spatial)+'d')
+    expected=fn(x,kernel,stride,padding,ceil,include,divisor)
+    vk.reset_execution_stats();actual=fn(v,kernel,stride,padding,ceil,include,divisor)
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.cpu(),expected,rtol=0,atol=0)
+    grad=torch.randint(-10001,10002,expected.shape,dtype=torch.long);grad+=grad.sign()*(2**54)
+    backward=getattr(torch.ops.aten,'avg_pool'+str(spatial)+'d_backward')
+    expected_grad=backward(grad,x,kernel,stride,padding,ceil,include,divisor)
+    actual_grad=backward(grad.to('vulkan'),v,kernel,stride,padding,ceil,include,divisor)
+    torch.testing.assert_close(actual_grad.cpu(),expected_grad,rtol=0,atol=0)
+    out=torch.empty(tuple(2*n for n in actual.shape),dtype=torch.long,device='vulkan')[(slice(None,None,2),)*actual.dim()]
+    getattr(torch.ops.aten,'avg_pool'+str(spatial)+'d').out(v,kernel,stride,padding,ceil,include,divisor,out=out)
+    torch.testing.assert_close(out.cpu(),expected,rtol=0,atol=0)
+
+
+def test_average_pool_long_native_1d_and_wraparound():
+    x=torch.tensor([[[2**63-1,2**63-1,-2**63,-2**63,-3,2,7]]])
+    expected=torch.nn.functional.avg_pool1d(x,2,1)
+    actual=torch.nn.functional.avg_pool1d(x.to('vulkan'),2,1)
+    torch.testing.assert_close(actual.cpu(),expected,rtol=0,atol=0)
+
+
+@pytest.mark.parametrize('size',[(0,3),(2,0),(0,0)])
+def test_adaptive_average_pool_empty_output_forward_and_backward_contract(size):
+    cpu=torch.randn(2,3,5,7,requires_grad=True);v=cpu.detach().to('vulkan').requires_grad_()
+    expected=torch.nn.functional.adaptive_avg_pool2d(cpu,size);actual=torch.nn.functional.adaptive_avg_pool2d(v,size)
+    torch.testing.assert_close(actual.cpu(),expected)
+    for output in [expected,actual]:
+        with pytest.raises(RuntimeError,match='Expected grad_output to have non-zero size'):output.sum().backward()
+
+
+@pytest.mark.parametrize('n', [0, 1, 2, 5])
+@pytest.mark.parametrize('kind', ['random', 'symmetric', 'diagonal', 'triangular', 'zeros', 'rotation'])
+def test_real_general_eigenvalues_and_vectors(n, kind):
+    from itertools import permutations
+    torch.manual_seed(722)
+    a = torch.randn(2, n, n)
+    if kind == 'symmetric': a = a + a.mT
+    if kind == 'diagonal': a = a.diagonal(dim1=-2, dim2=-1).diag_embed()
+    if kind == 'triangular': a = a.triu()
+    if kind == 'zeros': a.zero_()
+    if kind == 'rotation':
+        a.zero_()
+        if n > 1: a[:, 0, 1] = -1; a[:, 1, 0] = 1
+    av = a.to('vulkan').mT
+    vk.reset_execution_stats()
+    w, v = torch.linalg.eig(av)
+    only = torch.linalg.eigvals(av)
+    stats = vk.execution_stats()
+    assert stats['cpu_fallback_calls'] == 0, stats
+    assert stats['host_read_max_bytes'] <= 8, stats  # Per-matrix convergence integers.
+    w, v, only = w.cpu(), v.cpu(), only.cpu()
+    torch.testing.assert_close(only, w)
+    torch.testing.assert_close(a.mT.to(torch.complex64) @ v, v * w.unsqueeze(-2), atol=2e-5, rtol=2e-5)
+    torch.testing.assert_close(v.abs().square().sum(-2), torch.ones_like(w.real), atol=2e-5, rtol=2e-5)
+    expected = torch.linalg.eigvals(a.mT)
+    # Eigenvalue ordering is unspecified; independently match the full multiset.
+    for actual, reference in zip(w, expected):
+        choices = list(permutations(range(n)))
+        order = min(choices, key=lambda p: (actual - reference[list(p)]).abs().sum())
+        torch.testing.assert_close(actual, reference[list(order)], atol=2e-5, rtol=2e-5)
+
+
+@pytest.mark.parametrize('left', [False, True])
+@pytest.mark.parametrize('adjoint', [False, True])
+@pytest.mark.parametrize('n', [0, 1, 5])
+def test_complex_lu_solve_and_broadcast(left, adjoint, n):
+    torch.manual_seed(726)
+    a = torch.randn(1, n, n, dtype=torch.complex64) + torch.eye(n) * 3
+    b = torch.randn((2, n, 3) if left else (2, 3, n), dtype=torch.complex64)
+    av, bv = a.to('vulkan').mT, b.to('vulkan')
+    vk.reset_execution_stats()
+    lu, piv, info = torch.linalg.lu_factor_ex(av)
+    out = torch.linalg.lu_solve(lu, piv, bv, left=left, adjoint=adjoint)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    lc, pc = torch.linalg.lu_factor(a.mT)
+    expected = torch.linalg.lu_solve(lc, pc, b, left=left, adjoint=adjoint)
+    torch.testing.assert_close(out.cpu(), expected, atol=1e-5, rtol=1e-5)
+    assert not info.cpu().any()
+
+
+@pytest.mark.parametrize('scale', [2.**-140, 2.**120])
+def test_general_eig_extreme_fp32_scale(scale):
+    a = torch.tensor([[1., -2., 3.], [4., 5., -6.], [-7., 8., 9.]]) * scale
+    w, v = torch.linalg.eig(a.to('vulkan'))
+    w, v = w.cpu(), v.cpu()
+    denominator = max(a.abs().max().item(), torch.finfo(torch.float32).tiny)
+    torch.testing.assert_close((a.to(torch.complex64) / denominator) @ v,
+                               v * (w / denominator).unsqueeze(-2), atol=2e-5, rtol=2e-5)
+
+
+@pytest.mark.parametrize('value', [float('inf'), -float('inf'), float('nan')])
+def test_general_eig_rejects_nonfinite(value):
+    a = torch.eye(3); a[1, 2] = value
+    with pytest.raises(RuntimeError, match='should not contain infs or NaNs'):
+        torch.linalg.eig(a.to('vulkan'))
+
+
+@pytest.mark.parametrize('shape', [(3, 3), (2, 3, 3), (0, 3, 3)])
+def test_real_eig_phase_invariant_gradients(shape):
+    torch.manual_seed(731)
+    a = torch.randn(shape)
+    cpu = a.clone().requires_grad_(); gpu = a.to('vulkan').detach().requires_grad_()
+    grads = []
+    for x in [cpu, gpu]:
+        w, v = torch.linalg.eig(x)
+        loss = w.abs().square().sum() + v.abs().pow(4).sum()
+        grads.append(torch.autograd.grad(loss, x)[0].cpu())
+    torch.testing.assert_close(grads[1], grads[0], atol=1e-4, rtol=1e-4)
+
+
+@pytest.mark.parametrize('batched', [False, True])
+@pytest.mark.parametrize('conjugate', [False, True])
+def test_complex_matmul_strides_gradients(batched, conjugate):
+    torch.manual_seed(732)
+    shape = (2,) if batched else ()
+    a = torch.randn(*shape, 4, 3, dtype=torch.complex64)
+    b = torch.randn(*shape, 4, 5, dtype=torch.complex64)
+    results = []
+    for device in ['cpu', 'vulkan']:
+        x, y = [t.to(device).detach().requires_grad_() for t in (a, b)]
+        xx = x.mH if conjugate else x.mT
+        out = xx @ y
+        gx, gy = torch.autograd.grad(out.abs().square().sum(), (x, y))
+        results.append([t.cpu() for t in (out, gx, gy)])
+    for actual, expected in zip(results[1], results[0]):
+        torch.testing.assert_close(actual, expected, atol=3e-5, rtol=3e-5)
+
+
+@pytest.mark.parametrize('batched', [False, True])
+def test_matmul_lazy_negative_views(batched):
+    torch.manual_seed(733)
+    shape = (2,) if batched else ()
+    a, b = torch.randn(*shape, 4, 3), torch.randn(*shape, 3, 5)
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    actual = torch._neg_view(av) @ torch._neg_view(bv)
+    torch.testing.assert_close(actual.cpu(), a @ b)
+
+
+@pytest.mark.parametrize('lower', [False, True])
+def test_general_eig_triangular_isolated_rows(lower):
+    torch.manual_seed(735)
+    a = torch.randn(3, 8, 8).triu()
+    if lower: a = a.mT
+    w, v = torch.linalg.eig(a.to('vulkan'))
+    w, v = w.cpu(), v.cpu()
+    torch.testing.assert_close(w.imag, torch.zeros_like(w.imag), atol=0, rtol=0)
+    torch.testing.assert_close(w.real.sort(-1).values, a.diagonal(dim1=-2, dim2=-1).sort(-1).values, atol=0, rtol=0)
+    torch.testing.assert_close(a.to(torch.complex64) @ v, v*w.unsqueeze(-2), atol=2e-5, rtol=2e-5)
+
+
+@pytest.mark.parametrize('rank', [1, 2, 3])
+@pytest.mark.parametrize('groups', [1, 2])
+@pytest.mark.parametrize('dilation', [1, 2])
+def test_integer_convolution_exact_large_values(rank, groups, dilation):
+    spatial = (5,) * rank
+    x = (torch.arange(2*2*5**rank, dtype=torch.int64).reshape(2, 2, *spatial)*257 + 2**56)
+    w = torch.arange(4*(2//groups)*3**rank, dtype=torch.int64).reshape(4, 2//groups, *((3,)*rank)).remainder(7).sub(3)
+    bias = torch.arange(4, dtype=torch.int64) + 2**60
+    # Sliced storage and nonzero offsets must preserve all 64 value bits.
+    backing = torch.empty(*x.shape[:-1], x.size(-1)*2+1, dtype=torch.int64)
+    backing[..., 1::2] = x
+    xv = backing.to('vulkan')[..., 1::2]
+    op = getattr(torch.nn.functional, f'conv{rank}d')
+    vk.reset_execution_stats()
+    actual = op(xv, w.to('vulkan'), bias.to('vulkan'), stride=2, padding=2, dilation=dilation, groups=groups)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    expected = op(x, w, bias, stride=2, padding=2, dilation=dilation, groups=groups)
+    torch.testing.assert_close(actual.cpu(), expected, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('ceil', [False, True])
+@pytest.mark.parametrize('dilation', [1, 2])
+def test_integer_max_pool2d_exact_values_indices(ceil, dilation):
+    x = torch.arange(2*3*7*9, dtype=torch.int64).reshape(2, 3, 7, 9) + 2**56
+    x[..., 1:3, 2:5] = -2**63
+    actual = torch.nn.functional.max_pool2d(x.to('vulkan').mT, 3, stride=2, padding=1,
+                                           dilation=dilation, ceil_mode=ceil, return_indices=True)
+    expected = torch.nn.functional.max_pool2d(x.mT, 3, stride=2, padding=1,
+                                             dilation=dilation, ceil_mode=ceil, return_indices=True)
+    for a, e in zip(actual, expected): torch.testing.assert_close(a.cpu(), e, atol=0, rtol=0)
+    smallest = torch.full((1, 1, 3, 3), -2**63, dtype=torch.int64)
+    a = torch.nn.functional.max_pool2d(smallest.to('vulkan'), 3, padding=1, return_indices=True)
+    e = torch.nn.functional.max_pool2d(smallest, 3, padding=1, return_indices=True)
+    for av, ev in zip(a, e): torch.testing.assert_close(av.cpu(), ev, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+@pytest.mark.parametrize('start,end,step', [(.9, 4.1, 1.5), (.9, 4.1, .5), (-.9, 4.1, .5), (4.1, -.9, -.5)])
+def test_integer_arange_fractional_scalar_parameters(dtype, start, end, step):
+    expected = torch.arange(start, end, step, dtype=dtype)
+    backing = torch.empty(expected.numel()*2+1, dtype=dtype, device='vulkan')
+    out = backing[1::2]
+    torch.arange(start, end, step, dtype=dtype, device='vulkan', out=out)
+    torch.testing.assert_close(out.cpu(), expected, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+@pytest.mark.parametrize('value', [.5, -2, 3])
+def test_integer_addcmul_wraparound_broadcast_out(dtype, value):
+    x = torch.tensor([[1], [-3]], dtype=dtype)
+    a = torch.tensor([[2**30, -3, 7]], dtype=dtype)
+    b = torch.tensor([[17], [-9]], dtype=dtype)
+    out = torch.empty(3, 2, dtype=dtype, device='vulkan').T
+    torch.addcmul(x.to('vulkan'), a.to('vulkan'), b.to('vulkan'), value=value, out=out)
+    torch.testing.assert_close(out.cpu(), torch.addcmul(x, a, b, value=value), atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('rank', [1, 2, 3])
+@pytest.mark.parametrize('mode', ['reflect', 'replicate'])
+def test_integer_padding_preserves_value_bits(rank, mode):
+    shape = (2, 3) + (5,)*rank
+    a = torch.arange(torch.tensor(shape).prod().item(), dtype=torch.int64).reshape(shape) + 2**57
+    a[..., 1:3] = -2**63
+    padding = (1, 2)*rank
+    actual = torch.nn.functional.pad(a.to('vulkan').transpose(0, 1), padding, mode=mode)
+    expected = torch.nn.functional.pad(a.transpose(0, 1), padding, mode=mode)
+    torch.testing.assert_close(actual.cpu(), expected, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64, torch.bool])
+def test_chunk_cat_rejects_unsafe_output_cast(dtype):
+    values = [torch.tensor([[[1.5, -2.5, 0.], [7.25, 8.5, 9.]]])]*2
+    expected = torch.empty(0, dtype=dtype)
+    with pytest.raises(TypeError, match="input types can.t be cast"):
+        torch._chunk_cat(values, -1, 5, out=expected)
+    actual = torch.empty(0, dtype=dtype, device='vulkan')
+    with pytest.raises(TypeError, match="input types can.t be cast"):
+        torch._chunk_cat([v.to('vulkan') for v in values], -1, 5, out=actual)
+
+
+def test_boolean_eye_noncanonical_storage():
+    backing = torch.full((5, 7), 255, dtype=torch.uint8, device='vulkan').view(torch.bool)
+    out = backing[1:4, 1:6]
+    torch.eye(3, 5, out=out)
+    expected = torch.ones(5, 7, dtype=torch.bool); expected[1:4, 1:6] = torch.eye(3, 5, dtype=torch.bool)
+    torch.testing.assert_close(backing.cpu(), expected)
+
+
+@pytest.mark.parametrize('scale', [2.**-120, 2.**120, 3.e38])
+def test_complex_lu_solve_scaled_singleton(scale):
+    a = torch.tensor([[complex(scale, scale)]], dtype=torch.complex64)
+    b = a.clone()
+    lu, piv = torch.linalg.lu_factor(a.to('vulkan'))
+    actual = torch.linalg.lu_solve(lu, piv, b.to('vulkan'))
+    # CPU FP32 LU itself overflows for 3e38+3e38j; use a higher precision
+    # reference for this finite, well-conditioned singleton solve.
+    expected = torch.linalg.solve(a.to(torch.complex128), b.to(torch.complex128)).to(torch.complex64)
+    torch.testing.assert_close(actual.cpu(), expected)
+
+
+@pytest.mark.parametrize('dtype', [torch.uint8, torch.int8, torch.int16, torch.int32, torch.int64])
+@pytest.mark.parametrize('bounds', [(0.1, 9.9), (1, 5), (9, 1), (7, 7)])
+def test_integer_linspace_endpoint_casts_and_strided_output(dtype, bounds):
+    for steps in [0, 1, 2, 5, 8, 33]:
+        expected = torch.linspace(*bounds, steps, dtype=dtype)
+        backing = torch.empty(steps*2+1, dtype=dtype, device='vulkan')
+        out = backing[1::2]
+        torch.linspace(*bounds, steps, dtype=dtype, device='vulkan', out=out)
+        torch.testing.assert_close(out.cpu(), expected, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('bounds', [(2**54, 2**54+32), (-(2**54+3), -(2**54)+73),
+                                    (-2**62, 2**62), (2**63-1, 2**63-9), (-2**63, -2**63+4096)])
+def test_integer_linspace_large_endpoint_precision(bounds):
+    for steps in [1, 2, 3, 5, 8, 17, 127]:
+        actual = torch.linspace(*bounds, steps, dtype=torch.int64, device='vulkan')
+        expected = torch.linspace(*bounds, steps, dtype=torch.int64)
+        torch.testing.assert_close(actual.cpu(), expected, atol=0, rtol=0)
+
+
+@pytest.mark.parametrize('dtype', [torch.uint8, torch.int8, torch.int16])
+def test_short_integer_arange_and_eye(dtype):
+    for start, end, step in [(259, 269, 1), (4.1, -.9, -.5), (-.9, 4.1, .5)]:
+        actual = torch.arange(start, end, step, dtype=dtype, device='vulkan')
+        expected = torch.arange(start, end, step, dtype=dtype)
+        torch.testing.assert_close(actual.cpu(), expected, atol=0, rtol=0)
+    torch.testing.assert_close(torch.eye(3, 5, dtype=dtype, device='vulkan').cpu(), torch.eye(3, 5, dtype=dtype))
+
+
+@pytest.mark.parametrize('ceil', [False, True])
+@pytest.mark.parametrize('dilation', [1, 2])
+def test_integer_max_pool3d_exact_values_indices(ceil, dilation):
+    a = torch.arange(2*3*5*7*9, dtype=torch.int64).reshape(2, 3, 5, 7, 9) + 2**56
+    a[..., 1:3, 2:5] = -2**63
+    for x in [a, torch.full_like(a, -2**63)]:
+        actual = torch.nn.functional.max_pool3d(x.to('vulkan').mT, 3, stride=2, padding=1,
+                                               dilation=dilation, ceil_mode=ceil, return_indices=True)
+        expected = torch.nn.functional.max_pool3d(x.mT, 3, stride=2, padding=1,
+                                                 dilation=dilation, ceil_mode=ceil, return_indices=True)
+        for av, ev in zip(actual, expected): torch.testing.assert_close(av.cpu(), ev, atol=0, rtol=0)
