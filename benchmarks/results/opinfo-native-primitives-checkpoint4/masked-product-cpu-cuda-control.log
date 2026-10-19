@@ -1,0 +1,4 @@
+/workspace/Pytorch-vulkan/.venv-cuda/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+cpu PASS
+cuda PASS

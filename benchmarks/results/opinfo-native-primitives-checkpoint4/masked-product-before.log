@@ -1,0 +1,36 @@
+/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+captured 1 errors 1 failures 0
+ror(  # type: ignore[index]
+AssertionError: Scalars are not close!
+
+Expected -38.50860595703125 but got -38.508544921875.
+Absolute difference: 6.103515625e-05 (up to 1e-05 allowed)
+Relative difference: 1.584974442287118e-06 (up to 1.3e-06 allowed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_utils.py", line 3829, in wrapper
+    method(*args, **kwargs)
+  File "/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_device_type.py", line 628, in instantiated_test
+    result = test(self, **param_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_utils.py", line 2146, in wrapper
+    fn(*args, **kwargs)
+  File "/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_device_type.py", line 1464, in test_wrapper
+    raise e_tracked from e
+Exception: Scalars are not close!
+
+Expected -38.50860595703125 but got -38.508544921875.
+Absolute difference: 6.103515625e-05 (up to 1e-05 allowed)
+Relative difference: 1.584974442287118e-06 (up to 1.3e-06 allowed)
+
+Caused by sample input at index 17: SampleInput(input=Tensor[size=(3, 5), device="vulkan:0", dtype=torch.float32], args=(), kwargs={'mask': 'Tensor[size=(3, 5), device="vulkan:0", dtype=torch.bool]'}, broadcasts_input=False, name='')
+
+To execute this test, run the following from the base repo dir:
+    PYTORCH_OPINFO_SAMPLE_INPUT_INDEX=17 python test/test_ops.py TestCompositeComplianceVULKAN.test_forward_ad_masked_prod_vulkan_float32
+
+This message can be suppressed by setting PYTORCH_PRINT_REPRO_ON_FAILURE=0
+
+[Oct 18 2026 23:46:50] [warn] [/workspace/Pytorch-vulkan/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

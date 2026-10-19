@@ -1,4 +1,6 @@
 #version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_trig.glsl"
 // General FP32 pointwise shader, supports view strides and storage offsets.
 // op 0=SiLU,1=sin,2=cos,3=exp,4=sqrt,5=rsqrt,6=tanh,7=neg
 layout(local_size_x=128) in;
@@ -22,8 +24,8 @@ void main(){
   if(p.op==0u) {
     float s=1.0/(1.0+exp(-v));
     o=v*s;
-  } else if(p.op==1u)o=sin(v);
-  else if(p.op==2u)o=cos(v);
+  } else if(p.op==1u)o=portable_sin(v);
+  else if(p.op==2u)o=portable_cos(v);
   else if(p.op==3u)o=exp(v);
   else if(p.op==4u)o=sqrt(v);
   else if(p.op==5u)o=inversesqrt(v);

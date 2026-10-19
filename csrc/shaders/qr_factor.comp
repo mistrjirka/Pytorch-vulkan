@@ -1,0 +1,13 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) buffer A {float a[];};
+layout(binding=2) writeonly buffer T {float tau[];};
+layout(push_constant) uniform P {uint batches,m,n,k;}p;
+void main(){uint batch=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(batch>=p.batches)return;uint base=batch*p.m*p.n;for(uint i=0;i<p.m*p.n;i++)a[base+i]=x[base+i];for(uint j=0;j<p.k;j++){
+ float alpha=a[base+j*p.n+j],scale=abs(alpha);for(uint i=j+1;i<p.m;i++)scale=max(scale,abs(a[base+i*p.n+j]));float tail=0.;if(scale!=0.)for(uint i=j+1;i<p.m;i++){float v=divide_refined(a[base+i*p.n+j],scale);tail+=v*v;}float t=0.;if(tail!=0.){float aa=divide_refined(alpha,scale);float beta_scaled=-((floatBitsToUint(alpha)&0x80000000u)!=0u?-1.:1.)*sqrt(aa*aa+tail);float beta=scale*beta_scaled;t=1.-divide_refined(aa,beta_scaled);float denominator=aa-beta_scaled;for(uint i=j+1;i<p.m;i++)a[base+i*p.n+j]=divide_refined(divide_refined(a[base+i*p.n+j],scale),denominator);a[base+j*p.n+j]=beta;
+ for(uint col=j+1;col<p.n;col++){float dot=a[base+j*p.n+col];for(uint i=j+1;i<p.m;i++)dot+=a[base+i*p.n+j]*a[base+i*p.n+col];dot*=t;a[base+j*p.n+col]-=dot;for(uint i=j+1;i<p.m;i++)a[base+i*p.n+col]-=a[base+i*p.n+j]*dot;}}
+ tau[batch*p.k+j]=t;
+ }}

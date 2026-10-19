@@ -70,6 +70,7 @@ static at::Tensor contiguous_for_kernel(const at::Tensor& src) {
 // Helper: get existing Kompute tensor from a Vulkan PyTorch tensor (no copy!)
 static std::shared_ptr<kp::TensorT<float>> get_kp_tensor(const at::Tensor& t) {
   auto& alloc = VulkanAllocator::instance();
+  if(t._is_zerotensor())return alloc.constant_float_buffer(std::max<size_t>(1,(t.storage().nbytes()+3)/4),0);
   return alloc.get_kompute_tensor(const_cast<void*>(t.const_data_ptr()));
 }
 
@@ -242,6 +243,7 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
   TORCH_CHECK(self.dim() == 2 && mat2.dim() == 2, "mm: inputs must be 2D");
   TORCH_CHECK(self.size(1) == mat2.size(0), "mm: dimension mismatch");
   TORCH_CHECK(self.scalar_type() == mat2.scalar_type(), "mm: expected both matrices to have the same dtype");
+  if(integer_type(self.scalar_type()))return integer_matmul(self,mat2);
   TORCH_CHECK(self.scalar_type() == at::kFloat, "mm: only float32 for now");
   TORCH_CHECK(self.device() == mat2.device() && self.device().type() == c10::DeviceType::PrivateUse1,
               "mm: expected both matrices on the same Vulkan device");
@@ -421,6 +423,7 @@ at::Tensor mul_tensor(const at::Tensor& self, const at::Tensor& other) {
 
 // aten::relu — rectified linear
 at::Tensor relu(const at::Tensor& self) {
+  if(self.scalar_type()!=at::kFloat){TORCH_CHECK(self.scalar_type()!=at::kBool,"Boolean inputs not supported for relu");return at::clamp_min(self,0);}
   uint32_t n = static_cast<uint32_t>(self.numel());
   return elementwise_unary(self, "relu", {n});
 }
@@ -724,7 +727,8 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
 
 // aten::gelu — Gaussian Error Linear Unit via gelu.spv
 at::Tensor vulkan_gelu(const at::Tensor& self, c10::string_view approximate) {
-  TORCH_CHECK(approximate == "none", "Vulkan GELU only supports approximate='none'");
+  TORCH_CHECK(approximate == "none" || approximate == "tanh", "approximate argument must be either none or tanh");
+  if(approximate=="tanh"){auto t=at::tanh(self.add(self.mul(self).mul(self).mul(.044715)).mul(.7978845608028654));return self.mul(.5).mul(t.add(1));}
   uint32_t n = static_cast<uint32_t>(self.numel());
   return elementwise_unary(self, "gelu", {n});
 }
@@ -732,7 +736,8 @@ at::Tensor vulkan_gelu(const at::Tensor& self, c10::string_view approximate) {
 at::Tensor vulkan_gelu_backward(const at::Tensor& grad,
                                  const at::Tensor& input,
                                  c10::string_view approximate) {
-  TORCH_CHECK(approximate == "none", "Vulkan GELU backward only supports approximate='none'");
+  TORCH_CHECK(approximate == "none" || approximate == "tanh", "approximate argument must be either none or tanh");
+  if(approximate=="tanh"){auto t=at::tanh(input.add(input.mul(input).mul(input).mul(.044715)).mul(.7978845608028654));return grad.mul(t.add(1).mul(.5).add(input.mul(.3989422804014327).mul(at::rsub(t.mul(t),1)).mul(input.mul(input).mul(.134145).add(1))));}
   uint32_t n = static_cast<uint32_t>(input.numel());
   TORCH_CHECK(grad.sizes() == input.sizes(), "Vulkan GELU backward shape mismatch");
   return elementwise_binary(input, grad, "gelu_backward", {n});

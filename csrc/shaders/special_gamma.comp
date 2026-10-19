@@ -1,0 +1,29 @@
+#version 450
+// digamma_positive and hurwitz_zeta are adapted from PyTorch ATen/native/Math.h,
+// derived from Cephes. BSD-3-Clause; see third_party/cephes-LICENSE.txt.
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,op,order;}p;
+float inf(){return uintBitsToFloat(0x7f800000u);}float nanv(){return uintBitsToFloat(0x7fc00000u);}
+float positive_log(float a){uint bits=floatBitsToUint(a);if(bits>=0x00800000u)return log(a);if(bits==0u)return -inf();int shift=23-findMSB(bits);uint mantissa=bits<<shift;return log(uintBitsToFloat(0x3f800000u|(mantissa&0x7fffffu)))+float(-126-shift)*0.6931471805599453;}
+float gamma_positive(float a){if(a==1.||a==2.)return 0.;float shifted=a,correction=0.;while(shifted<8.){correction-=log(shifted);shifted+=1.;}float inv=1./shifted,z=inv*inv;float tail=inv*(1./12.+z*(-1./360.+z*(1./1260.+z*(-1./1680.+z*(1./1188.)))));return (shifted-.5)*log(shifted)-shifted+0.9189385332046727+tail+correction;}
+float gamma_log(float a){if(isnan(a))return a;if(isinf(a)||(floatBitsToUint(a)&0x7fffffffu)==0u)return inf();if((floatBitsToUint(a)&0x7fffffffu)<0x35000000u)return -positive_log(uintBitsToFloat(floatBitsToUint(a)&0x7fffffffu));if(a<0.){if(a==trunc(a))return inf();float fraction=a-floor(a);return 1.1447298858494002-log(abs(sin(3.141592653589793*fraction)))-gamma_positive(1.-a);}return gamma_positive(a);}
+float digamma_positive(float a){float result=0.;while(a<10.){result-=divide_refined(1.,a);a+=1.;}if(a==10.)return result+2.251752589066721;float z=1./(a*a);float polynomial=((((((.08333333333333333*z-.02109279609279609)*z+.007575757575757576)*z-.004166666666666667)*z+.003968253968253968)*z-.008333333333333333)*z+.08333333333333333)*z;return result+log(a)-.5/a-polynomial;}
+float sinc_series(float v){float z=v*v;return 1.+z*(-1./6.+z*(1./120.+z*(-1./5040.+z*(1./362880.+z*(-1./39916800.+z/6227020800.)))));}
+float cosine_series(float v){float z=v*v;return 1.+z*(-.5+z*(1./24.+z*(-1./720.+z*(1./40320.+z*(-1./3628800.+z/479001600.)))));}
+float cotangent_pi(float r){float t=3.141592653589793*r;return divide_refined(cosine_series(t),r*sinc_series(t));}
+// Cody-Waite reduction preserves the rounded FP32 pi*x argument used by
+// ATen trigamma, including its finite values at negative integer poles.
+float sine_rounded_argument(float v){if(isinf(v)||isnan(v))return nanv();if(abs(v)>8192.)return sin(v);float k=roundEven(v*.3183098861837907);precise float r=v-k*3.140625;r-=k*.000967502593994140625;r-=k*1.5099579909783764e-7;float value=r*sinc_series(r);return (int(k)&1)!=0?-value:value;}
+float trigamma_value(float a){float sign=1.,result=0.;if(a<.5){sign=-1.;precise float arg=3.1415927410125732421875*a;float sine=sine_rounded_argument(arg);result-=divide_refined(9.86960506439208984375,sine*sine);a=1.-a;}for(uint i=0u;i<6u;i++){result+=divide_refined(1.,a*a);a+=1.;}float z=1./(a*a);result+=(1.+1./(2.*a)+z*(1./6.-z*(1./30.-z/42.)))/a;return sign*result;}
+float digamma_value(float a){if(isnan(a))return a;if((floatBitsToUint(a)&0x7fffffffu)==0u)return uintBitsToFloat((floatBitsToUint(a)^0x80000000u)|0x7f800000u);if(a<0.){if(a==trunc(a))return nanv();float r=a-trunc(a);if(r<-.5)r+=1.;return digamma_positive(1.-a)-cotangent_pi(r);}return digamma_positive(a);}
+float negative_power(float a,uint exponent){uint bits=floatBitsToUint(a);float v=(bits&0x7fffffffu)<0x00800000u?inf():pow(abs(a),-float(exponent));return (bits&0x80000000u)!=0u&&(exponent&1u)!=0u?-v:v;}
+float hurwitz_zeta(uint order,float q){
+ const float coefficients[12]=float[12](12.,-720.,30240.,-1209600.,47900160.,-1.8924375803183792e9,7.47242496e10,-2.950130727918164e12,1.1646782814350067e14,-4.597978722407473e15,1.8152105401943547e17,-7.166165256175667e18);
+ if(isnan(q))return q;uint qb=floatBitsToUint(q)&0x7fffffffu;if(qb!=0u&&qb<0x00800000u)return negative_power(q,order);if(q<=0.&&q==floor(q))return inf();if(isinf(q))return q>0.?0.:nanv();float exponent=float(order),s=negative_power(q,order),a=q,b=0.;uint i=0u;while(i<9u||a<=9.){i++;a+=1.;b=negative_power(a,order);s+=b;if(abs(b)<abs(s)*1.1102230246251565e-16)return s;}
+ float w=a;s+=b*w/(exponent-1.)-.5*b;a=1.;float k=0.;for(i=0u;i<12u;i++){a*=exponent+k;b/=w;float term=a*b/coefficients[i];s+=term;if(abs(term/s)<1.1102230246251565e-16)return s;k+=1.;a*=exponent+k;b/=w;k+=1.;}return s;
+}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;float a=x[i];if(p.op==0u)y[i]=gamma_log(a);else if(p.op==1u||p.order==0u)y[i]=digamma_value(a);else if(p.order==1u)y[i]=trigamma_value(a);else if(isinf(a)&&a>0.)y[i]=nanv();else y[i]=((p.order&1u)!=0u?1.:-1.)*exp(gamma_log(float(p.order)+1.))*hurwitz_zeta(p.order+1u,a);}

@@ -6,10 +6,12 @@ layout(binding=1) writeonly buffer Output {float y[];};
 layout(push_constant) uniform Params {uint count,reduced,mask,mean,parallel;uint sizes[8];uint strides[8];} p;
 shared float sums[128];
 uint address(uint value,bool reduction){uint off=0;for(int d=7;d>=0;d--){if(((p.mask&(1u<<d))!=0)==reduction){off+=(value%p.sizes[d])*p.strides[d];value/=p.sizes[d];}}return off;}
+void accumulate(inout float acc,inout float correction,float value){precise float next=acc+value;if(!isinf(next)&&!isnan(next)){precise float error=abs(acc)>=abs(value)?(acc-next)+value:(value-next)+acc;correction+=error;}else correction=0.;acc=next;}
 void main(){uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;
  uint i=p.parallel!=0?group:group*128+lane;if(i>=p.count)return;
- uint base=address(i,false);float acc=0;
- for(uint k=p.parallel!=0?lane:0;k<p.reduced;k+=p.parallel!=0?128:1)acc+=x[base+address(k,true)];
+ uint base=address(i,false);float acc=0,correction=0;
+ for(uint k=p.parallel!=0?lane:0;k<p.reduced;k+=p.parallel!=0?128:1)accumulate(acc,correction,x[base+address(k,true)]);
+ if(!isinf(acc)&&!isnan(acc))acc+=correction;
  if(p.parallel!=0){sums[lane]=acc;barrier();for(uint s=64;s>0;s/=2){if(lane<s)sums[lane]+=sums[lane+s];barrier();}if(lane==0)y[i]=p.mean!=0?sums[0]/float(p.reduced):sums[0];}
  else y[i]=p.mean!=0?acc/float(p.reduced):acc;
 }

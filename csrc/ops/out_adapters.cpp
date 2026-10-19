@@ -46,6 +46,18 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("fmod.Tensor_out","fmod","Tensor");add("fmod.Scalar_out","fmod","Scalar");add("remainder.Tensor_out","remainder","Tensor");add("remainder.Scalar_out","remainder","Scalar");add("pow.Tensor_Tensor_out","pow","Tensor_Tensor");add("floor_divide.out","floor_divide");add("floor_divide.Scalar_out","floor_divide","Scalar");add("div.out_mode","div","Tensor_mode");add("div.Scalar_mode_out","div","Scalar_mode");
  add("hypot.out","hypot");add("copysign.out","copysign","Tensor");add("copysign.Scalar_out","copysign","Scalar");add("logaddexp.out","logaddexp");add("logaddexp2.out","logaddexp2");add("xlogy.OutTensor","xlogy","Tensor");add("xlogy.OutScalar_Other","xlogy","Scalar_Other");add("nextafter.out","nextafter");
  add("_unique2.out","_unique2");add("topk.values","topk");
+ add("pow.Scalar_out","pow","Scalar");add("remainder.Scalar_Tensor_out","remainder","Scalar_Tensor");add("xlogy.OutScalar_Self","xlogy","Scalar_Self");
+ add("lgamma.out","lgamma");add("digamma.out","digamma");add("polygamma.out","polygamma");
+ add("prod.out","prod");add("prod.int_out","prod","dim_int");add("_unique.out","_unique");add("_logcumsumexp.out","_logcumsumexp");add("signbit.out","signbit");add("count_nonzero.dim_IntList_out","count_nonzero","dim_IntList");add("count_nonzero.out","count_nonzero");
+ add("unique_dim.out","unique_dim");add("unique_consecutive.out","unique_consecutive");add("unique_dim_consecutive.out","unique_dim_consecutive");
+ add("adaptive_max_pool2d.out","adaptive_max_pool2d");add("adaptive_max_pool2d_backward.grad_input","adaptive_max_pool2d_backward");add("adaptive_max_pool3d.out","adaptive_max_pool3d");add("adaptive_max_pool3d_backward.grad_input","adaptive_max_pool3d_backward");add("max_unpool2d.out","max_unpool2d");add("max_unpool3d.out","max_unpool3d");
+ for(auto name:{"elu","hardshrink","softshrink","softplus","hardsigmoid","hardswish","mish","threshold","logit","glu","nan_to_num","mvlgamma","nonzero_static","trace","addbmm"})add((std::string(name)+".out").c_str(),name);
+ add("elu_backward.grad_input","elu_backward");add("hardshrink_backward.grad_input","hardshrink_backward");add("softshrink_backward.grad_input","softshrink_backward");add("softplus_backward.grad_input","softplus_backward");add("hardsigmoid_backward.grad_input","hardsigmoid_backward");add("hardswish_backward.out","hardswish_backward");add("hardtanh_backward.grad_input","hardtanh_backward");add("logit_backward.grad_input","logit_backward");add("glu_backward.grad_input","glu_backward");add("rrelu_with_noise.out","rrelu_with_noise");add("rrelu_with_noise_backward.out","rrelu_with_noise_backward");
+ add("_fft_r2c.out","_fft_r2c");add("_fft_c2c.out","_fft_c2c");add("_fft_c2r.out","_fft_c2r");add("conj_physical.out","_conj_physical");
+ add("_linalg_det.result","_linalg_det");add("_linalg_slogdet.sign","_linalg_slogdet");add("_linalg_eigh.eigenvalues","_linalg_eigh");
+ add("gelu_backward.grad_input","gelu_backward");add("complex.out","complex");add("polar.out","polar");
+ add("geqrf.a","geqrf");add("ormqr.out","ormqr");add("linalg_householder_product.out","linalg_householder_product");add("linalg_qr.out","linalg_qr");
+ add("linalg_polar.out","linalg_polar");add("glu_jvp.out","glu_jvp");
  add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");

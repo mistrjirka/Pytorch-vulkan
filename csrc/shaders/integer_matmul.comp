@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {uint a[];};
+layout(binding=1) readonly buffer B {uint b[];};
+layout(binding=2) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,m,k,n,width;}p;
+uvec2 plus64(uvec2 a,uvec2 b){uint low=a.x+b.x;return uvec2(low,a.y+b.y+uint(low<a.x));}
+uvec2 times64(uvec2 a,uvec2 b){uint hi,lo;umulExtended(a.x,b.x,hi,lo);return uvec2(lo,hi+a.x*b.y+a.y*b.x);}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint row=(i/p.n)%p.m,col=i%p.n,batch=i/(p.m*p.n);uvec2 sum=uvec2(0);for(uint j=0;j<p.k;j++){uint ai=((batch*p.m+row)*p.k+j)*p.width,bi=((batch*p.k+j)*p.n+col)*p.width;uvec2 av=uvec2(a[ai],p.width==2u?a[ai+1]:0u),bv=uvec2(b[bi],p.width==2u?b[bi+1]:0u);sum=plus64(sum,times64(av,bv));}y[i*p.width]=sum.x;if(p.width==2u)y[2*i+1]=sum.y;}

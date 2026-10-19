@@ -1,0 +1,11 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) readonly buffer T {float tau[];};
+layout(binding=2) readonly buffer B {float b[];};
+layout(binding=3) buffer Y {float y[];};
+layout(push_constant) uniform P {uint batches,qdim,acols,k,rows,cols,left,transpose;}p;
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;uint vectors=p.left!=0u?p.cols:p.rows;if(id>=p.batches*vectors)return;uint batch=id/vectors,vector=id%vectors,base=batch*p.rows*p.cols,ab=batch*p.qdim*p.acols;
+ for(uint i=0;i<p.qdim;i++){uint off=p.left!=0u?i*p.cols+vector:vector*p.cols+i;y[base+off]=b[base+off];}
+ bool forward=p.left==p.transpose;for(uint step=0;step<p.k;step++){uint j=forward?step:p.k-1-step;float t=tau[batch*p.k+j];if(t==0.)continue;uint offset=p.left!=0u?j*p.cols+vector:vector*p.cols+j;float dot=y[base+offset];for(uint i=j+1;i<p.qdim;i++){uint off=p.left!=0u?i*p.cols+vector:vector*p.cols+i;dot+=a[ab+i*p.acols+j]*y[base+off];}dot*=t;y[base+offset]-=dot;for(uint i=j+1;i<p.qdim;i++){uint off=p.left!=0u?i*p.cols+vector:vector*p.cols+i;y[base+off]-=a[ab+i*p.acols+j]*dot;}}
+}

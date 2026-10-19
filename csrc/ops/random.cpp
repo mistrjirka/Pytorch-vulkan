@@ -8,7 +8,8 @@ namespace torch_vulkan::ops {
 namespace {
 using namespace native;
 at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const std::optional<at::Generator>& generator,const at::Tensor& probs={}) {
- TORCH_CHECK(out.scalar_type()==at::kFloat&&can_pack_view(out),"Vulkan random fill requires packable FP32 output");at::assert_no_internal_overlap(out);
+ if(out.scalar_type()==at::kComplexFloat&&(mode==0||mode==1)){auto real=at::view_as_real(out);random_fill(real,mode,a,mode==1?b/std::sqrt(2.):b,generator);return out;}
+ TORCH_CHECK(out.scalar_type()==at::kFloat&&can_pack_view(out),"Vulkan random fill requires packable FP32 output; got ",out.scalar_type()," with shape ",out.sizes());at::assert_no_internal_overlap(out);
  if(!out.numel())return out;
  auto state=random_state(generator,(out.numel()+3)/4);
  std::vector<uint32_t> p={u32(out.numel()),mode,state[0],state[1],state[2],state[3],bits(float(a)),bits(float(b)),u32(out.storage_offset())};p.resize(25,0);std::fill(p.begin()+9,p.begin()+17,1);

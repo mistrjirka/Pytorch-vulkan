@@ -67,6 +67,7 @@ at::Tensor abs_native(const at::Tensor& x) {
   return supported(x)?unary(x,1):at::abs(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor sgn_native(const at::Tensor& x) {
+  if(x.scalar_type()==at::kComplexFloat){auto magnitude=at::abs(x);return at::where(magnitude.eq(0),at::zeros({},x.options()),x.div(magnitude));}
   if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat)return at::sign(x);
   return supported(x)?unary(x,2):at::sgn(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }

@@ -860,3 +860,216 @@ def test_magnitude_extreme_finite_inputs():
     torch.testing.assert_close(torch.hypot(a.to('vulkan'), b.to('vulkan')).cpu(), torch.hypot(a, b), rtol=1e-6, atol=0)
     c = torch.complex(a, b)
     torch.testing.assert_close(c.to('vulkan').abs().cpu(), c.abs(), rtol=1e-6, atol=0)
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+@pytest.mark.parametrize('op', ['fmod', 'remainder', 'floor_divide', 'trunc', 'pow'])
+def test_exact_integer_math(dtype, op):
+    gen = torch.Generator().manual_seed(988)
+    lo, hi = -(2**30), 2**30
+    a = torch.randint(lo, hi, (4000,), generator=gen, dtype=dtype)
+    b = torch.randint(-999, 999, (4000,), generator=gen, dtype=dtype)
+    b[b == 0] = 1
+    if dtype == torch.int64: a = a * 2**32 + 31; b = b * 2**27 + 1
+    if op == 'pow': b = torch.randint(-3, 8, (4000,), generator=gen, dtype=dtype)
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    fn = (lambda x, y: torch.div(x, y, rounding_mode='trunc')) if op == 'trunc' else getattr(torch, op)
+    vk.reset_execution_stats(); actual = fn(av, bv)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    torch.testing.assert_close(actual.cpu(), fn(a, b), rtol=0, atol=0)
+
+@pytest.mark.parametrize('name', ['lgamma', 'digamma', 'polygamma1', 'polygamma2', 'polygamma3', 'polygamma5'])
+def test_gamma_functions_and_gradients(name):
+    x = torch.cat((torch.linspace(.001, 20, 3001), torch.linspace(-20.7, -.3, 2001), torch.tensor([1e-38, 1e-45, -1e-38, -1e-45, 0., -0., -1., -2., float('inf'), -float('inf'), float('nan')])))
+    fn = getattr(torch, name) if not name.startswith('polygamma') else lambda t: torch.polygamma(int(name[-1]), t)
+    v = x.to('vulkan'); vk.reset_execution_stats(); actual = fn(v); resident()
+    torch.testing.assert_close(actual.cpu(), fn(x), rtol=2e-5, atol=2e-5, equal_nan=True)
+    xg = torch.linspace(.2, 4, 71, requires_grad=True); vg = xg.detach().to('vulkan').requires_grad_()
+    fn(xg).sum().backward(); fn(vg).sum().backward()
+    torch.testing.assert_close(vg.grad.cpu(), xg.grad, rtol=2e-5, atol=2e-5, equal_nan=True)
+
+@pytest.mark.parametrize('consecutive', [True, False])
+@pytest.mark.parametrize('dim', [None, 0, 1])
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64, torch.bool])
+def test_unique_rows_and_consecutive(dtype, dim, consecutive):
+    x = torch.tensor([[1, 2, 1, 2], [1, 2, 1, 2], [3, 0, 3, 0], [1, 2, 1, 2]], dtype=dtype)
+    if dtype == torch.int64: x = x * 2**40 + 7
+    fn = torch.unique_consecutive if consecutive else torch.unique
+    v = x.to('vulkan'); vk.reset_execution_stats()
+    actual = fn(v, dim=dim, return_inverse=True, return_counts=True)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    expected = fn(x, dim=dim, return_inverse=True, return_counts=True)
+    for a, b in zip(actual, expected): torch.testing.assert_close(a.cpu(), b)
+
+@pytest.mark.parametrize('rank', [2, 3])
+@pytest.mark.parametrize('batched', [True, False])
+def test_adaptive_max_and_unpool(rank, batched):
+    torch.manual_seed(1212)
+    shape = ((2, 3) if batched else (3,)) + (6,) * rank
+    x = torch.randn(shape, requires_grad=True); v = x.detach().to('vulkan').requires_grad_()
+    fn = getattr(torch.nn.functional, f'adaptive_max_pool{rank}d')
+    vk.reset_execution_stats(); actual, indices = fn(v, (3,) * rank, return_indices=True)
+    actual.sum().backward(); assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    expected, reference_indices = fn(x, (3,) * rank, return_indices=True); expected.sum().backward()
+    torch.testing.assert_close(actual.cpu(), expected); torch.testing.assert_close(indices.cpu(), reference_indices); torch.testing.assert_close(v.grad.cpu(), x.grad)
+    unpool = getattr(torch.nn.functional, f'max_unpool{rank}d')
+    actual_unpool = unpool(actual.detach(), indices, 2, output_size=shape[-rank:])
+    expected_unpool = unpool(expected.detach(), reference_indices, 2, output_size=shape[-rank:])
+    torch.testing.assert_close(actual_unpool.cpu(), expected_unpool)
+
+
+def test_logcumsumexp_and_product():
+    x = torch.tensor([[float('-inf'), -1000., -40., 1., 40., 1000.], [0., 1., float('nan'), 4., 5., 6.]])
+    v = x.to('vulkan'); vk.reset_execution_stats(); actual = v.logcumsumexp(1); resident()
+    torch.testing.assert_close(actual.cpu(), x.logcumsumexp(1), equal_nan=True)
+    a = torch.tensor([[2, -3, 4], [7, 8, 9]], dtype=torch.int64)
+    torch.testing.assert_close(a.to('vulkan').prod(1).cpu(), a.prod(1))
+
+@pytest.mark.parametrize('name', ['elu', 'celu', 'selu', 'softplus', 'hardshrink', 'softshrink', 'hardsigmoid', 'hardswish', 'mish', 'logit', 'glu'])
+def test_general_activation_forward_and_gradient(name):
+    torch.manual_seed(992)
+    x = torch.randn(3, 8, 5).transpose(1, 2).requires_grad_()
+    if name == 'logit': x = x.sigmoid().detach().requires_grad_()
+    v = x.detach().to('vulkan').requires_grad_()
+    fn = torch.logit if name == 'logit' else getattr(torch.nn.functional, name)
+    options = {'dim': 2} if name == 'glu' else {}
+    vk.reset_execution_stats(); a = fn(v, **options); a.sum().backward(); resident()
+    b = fn(x, **options); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b, rtol=2e-5, atol=2e-6)
+    torch.testing.assert_close(v.grad.cpu(), x.grad, rtol=2e-5, atol=2e-6)
+
+@pytest.mark.parametrize('name', ['elu', 'softplus', 'hardshrink', 'softshrink', 'hardsigmoid', 'hardswish', 'mish'])
+def test_activation_nonfinite_and_boundary_values(name):
+    x = torch.tensor([-float('inf'), -100., -3., -.5, -0., 0., .5, 3., 100., float('inf'), float('nan')], requires_grad=True)
+    v = x.detach().to('vulkan').requires_grad_(); fn = getattr(torch.nn.functional, name)
+    a = fn(v); b = fn(x); a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b, equal_nan=True)
+    torch.testing.assert_close(v.grad.cpu(), x.grad, equal_nan=True)
+
+
+def test_general_selection_primitives():
+    x = torch.arange(24).reshape(2, 3, 4).transpose(0, 2)
+    index = torch.tensor([[-1, 0], [3, -5]])
+    torch.testing.assert_close(torch.take(x.to('vulkan'), index.to('vulkan')).cpu(), torch.take(x, index))
+    src = torch.tensor([3, 4, 5, 6]); idx = index.reshape(-1)
+    a = x.to('vulkan'); b = x.clone(); a.put_(idx.to('vulkan'), src.to('vulkan'), accumulate=True); b.put_(idx, src, accumulate=True)
+    torch.testing.assert_close(a.cpu(), b)
+    for size in [0, 2, 30]: torch.testing.assert_close(torch.nonzero_static(a, size=size, fill_value=7).cpu(), torch.nonzero_static(b, size=size, fill_value=7))
+    z = torch.randn(2, 6, 3, 4)
+    torch.testing.assert_close(torch.channel_shuffle(z.to('vulkan'), 3).cpu(), torch.channel_shuffle(z, 3))
+
+@pytest.mark.parametrize('n', [0, 1, 3, 9])
+@pytest.mark.parametrize('batch', [(), (2,), (2, 1)])
+@pytest.mark.parametrize('uplo', ['L', 'U'])
+def test_eigh_and_determinant(n, batch, uplo):
+    torch.manual_seed(132); x = torch.randn(batch + (n, n)); x = (x + x.mT) * .5
+    v = x.to('vulkan'); vk.reset_execution_stats(); w, q = torch.linalg.eigh(v, UPLO=uplo)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    torch.testing.assert_close(w.cpu(), torch.linalg.eigvalsh(x, UPLO=uplo), rtol=2e-5, atol=2e-6)
+    torch.testing.assert_close((q @ torch.diag_embed(w) @ q.mT).cpu(), x, rtol=2e-5, atol=2e-6)
+    torch.testing.assert_close(torch.linalg.det(v).cpu(), torch.linalg.det(x), rtol=3e-5, atol=2e-5)
+    a = torch.linalg.slogdet(v); b = torch.linalg.slogdet(x)
+    for aa, bb in zip(a, b): torch.testing.assert_close(aa.cpu(), bb, rtol=2e-5, atol=2e-5)
+
+@pytest.mark.parametrize('shape', [(0, 3), (3, 0), (1, 1), (7, 3), (3, 7), (2, 5, 4)])
+@pytest.mark.parametrize('mode', ['reduced', 'complete', 'r'])
+def test_householder_qr_and_factor(shape, mode):
+    torch.manual_seed(341); x = torch.randn(shape); v = x.to('vulkan')
+    vk.reset_execution_stats(); q, r = torch.linalg.qr(v, mode=mode)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    qc, rc = torch.linalg.qr(x, mode=mode)
+    torch.testing.assert_close(r.cpu(), rc, rtol=2e-5, atol=3e-6)
+    if mode != 'r':
+        torch.testing.assert_close(q.cpu(), qc, rtol=2e-5, atol=3e-6)
+        torch.testing.assert_close((q @ r).cpu(), x, rtol=2e-5, atol=3e-6)
+    factor, tau = torch.geqrf(v); fc, tc = torch.geqrf(x)
+    torch.testing.assert_close(factor.cpu(), fc, rtol=2e-5, atol=3e-6)
+    torch.testing.assert_close(tau.cpu(), tc, rtol=2e-5, atol=3e-6)
+
+@pytest.mark.parametrize('transpose', [False, True])
+@pytest.mark.parametrize('left', [False, True])
+def test_ormqr_general(left, transpose):
+    torch.manual_seed(342); x = torch.randn(2, 6, 4); b = torch.randn((2, 6, 3) if left else (2, 3, 6))
+    f, t = torch.geqrf(x); fv, tv = torch.geqrf(x.to('vulkan'))
+    actual = torch.ormqr(fv, tv, b.to('vulkan'), left=left, transpose=transpose)
+    torch.testing.assert_close(actual.cpu(), torch.ormqr(f, t, b, left=left, transpose=transpose), rtol=2e-5, atol=3e-6)
+
+@pytest.mark.parametrize('op', ['det', 'slogdet'])
+@pytest.mark.parametrize('layout', ['contiguous', 'transpose', 'slice'])
+def test_determinant_gradients(op, layout):
+    torch.manual_seed(779); x = torch.randn(5, 5) + torch.eye(5) * 3
+    if layout == 'transpose': x = x.t()
+    if layout == 'slice': x = torch.stack((x, x), -1)[..., 0]
+    v = torch.empty_strided(x.shape, x.stride(), device='vulkan').copy_(x).requires_grad_(); x.requires_grad_()
+    a, b = getattr(torch.linalg, op)(v), getattr(torch.linalg, op)(x)
+    if op == 'slogdet': a, b = a.logabsdet, b.logabsdet
+    a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(v.grad.cpu(), x.grad, rtol=2e-5, atol=2e-6)
+
+
+def test_complex_random_and_construction():
+    radius, angle = torch.randn(3, 1).abs(), torch.randn(1, 4)
+    torch.testing.assert_close(torch.polar(radius.to('vulkan'), angle.to('vulkan')).cpu(), torch.polar(radius, angle))
+    v = torch.empty(100000, dtype=torch.complex64, device='vulkan').normal_(3, 2).cpu()
+    assert abs(v.real.mean().item() - 3) < .03 and abs(v.imag.mean().item() - 3) < .03
+    assert abs(v.real.var().item() - 2) < .06 and abs(v.imag.var().item() - 2) < .06
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64])
+def test_indexing_empty_scalar_and_negative_indices(dtype):
+    x = torch.arange(6, dtype=dtype).reshape(2, 3); v = x.to('vulkan')
+    for shape in [(0,), (2, 0)]:
+        i = torch.empty(shape, dtype=torch.uint8)
+        torch.testing.assert_close(torch.gather(v, 0, i.to('vulkan')).cpu(), torch.gather(x, 0, i))
+    i = torch.tensor([-1, -3])
+    torch.testing.assert_close(torch.index_fill(v, 1, i.to('vulkan'), 9).cpu(), torch.index_fill(x, 1, i, 9))
+    s = torch.tensor(1, dtype=dtype); src = torch.tensor([9], dtype=dtype); idx = torch.tensor([0])
+    torch.testing.assert_close(torch.index_copy(s.to('vulkan'), 0, idx.to('vulkan'), src.to('vulkan')).cpu(), torch.index_copy(s, 0, idx, src))
+
+
+def test_complex_reduction_and_approximate_gelu():
+    x = torch.randn(3, 7, dtype=torch.complex64)
+    for d in [0, 1]: torch.testing.assert_close(x.to('vulkan').sum(d).cpu(), x.sum(d))
+    z = torch.linspace(-10, 10, 2001, requires_grad=True); v = z.detach().to('vulkan').requires_grad_()
+    a = torch.nn.functional.gelu(v, approximate='tanh'); b = torch.nn.functional.gelu(z, approximate='tanh')
+    a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b); torch.testing.assert_close(v.grad.cpu(), z.grad)
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+def test_trigonometry_full_fp32_range(name):
+    gen = torch.Generator().manual_seed(161); bits = torch.randint(-(2**31), 2**31, (20000,), dtype=torch.int32, generator=gen)
+    x = bits.view(torch.float32); x = torch.cat((x, torch.tensor([-0., 0., -float('inf'), float('inf'), float('nan'), 1e20, -1e20, torch.finfo(torch.float32).max])))
+    v = x.to('vulkan'); vk.reset_execution_stats(); actual = getattr(torch, name)(v); resident()
+    torch.testing.assert_close(actual.cpu(), getattr(torch, name)(x), rtol=2e-6, atol=1e-7, equal_nan=True)
+
+
+def test_compensated_reduction_cancellation_and_nonfinite():
+    x = torch.tensor([[1e10, 1., -1e10, 2.], [float('inf'), 1., 2., 3.], [float('-inf'), float('inf'), 1., 2.]])
+    actual = x.to('vulkan').sum(1).cpu()
+    torch.testing.assert_close(actual, x.double().sum(1).float(), rtol=0, atol=0, equal_nan=True)
+
+
+def test_zero_tensor_read_primitives():
+    z = torch._efficientzerotensor((3, 5), device='vulkan')
+    assert torch.isclose(z, z).all().item()
+    torch.testing.assert_close((z + 2).cpu(), torch.full((3, 5), 2.))
+    torch.testing.assert_close(torch.sin(z).cpu(), torch.zeros(3, 5))
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+@pytest.mark.parametrize('batched', [False, True])
+def test_exact_integer_matmul(dtype, batched):
+    torch.manual_seed(681); a = torch.randint(-100, 100, (2, 7, 3) if batched else (7, 3), dtype=dtype); b = torch.randint(-100, 100, (2, 3, 5) if batched else (3, 5), dtype=dtype)
+    if dtype == torch.int64: a = a * 2**40 + 9
+    fn = torch.bmm if batched else torch.mm
+    torch.testing.assert_close(fn(a.to('vulkan'), b.to('vulkan')).cpu(), fn(a, b), rtol=0, atol=0)
+
+@pytest.mark.parametrize('shape', [(3, 7), (7, 3), (2, 4, 4)])
+def test_polar_matrix_decomposition(shape):
+    torch.manual_seed(682); x = torch.randn(shape); v = x.to('vulkan')
+    if shape[-2] < shape[-1]:
+        for data in [x, v]:
+            with pytest.raises(RuntimeError, match='at least as many rows as columns'): torch.linalg.polar(data)
+        return
+    u, h = torch.linalg.polar(v)
+    torch.testing.assert_close((u @ h).cpu(), x, rtol=2e-5, atol=3e-6)
+    torch.testing.assert_close(h.cpu(), h.mT.cpu(), rtol=2e-5, atol=3e-6)
+    a, b = torch.linalg.polar(x)
+    torch.testing.assert_close(u.cpu(), a, rtol=2e-5, atol=3e-6);torch.testing.assert_close(h.cpu(), b, rtol=2e-5, atol=3e-6)

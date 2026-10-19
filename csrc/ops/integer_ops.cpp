@@ -3,6 +3,7 @@
 #include <ATen/ExpandUtils.h>
 namespace torch_vulkan::ops {
 using namespace native;
+at::Tensor integer_matmul(const at::Tensor& a,const at::Tensor& b){TORCH_CHECK((a.dim()==2||a.dim()==3)&&b.dim()==a.dim()&&a.size(-1)==b.size(-2)&&(a.dim()==2||a.size(0)==b.size(0)),"integer matmul shape mismatch");TORCH_CHECK(a.device()==b.device()&&a.device().type()==c10::DeviceType::PrivateUse1&&a.scalar_type()==b.scalar_type(),"integer matmul dtype/device mismatch");auto type=a.scalar_type(),compute=type==at::kLong?at::kLong:at::kInt;auto shape=a.sizes().vec();shape.back()=b.size(-1);auto out=at::empty(shape,a.options().dtype(compute));if(out.numel()){if(!a.size(-1))out.zero_();else{auto aa=packed(a.to(compute),compute),bb=packed(b.to(compute),compute);run("integer_matmul",{base(aa,compute),base(bb,compute)},{write_base(out,compute)},{u32(out.numel()),u32(a.size(-2)),u32(a.size(-1)),u32(b.size(-1)),uint32_t(out.element_size()/4)},(out.numel()+127)/128);}}return out.to(type);}
 bool integer_type(at::ScalarType type){return type==at::kInt||type==at::kLong||type==at::kByte||type==at::kChar||type==at::kShort;}
 at::Tensor integer_binary(const at::Tensor& x,const at::Tensor& y,const at::Scalar& alpha,bool multiply){
  TORCH_CHECK(integer_type(x.scalar_type())&&integer_type(y.scalar_type())&&alpha.isIntegral(true),"integer arithmetic requires integer tensors and alpha");

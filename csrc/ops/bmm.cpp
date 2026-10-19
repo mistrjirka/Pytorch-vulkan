@@ -2,6 +2,7 @@
 // Supports independently transposed/sliced/offset/broadcast-strided rank-3
 // tensors and normal PyTorch autograd, including attention Q/K/V gradients.
 #include "native_utils.h"
+#include "integer_ops.h"
 #include <ATen/Functions.h>
 #include <torch/library.h>
 #include <cstdlib>
@@ -15,6 +16,7 @@ at::Tensor bmm(const at::Tensor& a,const at::Tensor& b) {
               a.size(0)==b.size(0) && a.size(2)==b.size(1),
               "Vulkan bmm: expected matching batch dimensions and contraction size");
   TORCH_CHECK(a.scalar_type()==b.scalar_type(),"Vulkan bmm: dtype mismatch");
+  if(integer_type(a.scalar_type()))return integer_matmul(a,b);
   const int64_t batch=a.size(0),m=a.size(1),k=a.size(2),n=b.size(2);
   if(batch==0 || m==0 || n==0)return at::empty({batch,m,n},a.options());
   // Skip accelerator dispatch when a view or dtype is outside the native

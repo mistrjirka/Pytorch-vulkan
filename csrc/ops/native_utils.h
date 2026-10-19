@@ -33,6 +33,7 @@ inline uint32_t bits(float v) { uint32_t r; std::memcpy(&r,&v,4); return r; }
 inline Buffer base(const at::Tensor& t,at::ScalarType dtype=at::kFloat) {
   TORCH_CHECK(t.device().type()==c10::DeviceType::PrivateUse1 && t.scalar_type()==dtype,
               "Vulkan native operator tensor device/dtype mismatch");
+  if(t._is_zerotensor())return VulkanAllocator::instance().constant_float_buffer(std::max<size_t>(1,(t.storage().nbytes()+3)/4),0);
   return VulkanAllocator::instance().get_kompute_tensor(t.storage().data_ptr().get());
 }
 // Mutable access triggers PyTorch copy-on-write before a shader can write.

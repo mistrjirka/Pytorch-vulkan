@@ -3,10 +3,11 @@
 #include <torch/library.h>
 #include <ATen/native/Resize.h>
 #include <ATen/MemoryOverlap.h>
+#include <ATen/WrapDimUtils.h>
 namespace torch_vulkan::ops {
 namespace {
 using namespace native;
-int64_t axis(const at::Tensor& x,int64_t d){if(d<0)d+=std::max<int64_t>(1,x.dim());TORCH_CHECK(d>=0&&d<std::max<int64_t>(1,x.dim()),"dimension out of range");return d;}
+int64_t axis(const at::Tensor& x,int64_t d){return at::maybe_wrap_dim(d,x.dim());}
 std::tuple<at::Tensor,at::Tensor> sort_native(const at::Tensor& x,int64_t raw,bool descending){
  int64_t d=axis(x,raw);TORCH_CHECK(device_copy_supported(x.scalar_type())&&can_pack_view(x),"Vulkan sort requires packable real data");
  if(x.element_size()<4){auto [v,i]=sort_native(x.to(at::kInt),raw,descending);return {v.to(x.scalar_type()),i};}
@@ -29,9 +30,9 @@ std::tuple<at::Tensor,at::Tensor> topk_native(const at::Tensor& x,c10::SymInt k_
  return {v,i};
 }
 std::tuple<at::Tensor,at::Tensor> general_scan(const at::Tensor& x,int64_t raw,std::optional<at::ScalarType> requested,uint32_t mode){
- auto d=axis(x,raw);TORCH_CHECK(device_copy_supported(x.scalar_type()),"scan supports real input");auto dtype=requested.value_or(mode>=2||x.is_floating_point()?x.scalar_type():at::kLong);TORCH_CHECK(device_copy_supported(dtype)&&(dtype!=at::kBool||mode>=2),"unsupported scan output dtype");
- auto compute=dtype==at::kBool||dtype==at::kByte||dtype==at::kChar||dtype==at::kShort?at::kInt:dtype;auto values=at::empty(x.sizes(),x.options().dtype(compute)),indices=at::empty(mode>=2?x.sizes():at::IntArrayRef({0}),x.options().dtype(at::kLong));
- if(x.numel()){uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);auto n=x.dim()?x.size(d):1,rows=x.numel()/n;auto input=packed(x.to(compute),compute);auto ib=mode>=2?write_base(indices,at::kLong):VulkanAllocator::instance().constant_float_buffer(1,0);
+ auto d=axis(x,raw);TORCH_CHECK(device_copy_supported(x.scalar_type()),"scan supports real input");auto dtype=requested.value_or((mode==2||mode==3)||x.is_floating_point()?x.scalar_type():at::kLong);TORCH_CHECK(device_copy_supported(dtype)&&(dtype!=at::kBool||(mode==2||mode==3)),"unsupported scan output dtype");
+ auto compute=dtype==at::kBool||dtype==at::kByte||dtype==at::kChar||dtype==at::kShort?at::kInt:dtype;auto values=at::empty(x.sizes(),x.options().dtype(compute)),indices=at::empty((mode==2||mode==3)?x.sizes():at::IntArrayRef({0}),x.options().dtype(at::kLong));
+ if(x.numel()){uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);auto n=x.dim()?x.size(d):1,rows=x.numel()/n;auto input=packed(x.to(compute),compute);auto ib=(mode==2||mode==3)?write_base(indices,at::kLong):VulkanAllocator::instance().constant_float_buffer(1,0);
  run("scan_general",{base(input,compute)},{write_base(values,compute),ib},{u32(rows),u32(n),u32(inner),compute==at::kFloat?0u:compute==at::kInt?1u:2u,mode},(rows+127)/128);
  }return {values.to(dtype),indices};
 }
@@ -83,8 +84,32 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_native(const at::Tensor& x,b
  if(counts){auto ends=at::cat({positions.narrow(0,1,positions.numel()-1),at::full({1},x.numel(),positions.options())});frequency=ends.sub(positions);}
  return {output,inv,frequency};
 }
+at::Tensor prod_dim_native(const at::Tensor& x,int64_t raw,bool keep,std::optional<at::ScalarType> dtype){
+ auto d=axis(x,raw);auto type=dtype.value_or(x.is_floating_point()?x.scalar_type():at::kLong);TORCH_CHECK(device_copy_supported(type),"prod requires real input/output");if(!x.dim())return x.to(type).clone();if(type==at::kBool)return at::all(x.ne(0),d,keep);
+ auto shape=x.sizes().vec();if(keep)shape[d]=1;else shape.erase(shape.begin()+d);auto compute=type==at::kByte||type==at::kChar||type==at::kShort?at::kInt:type;auto out=at::empty(shape,x.options().dtype(compute));if(!out.numel())return out.to(type);if(!x.size(d))return at::ones(shape,x.options().dtype(type));
+ uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);auto input=packed(x.to(compute),compute);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);run("scan_general",{base(input,compute)},{write_base(out,compute),dummy},{u32(out.numel()),u32(x.size(d)),u32(inner),compute==at::kFloat?0u:compute==at::kInt?1u:2u,5},(out.numel()+127)/128);return out.to(type);
+}
+at::Tensor prod_all_native(const at::Tensor& x,std::optional<at::ScalarType> dtype){return prod_dim_native(x.reshape({-1}),0,false,dtype);}
+std::tuple<at::Tensor,at::Tensor> unique_pair(const at::Tensor& x,bool sorted,bool inverse){auto [values,inv,counts]=unique_native(x,sorted,inverse,false);return {values,inv};}
+at::Tensor logcumsumexp_native(const at::Tensor& x,int64_t raw){TORCH_CHECK(x.scalar_type()==at::kFloat,"logcumsumexp requires FP32 input");return std::get<0>(general_scan(x,raw,std::nullopt,4));}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_rows(const at::Tensor& x,std::optional<int64_t> raw,bool consecutive,bool inverse,bool counts){
+ auto empty=at::empty({0},x.options().dtype(at::kLong));int64_t d=raw?axis(x,*raw):0;auto data=raw?x.movedim(d,0):x.reshape({-1});TORCH_CHECK(!raw||x.dim()>0,"unique_dim requires at least one dimension");auto rows=data.size(0);int64_t cols=1;for(int a=1;a<data.dim();a++)cols*=data.size(a);
+ if(raw){int zeroes=0;for(auto size:x.sizes())zeroes+=size==0;TORCH_CHECK(zeroes<=1,"Number of zero sized dimensions is more than one, so unique cannot be applied");TORCH_CHECK(cols>0,"There are 0 sized dimensions, and they aren't selected, so unique cannot be applied");}
+ if(!rows)return {raw?x.clone():data.clone(),inverse&&!raw?empty.reshape(x.sizes()):empty,empty.clone()};
+ auto flat=data.reshape({rows,cols});auto order=at::arange(rows,empty.options());
+ if(!consecutive){auto dtype=x.element_size()<4?at::kInt:x.scalar_type();TORCH_CHECK(dtype==at::kFloat||dtype==at::kInt||dtype==at::kLong,"unique requires real input");auto input=packed(flat.to(dtype),dtype);run("unique_rows",{base(input,dtype)},{write_base(order,at::kLong)},{u32(rows),u32(cols),dtype==at::kFloat?0u:dtype==at::kInt?1u:2u},(rows+127)/128);data=at::index_select(data,0,order);flat=data.reshape({rows,cols});}
+ auto changes=at::cat({at::ones({1},x.options().dtype(at::kBool)),at::any(at::ne(flat.narrow(0,1,rows-1),flat.narrow(0,0,rows-1)),1)});auto positions=at::nonzero(changes).select(1,0),output=at::index_select(data,0,positions);if(raw)output=output.movedim(0,d);else output=output.reshape({-1});auto inv=empty,frequency=empty.clone();
+ if(inverse){auto groups=at::cumsum(changes,0,at::kLong).sub(1);if(consecutive)inv=groups;else {inv=at::empty_like(groups);inv.scatter_(0,order,groups);}if(!raw)inv=inv.reshape(x.sizes());}
+ if(counts){auto ends=at::cat({positions.narrow(0,1,positions.numel()-1),at::full({1},rows,empty.options())});frequency=ends.sub(positions);}return {output,inv,frequency};
+}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_dim_native(const at::Tensor& x,int64_t dim,bool sorted,bool inverse,bool counts){return unique_rows(x,dim,false,inverse,counts);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_consecutive_native(const at::Tensor& x,bool inverse,bool counts,std::optional<int64_t> dim){return unique_rows(x,dim,true,inverse,counts);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_dim_consecutive_native(const at::Tensor& x,int64_t dim,bool inverse,bool counts){return unique_rows(x,dim,true,inverse,counts);}
+
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("unique_dim",&unique_dim_native);m.impl("unique_consecutive",&unique_consecutive_native);m.impl("unique_dim_consecutive",&unique_dim_consecutive_native);
+ m.impl("prod",&prod_all_native);m.impl("prod.dim_int",&prod_dim_native);m.impl("_unique",&unique_pair);m.impl("_logcumsumexp",&logcumsumexp_native);
  m.impl("_unique2",&unique_native);
  m.impl("sort",&sort_native);m.impl("sort.stable",&sort_stable_native);m.impl("sort.values",&sort_out_native);m.impl("sort.values_stable",&sort_stable_out_native);
  m.impl("tril",&tril_native);m.impl("triu",&triu_native);m.impl("tril.out",&tril_out);m.impl("triu.out",&triu_out);m.impl("tril_",&tril_inplace);m.impl("triu_",&triu_inplace);

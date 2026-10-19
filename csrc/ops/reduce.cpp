@@ -22,6 +22,8 @@ at::Tensor reduce_fp32(const at::Tensor& self,at::OptionalIntArrayRef dim,bool k
 }
 namespace {
 at::Tensor sum_dim(const at::Tensor& x,at::OptionalIntArrayRef dim,bool keepdim,std::optional<at::ScalarType> dtype){
+ if(x.scalar_type()==at::kComplexFloat&&dtype.value_or(at::kComplexFloat)==at::kComplexFloat){auto real=at::view_as_real(at::resolve_conj(x));return at::complex(reduce_fp32(real.select(-1,0),dim,keepdim,false),reduce_fp32(real.select(-1,1),dim,keepdim,false));}
+
  if((integer_type(x.scalar_type())||x.scalar_type()==at::kBool)&&integer_type(dtype.value_or(at::kLong)))return integer_sum(x,dim,keepdim,dtype);
  if((integer_type(x.scalar_type())||x.scalar_type()==at::kBool)&&dtype==at::kFloat)return reduce_fp32(x.to(at::kFloat),dim,keepdim,false);
  const auto* flag=std::getenv("TORCH_VULKAN_NATIVE_SUM");

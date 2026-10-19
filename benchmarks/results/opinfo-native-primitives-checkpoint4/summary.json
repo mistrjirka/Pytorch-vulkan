@@ -1,0 +1,77 @@
+{
+  "scope": "Focused debugging runs, with latest per-case result; not a new full audit. All raw results retained.",
+  "runs": {
+    "focused13": {
+      "cases": 1209,
+      "outcomes": {
+        "passed": 1108,
+        "error": 47,
+        "skipped": 43,
+        "expected_failure": 8,
+        "unexpected_success": 3
+      },
+      "backend_source_sha256": "514598e813ab4157d490de454254820090b0a22deb8aaa9c1da2bdc34f5508a4",
+      "source_identity": "recorded_after_build"
+    },
+    "focused14": {
+      "cases": 178,
+      "outcomes": {
+        "passed": 170,
+        "error": 3,
+        "expected_failure": 1,
+        "unexpected_success": 2,
+        "skipped": 2
+      },
+      "backend_source_sha256": "f750ffab1c8592ea17c1f2130a3011b48079c1da800e4d342f40d505a731105c",
+      "source_identity": "recorded_after_build"
+    },
+    "focused15": {
+      "cases": 3,
+      "outcomes": {
+        "error": 3
+      },
+      "backend_source_sha256": "e97fd798b90187b82af65f246d90390d0acc3690f18bc16db629a33b5cca107a",
+      "source_identity": "recorded_after_build"
+    },
+    "focused16": {
+      "cases": 20,
+      "outcomes": {
+        "passed": 20
+      },
+      "backend_source_sha256": "e97fd798b90187b82af65f246d90390d0acc3690f18bc16db629a33b5cca107a",
+      "source_identity": "recorded_after_build"
+    },
+    "focused17": {
+      "cases": 1,
+      "outcomes": {
+        "passed": 1
+      },
+      "backend_source_sha256": "c8dafffa7edba44fe84cd7dfabc5f38002f969a17e2baabe186b6a7feea6ea3c",
+      "source_identity": "recorded_after_build"
+    }
+  },
+  "resolved_case_count": 1209,
+  "before_5f9d488": {
+    "passed": 485,
+    "error": 670,
+    "skipped": 43,
+    "expected_failure": 11
+  },
+  "latest_per_case_outcomes": {
+    "passed": 1153,
+    "skipped": 43,
+    "error": 2,
+    "expected_failure": 8,
+    "unexpected_success": 3
+  },
+  "remaining_errors": [
+    {
+      "id": "TestCommonPRIVATEUSE1.test_errors_complex_vulkan",
+      "source_run": "focused15"
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_out_warning_nn_functional_silu_complex_vulkan",
+      "source_run": "focused15"
+    }
+  ]
+}

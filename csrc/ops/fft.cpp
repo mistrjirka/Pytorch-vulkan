@@ -13,7 +13,9 @@ at::Tensor complex_unary(const at::Tensor& x,const at::Scalar& value,uint32_t mo
  auto z=value.toComplexFloat();auto input=packed(x,at::kComplexFloat);auto in=base(input,at::kComplexFloat);
  run("complex_unary",{in},{write_base(out,at::kComplexFloat)},{u32(x.numel()),mode,bits(z.real()),bits(z.imag())},(out.numel()+127)/128);return out;
 }
-at::Tensor complex_conj(const at::Tensor& x){return complex_unary(x,0,2);}
+at::Tensor complex_construct(const at::Tensor& real,const at::Tensor& imag){TORCH_CHECK(real.scalar_type()==imag.scalar_type(),"Expected both inputs to be Half, Float or Double tensors but got ",real.scalar_type()," and ",imag.scalar_type());TORCH_CHECK(real.scalar_type()==at::kFloat&&real.device()==imag.device(),"complex requires FP32 tensors on the same device");auto shape=at::infer_size_dimvector(real.sizes(),imag.sizes());return at::view_as_complex(at::stack({real.expand(shape),imag.expand(shape)},-1));}
+at::Tensor polar_construct(const at::Tensor& radius,const at::Tensor& angle){return complex_construct(radius.mul(at::cos(angle)),radius.mul(at::sin(angle)));}
+at::Tensor complex_conj(const at::Tensor& x){if(!x.is_complex())return x.clone();return complex_unary(x,0,2);}
 std::vector<int64_t> axes(const at::Tensor& x,at::IntArrayRef dim){
  TORCH_CHECK(!dim.empty()&&x.dim()<=8,"FFT requires at least one axis and rank <=8");std::vector<int64_t> result;uint32_t used=0;
  for(auto d:dim){if(d<0)d+=x.dim();TORCH_CHECK(d>=0&&d<x.dim()&&!(used&(1u<<d))&&x.size(d)>0,"invalid FFT axes");used|=1u<<d;result.push_back(d);}return result;
@@ -69,6 +71,7 @@ at::Tensor complex_binary(const at::Tensor& x,const at::Tensor& y,uint32_t mode,
 at::Tensor complex_scale(const at::Tensor& x,const at::Scalar& scale){return complex_unary(x,scale,0);}
 at::Tensor& complex_fill(at::Tensor& x,const at::Scalar& value){auto z=value.toComplexFloat();auto view=at::view_as_real(x);view.select(-1,0).fill_(z.real());view.select(-1,1).fill_(z.imag());return x;}
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("complex",&complex_construct);m.impl("polar",&polar_construct);
  m.impl("_fft_r2c",&r2c);m.impl("_fft_c2c",&c2c);m.impl("_fft_c2r",&c2r);
  m.impl("view_as_real",&at::native::view_as_real);m.impl("view_as_complex",&at::native::view_as_complex);m.impl("_conj_physical",&complex_conj);
 }

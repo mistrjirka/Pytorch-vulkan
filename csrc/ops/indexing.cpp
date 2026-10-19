@@ -16,10 +16,11 @@ void validate_index(const at::Tensor& idx,int64_t bound){
 }
 at::Tensor indexed(const at::Tensor& input,int64_t raw,const at::Tensor& index,const at::Tensor& source,uint32_t mode,float value=0){
  const int64_t d=axis_for(input,raw);auto x=input.dim()?input:input.view({1});auto idx=index.dim()?index:index.view({1});
+ if(!index.numel()){auto out=at::empty(mode==0?index.sizes():input.sizes(),input.options());if(mode)out.copy_(input);return out;}
  TORCH_CHECK(device_copy_supported(input.scalar_type())&&can_pack_view(x)&&can_pack_view(idx)&&x.device()==idx.device(),"indexing requires FP32 data and integer indices on same device");
  TORCH_CHECK(idx.scalar_type()==at::kLong||idx.scalar_type()==at::kInt,"index dtype must be int32 or int64");
- TORCH_CHECK(idx.dim()==x.dim(),"indexing rank mismatch");
- for(int a=0;a<x.dim();a++)if(a!=d)TORCH_CHECK(idx.size(a)<=x.size(a),"index shape exceeds input");
+ TORCH_CHECK(idx.dim()==x.dim(),"Index tensor must have the same number of dimensions as input tensor");
+ for(int a=0;a<x.dim();a++)if(a!=d)TORCH_CHECK(idx.size(a)<=x.size(a),"Size does not match at dimension ",a);
  auto out=at::empty(mode==0?index.sizes():input.sizes(),input.options());
  at::Tensor src=source;
  if(source.defined()){
@@ -48,12 +49,12 @@ at::Tensor indexed(const at::Tensor& input,int64_t raw,const at::Tensor& index,c
  auto sb=src.defined()?base(src):VulkanAllocator::instance().constant_float_buffer(1,0);
  run("indexed",{base(xc),base(idx,idx.scalar_type()),sb},{write_base(out)},p,(out.numel()+127)/128);return out;
 }
-at::Tensor gather_native(const at::Tensor& x,int64_t d,const at::Tensor& i,bool sparse){return indexed(x,d,i,{},0);}
+at::Tensor gather_native(const at::Tensor& x,int64_t d,const at::Tensor& i,bool sparse){axis_for(x,d);if(!i.numel())return at::empty(i.sizes(),x.options());return indexed(x,d,i,{},0);}
 at::Tensor scatter_add_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Tensor& s){return indexed(x,d,i,s,1);}
 at::Tensor scatter_src_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Tensor& s){return indexed(x,d,i,s,2);}
 at::Tensor scatter_value_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Scalar& s){if(x.scalar_type()!=at::kFloat)return indexed(x,d,i,at::full(i.sizes(),s,x.options()),2);return indexed(x,d,i,{},3,s.toFloat());}
-at::Tensor& assign(at::Tensor& out,const at::Tensor& value){TORCH_CHECK(out.device()==value.device()&&out.scalar_type()==value.scalar_type(),"index output dtype/device mismatch");at::assert_no_internal_overlap(out);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
-at::Tensor& gather_out_native(const at::Tensor& x,int64_t d,const at::Tensor& i,bool sparse,at::Tensor& out){return assign(out,gather_native(x,d,i,sparse));}
+at::Tensor& assign(at::Tensor& out,const at::Tensor& value){TORCH_CHECK(out.device()==value.device()&&out.scalar_type()==value.scalar_type(),"Expected out tensor to have dtype matching input tensor and device");at::assert_no_internal_overlap(out);at::native::resize_output(out,value.sizes());out.copy_(value);return out;}
+at::Tensor& gather_out_native(const at::Tensor& x,int64_t d,const at::Tensor& i,bool sparse,at::Tensor& out){at::assert_no_internal_overlap(out);at::assert_no_overlap(out,x);at::assert_no_overlap(out,i);auto value=gather_native(x,d,i,sparse);TORCH_CHECK(out.scalar_type()==x.scalar_type()&&out.device()==x.device(),"Expected out tensor to have dtype matching input tensor and device");at::native::resize_output(out,value.sizes());at::assert_no_overlap(out,x);at::assert_no_overlap(out,i);return assign(out,value);}
 at::Tensor& scatter_add_out_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Tensor& s,at::Tensor& out){return assign(out,scatter_add_native(x,d,i,s));}
 at::Tensor& scatter_src_out_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Tensor& s,at::Tensor& out){return assign(out,scatter_src_native(x,d,i,s));}
 at::Tensor& scatter_value_out_native(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Scalar& s,at::Tensor& out){return assign(out,scatter_value_native(x,d,i,s));}
@@ -97,7 +98,7 @@ at::Tensor scatter_reduce_native(const at::Tensor& x,int64_t d,const at::Tensor&
 at::Tensor& scatter_reduce_out(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src,c10::string_view reduce,bool include,at::Tensor& out){at::assert_no_partial_overlap(out,x);at::assert_no_partial_overlap(out,src);at::assert_no_overlap(out,index);return assign(out,scatter_reduce_native(x,d,index,src,reduce,include));}
 at::Tensor& scatter_reduce_inplace(at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src,c10::string_view reduce,bool include){at::assert_no_internal_overlap(x);at::assert_no_partial_overlap(x,src);at::assert_no_overlap(x,index);return assign(x,scatter_reduce_native(x,d,index,src,reduce,include));}
 at::Tensor expanded_axis_index(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& source){
- TORCH_CHECK(index.dim()<=1&&source.dim()==x.dim(),"index reduction rank mismatch");
+ TORCH_CHECK(index.dim()<=1&&(source.dim()==x.dim()||(!x.dim()&&source.numel()==1)),"index reduction rank mismatch");
  if(!x.dim()){TORCH_CHECK(index.numel()==1,"scalar index reduction requires one index");return index.reshape({});}
  TORCH_CHECK(source.size(d)==index.numel(),"index length must equal source size along dimension");
  for(int a=0;a<x.dim();a++)if(a!=d)TORCH_CHECK(source.size(a)==x.size(a),"source and destination slices must have the same shape");
@@ -106,7 +107,7 @@ at::Tensor expanded_axis_index(const at::Tensor& x,int64_t d,const at::Tensor& i
 at::Tensor index_reduce_native(const at::Tensor& x,int64_t raw,const at::Tensor& index,const at::Tensor& src,c10::string_view reduce,bool include){auto mode=reduction_mode(reduce,false);auto d=axis_for(x,raw);return indexed(x,d,expanded_axis_index(x,d,index,src),src,mode,include?1.f:0.f);}
 at::Tensor& index_reduce_out(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src,c10::string_view reduce,bool include,at::Tensor& out){at::assert_no_partial_overlap(out,x);at::assert_no_partial_overlap(out,src);at::assert_no_overlap(out,index);return assign(out,index_reduce_native(x,d,index,src,reduce,include));}
 at::Tensor& index_reduce_inplace(at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src,c10::string_view reduce,bool include){at::assert_no_internal_overlap(x);at::assert_no_partial_overlap(x,src);at::assert_no_overlap(x,index);return assign(x,index_reduce_native(x,d,index,src,reduce,include));}
-at::Tensor index_copy_native(const at::Tensor& x,int64_t raw,const at::Tensor& index,const at::Tensor& src){auto d=axis_for(x,raw);return indexed(x,d,expanded_axis_index(x,d,index,src),src,2);}
+at::Tensor index_copy_native(const at::Tensor& x,int64_t raw,const at::Tensor& index,const at::Tensor& src){auto d=axis_for(x,raw);return indexed(x,d,expanded_axis_index(x,d,index,src),!x.dim()?src.reshape({}):src,2);}
 at::Tensor& index_copy_out(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src,at::Tensor& out){at::assert_no_partial_overlap(out,x);at::assert_no_partial_overlap(out,src);at::assert_no_overlap(out,index);return assign(out,index_copy_native(x,d,index,src));}
 at::Tensor& index_copy_inplace(at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& src){at::assert_no_internal_overlap(x);at::assert_no_partial_overlap(x,src);at::assert_no_overlap(x,index);return assign(x,index_copy_native(x,d,index,src));}
 
@@ -116,10 +117,10 @@ at::Tensor& legacy_scatter_inplace(at::Tensor& x,int64_t d,const at::Tensor& i,c
 at::Tensor legacy_scatter_value(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Scalar& value,c10::string_view reduce){return legacy_scatter(x,d,i,at::full(i.sizes(),value,x.options()),reduce);}
 at::Tensor& legacy_scatter_value_out(const at::Tensor& x,int64_t d,const at::Tensor& i,const at::Scalar& value,c10::string_view reduce,at::Tensor& out){return assign(out,legacy_scatter_value(x,d,i,value,reduce));}
 at::Tensor& legacy_scatter_value_inplace(at::Tensor& x,int64_t d,const at::Tensor& i,const at::Scalar& value,c10::string_view reduce){at::assert_no_internal_overlap(x);return assign(x,legacy_scatter_value(x,d,i,value,reduce));}
-at::Tensor index_fill_native(const at::Tensor& x,int64_t raw,const at::Tensor& index,const at::Scalar& value){auto d=axis_for(x,raw);TORCH_CHECK(index.dim()<=1,"Index has to be a vector/scalar");auto shape=x.sizes().vec();if(shape.empty())return scatter_value_native(x,d,index.reshape({}),value);shape[d]=index.numel();std::vector<int64_t> view(x.dim(),1);view[d]=index.numel();return scatter_value_native(x,d,index.reshape(view).expand(shape),value);}
+at::Tensor index_fill_native(const at::Tensor& x,int64_t raw,const at::Tensor& raw_index,const at::Scalar& value){auto bound=x.dim()?x.size(axis_for(x,raw)):1;auto index=at::where(raw_index.lt(0),raw_index.add(bound),raw_index);auto d=axis_for(x,raw);TORCH_CHECK(index.dim()<=1,"Index has to be a vector/scalar");auto shape=x.sizes().vec();if(shape.empty())return scatter_value_native(x,d,index.reshape({}),value);shape[d]=index.numel();std::vector<int64_t> view(x.dim(),1);view[d]=index.numel();return scatter_value_native(x,d,index.reshape(view).expand(shape),value);}
 at::Tensor& index_fill_inplace(at::Tensor& x,int64_t d,const at::Tensor& index,const at::Scalar& value){at::assert_no_internal_overlap(x);return assign(x,index_fill_native(x,d,index,value));}
 at::Tensor& index_fill_out(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Scalar& value,at::Tensor& out){return assign(out,index_fill_native(x,d,index,value));}
-at::Tensor index_fill_tensor(const at::Tensor& x,int64_t raw,const at::Tensor& index,const at::Tensor& value){TORCH_CHECK(value.dim()==0,"index_fill_ only supports a 0-dimensional value tensor");auto d=axis_for(x,raw);TORCH_CHECK(index.dim()<=1,"Index has to be a vector/scalar");auto shape=x.sizes().vec();if(shape.empty())return indexed(x,d,index.reshape({}),value.to(x.device(),x.scalar_type()),2);shape[d]=index.numel();std::vector<int64_t> view(x.dim(),1);view[d]=index.numel();return indexed(x,d,index.reshape(view).expand(shape),value.to(x.device(),x.scalar_type()).expand(shape),2);}
+at::Tensor index_fill_tensor(const at::Tensor& x,int64_t raw,const at::Tensor& raw_index,const at::Tensor& value){auto bound=x.dim()?x.size(axis_for(x,raw)):1;auto index=at::where(raw_index.lt(0),raw_index.add(bound),raw_index);TORCH_CHECK(value.dim()==0,"index_fill_ only supports a 0-dimensional value tensor");auto d=axis_for(x,raw);TORCH_CHECK(index.dim()<=1,"Index has to be a vector/scalar");auto shape=x.sizes().vec();if(shape.empty())return indexed(x,d,index.reshape({}),value.to(x.device(),x.scalar_type()),2);shape[d]=index.numel();std::vector<int64_t> view(x.dim(),1);view[d]=index.numel();return indexed(x,d,index.reshape(view).expand(shape),value.to(x.device(),x.scalar_type()).expand(shape),2);}
 at::Tensor& index_fill_tensor_inplace(at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& value){at::assert_no_internal_overlap(x);return assign(x,index_fill_tensor(x,d,index,value));}
 at::Tensor& index_fill_tensor_out(const at::Tensor& x,int64_t d,const at::Tensor& index,const at::Tensor& value,at::Tensor& out){return assign(out,index_fill_tensor(x,d,index,value));}
 }

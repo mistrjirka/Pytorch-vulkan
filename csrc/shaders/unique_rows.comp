@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer I {uvec2 order[];};
+layout(push_constant) uniform P {uint rows,cols,type;}p;
+int compare(uint a,uint b){uint ax=x[a*(p.type==2?2:1)],bx=x[b*(p.type==2?2:1)];if(p.type==0){float av=uintBitsToFloat(ax),bv=uintBitsToFloat(bx);if(isnan(av))return isnan(bv)?0:1;if(isnan(bv))return -1;return av<bv?-1:av>bv?1:0;}if(p.type==1)return int(ax)<int(bx)?-1:int(ax)>int(bx)?1:0;uint ah=x[2*a+1],bh=x[2*b+1];if(ah!=bh)return int(ah)<int(bh)?-1:1;return ax<bx?-1:ax>bx?1:0;}
+void main(){uint row=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(row>=p.rows)return;uint rank=0;for(uint other=0;other<p.rows;other++){int cmp=0;for(uint col=0;col<p.cols&&cmp==0;col++)cmp=compare(other*p.cols+col,row*p.cols+col);if(cmp<0||(cmp==0&&other<row))rank++;}order[rank]=uvec2(row,0);}

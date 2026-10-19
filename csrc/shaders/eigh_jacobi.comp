@@ -1,0 +1,14 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) buffer Z {float z[];};
+layout(binding=2) buffer V {float v[];};
+layout(binding=3) buffer W {float w[];};
+layout(binding=4) buffer Info {uint info;};
+layout(push_constant) uniform P {uint batch,n,upper;}p;
+void main(){uint batch=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(batch>=p.batch)return;uint base=batch*p.n*p.n,wb=batch*p.n;float scale=0.;for(uint i=0;i<p.n;i++)for(uint j=0;j<p.n;j++){float x=a[base+(p.upper!=0?(i<=j?i*p.n+j:j*p.n+i):(i>=j?i*p.n+j:j*p.n+i))];if(isnan(x)||isinf(x)){atomicOr(info,1u);return;}scale=max(scale,abs(x));z[base+i*p.n+j]=x;v[base+i*p.n+j]=float(i==j);}if(scale!=0.)for(uint i=0;i<p.n*p.n;i++)z[base+i]=divide_refined(z[base+i],scale);
+ bool converged=false;for(uint sweep=0;sweep<128;sweep++){bool changed=false;for(uint c=0;c<p.n;c++)for(uint d=c+1;d<p.n;d++){float aa=z[base+c*p.n+c],bb=z[base+d*p.n+d],off=z[base+c*p.n+d];if(abs(off)<=1e-7*(abs(aa)+abs(bb))+1e-30)continue;changed=true;float tau=(bb-aa)/(2.*off),t=abs(tau)>1e10?off/(bb-aa):(tau>=0.?1.:-1.)/(abs(tau)+sqrt(1.+tau*tau));float cs=inversesqrt(1.+t*t),sn=cs*t;z[base+c*p.n+c]=aa-t*off;z[base+d*p.n+d]=bb+t*off;z[base+c*p.n+d]=0.;z[base+d*p.n+c]=0.;for(uint j=0;j<p.n;j++){if(j!=c&&j!=d){float x=z[base+j*p.n+c],y=z[base+j*p.n+d];z[base+j*p.n+c]=cs*x-sn*y;z[base+c*p.n+j]=cs*x-sn*y;z[base+j*p.n+d]=sn*x+cs*y;z[base+d*p.n+j]=sn*x+cs*y;}float x=v[base+j*p.n+c],y=v[base+j*p.n+d];v[base+j*p.n+c]=cs*x-sn*y;v[base+j*p.n+d]=sn*x+cs*y;}}if(!changed){converged=true;break;}}
+ if(!converged)atomicOr(info,2u);for(uint i=0;i<p.n;i++)w[wb+i]=z[base+i*p.n+i]*scale;for(uint i=0;i<p.n;i++){uint best=i;for(uint j=i+1;j<p.n;j++)if(w[wb+j]<w[wb+best])best=j;if(best!=i){float t=w[wb+i];w[wb+i]=w[wb+best];w[wb+best]=t;for(uint k=0;k<p.n;k++){t=v[base+k*p.n+i];v[base+k*p.n+i]=v[base+k*p.n+best];v[base+k*p.n+best]=t;}}}
+}
