@@ -3,6 +3,7 @@
 #include "fp32_math.glsl"
 #include "fp32_remainder.glsl"
 #include "fp32_norm.glsl"
+#include "fp32_trig.glsl"
 layout(local_size_x=128) in;
 layout(binding=0) readonly buffer A {float a[];};
 layout(binding=1) readonly buffer B {float b[];};
@@ -18,6 +19,8 @@ float power(float x,float e){
  if(x<0.0&&!integer)return uintBitsToFloat(0x7fc00000u);
  float v=pow(ax,e);return x<0.0&&odd?-v:v;
 }
+float atan2_portable(float y,float x){uint xb=floatBitsToUint(x),yb=floatBitsToUint(y),ax=xb&0x7fffffffu,ay=yb&0x7fffffffu;bool xn=(xb&0x80000000u)!=0u,yn=(yb&0x80000000u)!=0u;float value;if(isnan(x)||isnan(y))return uintBitsToFloat(0x7fc00000u);if(ay==0u)value=xn?3.141592653589793:0.;else if(ax==0u)value=1.5707963267948966;else if(isinf(x)&&isinf(y))value=xn?2.356194490192345:.7853981633974483;else if(isinf(y))value=1.5707963267948966;else if(isinf(x))value=xn?3.141592653589793:0.;else {value=ay<=ax?portable_atan(divide_refined(uintBitsToFloat(ay),uintBitsToFloat(ax))):1.5707963267948966-portable_atan(divide_refined(uintBitsToFloat(ax),uintBitsToFloat(ay)));if(xn)value=3.141592653589793-value;}return yn?-value:value;}
+float log1p_portable(float v){if(v< -1.)return uintBitsToFloat(0x7fc00000u);if(isinf(v))return v;float a=1.+v;if(a==1.)return v;return log(a)*divide_refined(v,a-1.);}
 void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;float x=a[i],v=b[i],z;
  if(p.op==0)z=exact_fmod(x,v);
  else if(p.op==1)z=remainder_value(x,v);
@@ -27,5 +30,7 @@ void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl
  else if(p.op==5)z=uintBitsToFloat((floatBitsToUint(x)&0x7fffffffu)|(floatBitsToUint(v)&0x80000000u));
  else if(p.op==6||p.op==7){if(x==v)z=x+(p.op==6?0.6931471805599453:1.);else{float hi=max(x,v),delta=abs(x-v);z=hi+(p.op==6?log(1.+exp(-delta)):log2(1.+exp2(-delta)));}}
  else if(p.op==8)z=isnan(v)?v:x==0.?0.:x*log(v);
+ else if(p.op==10)z=atan2_portable(x,v);
+ else if(p.op==11)z=isnan(v)?v:x==0.?0.:x*log1p_portable(v);
  else {if(isnan(x)||isnan(v))z=uintBitsToFloat(0x7fc00000u);else if(x==v)z=v;else if(x==0.)z=uintBitsToFloat((floatBitsToUint(v)&0x80000000u)|1u);else{uint bits=floatBitsToUint(x);bits+=(v>x)==(x>0.)?1u:0xffffffffu;z=uintBitsToFloat(bits);}}
  if(p.op!=2&&p.op!=5&&p.op!=8&&!(p.op==4&&(isinf(x)||isinf(v)))&&(isnan(x)||isnan(v)))z=uintBitsToFloat(0x7fc00000u);y[i]=z;}

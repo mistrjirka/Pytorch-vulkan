@@ -3,12 +3,14 @@
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
 #include <ATen/WrapDimUtils.h>
+#include <ATen/native/Resize.h>
 #include <torch/library.h>
 #include <cmath>
 namespace torch_vulkan::ops {
 namespace {
 using namespace native;
 template<int Op>at::Tensor math_unary(const at::Tensor& raw){
+ if constexpr(Op==26)TORCH_CHECK(raw.scalar_type()==at::kFloat,"frac is only implemented for floating-point inputs");
  TORCH_CHECK(device_copy_supported(raw.scalar_type()),"Vulkan pointwise math supports FP32/int32/int64/bool inputs");
  if constexpr(Op>=4&&Op<=7){TORCH_CHECK(raw.scalar_type()!=at::kBool,"rounding operations are not implemented for bool");if(!raw.is_floating_point())return raw.clone();}
  if constexpr(Op==8){if(raw.scalar_type()==at::kBool)return raw.clone();if(!raw.is_floating_point()){auto negative=raw.lt(0),positive=raw.gt(0);return positive.to(raw.scalar_type()).add(negative.to(raw.scalar_type()),-1);}}
@@ -77,6 +79,9 @@ at::Tensor& logit_inplace(at::Tensor& x,std::optional<double> eps){require_real_
 at::Tensor& nan_to_num_inplace(at::Tensor& x,std::optional<double> a,std::optional<double> b,std::optional<double> c){at::assert_no_internal_overlap(x);x.copy_(nan_to_num_general(x,a,b,c));return x;}
 
 at::Tensor glu_jvp_general(const at::Tensor& output,const at::Tensor& x,const at::Tensor& dx,int64_t raw){auto d=at::maybe_wrap_dim(raw,x.dim()),n=x.size(d)/2;auto s=at::sigmoid(x.narrow(d,n,n));return dx.narrow(d,0,n).mul(s).add(output.mul(at::rsub(s,1)).mul(dx.narrow(d,n,n)));}
+at::Tensor angle_general(const at::Tensor& x){if(x.is_complex()){auto parts=at::view_as_real(at::resolve_neg(at::resolve_conj(x)));return at::atan2(parts.select(-1,1),parts.select(-1,0));}auto value=x.to(at::kFloat);return at::where(at::isnan(value),value,at::where(value.lt(0),at::full({},3.141592653589793,value.options()),at::zeros({},value.options())));}
+std::tuple<at::Tensor,at::Tensor> frexp_general(const at::Tensor& x){TORCH_CHECK(x.scalar_type()==at::kFloat,"frexp expects a floating-point input");auto mantissa=at::empty(x.sizes(),x.options()),exponent=at::empty(x.sizes(),x.options().dtype(at::kInt));if(x.numel())run("frexp",{base(packed(x))},{write_base(mantissa),write_base(exponent,at::kInt)},{u32(x.numel())},(x.numel()+127)/128);return {mantissa,exponent};}
+std::tuple<at::Tensor&,at::Tensor&> frexp_out_general(const at::Tensor& x,at::Tensor& mantissa,at::Tensor& exponent){TORCH_CHECK(mantissa.device()==x.device()&&exponent.device()==x.device()&&mantissa.scalar_type()==at::kFloat&&exponent.scalar_type()==at::kInt,"frexp output requires float32 mantissa and int32 exponent on the input device");at::assert_no_internal_overlap(mantissa);at::assert_no_internal_overlap(exponent);at::assert_no_partial_overlap(mantissa,x);at::assert_no_overlap(exponent,x);at::assert_no_overlap(mantissa,exponent);auto [m,e]=frexp_general(x);at::native::resize_output(mantissa,m.sizes());at::native::resize_output(exponent,e.sizes());mantissa.copy_(m);exponent.copy_(e);return {mantissa,exponent};}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("glu_jvp",&glu_jvp_general);
@@ -86,6 +91,8 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("_prelu_kernel",&prelu_general);m.impl("_prelu_kernel_backward",&prelu_grad);m.impl("rrelu_with_noise",&rrelu_general);m.impl("rrelu_with_noise_",&rrelu_inplace);m.impl("rrelu_with_noise_backward",&rrelu_grad);m.impl("mvlgamma",&mvlgamma_general);
  m.impl("elu_",&elu_general_inplace);m.impl("hardswish_",&activation_inplace<0>);m.impl("hardsigmoid_",&activation_inplace<1>);m.impl("mish_",&activation_inplace<2>);m.impl("logit_",&logit_inplace);m.impl("nan_to_num_",&nan_to_num_inplace);
 
+ m.impl("angle",&angle_general);m.impl("frexp.Tensor",&frexp_general);m.impl("frexp.Tensor_out",&frexp_out_general);m.impl("frac",&math_unary<26>);m.impl("frac_",&math_unary_inplace<26>);m.impl("sinc",&math_unary<27>);m.impl("sinc_",&math_unary_inplace<27>);m.impl("special_entr",&math_unary<28>);
+ m.impl("atan2",&binary_math<10>);m.impl("atan2_",&binary_math_inplace<10>);m.impl("special_xlog1py",&binary_math<11>);m.impl("special_xlog1py.other_scalar",&binary_math_scalar<11>);m.impl("special_xlog1py.self_scalar",&scalar_left_math<11>);
  m.impl("pow.Scalar",&scalar_left_math<2>);m.impl("remainder.Scalar_Tensor",&scalar_left_math<1>);m.impl("xlogy.Scalar_Self",&scalar_left_math<8>);
  m.impl("fmod.Tensor",&binary_math<0>);m.impl("fmod.Scalar",&binary_math_scalar<0>);m.impl("fmod_.Tensor",&binary_math_inplace<0>);m.impl("fmod_.Scalar",&binary_math_scalar_inplace<0>);
  m.impl("remainder.Tensor",&binary_math<1>);m.impl("remainder.Scalar",&binary_math_scalar<1>);m.impl("remainder_.Tensor",&binary_math_inplace<1>);m.impl("remainder_.Scalar",&binary_math_scalar_inplace<1>);

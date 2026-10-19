@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer B {uint b[];};
+layout(binding=1) readonly buffer V {uint v[];};
+layout(binding=2) readonly buffer S {uvec2 sorter[];};
+layout(binding=3) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,n,queries,type,right,sorted,output_width;}p;
+bool advances(uint boundary,uint query){uint width=p.type==2u?2u:1u;uint a=b[boundary*width],x=v[query*width];if(p.type==0u){float aa=uintBitsToFloat(a),xx=uintBitsToFloat(x);return p.right!=0u?!(aa>xx):!(aa>=xx);}if(p.type==1u)return p.right!=0u?int(a)<=int(x):int(a)<int(x);uint ah=b[boundary*2u+1u],xh=v[query*2u+1u];bool less=ah==xh?a<x:int(ah)<int(xh);bool equal=a==x&&ah==xh;return less||(p.right!=0u&&equal);}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(id>=p.count)return;uint batch=p.queries==0u?0u:id/p.queries,base=batch*p.n,lo=0u,hi=p.n;while(lo<hi){uint mid=lo+(hi-lo)/2u,index=p.sorted!=0u?sorter[base+mid].x:mid;if(advances(base+index,id))lo=mid+1u;else hi=mid;}y[id*p.output_width]=lo;if(p.output_width==2u)y[id*2u+1u]=0u;}

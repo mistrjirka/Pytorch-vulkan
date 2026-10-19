@@ -58,6 +58,10 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("gelu_backward.grad_input","gelu_backward");add("complex.out","complex");add("polar.out","polar");
  add("geqrf.a","geqrf");add("ormqr.out","ormqr");add("linalg_householder_product.out","linalg_householder_product");add("linalg_qr.out","linalg_qr");
  add("linalg_polar.out","linalg_polar");add("glu_jvp.out","glu_jvp");
+ add("searchsorted.Tensor_out","searchsorted","Tensor");add("searchsorted.Scalar_out","searchsorted","Scalar");add("bucketize.Tensor_out","bucketize","Tensor");add("bucketize.Scalar_out","bucketize","Scalar");
+ add("angle.out","angle");add("atan2.out","atan2");add("frac.out","frac");add("sinc.out","sinc");add("special_entr.out","special_entr");add("special_xlog1py.out","special_xlog1py");add("special_xlog1py.self_scalar_out","special_xlog1py","self_scalar");add("special_xlog1py.other_scalar_out","special_xlog1py","other_scalar");
+ add("upsample_nearest1d.out","upsample_nearest1d");add("_upsample_nearest_exact1d.out","_upsample_nearest_exact1d");add("upsample_linear1d.out","upsample_linear1d");add("upsample_nearest1d_backward.grad_input","upsample_nearest1d_backward");add("_upsample_nearest_exact1d_backward.grad_input","_upsample_nearest_exact1d_backward");add("upsample_linear1d_backward.grad_input","upsample_linear1d_backward");
+ for(auto name:{"upsample_nearest2d","upsample_nearest3d","_upsample_nearest_exact2d","_upsample_nearest_exact3d","upsample_bilinear2d","upsample_bicubic2d","upsample_trilinear3d","_upsample_bilinear2d_aa","_upsample_bicubic2d_aa"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+"_backward.grad_input").c_str(),(std::string(name)+"_backward").c_str());}
  add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");

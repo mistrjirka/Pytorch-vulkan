@@ -1073,3 +1073,73 @@ def test_polar_matrix_decomposition(shape):
     torch.testing.assert_close(h.cpu(), h.mT.cpu(), rtol=2e-5, atol=3e-6)
     a, b = torch.linalg.polar(x)
     torch.testing.assert_close(u.cpu(), a, rtol=2e-5, atol=3e-6);torch.testing.assert_close(h.cpu(), b, rtol=2e-5, atol=3e-6)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64, torch.int32])
+@pytest.mark.parametrize('right', [False, True])
+@pytest.mark.parametrize('batched', [False, True])
+def test_binary_search_sorted_boundaries(dtype, right, batched):
+    boundaries = torch.tensor([[-9, -3, -3, 0, 7, 99], [-1, 0, 3, 8, 8, 15]], dtype=dtype)
+    query = torch.tensor([[-99, -3, -1, 7, 100], [-2, 0, 5, 8, 99]], dtype=dtype)
+    if not batched: boundaries = boundaries[0]
+    if dtype == torch.int64: boundaries = boundaries * 2**40 + 7; query = query * 2**40 + 7
+    bv, qv = boundaries.to('vulkan'), query.to('vulkan')
+    for out_int32 in [False, True]:
+        vk.reset_execution_stats(); actual = torch.searchsorted(bv, qv, right=right, out_int32=out_int32); resident()
+        torch.testing.assert_close(actual.cpu(), torch.searchsorted(boundaries, query, right=right, out_int32=out_int32))
+    if not batched: torch.testing.assert_close(torch.bucketize(qv, bv, right=right).cpu(), torch.bucketize(query, boundaries, right=right))
+
+
+def test_searchsorted_sorter_and_nonfinite():
+    x = torch.tensor([8., -4., float('inf'), 0., -float('inf')]); order = x.argsort(); q = torch.tensor([-float('inf'), -1., 0., 7., float('inf'), float('nan')])
+    for right in [False, True]:
+        actual = torch.searchsorted(x.to('vulkan'), q.to('vulkan'), sorter=order.to('vulkan'), right=right)
+        torch.testing.assert_close(actual.cpu(), torch.searchsorted(x, q, sorter=order, right=right))
+
+
+def test_atan2_axes_signed_zero_extremes():
+    axis = torch.tensor([-float('inf'), -torch.finfo(torch.float32).max, -1., -1e-38, -1e-45, -0., 0., 1e-45, 1e-38, 1., torch.finfo(torch.float32).max, float('inf'), float('nan')])
+    y, x = axis[:, None], axis[None, :]
+    torch.testing.assert_close(torch.atan2(y.to('vulkan'), x.to('vulkan')).cpu(), torch.atan2(y, x), rtol=2e-6, atol=1e-7, equal_nan=True)
+    parts = torch.complex(x.expand(13, 13), y.expand(13, 13))
+    torch.testing.assert_close(torch.angle(parts.to('vulkan')).cpu(), torch.angle(parts), rtol=2e-6, atol=1e-7, equal_nan=True)
+
+
+def test_frexp_exact_float_bits():
+    gen = torch.Generator().manual_seed(393); bits = torch.randint(-(2**31), 2**31, (20000,), dtype=torch.int32, generator=gen)
+    x = bits.view(torch.float32); actual = torch.frexp(x.to('vulkan')); expected = torch.frexp(x)
+    for a, b in zip(actual, expected): torch.testing.assert_close(a.cpu(), b, rtol=0, atol=0, equal_nan=True)
+
+@pytest.mark.parametrize('name', ['sinc', 'frac', 'special.entr'])
+def test_additional_pointwise_functions(name):
+    x = torch.cat((torch.linspace(-10, 10, 2001), torch.tensor([-float('inf'), float('inf'), float('nan'), -0., 1e-45, -1e-45, 1e20])))
+    fn = torch.special.entr if name == 'special.entr' else getattr(torch, name)
+    torch.testing.assert_close(fn(x.to('vulkan')).cpu(), fn(x), rtol=2e-5, atol=2e-6, equal_nan=True)
+
+@pytest.mark.parametrize('mode', ['nearest', 'nearest-exact', 'linear'])
+@pytest.mark.parametrize('length,output', [(1, 7), (3, 3), (3, 6), (7, 3), (8, 13)])
+def test_resampling_1d_forward_backward(mode, length, output):
+    torch.manual_seed(539); x = torch.randn(2, 3, length, requires_grad=True); v = x.detach().to('vulkan').requires_grad_()
+    options = {'align_corners': False} if mode == 'linear' else {}
+    a = torch.nn.functional.interpolate(v, size=output, mode=mode, **options); b = torch.nn.functional.interpolate(x, size=output, mode=mode, **options)
+    a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b, rtol=2e-5, atol=2e-6); torch.testing.assert_close(v.grad.cpu(), x.grad, rtol=2e-5, atol=2e-6)
+
+@pytest.mark.parametrize('rank', [2, 3])
+@pytest.mark.parametrize('mode', ['nearest', 'nearest-exact'])
+def test_resampling_nearest_all_spatial_ranks(rank, mode):
+    torch.manual_seed(545); x = torch.randn((2, 3) + (7,) * rank, requires_grad=True); v = x.detach().to('vulkan').requires_grad_()
+    size = (3, 5) if rank == 2 else (3, 5, 9)
+    a = torch.nn.functional.interpolate(v, size=size, mode=mode); b = torch.nn.functional.interpolate(x, size=size, mode=mode)
+    a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b); torch.testing.assert_close(v.grad.cpu(), x.grad)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64])
+def test_searchsorted_noncontiguous_sorter_lifetime(dtype):
+    boundaries = torch.tensor([8, -4, 6, 1, -9, 3, 0, 11, 7, 2], dtype=dtype)
+    query = torch.arange(-11, 13, dtype=dtype)
+    storage = torch.empty(20, dtype=torch.int64, device='vulkan')
+    sorter = storage[1::2]
+    sorter.copy_(boundaries.argsort())
+    bv, qv = boundaries.to('vulkan'), query.to('vulkan')
+    for right in [False, True]:
+        torch.testing.assert_close(torch.searchsorted(bv, qv, sorter=sorter, right=right).cpu(), torch.searchsorted(boundaries, query, sorter=boundaries.argsort(), right=right))

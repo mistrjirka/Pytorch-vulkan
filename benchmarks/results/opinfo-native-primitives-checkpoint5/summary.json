@@ -1,0 +1,38 @@
+{
+  "scope": "Focused rechecks, not a new full audit",
+  "runs": {
+    "focused22": {
+      "cases": 221,
+      "outcomes": {
+        "passed": 217,
+        "error": 2,
+        "skipped": 2
+      },
+      "backend_source_sha256": "fd7cbb12a642e8ff0642519bbfb3f84ec81bd984a294149db63ab13c61a2f9d1",
+      "source_identity": "recorded_after_build"
+    },
+    "focused23": {
+      "cases": 9,
+      "outcomes": {
+        "passed": 8,
+        "skipped": 1
+      },
+      "backend_source_sha256": "3468a04f2e5a0de3d9d960d06b5850f3a59c82aac9e164d0b4b58eac97231826",
+      "source_identity": "recorded_after_build"
+    },
+    "focused24": {
+      "cases": 221,
+      "outcomes": {
+        "passed": 219,
+        "skipped": 2
+      },
+      "backend_source_sha256": "3468a04f2e5a0de3d9d960d06b5850f3a59c82aac9e164d0b4b58eac97231826",
+      "source_identity": "recorded_after_build"
+    }
+  },
+  "before_73c75a4_for_focused24": {
+    "error": 145,
+    "passed": 74,
+    "skipped": 2
+  }
+}

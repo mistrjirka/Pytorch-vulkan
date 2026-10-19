@@ -1,4 +1,7 @@
 #version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+#include "fp32_trig.glsl"
 layout(local_size_x=128) in;
 layout(binding=0) readonly buffer X {float x[];};
 layout(binding=1) writeonly buffer Y {float y[];};
@@ -14,6 +17,25 @@ float atan_accurate(float v){float a=abs(v);bool invert=a>1;float z=invert?1/a:a
  float r=z*(1+t*poly);if(shift)r+=0.7853981633974483;if(invert)r=1.5707963267948966-r;return (floatBitsToUint(v)&0x80000000u)!=0?-r:r;}
 float asin_accurate(float v){float a=abs(v);if(a>1)return qnan();if(a==1)return v*1.5707963267948966;if(a==0)return v;float r=a<0.5?atan_accurate(a/sqrt((1-a)*(1+a))):1.5707963267948966-2*atan_accurate(sqrt((1-a)/(1+a)));return v<0?-r:r;}
 float acos_accurate(float v){if(abs(v)>1)return qnan();if(v== -1)return 3.141592653589793;return 2*atan_accurate(sqrt((1-v)/(1+v)));}
+// Classify using bits: device comparisons may flush subnormal inputs to zero.
+// Normalize tiny positive values before log/multiply, then round the scaled
+// result through integer exponent fields so output denormals survive as well.
+float entropy(float v){
+ uint bits=floatBitsToUint(v),magnitude=bits&0x7fffffffu;
+ if(magnitude>0x7f800000u)return v;
+ if(magnitude==0u)return 0.;
+ if((bits&0x80000000u)!=0u||magnitude==0x7f800000u)return uintBitsToFloat(0xff800000u);
+ if(magnitude>=0x800000u)return -v*log(v);
+ int shift=23-findMSB(magnitude),exponent=-126-shift;
+ float normalized=uintBitsToFloat(0x3f800000u|((magnitude<<shift)&0x7fffffu));
+ float product=-normalized*(log(normalized)+float(exponent)*0.6931471805599453);
+ uint scaled=floatBitsToUint(product);int result_exponent=int(scaled>>23)+exponent;
+ if(result_exponent>0)return uintBitsToFloat((uint(result_exponent)<<23)|(scaled&0x7fffffu));
+ uint significand=(scaled&0x7fffffu)|0x800000u,drop=uint(1-result_exponent);
+ uint rounded=significand>>drop,remainder=significand&((1u<<drop)-1u),halfway=1u<<(drop-1u);
+ if(remainder>halfway||(remainder==halfway&&(rounded&1u)!=0u))rounded++;
+ return uintBitsToFloat(rounded);
+}
 float apply(float v){switch(p.op){
  case 0:return 1/v;case 1:return v<0?qnan():log(v);case 2:return log1p_stable(v);case 3:return expm1_stable(v);
  case 4:return floor(v);case 5:return ceil(v);case 6:return trunc(v);case 7:return roundEven(v);case 8:return v>0?1:v<0?-1:0;
@@ -25,6 +47,9 @@ float apply(float v){switch(p.op){
  case 20:{float a=abs(v);if(a==0)return v;if(a>1)return qnan();float z=0.5*log1p_stable(2*a/(1-a));return v<0?-z:z;}
  case 21:{if(v==0)return v;if(abs(v)<0.001)return 1.1283791670955126*v*(1-v*v/3);float z=1-erfc_positive(abs(v));return v<0?-z:z;}
  case 22:return v<0?2-erfc_positive(-v):erfc_positive(v);
+ case 26:return (floatBitsToUint(v)&0x7fffffffu)==0u?v:v-trunc(v);
+ case 27:{if((floatBitsToUint(v)&0x7fffffffu)<0x39800000u)return 1.;precise float angle=3.1415927410125732421875*v;return divide_refined(portable_sin(angle),angle);}
+ case 28:return entropy(v);
  case 25:return p.negative!=0?roundEven(v/p.factor)*p.factor:roundEven(v*p.factor)/p.factor;
  default:return qnan();}}
 void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i<p.count)y[i]=apply(x[i]);}

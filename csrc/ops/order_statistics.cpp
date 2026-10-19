@@ -106,8 +106,20 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_dim_native(const at::Tensor&
 std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_consecutive_native(const at::Tensor& x,bool inverse,bool counts,std::optional<int64_t> dim){return unique_rows(x,dim,true,inverse,counts);}
 std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_dim_consecutive_native(const at::Tensor& x,int64_t dim,bool inverse,bool counts){return unique_rows(x,dim,true,inverse,counts);}
 
+at::Tensor searchsorted_general(const at::Tensor& boundaries,const at::Tensor& value,bool out_int32,bool right,std::optional<c10::string_view> side,const std::optional<at::Tensor>& sorter){
+ TORCH_CHECK(boundaries.dim()>=1,"boundaries tensor must be at least 1 dimension");TORCH_CHECK(boundaries.device()==value.device(),"boundaries and input value tensors must be on the same device");if(side){TORCH_CHECK(*side=="left"||*side=="right","side can only be 'left' or 'right'");TORCH_CHECK(!right||*side=="right","side and right arguments contradict each other");right=*side=="right";}
+ if(boundaries.dim()>1){TORCH_CHECK(value.dim()==boundaries.dim(),"boundaries tensor must be 1 dimension or match the input tensor dimensions");TORCH_CHECK(boundaries.sizes().slice(0,boundaries.dim()-1)==value.sizes().slice(0,value.dim()-1),"boundaries tensor first dimensions must match input tensor dimensions");}
+ auto n=boundaries.size(-1);TORCH_CHECK(!out_int32||n<INT32_MAX,"boundaries dimension exceeds int32");auto type=at::result_type(boundaries,value);TORCH_CHECK(device_copy_supported(type),"searchsorted requires real inputs");if(type==at::kBool||type==at::kByte||type==at::kChar||type==at::kShort)type=at::kInt;
+ if(sorter){TORCH_CHECK(sorter->scalar_type()==at::kLong&&sorter->device()==boundaries.device()&&sorter->sizes()==boundaries.sizes(),"sorter must have the same size/device as boundaries and int64 dtype");if(sorter->numel())TORCH_CHECK(at::all(at::logical_and(sorter->ge(0),sorter->lt(n))).cpu().item<bool>(),"sorter index out of range");}
+ auto result=at::empty(value.sizes(),value.options().dtype(out_int32?at::kInt:at::kLong));if(!result.numel())return result;if(!n)return result.zero_();auto b=packed(boundaries.to(type),type),v=packed(value.to(type),type);auto packed_sorter=sorter?packed(*sorter,at::kLong):at::Tensor();auto order=sorter?base(packed_sorter,at::kLong):VulkanAllocator::instance().constant_float_buffer(2,0);run("searchsorted",{base(b,type),base(v,type),order},{write_base(result,result.scalar_type())},{u32(result.numel()),u32(n),boundaries.dim()==1?0u:u32(value.size(-1)),type==at::kFloat?0u:type==at::kInt?1u:2u,uint32_t(right),uint32_t(sorter.has_value()),out_int32?1u:2u},(result.numel()+127)/128);return result;
+}
+at::Tensor searchsorted_scalar(const at::Tensor& b,const at::Scalar& value,bool out_int32,bool right,std::optional<c10::string_view> side,const std::optional<at::Tensor>& sorter){return searchsorted_general(b,at::scalar_tensor(value,b.options().dtype(at::result_type(b,value))),out_int32,right,side,sorter);}
+at::Tensor bucketize_general(const at::Tensor& value,const at::Tensor& boundaries,bool out_int32,bool right){TORCH_CHECK(boundaries.dim()==1,"boundaries tensor must be 1 dimension");return searchsorted_general(boundaries,value,out_int32,right,std::nullopt,std::nullopt);}
+at::Tensor bucketize_scalar(const at::Scalar& value,const at::Tensor& boundaries,bool out_int32,bool right){return bucketize_general(at::scalar_tensor(value,boundaries.options().dtype(at::result_type(boundaries,value))),boundaries,out_int32,right);}
+
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("searchsorted.Tensor",&searchsorted_general);m.impl("searchsorted.Scalar",&searchsorted_scalar);m.impl("bucketize.Tensor",&bucketize_general);m.impl("bucketize.Scalar",&bucketize_scalar);
  m.impl("unique_dim",&unique_dim_native);m.impl("unique_consecutive",&unique_consecutive_native);m.impl("unique_dim_consecutive",&unique_dim_consecutive_native);
  m.impl("prod",&prod_all_native);m.impl("prod.dim_int",&prod_dim_native);m.impl("_unique",&unique_pair);m.impl("_logcumsumexp",&logcumsumexp_native);
  m.impl("_unique2",&unique_native);

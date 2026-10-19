@@ -1,0 +1,7 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer M {uint mantissa[];};
+layout(binding=2) writeonly buffer E {int exponent[];};
+layout(push_constant) uniform P {uint count;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;uint bits=x[i],m=bits&0x7fffffu,exp=(bits>>23)&255u,sign=bits&0x80000000u;if(exp==255u||(exp==0u&&m==0u)){mantissa[i]=bits;exponent[i]=0;return;}int e=int(exp)-126;if(exp==0u){int shift=23-findMSB(m);m<<=shift;e=-125-shift;}mantissa[i]=sign|0x3f000000u|(m&0x7fffffu);exponent[i]=e;}
