@@ -318,3 +318,25 @@ def test_register_tile_batch_group_and_channel_boundaries(
     for phase in ("forward", "dinput", "dweight"):
         key = f"selected_{phase}_tiled_register"
         assert after.get(key, 0) > before.get(key, 0), (phase, before, after)
+
+
+@pytest.mark.parametrize("xshape,kernel,padding,groups,expected", [
+    pytest.param((1, 32, 64, 64), (3, 3), (1, 1), 1, "register", id="dense-large-3x3"),
+    pytest.param((1, 32, 32, 32), (3, 3), (1, 1), 1, "base", id="dense-small-3x3"),
+    pytest.param((1, 32, 64, 64), (3, 5), (1, 2), 1, "base", id="dense-large-3x5"),
+    pytest.param((1, 32, 64, 64), (3, 3), (1, 1), 2, "base", id="grouped-large-3x3"),
+])
+def test_default_large_dense_conv_dispatch_and_gradients(
+    xshape, kernel, padding, groups, expected, monkeypatch
+):
+    # Test the ordinary heuristic rather than forcing a tile or using tuning.
+    for key in ("TORCH_VULKAN_CONV_ALGO", "TORCH_VULKAN_CONV_BACKWARD_ALGO",
+                "TORCH_VULKAN_CONV_TILE"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("TORCH_VULKAN_CONV_AUTOTUNE", "0")
+    before = torch_vulkan.conv_dispatch_stats()
+    _check_case(xshape, 32, kernel, (1, 1), padding, (1, 1), groups)
+    after = torch_vulkan.conv_dispatch_stats()
+    for phase in ("forward", "dinput", "dweight"):
+        key = f"selected_{phase}_tiled_{expected}"
+        assert after.get(key, 0) == before.get(key, 0) + 1, (phase, before, after)

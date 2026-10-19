@@ -1,0 +1,161 @@
+{
+  "unet/reference": {
+    "base": {
+      "train_median_ms": 92.26865999517031,
+      "inference_median_ms": 21.779185015475377,
+      "training_process_medians_ms": [
+        91.22134000062943,
+        92.26865999517031,
+        93.50527098285966
+      ],
+      "inference_process_medians_ms": [
+        21.60286298021674,
+        21.780119015602395,
+        21.779185015475377
+      ]
+    },
+    "auto": {
+      "train_median_ms": 55.20042299758643,
+      "inference_median_ms": 9.70352700096555,
+      "training_process_medians_ms": [
+        54.568277002545074,
+        55.20042299758643,
+        55.331422976450995
+      ],
+      "inference_process_medians_ms": [
+        9.70352700096555,
+        9.640649979701266,
+        9.777112019946799
+      ]
+    },
+    "cuda": {
+      "train_median_ms": 10.101652005687356,
+      "inference_median_ms": 2.2730909986421466,
+      "training_process_medians_ms": [
+        10.042201989563182,
+        10.101652005687356,
+        10.112891992321238
+      ],
+      "inference_process_medians_ms": [
+        2.2710779740009457,
+        2.29200700414367,
+        2.2730909986421466
+      ]
+    }
+  },
+  "unet/medium": {
+    "base": {
+      "train_median_ms": 24.576694995630533,
+      "inference_median_ms": 2.9870409925933927,
+      "training_process_medians_ms": [
+        27.350132004357874,
+        24.576694995630533,
+        24.319738993654028
+      ],
+      "inference_process_medians_ms": [
+        3.044768003746867,
+        2.9870409925933927,
+        2.933451993158087
+      ]
+    },
+    "auto": {
+      "train_median_ms": 22.528619010699913,
+      "inference_median_ms": 2.645499014761299,
+      "training_process_medians_ms": [
+        23.08224400621839,
+        22.508101974381134,
+        22.528619010699913
+      ],
+      "inference_process_medians_ms": [
+        2.648986002895981,
+        2.645499014761299,
+        2.6408509875182062
+      ]
+    },
+    "cuda": {
+      "train_median_ms": 9.94998001260683,
+      "inference_median_ms": 1.0738449927885085,
+      "training_process_medians_ms": [
+        8.064394991379231,
+        9.94998001260683,
+        9.970087994588539
+      ],
+      "inference_process_medians_ms": [
+        1.0738449927885085,
+        1.0714110103435814,
+        1.0808380029629916
+      ]
+    }
+  },
+  "resnet18/medium": {
+    "base": {
+      "train_median_ms": 70.59568702243268,
+      "inference_median_ms": 12.652674980927259,
+      "training_process_medians_ms": [
+        70.8266359870322,
+        70.59568702243268,
+        57.66368401236832
+      ],
+      "inference_process_medians_ms": [
+        11.084055993705988,
+        14.906060008797795,
+        12.652674980927259
+      ]
+    },
+    "auto": {
+      "train_median_ms": 66.77343300543725,
+      "inference_median_ms": 12.53673099563457,
+      "training_process_medians_ms": [
+        58.09768900508061,
+        66.77343300543725,
+        67.37910100491717
+      ],
+      "inference_process_medians_ms": [
+        12.53673099563457,
+        10.727095999754965,
+        13.957607006886974
+      ]
+    },
+    "cuda": {
+      "train_median_ms": 15.115846996195614,
+      "inference_median_ms": 2.003433008212596,
+      "training_process_medians_ms": [
+        12.509640015196055,
+        15.40221701725386,
+        15.115846996195614
+      ],
+      "inference_process_medians_ms": [
+        2.003433008212596,
+        2.0804049854632467,
+        1.9882549822796136
+      ]
+    }
+  },
+  "gpu_shader_ms_per_step": {
+    "base": {
+      "forward_tiled": 15.157854719999996,
+      "dinput_tiled": 18.66667391999999,
+      "dweight_split": 20.676121599999988,
+      "all_conv2d": 56.82374783999997
+    },
+    "auto": {
+      "forward_tiled": 6.344912639999994,
+      "dinput_tiled": 7.701281280000009,
+      "dweight_split": 8.003732480000014,
+      "all_conv2d": 24.396332800000014
+    }
+  },
+  "provenance": {
+    "commit_before_patch": "f906495d4bea5c6b987f501ddca3ce984c55f69f",
+    "source_sha256": "a21cb057aff9bf666d910f9dbf089b5fed5a628d45564d61fe28c8876fafc231",
+    "extension_sha256": "082ec66cdb3706f31c8cff72b625217a25ac05069d6f87e12542eb732e9a7618",
+    "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+    "source_test_ops_sha256": "17ffae61a1654f23d7c2c8f73879bee99c56a80482d061c96975c0fc4720020c",
+    "device": "RTX 2080 Ti",
+    "dtype": "float32",
+    "tf32": false,
+    "wall_method": "3 independent processes/variant, 8 warmups, 25 samples each, rotated baseline/auto/CUDA order and exclusive GPU; same model/input hashes",
+    "gpu_method": "separate 25-step eager Vulkan timestamp diagnostics; no Vulkan batching; do not subtract these from wall timings",
+    "numerical_method": "unchanged CPU reference output/loss/input/parameter gradient parity; original upstream OpInfo test bodies/samples/tolerances unchanged"
+  }
+}

@@ -287,7 +287,14 @@ static ConvCandidate heuristic(const ConvParams& p,ConvPhase phase,const ConvCon
   auto has=[&](ConvCandidate c) { return std::find(available.begin(),available.end(),c)!=available.end(); };
   ConvCandidate preferred;
   const uint64_t rows=uint64_t(p.n)*p.oh*p.ow, cols=uint64_t(p.cin/p.groups)*p.kh*p.kw;
-  const ConvCandidate tiled{ConvKind::Tiled,ctl.tile<0 ? 0 : ctl.tile};
+  // A register-blocked tile amortizes gathers for dense 3x3 convolutions
+  // with enough spatial and channel work. Other shapes keep the conservative
+  // base tile; eligibility and workspace checks still guard every selection.
+  const bool large_dense_3x3 = p.kh==3 && p.kw==3 &&
+      p.sh==1 && p.sw==1 && p.dh==1 && p.dw==1 && p.groups==1 &&
+      p.cin>=32 && p.cout>=32 && uint64_t(p.n)*p.oh*p.ow>=4096;
+  const int auto_tile = large_dense_3x3 && has({ConvKind::Tiled,3}) ? 3 : 0;
+  const ConvCandidate tiled{ConvKind::Tiled,ctl.tile<0 ? auto_tile : ctl.tile};
   bool strict=false;
   if(ctl.algorithm=="direct") { preferred={ConvKind::Direct,0}; strict=true; }
   else if(ctl.algorithm=="depthwise") { preferred={ConvKind::Depthwise,0}; strict=true; }
