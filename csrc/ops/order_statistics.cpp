@@ -130,3 +130,35 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("var.correction",&var_native);m.impl("var_mean.correction",&var_mean_native);
 }
 }
+#include "native_utils.h"
+#include <ATen/ExpandUtils.h>
+#include <ATen/WrapDimUtils.h>
+#include <torch/library.h>
+#include <ATen/core/dispatch/Dispatcher.h>
+namespace torch_vulkan::ops {namespace {
+using namespace native;
+std::tuple<at::Tensor,at::Tensor,at::Tensor> quantile_ranks_meta(const at::Tensor& q,const at::Tensor& counts,int64_t mode){auto shape=at::infer_size_dimvector(q.sizes(),counts.sizes());return {at::empty(shape,q.options().dtype(at::kLong)),at::empty(shape,q.options().dtype(at::kLong)),at::empty(shape,q.options())};}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> quantile_ranks_native(const at::Tensor& q,const at::Tensor& counts,int64_t mode){TORCH_CHECK(q.scalar_type()==at::kFloat&&counts.scalar_type()==at::kLong&&q.device()==counts.device()&&mode>=0&&mode<5,"invalid quantile rank inputs");TORCH_CHECK(at::all(at::logical_and(q.ge(0),q.le(1))).cpu().item<bool>(),"quantile() q values must be in the range [0, 1]");auto [lower,upper,weight]=quantile_ranks_meta(q,counts,mode);if(lower.numel()){auto qs=packed(q.expand(lower.sizes())),ns=packed(counts.expand(lower.sizes()),at::kLong);run("quantile_ranks",{base(qs),base(ns,at::kLong)},{write_base(lower,at::kLong),write_base(upper,at::kLong),write_base(weight)},{u32(lower.numel()),uint32_t(mode)},(lower.numel()+127)/128);}return {lower,upper,weight};}
+template<bool Ignore>at::Tensor quantile_tensor_native(const at::Tensor& x,const at::Tensor& q,std::optional<int64_t> dim,bool keep,c10::string_view interpolation){
+ TORCH_CHECK(x.numel()>0,"quantile() input tensor must be non-empty");TORCH_CHECK(q.dim()<=1,"quantile() q must be a scalar or 1D tensor");TORCH_CHECK(x.scalar_type()==at::kFloat,"quantile() input tensor must be either float or double dtype");TORCH_CHECK(q.scalar_type()==x.scalar_type(),"quantile() q tensor must be same dtype as the input tensor");TORCH_CHECK(q.device()==x.device(),"quantile() q tensor must be on the same device as the input tensor");
+ uint32_t mode=interpolation=="linear"?0:interpolation=="lower"?1:interpolation=="higher"?2:interpolation=="midpoint"?3:interpolation=="nearest"?4:5;TORCH_CHECK(mode!=5,"quantile() interpolation must be one of linear, lower, higher, midpoint or nearest, but got ",interpolation);
+ int64_t axis=dim?at::maybe_wrap_dim(*dim,x.dim()):0;auto reduced=!dim?x.flatten():x.dim()==0?x.reshape({1}):x.movedim(axis,-1);auto sorted=std::get<0>(at::sort(reduced,-1,false));auto n=reduced.size(-1);u32(n);auto countshape=reduced.sizes().vec();countshape.back()=1;auto counts=Ignore?at::sum(at::logical_not(at::isnan(reduced)),{-1},true,at::kLong):at::full(countshape,n,x.options().dtype(at::kLong));
+ auto qvector=q.reshape({q.numel()});auto shape=at::infer_size_dimvector(counts.sizes(),qvector.sizes());auto quantiles=qvector.expand(shape),lengths=counts.expand(shape);
+ static auto rank_op=c10::Dispatcher::singleton().findSchemaOrThrow("torch_vulkan::_quantile_ranks","").typed<decltype(quantile_ranks_native)>();auto [lower,upper,weight]=rank_op.call(quantiles.detach(),lengths,mode);
+ if(mode==0){auto factor=at::clamp_min(lengths.sub(1),0).to(at::kFloat);weight=weight.add(quantiles.sub(quantiles.detach()).mul(factor));}
+ if constexpr(!Ignore){auto nan=at::any(at::isnan(reduced),-1,true).expand(shape);auto last=at::full({},n-1,lower.options());lower=at::where(nan,last,lower);upper=at::where(nan,last,upper);weight=at::where(nan,at::zeros({},x.options()),weight);}
+ auto below=at::gather(sorted,-1,lower,false);auto result=mode==0||mode==3?at::lerp(below,at::gather(sorted,-1,upper,false),weight):below;
+ result=q.dim()==0?result.squeeze(-1):result.movedim(-1,0);auto output=x.sizes().vec();if(dim){if(x.dim()){if(keep)output[axis]=1;else output.erase(output.begin()+axis);}}else output=keep?std::vector<int64_t>(x.dim(),1):std::vector<int64_t>{};if(q.dim())output.insert(output.begin(),q.numel());return result.reshape(output);
+}
+template<bool Ignore>at::Tensor quantile_scalar_native(const at::Tensor& x,double q,std::optional<int64_t> dim,bool keep,c10::string_view interpolation){TORCH_CHECK(q>=0&&q<=1,"quantile() q must be in the range [0, 1] but got ",q);return quantile_tensor_native<Ignore>(x,at::full({},q,x.options()),dim,keep,interpolation);}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("quantile",&quantile_tensor_native<false>);m.impl("quantile.scalar",&quantile_scalar_native<false>);m.impl("nanquantile",&quantile_tensor_native<true>);m.impl("nanquantile.scalar",&quantile_scalar_native<true>);}
+TORCH_LIBRARY_IMPL(aten,AutogradPrivateUse1,m){m.impl("quantile",&quantile_tensor_native<false>);m.impl("quantile.scalar",&quantile_scalar_native<false>);m.impl("nanquantile",&quantile_tensor_native<true>);m.impl("nanquantile.scalar",&quantile_scalar_native<true>);}
+}
+
+namespace torch_vulkan::ops {
+TORCH_LIBRARY_FRAGMENT(torch_vulkan,m){m.def("_quantile_ranks(Tensor q, Tensor lengths, int mode) -> (Tensor lower, Tensor upper, Tensor weight)");}
+TORCH_LIBRARY_IMPL(torch_vulkan,PrivateUse1,m){m.impl("_quantile_ranks",&quantile_ranks_native);}
+TORCH_LIBRARY_IMPL(torch_vulkan,AutogradPrivateUse1,m){m.impl("_quantile_ranks",torch::CppFunction::makeFallthrough());}
+TORCH_LIBRARY_IMPL(torch_vulkan,Meta,m){m.impl("_quantile_ranks",&quantile_ranks_meta);}
+}

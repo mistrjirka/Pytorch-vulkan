@@ -22,7 +22,7 @@ at::Tensor round_decimals(const at::Tensor& x,int64_t decimals){if(!decimals)ret
 at::Tensor& round_decimals_inplace(at::Tensor& x,int64_t decimals){x.copy_(round_decimals(x,decimals));return x;}
 at::Tensor integer_math(const at::Tensor& left,const at::Tensor& right,uint32_t op){
  auto dev=left.is_cpu()?right.device():left.device();TORCH_CHECK(dev.type()==c10::DeviceType::PrivateUse1&&(left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"integer math tensors must be on the same device");auto dtype=at::result_type(left,right);TORCH_CHECK(device_copy_supported(dtype)&&dtype!=at::kBool&&dtype!=at::kFloat,"integer math requires integer input");auto compute=dtype==at::kLong?at::kLong:at::kInt;auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto result=at::empty(shape,left.options().device(dev).dtype(compute));
- if(result.numel()){auto a=packed(left.to(dev,compute).expand(shape),compute),b=packed(right.to(dev,compute).expand(shape),compute),invalid=at::zeros({},result.options().dtype(at::kInt));run("integer_math",{base(a,compute),base(b,compute)},{write_base(result,compute),write_base(invalid,at::kInt)},{u32(result.numel()),uint32_t(result.element_size()/4),op},(result.numel()+127)/128);if(op!=2)TORCH_CHECK(invalid.cpu().item<int>()==0,"ZeroDivisionError");}return result.to(dtype);
+ if(result.numel()){auto a=packed(left.to(dev,compute).expand(shape),compute),b=packed(right.to(dev,compute).expand(shape),compute),invalid=at::zeros({},result.options().dtype(at::kInt));run("integer_math",{base(a,compute),base(b,compute)},{write_base(result,compute),write_base(invalid,at::kInt)},{u32(result.numel()),uint32_t(result.element_size()/4),op},(result.numel()+127)/128);if(op!=2&&op<5)TORCH_CHECK(invalid.cpu().item<int>()==0,"ZeroDivisionError");}return result.to(dtype);
 }
 
 template<int Op>at::Tensor binary_math(const at::Tensor& left,const at::Tensor& right){
@@ -31,6 +31,8 @@ template<int Op>at::Tensor binary_math(const at::Tensor& left,const at::Tensor& 
  TORCH_CHECK(device_copy_supported(dtype),"binary math requires real input");auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto out=at::empty(shape,left.options().device(device).dtype(at::kFloat));if(!out.numel())return out;
  auto a=packed(left.to(device,at::kFloat).expand(shape)),b=packed(right.to(device,at::kFloat).expand(shape));run("pointwise_binary",{base(a),base(b)},{write_base(out)},{u32(out.numel()),Op},(out.numel()+127)/128);return out;
 }
+template<int Op>at::Tensor integer_binary_extra(const at::Tensor& x,const at::Tensor& y){return integer_math(x,y,Op);}
+template<int Op>at::Tensor& integer_binary_extra_inplace(at::Tensor& x,const at::Tensor& y){at::assert_no_internal_overlap(x);auto value=integer_math(x,y,Op);TORCH_CHECK(x.sizes()==value.sizes()&&c10::canCast(value.scalar_type(),x.scalar_type()),"inplace result shape/dtype mismatch");x.copy_(value);return x;}
 template<int Op>at::Tensor binary_math_scalar(const at::Tensor& x,const at::Scalar& value){return binary_math<Op>(x,at::scalar_tensor(value,at::TensorOptions().dtype(at::result_type(x,value))));}
 template<int Op>at::Tensor& binary_math_inplace(at::Tensor& x,const at::Tensor& y){at::assert_no_internal_overlap(x);auto value=binary_math<Op>(x,y);TORCH_CHECK(x.sizes()==value.sizes()&&c10::canCast(value.scalar_type(),x.scalar_type()),"inplace binary result shape/dtype mismatch");x.copy_(value);return x;}
 template<int Op>at::Tensor& binary_math_scalar_inplace(at::Tensor& x,const at::Scalar& value){return binary_math_inplace<Op>(x,at::scalar_tensor(value,at::TensorOptions().dtype(at::result_type(x,value))));}
@@ -92,6 +94,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("elu_",&elu_general_inplace);m.impl("hardswish_",&activation_inplace<0>);m.impl("hardsigmoid_",&activation_inplace<1>);m.impl("mish_",&activation_inplace<2>);m.impl("logit_",&logit_inplace);m.impl("nan_to_num_",&nan_to_num_inplace);
 
  m.impl("angle",&angle_general);m.impl("frexp.Tensor",&frexp_general);m.impl("frexp.Tensor_out",&frexp_out_general);m.impl("frac",&math_unary<26>);m.impl("frac_",&math_unary_inplace<26>);m.impl("sinc",&math_unary<27>);m.impl("sinc_",&math_unary_inplace<27>);m.impl("special_entr",&math_unary<28>);
+ m.impl("gcd",&integer_binary_extra<5>);m.impl("lcm",&integer_binary_extra<6>);m.impl("gcd_",&integer_binary_extra_inplace<5>);m.impl("lcm_",&integer_binary_extra_inplace<6>);
  m.impl("atan2",&binary_math<10>);m.impl("atan2_",&binary_math_inplace<10>);m.impl("special_xlog1py",&binary_math<11>);m.impl("special_xlog1py.other_scalar",&binary_math_scalar<11>);m.impl("special_xlog1py.self_scalar",&scalar_left_math<11>);
  m.impl("pow.Scalar",&scalar_left_math<2>);m.impl("remainder.Scalar_Tensor",&scalar_left_math<1>);m.impl("xlogy.Scalar_Self",&scalar_left_math<8>);
  m.impl("fmod.Tensor",&binary_math<0>);m.impl("fmod.Scalar",&binary_math_scalar<0>);m.impl("fmod_.Tensor",&binary_math_inplace<0>);m.impl("fmod_.Scalar",&binary_math_scalar_inplace<0>);
@@ -122,7 +125,7 @@ namespace torch_vulkan::ops {namespace {
 using namespace native;
 template<int Op>at::Tensor special_unary(const at::Tensor& raw){TORCH_CHECK(device_copy_supported(raw.scalar_type()),"special functions require real inputs");auto x=raw.to(at::kFloat),out=at::empty(raw.sizes(),x.options());if(out.numel()){auto input=packed(x);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);run("special_functions",{base(input),dummy},{write_base(out)},{u32(out.numel()),Op},(out.numel()+127)/128);}return out;}
 template<int Op>at::Tensor& special_inplace(at::Tensor& x){at::assert_no_internal_overlap(x);auto out=special_unary<Op>(x);TORCH_CHECK(c10::canCast(out.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(out);return x;}
-template<int Op>at::Tensor special_binary(const at::Tensor& left,const at::Tensor& right){auto dev=left.is_cpu()?right.device():left.device();TORCH_CHECK((left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"special function inputs must be on the same device");TORCH_CHECK(device_copy_supported(left.scalar_type())&&device_copy_supported(right.scalar_type()),"special functions require real inputs");auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto a=packed(left.to(dev,at::kFloat).expand(shape)),b=packed(right.to(dev,at::kFloat).expand(shape)),out=at::empty(shape,a.options());if(out.numel())run("special_functions",{base(a),base(b)},{write_base(out)},{u32(out.numel()),Op},(out.numel()+127)/128);return out;}
+template<int Op>at::Tensor special_binary(const at::Tensor& left,const at::Tensor& right){auto dev=left.is_cpu()?right.device():left.device();TORCH_CHECK((left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"special function inputs must be on the same device");TORCH_CHECK(device_copy_supported(left.scalar_type())&&device_copy_supported(right.scalar_type()),"special functions require real inputs");auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto a=packed(left.to(dev,at::kFloat).expand(shape)),b=packed(right.to(dev,at::kFloat).expand(shape)),out=at::empty(shape,a.options());if(out.numel())run(Op>=33?"incomplete_gamma":"special_functions",{base(a),base(b)},{write_base(out)},{u32(out.numel()),Op>=33?Op-33:Op},(out.numel()+127)/128);return out;}
 template<int Op>at::Tensor special_right_scalar(const at::Tensor& x,const at::Scalar& n){return special_binary<Op>(x,at::scalar_tensor(n,at::TensorOptions().dtype(at::result_type(x,n))));}
 template<int Op>at::Tensor special_left_scalar(const at::Scalar& x,const at::Tensor& n){return special_binary<Op>(at::scalar_tensor(x,at::TensorOptions().dtype(at::result_type(n,x))),n);}
 }
@@ -175,4 +178,8 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("special_zeta",&special_binary<32>);
  m.impl("special_zeta.other_scalar",&special_right_scalar<32>);m.impl("special_zeta.self_scalar",&special_left_scalar<32>);
 }
+}
+
+namespace torch_vulkan::ops {
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("igamma",&special_binary<33>);m.impl("igammac",&special_binary<34>);}
 }

@@ -1,0 +1,92 @@
+{
+  "scope": "Focused rechecks, not a new full audit",
+  "runs": {
+    "focused32": {
+      "cases": 193,
+      "outcomes": {
+        "skipped": 61,
+        "passed": 118,
+        "error": 5,
+        "unexpected_success": 4,
+        "expected_failure": 5
+      },
+      "backend_source_sha256": "3ef65c395912cdf2c7b711f97db2f94a385d8722238da8a431c257dc790f40db",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused33": {
+      "cases": 193,
+      "outcomes": {
+        "skipped": 61,
+        "passed": 123,
+        "unexpected_success": 4,
+        "expected_failure": 5
+      },
+      "backend_source_sha256": "0d901e791faa896777a87f25b57afeae9e13c3c4e1520f2a8436d137624fc0ff",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused34": {
+      "cases": 49,
+      "outcomes": {
+        "passed": 45,
+        "skipped": 4
+      },
+      "backend_source_sha256": "66dc288321103d1df5268fdc621272158a59dfe8d05240da4b4158d56aeecb1c",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused35": {
+      "cases": 126,
+      "outcomes": {
+        "error": 14,
+        "passed": 103,
+        "unexpected_success": 1,
+        "expected_failure": 4,
+        "skipped": 4
+      },
+      "backend_source_sha256": "86895da0af7a13c553184a985fb42489898ebf59e929779602a8d8f9874a1362",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused36": {
+      "cases": 2,
+      "outcomes": {
+        "passed": 2
+      },
+      "backend_source_sha256": "18988b32e80d0b2dd87c4da4f29e94a5adc5bfc7f4f4ff64d74ee9afb091e5b2",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused37": {
+      "cases": 64,
+      "outcomes": {
+        "passed": 58,
+        "error": 6
+      },
+      "backend_source_sha256": "18988b32e80d0b2dd87c4da4f29e94a5adc5bfc7f4f4ff64d74ee9afb091e5b2",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    },
+    "focused38": {
+      "cases": 390,
+      "outcomes": {
+        "skipped": 69,
+        "passed": 301,
+        "error": 6,
+        "unexpected_success": 5,
+        "expected_failure": 9
+      },
+      "backend_source_sha256": "f056ca5ceb59e57999d66ba6b279215c82a818d8ba369ab5146c4591bdf313df",
+      "source_identity": "recorded_after_build",
+      "fallback_calls_or_attempts": 0
+    }
+  },
+  "before_73c75a4_for_focused38": {
+    "skipped": 69,
+    "error": 253,
+    "passed": 54,
+    "expected_failure": 14
+  },
+  "recovered_errors_as_passed": 247
+}

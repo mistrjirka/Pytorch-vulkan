@@ -50,3 +50,8 @@ at::Tensor& randperm_default(c10::SymInt count,at::Tensor& out){return randperm_
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("_efficientzerotensor",&efficient_zero);m.impl("arange.start_out",&arange_out);m.impl("arange.out",&arange_end);m.impl("linspace.out",&linspace_out);m.impl("randperm.generator_out",&randperm_out);m.impl("randperm.out",&randperm_default);}
 }
+namespace torch_vulkan::ops {namespace {
+at::Tensor& logspace_out_native(const at::Scalar& start,const at::Scalar& end,int64_t steps,double base_value,at::Tensor& out){TORCH_CHECK(steps>=0,"number of steps must be non-negative");at::assert_no_internal_overlap(out);auto exponents=at::linspace(start,end,steps,out.options().dtype(at::kFloat));auto value=at::pow(at::scalar_tensor(base_value,out.options().dtype(at::kFloat)),exponents);at::native::resize_output(out,{steps});out.copy_(value);return out;}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("logspace.out",&logspace_out_native);}
+}

@@ -2,6 +2,7 @@
 #include "device_copy.h"
 #include "../vulkan_generator.h"
 #include <ATen/MemoryOverlap.h>
+#include <ATen/ExpandUtils.h>
 #include <torch/library.h>
 #include <cmath>
 namespace torch_vulkan::ops {
@@ -9,6 +10,7 @@ namespace {
 using namespace native;
 at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const std::optional<at::Generator>& generator,const at::Tensor& probs={}) {
  if(out.scalar_type()==at::kComplexFloat&&(mode==0||mode==1)){auto real=at::view_as_real(out);random_fill(real,mode,a,mode==1?b/std::sqrt(2.):b,generator);return out;}
+ if(out.scalar_type()!=at::kFloat&&device_copy_supported(out.scalar_type())&&(mode==2u||mode==3u||mode==7u)){at::assert_no_internal_overlap(out);auto temporary=at::empty(out.sizes(),out.options().dtype(at::kFloat));random_fill(temporary,mode,a,b,generator,probs);out.copy_(temporary);return out;}
  TORCH_CHECK(out.scalar_type()==at::kFloat,"Vulkan random fill requires FP32 output; got ",out.scalar_type());
  if(!out.numel())return out;
  if(out.dim()>8&&out.is_contiguous()){auto flat=out.view({-1});random_fill(flat,mode,a,b,generator,probs);return out;}
@@ -48,12 +50,19 @@ at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> t
 at::Tensor& integer_random_to(at::Tensor& out,int64_t to,std::optional<at::Generator> generator){return integer_random(out,0,to,generator);}
 at::Tensor& integer_random_default(at::Tensor& out,std::optional<at::Generator> generator){return integer_random(out,0,std::nullopt,generator);}
 at::Tensor& uniform(at::Tensor& out,double from,double to,std::optional<at::Generator> g){TORCH_CHECK(std::isfinite(from)&&std::isfinite(to)&&from<=to&&std::abs(from)<=std::numeric_limits<float>::max()&&std::abs(to)<=std::numeric_limits<float>::max(),"uniform: invalid range");return random_fill(out,0,from,to,g);}
-at::Tensor& normal(at::Tensor& out,double mean,double std,std::optional<at::Generator> g){TORCH_CHECK(std>=0,"normal: std must be nonnegative");return random_fill(out,1,mean,std,g);}
+at::Tensor& normal(at::Tensor& out,double mean,double std,std::optional<at::Generator> g){TORCH_CHECK(std>=0,"normal expects std >= 0.0, but found std ",std);return random_fill(out,1,mean,std,g);}
 at::Tensor& bernoulli_scalar(at::Tensor& out,double p,std::optional<at::Generator> g){TORCH_CHECK(p>=0&&p<=1,"bernoulli: probability must be in [0,1]");return random_fill(out,2,p,0,g);}
 at::Tensor& bernoulli_tensor(at::Tensor& out,const at::Tensor& probs,std::optional<at::Generator> g){
  TORCH_CHECK(probs.device()==out.device()&&probs.scalar_type()==at::kFloat,"bernoulli: expected FP32 probabilities on same device");
  auto expanded=probs.expand(out.sizes());if(!out.numel())return out;auto p=packed(expanded);TORCH_CHECK(at::all(at::logical_and(p.ge(0),p.le(1))).cpu().item<bool>(),"bernoulli: probability must be in [0,1]");return random_fill(out,3,0,0,g,p);
 }
+at::Tensor& exponential(at::Tensor& out,double lambda,std::optional<at::Generator> generator){TORCH_CHECK(lambda>0,"exponential_ expects lambda > 0.0, but found lambda=",lambda);return random_fill(out,4,lambda,0,generator);}
+at::Tensor& cauchy(at::Tensor& out,double median,double sigma,std::optional<at::Generator> generator){TORCH_CHECK(sigma>0,"cauchy_ expects sigma > 0.0, but found sigma=",sigma);return random_fill(out,5,median,sigma,generator);}
+at::Tensor& log_normal(at::Tensor& out,double mean,double std,std::optional<at::Generator> generator){TORCH_CHECK(std>0,"log_normal_ expects std > 0.0, but found std=",std);return random_fill(out,6,mean,std,generator);}
+at::Tensor& geometric(at::Tensor& out,double probability,std::optional<at::Generator> generator){TORCH_CHECK(probability>0&&probability<1,"geometric_ expects p to be in (0, 1), but got p=",probability);return random_fill(out,7,probability,0,generator);}
+at::Tensor normal_mean(const at::Tensor& mean,double std,std::optional<at::Generator> generator){auto result=at::empty(mean.sizes(),mean.options());normal(result,0,std,generator);return result.add(mean);}
+at::Tensor normal_std(double mean,const at::Tensor& std,std::optional<at::Generator> generator){TORCH_CHECK(std.scalar_type()==at::kFloat,"normal expects floating point std");TORCH_CHECK(at::all(std.ge(0)).cpu().item<bool>(),"normal expects all elements of std >= 0.0");auto result=at::empty_like(std);normal(result,0,1,generator);return result.mul(std).add(mean);}
+at::Tensor normal_parameters(const at::Tensor& mean,const at::Tensor& std,std::optional<at::Generator> generator){TORCH_CHECK(std.scalar_type()==at::kFloat&&std.device()==mean.device(),"normal expects floating point std on the mean device");TORCH_CHECK(at::all(std.ge(0)).cpu().item<bool>(),"normal expects all elements of std >= 0.0");auto shape=at::infer_size_dimvector(mean.sizes(),std.sizes());auto result=at::empty(shape,mean.options());normal(result,0,1,generator);return result.mul(std).add(mean);}
 at::Tensor bernoulli(const at::Tensor& p,std::optional<at::Generator> g){auto out=at::empty(p.sizes(),p.options());return bernoulli_tensor(out,p,g);}
 std::tuple<at::Tensor,at::Tensor> dropout(const at::Tensor& x,double p,std::optional<bool> train){
  TORCH_CHECK(p>=0&&p<=1,"dropout probability must be in [0,1]");TORCH_CHECK(x.scalar_type()==at::kFloat&&can_pack_view(x),"Vulkan dropout requires packable FP32 input");
@@ -68,5 +77,5 @@ at::Tensor dropout_backward(const at::Tensor& grad,const at::Tensor& mask,double
  auto out=at::empty(grad.sizes(),grad.options());if(out.numel())run("dropout_backward",{base(packed(grad)),base(packed(mask,at::kBool),at::kBool)},{write_base(out)},{u32(out.numel()),bits(float(scale))},(out.numel()+127)/128);return out;
 }
 }
-TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("random_.from",&integer_random);m.impl("random_.to",&integer_random_to);m.impl("random_",&integer_random_default);m.impl("uniform_",&uniform);m.impl("normal_",&normal);m.impl("bernoulli_.float",&bernoulli_scalar);m.impl("bernoulli_.Tensor",&bernoulli_tensor);m.impl("bernoulli",&bernoulli);m.impl("native_dropout",&dropout);m.impl("native_dropout_backward",&dropout_backward);}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("exponential_",&exponential);m.impl("cauchy_",&cauchy);m.impl("log_normal_",&log_normal);m.impl("geometric_",&geometric);m.impl("normal.Tensor_float",&normal_mean);m.impl("normal.float_Tensor",&normal_std);m.impl("normal.Tensor_Tensor",&normal_parameters);m.impl("random_.from",&integer_random);m.impl("random_.to",&integer_random_to);m.impl("random_",&integer_random_default);m.impl("uniform_",&uniform);m.impl("normal_",&normal);m.impl("bernoulli_.float",&bernoulli_scalar);m.impl("bernoulli_.Tensor",&bernoulli_tensor);m.impl("bernoulli",&bernoulli);m.impl("native_dropout",&dropout);m.impl("native_dropout_backward",&dropout_backward);}
 }

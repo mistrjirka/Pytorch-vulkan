@@ -4,4 +4,12 @@ layout(binding=0) readonly buffer A {uint a[];};
 layout(binding=1) readonly buffer B {uint b[];};
 layout(binding=2) writeonly buffer Y {uint y[];};
 layout(push_constant) uniform P {uint count,words,op;}p;
-void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;for(uint w=0;w<p.words;w++){uint pos=i*p.words+w;y[pos]=p.op==0?a[pos]&b[pos]:p.op==1?a[pos]|b[pos]:a[pos]^b[pos];}}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;
+ if(p.op<3u){for(uint w=0u;w<p.words;w++){uint pos=i*p.words+w;y[pos]=p.op==0u?a[pos]&b[pos]:p.op==1u?a[pos]|b[pos]:a[pos]^b[pos];}return;}
+ uint low=a[i*p.words],high=p.words==2u?a[2u*i+1u]:(int(low)<0?0xffffffffu:0u),count=b[i*p.words],count_high=p.words==2u?b[2u*i+1u]:0u,width=p.words*32u;uvec2 result;
+ if(count_high!=0u||count>=width)result=p.op==4u&&int(high)<0?uvec2(0xffffffffu):uvec2(0u);
+ else if(count==0u)result=uvec2(low,high);
+ else if(p.op==3u){if(count<32u)result=uvec2(low<<count,(high<<count)|(low>>(32u-count)));else result=uvec2(0u,low<<(count-32u));}
+ else{if(count<32u)result=uvec2((low>>count)|(high<<(32u-count)),uint(int(high)>>count));else result=uvec2(uint(int(high)>>(count-32u)),int(high)<0?0xffffffffu:0u);}
+ y[i*p.words]=result.x;if(p.words==2u)y[2u*i+1u]=result.y;
+}

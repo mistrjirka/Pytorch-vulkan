@@ -105,3 +105,63 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("linalg_lu_factor_ex",&lu_factor);m.impl("linalg_lu_solve",&lu_solve);m.impl("_linalg_solve_ex",&solve_ex);m.impl("_linalg_check_errors",&check_info);
 }
 }
+#include "native_utils.h"
+#include <ATen/WrapDimUtils.h>
+#include <ATen/ExpandUtils.h>
+#include <torch/library.h>
+namespace torch_vulkan::ops {namespace {
+using namespace native;
+using OptionalTolerance=std::optional<at::Tensor>;
+void spectral_input(const at::Tensor& x,bool hermitian){TORCH_CHECK(x.dim()>=2&&x.scalar_type()==at::kFloat,"linalg spectral operation expects float32 matrices");TORCH_CHECK(!hermitian||x.size(-2)==x.size(-1),"linalg spectral operation expects square Hermitian matrices");}
+at::Tensor tolerance_tensor(const OptionalTolerance& value,const at::Tensor& x,double fallback){if(!value||!value->defined())return at::full({},fallback,x.options());TORCH_CHECK(!value->is_complex(),"tolerance must be real");return value->to(x.device(),at::kFloat);}
+at::Tensor spectral_threshold(const at::Tensor& x,const at::Tensor& values,const OptionalTolerance& atol,const OptionalTolerance& rtol){auto a=tolerance_tensor(atol,x,0),r=tolerance_tensor(rtol,x,atol&&atol->defined()?0:std::max(x.size(-1),x.size(-2))*std::numeric_limits<float>::epsilon());auto largest=at::amax(at::abs(values),{-1},false);return at::maximum(a,r.mul(largest)).unsqueeze(-1);}
+at::Tensor pinv_tensor_tol(const at::Tensor& x,const OptionalTolerance& atol,const OptionalTolerance& rtol,bool hermitian){spectral_input(x,hermitian);if(!x.size(-1)||!x.size(-2))return x.transpose(-2,-1).clone();at::Tensor vectors,values,right;
+ if(hermitian){auto pair=at::linalg_eigh(x,"L");values=std::get<0>(pair);vectors=std::get<1>(pair);right=vectors.transpose(-2,-1);}else{auto triplet=at::linalg_svd(x,false,std::nullopt);vectors=std::get<0>(triplet);values=std::get<1>(triplet);right=std::get<2>(triplet);}
+ auto threshold=spectral_threshold(x,values,atol,rtol);auto inverse=at::where(at::abs(values).gt(threshold),at::reciprocal(values),at::zeros({},x.options()));return right.transpose(-2,-1).mul(inverse.unsqueeze(-2)).matmul(vectors.transpose(-2,-1));
+}
+at::Tensor pinv_float_tol(const at::Tensor& x,std::optional<double> atol,std::optional<double> rtol,bool hermitian){OptionalTolerance a=atol?OptionalTolerance(at::full({},*atol,x.options())):std::nullopt,r=rtol?OptionalTolerance(at::full({},*rtol,x.options())):std::nullopt;return at::linalg_pinv(x,a,r,hermitian);}
+at::Tensor pinv_rcond(const at::Tensor& x,double rcond,bool hermitian){return pinv_float_tol(x,0,rcond,hermitian);}
+at::Tensor pinv_rcond_tensor(const at::Tensor& x,const at::Tensor& rcond,bool hermitian){return at::linalg_pinv(x,at::zeros({},x.options()),rcond,hermitian);}
+at::Tensor matrix_rank_tensor_tol(const at::Tensor& x,const OptionalTolerance& atol,const OptionalTolerance& rtol,bool hermitian){spectral_input(x,hermitian);if(!x.size(-1)||!x.size(-2)){auto shape=x.sizes().slice(0,x.dim()-2);return at::zeros(shape,x.options().dtype(at::kLong));}auto values=hermitian?at::linalg_eigvalsh(x,"L"):at::linalg_svdvals(x,std::nullopt);auto threshold=spectral_threshold(x,values,atol,rtol);return at::sum(at::abs(values).gt(threshold),{-1},false,at::kLong);}
+at::Tensor matrix_rank_float_tol(const at::Tensor& x,std::optional<double> atol,std::optional<double> rtol,bool hermitian){OptionalTolerance a=atol?OptionalTolerance(at::full({},*atol,x.options())):std::nullopt,r=rtol?OptionalTolerance(at::full({},*rtol,x.options())):std::nullopt;return matrix_rank_tensor_tol(x,a,r,hermitian);}
+at::Tensor matrix_rank_legacy(const at::Tensor& x,double tol,bool hermitian){return matrix_rank_float_tol(x,tol,0,hermitian);}
+at::Tensor matrix_rank_legacy_tensor(const at::Tensor& x,const at::Tensor& tol,bool hermitian){return matrix_rank_tensor_tol(x,tol,at::zeros({},x.options()),hermitian);}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("linalg_pinv",&pinv_rcond);m.impl("linalg_pinv.atol_rtol_tensor",&pinv_tensor_tol);m.impl("linalg_pinv.atol_rtol_float",&pinv_float_tol);m.impl("linalg_pinv.rcond_tensor",&pinv_rcond_tensor);
+ m.impl("linalg_matrix_rank",&matrix_rank_legacy);m.impl("linalg_matrix_rank.tol_tensor",&matrix_rank_legacy_tensor);m.impl("linalg_matrix_rank.atol_rtol_tensor",&matrix_rank_tensor_tol);m.impl("linalg_matrix_rank.atol_rtol_float",&matrix_rank_float_tol);
+}
+}
+
+namespace torch_vulkan::ops {
+// Preserve the composite autograd graph while creating FP32 tolerance tensors.
+TORCH_LIBRARY_IMPL(aten,AutogradPrivateUse1,m){
+ m.impl("linalg_pinv",&pinv_rcond);m.impl("linalg_pinv.atol_rtol_float",&pinv_float_tol);m.impl("linalg_pinv.rcond_tensor",&pinv_rcond_tensor);
+}
+}
+#include <cctype>
+namespace torch_vulkan::ops {namespace {
+std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> lstsq_native(const at::Tensor& a,const at::Tensor& b,std::optional<double> rcond,std::optional<c10::string_view> driver){
+ TORCH_CHECK(a.dim()>=2,"torch.linalg.lstsq: input must have at least 2 dimensions.");TORCH_CHECK(b.dim()>=1,"torch.linalg.lstsq: other must have at least 1 dimension.");TORCH_CHECK(a.scalar_type()==b.scalar_type(),"torch.linalg.lstsq: Expected input and other to have the same dtype, but got input's dtype ",a.scalar_type()," and other's dtype ",b.scalar_type());
+ auto diff=a.dim()-b.dim();TORCH_CHECK(diff>=0&&diff<=1,"torch.linalg.lstsq: input.dim() must be greater or equal to other.dim() and (input.dim() - other.dim()) <= 1");
+ bool vector=b.dim()==1||(b.dim()==a.dim()-1&&b.sizes()==a.sizes().slice(0,a.dim()-1));auto rhs=vector?b.unsqueeze(-1):b;TORCH_CHECK(a.size(-2)==rhs.size(-2),vector?"torch.linalg.lstsq: input.size(-2) should match other.size(-1)":"torch.linalg.lstsq: input.size(-2) should match other.size(-2)");TORCH_CHECK(a.device()==b.device(),"torch.linalg.lstsq: Expected all tensors to be on the same device");TORCH_CHECK(a.scalar_type()==at::kFloat,"Vulkan least squares requires FP32 matrices");
+ std::string selected=driver?std::string(*driver):"gelsy";for(auto& ch:selected)ch=std::tolower(static_cast<unsigned char>(ch));TORCH_CHECK(selected=="gels"||selected=="gelsy"||selected=="gelsd"||selected=="gelss","torch.linalg.lstsq: parameter `driver` should be one of (gels, gelsy, gelsd, gelss)");
+ auto [u,s,vh]=at::linalg_svd(a,false,std::nullopt);auto k=std::min(a.size(-2),a.size(-1));double tolerance=rcond.value_or(std::max(a.size(-2),a.size(-1))*std::numeric_limits<float>::epsilon());if(tolerance<0)tolerance=std::numeric_limits<float>::epsilon();
+ auto rank=at::zeros(a.sizes().slice(0,a.dim()-2),a.options().dtype(at::kLong));at::Tensor inverse;
+ if(k){auto cutoff=at::amax(s,{-1},true).mul(selected=="gels"?0:tolerance);auto valid=s.gt(cutoff);rank=at::sum(valid,{-1},false,at::kLong);inverse=at::where(valid,at::reciprocal(s),at::zeros({},s.options()));}else inverse=s;
+ auto solution=vh.transpose(-2,-1).matmul(inverse.unsqueeze(-1).mul(u.transpose(-2,-1).matmul(rhs)));auto residuals=at::empty({0},a.options());
+ if(a.size(-2)>a.size(-1)&&selected!="gelsy"&&(selected=="gels"||at::all(rank.eq(a.size(-1))).cpu().item<bool>())){auto residual=a.matmul(solution).sub(rhs);residuals=at::sum(residual.square(),{-2},false);}
+ if(vector)solution=solution.squeeze(-1);
+ if(selected=="gels")rank=at::empty({0},a.options().dtype(at::kLong));if(selected=="gels"||selected=="gelsy")s=at::empty({0},a.options());return {solution,residuals,rank,s};
+}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_lstsq",&lstsq_native);}
+}
+#include <ATen/native/LinearAlgebraUtils.h>
+namespace torch_vulkan::ops {namespace {
+at::Tensor matrix_sqrth_native(const at::Tensor& x){at::native::squareCheckInputs(x,"linalg.matrix_sqrth");at::native::checkFloatingOrComplex(x,"linalg.matrix_sqrth",false);TORCH_CHECK(x.scalar_type()==at::kFloat,"Vulkan matrix_sqrth requires FP32 input");if(!x.size(-1))return x.clone();auto [values,vectors]=at::linalg_eigh(x,"L");auto result=vectors.mul(at::sqrt(at::clamp_min(values,0)).unsqueeze(-2)).matmul(vectors.transpose(-2,-1));return result.add(result.transpose(-2,-1)).mul(.5);}
+at::Tensor matrix_exp_native(const at::Tensor& x){at::native::squareCheckInputs(x,"linalg.matrix_exp");at::native::checkFloatingOrComplex(x,"linalg.matrix_exp",false);TORCH_CHECK(x.scalar_type()==at::kFloat,"Vulkan matrix_exp requires FP32 input");if(!x.numel())return x.clone();if(x.size(-1)==1)return at::exp(x);auto norm=at::amax(at::sum(at::abs(x),{-2},false)).cpu().item<float>();int scale=std::isfinite(norm)&&norm>.5f?std::max(0,int(std::ceil(std::log2(double(norm)/.5)))):0;auto scaled=x.mul(std::ldexp(1.,-scale));auto result=at::eye(x.size(-1),x.options()).expand(x.sizes()).clone(),term=result.clone();for(int k=1;k<=32;k++){term=term.matmul(scaled).mul(1./k);result=result.add(term);}for(int k=0;k<scale;k++)result=result.matmul(result);return result;}
+std::tuple<at::Tensor,at::Tensor> triangular_solve_legacy(const at::Tensor& b,const at::Tensor& a,bool upper,bool transpose,bool unit){auto matrix=transpose?a.transpose(-2,-1):a;auto solution=at::linalg_solve_triangular(matrix,b,transpose?!upper:upper,true,unit);auto batch=at::infer_size_dimvector(a.sizes().slice(0,a.dim()-2),b.sizes().slice(0,b.dim()-2));batch.push_back(a.size(-2));batch.push_back(a.size(-1));return {solution,a.expand(batch).clone()};}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("linalg_matrix_sqrth",&matrix_sqrth_native);m.impl("linalg_matrix_exp",&matrix_exp_native);m.impl("triangular_solve",&triangular_solve_legacy);}
+}

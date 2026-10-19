@@ -1,0 +1,5 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer G{float grad[];};layout(binding=1) writeonly buffer O{float result[];};
+layout(push_constant) uniform P{uint count,ndim,axis,size,step,windows,words;uint shape[8];}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;uint word=i%p.words,j=i/p.words,coordinate[8];for(int d=int(p.ndim)-1;d>=0;d--){coordinate[d]=j%p.shape[d];j/=p.shape[d];}uint c=coordinate[p.axis],first=c>=p.size?(c-p.size)/p.step+1u:0u,last=min(c/p.step+1u,p.windows);float sum=0.;for(uint window=first;window<last;window++){uint index=0u;for(uint d=0u;d<p.ndim;d++)index=index*(d==p.axis?p.windows:p.shape[d])+(d==p.axis?window:coordinate[d]);index=index*p.size+c-window*p.step;sum+=grad[index*p.words+word];}result[i]=sum;}

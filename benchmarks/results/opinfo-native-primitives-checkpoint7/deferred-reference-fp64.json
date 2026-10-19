@@ -1,0 +1,30 @@
+{
+  "source": "/workspace/Pytorch-vulkan/.venv/lib/python3.12/site-packages/torch/_refs/__init__.py",
+  "sha256": "a71fe15019d6cf4b5c20d275f5b2e69c33924b65925cdfde3cfc8b80f8280ed2",
+  "cases": [
+    {
+      "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_logspace_tensor_overload_vulkan_float32",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_compare_cpu__refs_logspace_vulkan_float32",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_out__refs_logspace_tensor_overload_vulkan_float32",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_out__refs_logspace_vulkan_float32",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_logspace_tensor_overload_vulkan",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    },
+    {
+      "id": "TestCommonPRIVATEUSE1.test_out_warning__refs_logspace_vulkan",
+      "reason": "The unmodified torch._refs.logspace explicitly creates linspace with dtype=torch.float64 before converting to requested FP32 output."
+    }
+  ]
+}

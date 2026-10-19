@@ -1,0 +1,8 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X{float x[];};layout(binding=1) writeonly buffer Y{float y[];};
+layout(push_constant) uniform P{uint count,batch,channels,h,w,kh,kw,dh,dw,ph,pw,sh,sw,oh,ow,reverse;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;
+ if(p.reverse==0u){uint j=i,ox=j%p.ow;j/=p.ow;uint oy=j%p.oh;j/=p.oh;uint kx=j%p.kw;j/=p.kw;uint ky=j%p.kh;j/=p.kh;uint c=j%p.channels,b=j/p.channels;int h=int(oy*p.sh+ky*p.dh)-int(p.ph),w=int(ox*p.sw+kx*p.dw)-int(p.pw);y[i]=h>=0&&h<int(p.h)&&w>=0&&w<int(p.w)?x[((b*p.channels+c)*p.h+uint(h))*p.w+uint(w)]:0.;}
+ else{uint j=i,w=j%p.w;j/=p.w;uint h=j%p.h;j/=p.h;uint c=j%p.channels,b=j/p.channels;precise float sum=0.;for(uint ky=0u;ky<p.kh;ky++)for(uint kx=0u;kx<p.kw;kx++){int oy=int(h+p.ph)-int(ky*p.dh),ox=int(w+p.pw)-int(kx*p.dw);if(oy>=0&&ox>=0&&oy%int(p.sh)==0&&ox%int(p.sw)==0){oy/=int(p.sh);ox/=int(p.sw);if(oy<int(p.oh)&&ox<int(p.ow))sum+=x[((((b*p.channels+c)*p.kh+ky)*p.kw+kx)*p.oh+uint(oy))*p.ow+uint(ox)];}}y[i]=sum;}
+}

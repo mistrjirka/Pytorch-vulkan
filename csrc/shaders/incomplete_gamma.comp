@@ -1,0 +1,11 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+#include "fp32_trig.glsl"
+#include "fp32_precision.glsl"
+#include "special_functions_math.glsl"
+#include "incomplete_gamma.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A{float a[];};layout(binding=1) readonly buffer X{float x[];};layout(binding=2) writeonly buffer Y{float y[];};
+layout(push_constant) uniform P{uint count,op;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;y[i]=p.op==0u?calc_igamma(a[i],x[i]):calc_igammac(a[i],x[i]);}

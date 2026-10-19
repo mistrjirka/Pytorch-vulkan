@@ -1,0 +1,15 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Q{float q[];};layout(binding=1) readonly buffer N{uvec2 counts[];};
+layout(binding=2) writeonly buffer L{uvec2 lower[];};layout(binding=3) writeonly buffer U{uvec2 upper[];};layout(binding=4) writeonly buffer W{float weights[];};
+layout(push_constant) uniform P{uint count,mode;}p;
+bool greater64(uvec2 a,uvec2 b){return a.y>b.y||(a.y==b.y&&a.x>b.x);}
+uint right_low(uvec2 a,uint shift){if(shift==0u)return a.x;if(shift<32u)return (a.x>>shift)|(a.y<<(32u-shift));if(shift<64u)return a.y>>(shift-32u);return 0u;}
+float fraction_float(uvec2 a,uint shift){if(all(equal(a,uvec2(0u))))return 0.;int h=a.y!=0u?32+findMSB(a.y):findMSB(a.x);int exponent=h-int(shift);if(exponent< -126)return uintBitsToFloat(a.x<<(149u-shift));uint mantissa;if(h<=23)mantissa=a.x<<uint(23-h);else{uint r=uint(h-23);mantissa=right_low(a,r);bool round=(a.x&(1u<<(r-1u)))!=0u,sticky=(a.x&((1u<<(r-1u))-1u))!=0u;if(round&&(sticky||(mantissa&1u)!=0u))mantissa++;if(mantissa==0x1000000u){mantissa>>=1;exponent++;}}return uintBitsToFloat(uint(exponent+127)<<23|(mantissa&0x7fffffu));}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;uint count=counts[i].x,n=count>0u?count-1u:0u,bits=floatBitsToUint(q[i]),e=(bits>>23)&255u,m=(bits&0x7fffffu)|(e!=0u?0x800000u:0u),shift=e!=0u?150u-e:149u;uint hi,lo;umulExtended(m,n,hi,lo);// Match the FP64 rank product used by ATen without requiring shaderFloat64.
+int highest=hi!=0u?32+findMSB(hi):findMSB(lo),discard_bits=highest-52;if(discard_bits>0){uint mask=(1u<<uint(discard_bits))-1u,remainder=lo&mask,mid=1u<<uint(discard_bits-1),trimmed=lo&~mask;bool increment=remainder>mid||(remainder==mid&&((lo>>uint(discard_bits))&1u)!=0u);lo=trimmed+(increment?1u<<uint(discard_bits):0u);if(lo<trimmed)hi++;}
+uvec2 product=uvec2(lo,hi),fraction=product;uint rank=right_low(product,shift);
+ if(shift<32u)fraction=uvec2(lo&((1u<<shift)-1u),0u);else if(shift==32u)fraction.y=0u;else if(shift<64u)fraction.y&=(1u<<(shift-32u))-1u;
+ bool nonzero=any(notEqual(fraction,uvec2(0u)));uint above=rank+uint(nonzero);float weight=fraction_float(fraction,shift);
+ if(p.mode==1u){above=rank;weight=0.;}else if(p.mode==2u){rank=above;weight=0.;}else if(p.mode==3u)weight=.5;else if(p.mode==4u){bool up=false;if(shift<=64u){uvec2 halfway=shift<=32u?uvec2(1u<<(shift-1u),0u):uvec2(0u,1u<<(shift-33u));up=greater64(fraction,halfway)||(all(equal(fraction,halfway))&&(rank&1u)!=0u);}rank+=uint(up);above=rank;weight=0.;}
+ lower[i]=uvec2(rank,0u);upper[i]=uvec2(above,0u);weights[i]=weight;}

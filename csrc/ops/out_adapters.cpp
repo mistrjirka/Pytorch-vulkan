@@ -130,6 +130,14 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("special_zeta.out","special_zeta");
  add("special_zeta.other_scalar_out","special_zeta","other_scalar");
  add("special_zeta.self_scalar_out","special_zeta","self_scalar");
+ add("gcd.out","gcd");add("lcm.out","lcm");
+ for(auto name:{"bitwise_left_shift","bitwise_right_shift"}){add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");add((std::string(name)+".Tensor_Scalar_out").c_str(),name,"Tensor_Scalar");add((std::string(name)+".Scalar_Tensor_out").c_str(),name,"Scalar_Tensor");}
+ add("normal.Tensor_float_out","normal","Tensor_float");add("normal.float_Tensor_out","normal","float_Tensor");add("normal.Tensor_Tensor_out","normal","Tensor_Tensor");add("bernoulli.out","bernoulli");
+ for(auto name:{"linalg_pinv","linalg_matrix_rank"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".atol_rtol_tensor_out").c_str(),name,"atol_rtol_tensor");add((std::string(name)+".atol_rtol_float_out").c_str(),name,"atol_rtol_float");}
+ add("linalg_pinv.out_rcond_tensor","linalg_pinv","rcond_tensor");add("linalg_matrix_rank.out_tol_tensor","linalg_matrix_rank","tol_tensor");
+ add("igamma.out","igamma");add("igammac.out","igammac");add("linalg_lstsq.out","linalg_lstsq");
+ add("im2col.out","im2col");add("col2im.out","col2im");add("heaviside.out","heaviside");add("linalg_matrix_sqrth.out","linalg_matrix_sqrth");add("linalg_matrix_exp.out","linalg_matrix_exp");add("triangular_solve.X","triangular_solve");add("_cdist_forward.out","_cdist_forward");add("_cdist_backward.out","_cdist_backward");
+ for(auto name:{"quantile","nanquantile"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".scalar_out").c_str(),name,"scalar");}
  add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");add("var.correction_out","var","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");
