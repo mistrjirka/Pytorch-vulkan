@@ -127,6 +127,6 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("tril",&tril_native);m.impl("triu",&triu_native);m.impl("tril.out",&tril_out);m.impl("triu.out",&triu_out);m.impl("tril_",&tril_inplace);m.impl("triu_",&triu_inplace);
  m.impl("cumprod",&cumprod_native);m.impl("cummax",&cummax_native);m.impl("cummin",&cummin_native);
  m.impl("topk",&topk_native);m.impl("cumsum",&scan_native);m.impl("flip",&flip_native);
- m.impl("var.correction",&var_native);m.impl("var.dim",&var_dim_native);m.impl("var",&var_all_native);m.impl("var_mean.correction",&var_mean_native);
+ m.impl("var.correction",&var_native);m.impl("var_mean.correction",&var_mean_native);
 }
 }

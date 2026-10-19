@@ -23,12 +23,13 @@ at::Tensor& maximum_out(const at::Tensor& x,const at::Tensor& y,at::Tensor& out)
 at::Tensor& minimum_out(const at::Tensor& x,const at::Tensor& y,at::Tensor& out){return output(out,minimum_native(x,y));}
 at::Tensor& lerp_scalar_out(const at::Tensor& x,const at::Tensor& e,const at::Scalar& w,at::Tensor& out){return output(out,lerp_scalar(x,e,w));}
 at::Tensor& lerp_tensor_out(const at::Tensor& x,const at::Tensor& e,const at::Tensor& w,at::Tensor& out){return output(out,lerp_tensor(x,e,w));}
-at::Tensor& lerp_scalar_inplace(at::Tensor& x,const at::Tensor& e,const at::Scalar& w){at::assert_no_partial_overlap(x,e);return output(x,lerp_scalar(x,e,w));}
-at::Tensor& lerp_tensor_inplace(at::Tensor& x,const at::Tensor& e,const at::Tensor& w){at::assert_no_partial_overlap(x,e);at::assert_no_partial_overlap(x,w);return output(x,lerp_tensor(x,e,w));}
+at::Tensor& inplace_output(at::Tensor& x,const at::Tensor& value){TORCH_CHECK(x.sizes()==value.sizes(),"output with shape ",x.sizes()," does not match the broadcast shape ",value.sizes());return output(x,value);}
+at::Tensor& lerp_scalar_inplace(at::Tensor& x,const at::Tensor& e,const at::Scalar& w){at::assert_no_partial_overlap(x,e);return inplace_output(x,lerp_scalar(x,e,w));}
+at::Tensor& lerp_tensor_inplace(at::Tensor& x,const at::Tensor& e,const at::Tensor& w){at::assert_no_partial_overlap(x,e);at::assert_no_partial_overlap(x,w);return inplace_output(x,lerp_tensor(x,e,w));}
 at::Tensor& addcmul_out(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v,at::Tensor& out){return output(out,addcmul_native(x,a,b,v));}
 at::Tensor& addcdiv_out(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v,at::Tensor& out){return output(out,addcdiv_native(x,a,b,v));}
-at::Tensor& addcmul_inplace(at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v){at::assert_no_partial_overlap(x,a);at::assert_no_partial_overlap(x,b);return output(x,addcmul_native(x,a,b,v));}
-at::Tensor& addcdiv_inplace(at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v){at::assert_no_partial_overlap(x,a);at::assert_no_partial_overlap(x,b);return output(x,addcdiv_native(x,a,b,v));}
+at::Tensor& addcmul_inplace(at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v){at::assert_no_partial_overlap(x,a);at::assert_no_partial_overlap(x,b);return inplace_output(x,addcmul_native(x,a,b,v));}
+at::Tensor& addcdiv_inplace(at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& v){at::assert_no_partial_overlap(x,a);at::assert_no_partial_overlap(x,b);return inplace_output(x,addcdiv_native(x,a,b,v));}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("maximum",&maximum_native);m.impl("minimum",&minimum_native);m.impl("maximum.out",&maximum_out);m.impl("minimum.out",&minimum_out);

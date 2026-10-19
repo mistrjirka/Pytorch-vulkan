@@ -1,0 +1,6 @@
+{
+  "source_sha256": "0f12a1730181bd5d81e6c1a3cb3aa1ad3601483fb5864425a7ca55ea70c6555f",
+  "spv_sha256": "6625fc58a1b3e3477059b498581bb1156a1e05fc69a12598cd3280abe16e713b",
+  "final_source_sha256": "19d3e96fae0639529a3e3b2222278e2efc63367b97ec1cbb0df2562c5e78c327",
+  "reason": "Remove trailing whitespace; recompilation produced byte-identical special_functions.spv"
+}

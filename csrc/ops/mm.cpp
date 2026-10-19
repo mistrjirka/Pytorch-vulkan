@@ -16,6 +16,7 @@
 #include "../vulkan_engine.h"
 #include "../vulkan_context.h"
 #include "native_utils.h"
+#include <ATen/native/layer_norm.h>
 #include "../vulkan_device.h"
 #include <ATen/core/op_registration/op_registration.h>
 #include <ATen/native/CPUFallback.h>
@@ -660,7 +661,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     double eps) {
 
   TORCH_CHECK(input.dtype() == at::kFloat, "layer_norm: only float32");
-  TORCH_CHECK(eps >= 0.0, "layer_norm: epsilon must be nonnegative");
+  const auto checked=at::native::_check_layer_norm_inputs(input,normalized_shape,weight_opt.value_or(at::Tensor()),bias_opt.value_or(at::Tensor()));
   TORCH_CHECK(!normalized_shape.empty() &&
               normalized_shape.size() <= static_cast<size_t>(input.dim()),
               "layer_norm: invalid normalized_shape");
@@ -674,9 +675,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
     row_size *= normalized_shape[k];
     stat_shape[leading + k] = 1;
   }
-  TORCH_CHECK(row_size > 0 && input_c.numel() % row_size == 0,
-              "layer_norm: invalid input row dimensions");
-  auto num_rows = input_c.numel() / row_size;
+  auto num_rows = checked.first;
   TORCH_CHECK(num_rows <= UINT32_MAX && row_size <= UINT32_MAX,
               "layer_norm: tensor too large for Vulkan dispatch");
 
@@ -684,6 +683,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   auto output = at::empty(input.sizes(), input.options());
   auto mean = at::empty(stat_shape, input.options());
   auto rstd = at::empty(stat_shape, input.options());
+  if(!input.numel()){if(row_size==0){mean.zero_();rstd.fill_(NAN);}return {output,mean,rstd};}
 
   // The input can reuse its existing Vulkan allocation; temporary scalar
   // parameters are uploaded through the same Kompute submission.
@@ -720,7 +720,7 @@ std::tuple<at::Tensor, at::Tensor, at::Tensor> vulkan_layer_norm(
   std::memcpy(&eps_bits, &eps_f, sizeof(eps_bits));
   auto algorithm = ctx.get_or_create_algorithm(
       "layer_norm", {in_tensor, w_tensor, b_tensor, out_tensor, mean_tensor, rstd_tensor},
-      kp::Workgroup({nr, 1, 1}), std::vector<uint32_t>{nr, rs, eps_bits});
+      native::grid(nr), std::vector<uint32_t>{nr, rs, eps_bits});
   ctx.run_compute(algorithm, "layer_norm", {in_tensor,w_tensor,b_tensor}, {out_tensor,mean_tensor,rstd_tensor});
   return std::make_tuple(output, mean, rstd);
 }
@@ -1014,6 +1014,7 @@ at::Scalar local_scalar_dense(const at::Tensor& self) {
 // Optional diagnostics for unsupported operations and implicit host copies.
 // Usage: TORCH_VULKAN_TRACE_FALLBACK=1 python examples/linear_train.py
 void cpu_fallback(const c10::OperatorHandle& op, torch::jit::Stack* stack) {
+  if(std::getenv("TORCH_VULKAN_TRACE_FALLBACK"))std::fprintf(stderr,"PV_FALLBACK_ATTEMPT %s overload=%s\n",op.schema().name().c_str(),op.schema().overload_name().c_str());
   audit::fallback_calls.fetch_add(1);
   TORCH_CHECK(!std::getenv("TORCH_VULKAN_FORBID_CPU_FALLBACK"),"CPU fallback forbidden: ",op.schema());
   VulkanContext::instance().synchronize();

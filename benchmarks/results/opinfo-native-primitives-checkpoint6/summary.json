@@ -1,0 +1,96 @@
+{
+  "scope": "Focused rechecks, not a new full audit",
+  "runs": {
+    "focused25": {
+      "cases": 1415,
+      "outcomes": {
+        "error": 258,
+        "expected_failure": 10,
+        "passed": 1084,
+        "unexpected_success": 1,
+        "skipped": 62
+      },
+      "backend_source_sha256": "079419f5f09c421ba503eb8e70f81feb004ae647c994de5b67e20baf840b7217",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 203
+    },
+    "focused26": {
+      "cases": 525,
+      "outcomes": {
+        "passed": 493,
+        "unexpected_success": 3,
+        "error": 19,
+        "expected_failure": 2,
+        "fallback_attempt": 1,
+        "skipped": 7
+      },
+      "backend_source_sha256": "247fede7977c2e2ef9ea802fd6851ecdab31ab5b1b1797255b9f31ea2927d7e5",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 9
+    },
+    "focused27": {
+      "cases": 431,
+      "outcomes": {
+        "expected_failure": 2,
+        "unexpected_success": 12,
+        "error": 5,
+        "passed": 386,
+        "fallback_attempt": 1,
+        "skipped": 25
+      },
+      "backend_source_sha256": "61a9e82754d5e81beffffb7a62e8f012cd874639505966b6da9b4adfa007a87c",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 2
+    },
+    "focused28": {
+      "cases": 6,
+      "outcomes": {
+        "error": 2,
+        "passed": 3,
+        "fallback_attempt": 1
+      },
+      "backend_source_sha256": "e44dc975c5d1f626433d79bdb34cb307a6b604774983bdcab0bf7408874f676b",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 2
+    },
+    "focused29": {
+      "cases": 6,
+      "outcomes": {
+        "error": 2,
+        "passed": 4
+      },
+      "backend_source_sha256": "b5075e9ddca9e5bb1fe2fda299a2afa9b7a6df90fdd84dd30b9cd240e42e6e0a",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 0
+    },
+    "focused30": {
+      "cases": 2,
+      "outcomes": {
+        "passed": 2
+      },
+      "backend_source_sha256": "309bec3f7b62f6f0de29104048fb7a3e1871b3af280c293d569545a55fa68e20",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 0
+    },
+    "focused31": {
+      "cases": 936,
+      "outcomes": {
+        "passed": 885,
+        "unexpected_success": 15,
+        "expected_failure": 4,
+        "skipped": 32
+      },
+      "backend_source_sha256": "309bec3f7b62f6f0de29104048fb7a3e1871b3af280c293d569545a55fa68e20",
+      "source_identity": "recorded_after_build",
+      "fallback_attempts": 0
+    }
+  },
+  "before_73c75a4_for_focused31": {
+    "error": 529,
+    "expected_failure": 18,
+    "passed": 356,
+    "unexpected_success": 1,
+    "skipped": 32
+  },
+  "recovered_errors_as_passed": 529
+}

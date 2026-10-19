@@ -1,0 +1,6 @@
+sample {'cpu_fallback_calls': 0, 'host_read_bytes': 0, 'host_read_calls': 0, 'host_read_max_bytes': 0}
+prototype {'cpu_fallback_calls': 0, 'host_read_bytes': 0, 'host_read_calls': 0, 'host_read_max_bytes': 0}
+requires_grad {'cpu_fallback_calls': 0, 'host_read_bytes': 0, 'host_read_calls': 0, 'host_read_max_bytes': 0}
+exception RuntimeError CPU fallback forbidden: Vulkan inline::vulkan_to_copy
+finished {'cpu_fallback_calls': 2, 'host_read_bytes': 16, 'host_read_calls': 4, 'host_read_max_bytes': 4}
+[Oct 19 2026 08:14:12] [warn] [/workspace/Pytorch-vulkan-next/.cmake-build/_deps/kompute-src/src/Manager.cpp:234] Kompute Manager no valid layer names found from desired layer names

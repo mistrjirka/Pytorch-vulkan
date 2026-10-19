@@ -1143,3 +1143,137 @@ def test_searchsorted_noncontiguous_sorter_lifetime(dtype):
     bv, qv = boundaries.to('vulkan'), query.to('vulkan')
     for right in [False, True]:
         torch.testing.assert_close(torch.searchsorted(bv, qv, sorter=sorter, right=right).cpu(), torch.searchsorted(boundaries, query, sorter=boundaries.argsort(), right=right))
+
+@pytest.mark.parametrize('eps', [-.5, float('nan'), float('inf')])
+def test_normalization_unrestricted_epsilon(eps):
+    x = torch.arange(24, dtype=torch.float32).reshape(2, 3, 4) / 10
+    for fn in [lambda v: torch.nn.functional.layer_norm(v, (4,), eps=eps), lambda v: torch.nn.functional.group_norm(v, 1, eps=eps)]:
+        torch.testing.assert_close(fn(x.to('vulkan')).cpu(), fn(x), equal_nan=True)
+
+@pytest.mark.parametrize('shape,normalized', [((0, 1), (1,)), ((2, 0), (0,)), ((2, 0, 3), (0, 3))])
+def test_layer_norm_empty_forward_backward(shape, normalized):
+    x = torch.empty(shape, requires_grad=True); v = x.detach().to('vulkan').requires_grad_()
+    a = torch.native_layer_norm(v, normalized, None, None, 1e-5); b = torch.native_layer_norm(x, normalized, None, None, 1e-5)
+    for av, bv in zip(a, b): torch.testing.assert_close(av.cpu(), bv, equal_nan=True)
+    a[0].sum().backward(); b[0].sum().backward();torch.testing.assert_close(v.grad.cpu(), x.grad)
+
+
+def test_variance_forward_ad_decomposition():
+    x = torch.arange(25, dtype=torch.float32).reshape(5, 5) / 10; tangent = x.square().sub(1)
+    results = []
+    for device in ['cpu', 'vulkan']:
+        with torch.autograd.forward_ad.dual_level():
+            dual = torch.autograd.forward_ad.make_dual(x.to(device), tangent.to(device))
+            result = torch.autograd.forward_ad.unpack_dual(torch.var(dual, unbiased=True))
+            assert result.tangent is not None
+            results.append((result.primal.cpu(), result.tangent.cpu()))
+    torch.testing.assert_close(results[0], results[1])
+
+@pytest.mark.parametrize('name', ['lerp', 'addcmul', 'addcdiv', 'ldexp'])
+def test_inplace_broadcast_must_not_resize(name):
+    x = torch.ones(5, device='vulkan'); larger = torch.ones(5, 5, device='vulkan')
+    before = x.clone()
+    with pytest.raises(RuntimeError):
+        if name == 'lerp': x.lerp_(larger, .5)
+        elif name == 'ldexp': x.ldexp_(larger.to(torch.int64))
+        else: getattr(x, name + '_')(larger, larger)
+    assert x.shape == (5,)
+    torch.testing.assert_close(x.cpu(), before.cpu())
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64])
+@pytest.mark.parametrize('dim', [0, 1, -1])
+@pytest.mark.parametrize('keep', [False, True])
+def test_order_selection_and_indices(dtype, dim, keep):
+    x = torch.tensor([[9, 1, 1, 4, 0], [2, 3, 2, 2, 3], [8, 4, 4, 4, 1]], dtype=dtype)
+    if dtype == torch.int64: x = x * 2**40 + 7
+    v = x.to('vulkan'); d = dim % 2
+    for name in ['median', 'nanmedian', 'mode', 'kthvalue']:
+        args = (1, dim, keep) if name == 'kthvalue' else (dim, keep)
+        av, ai = getattr(torch, name)(v, *args); bv, bi = getattr(torch, name)(x, *args)
+        torch.testing.assert_close(av.cpu(), bv)
+        index = ai.cpu() if keep else ai.cpu().unsqueeze(d)
+        reconstructed = x.gather(d, index)
+        if not keep: reconstructed = reconstructed.squeeze(d)
+        torch.testing.assert_close(av.cpu(), reconstructed)
+
+
+def test_nanmedian_mixed_empty_and_scalar():
+    x = torch.tensor([[float('nan'), 1., 3., float('nan')], [float('nan')] * 4, [1., 2., 3., 4.]])
+    av, ai = torch.nanmedian(x.to('vulkan'), 1); bv, _ = torch.nanmedian(x, 1)
+    torch.testing.assert_close(av.cpu(), bv, equal_nan=True)
+    torch.testing.assert_close(torch.median(x.to('vulkan')).cpu(), torch.median(x), equal_nan=True)
+    for name in ['median', 'nanmedian']:
+        for value in [torch.tensor(2.), torch.empty(0)]: torch.testing.assert_close(getattr(torch, name)(value.to('vulkan')).cpu(), getattr(torch, name)(value), equal_nan=True)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64])
+@pytest.mark.parametrize('invert', [False, True])
+def test_isin_exact_ordered_search(dtype, invert):
+    x = torch.tensor([1, 3, 7, -4, 0, 9, 9], dtype=dtype); values = torch.tensor([9, -4, 9, 0], dtype=dtype)
+    if dtype == torch.int64: x = x * 2**40 + 1; values = values * 2**40 + 1
+    torch.testing.assert_close(torch.isin(x.to('vulkan'), values.to('vulkan'), invert=invert).cpu(), torch.isin(x, values, invert=invert))
+    torch.testing.assert_close(torch.isin(x.to('vulkan'), values[0].item(), invert=invert).cpu(), torch.isin(x, values[0].item(), invert=invert))
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+def test_repeat_interleave_dynamic_indices(dtype):
+    repeats = torch.tensor([2, 0, 3, 1, 0, 0, 4], dtype=dtype)
+    v = torch.zeros(14, dtype=dtype, device='vulkan')[1::2]; v.copy_(repeats)
+    for size in [None, 10]: torch.testing.assert_close(torch.repeat_interleave(v, output_size=size).cpu(), torch.repeat_interleave(repeats, output_size=size))
+    with pytest.raises(RuntimeError): torch.repeat_interleave(v, output_size=9)
+    with pytest.raises(RuntimeError): torch.repeat_interleave(torch.tensor([1, -1], dtype=dtype, device='vulkan'))
+
+@pytest.mark.parametrize('p', [1., 2., float('inf')])
+def test_renorm_general_norms(p):
+    x = torch.arange(60, dtype=torch.float32).reshape(3, 4, 5).div(10).sub(3)
+    for dim in [0, 1, -1]: torch.testing.assert_close(torch.renorm(x.to('vulkan'), p, dim, 2).cpu(), torch.renorm(x, p, dim, 2))
+
+@pytest.mark.parametrize('name', ['smooth_l1_loss', 'huber_loss', 'binary_cross_entropy'])
+@pytest.mark.parametrize('reduction', ['none', 'mean', 'sum'])
+def test_additional_losses_forward_gradients(name, reduction):
+    x = torch.tensor([[0., .1, .5, .9, 1.], [.3, .5, .7, .8, .2]], requires_grad=True)
+    target = torch.tensor([[0., 1., 0., 1., 1.], [1., 1., 0., .5, .2]])
+    v = x.detach().to('vulkan').requires_grad_(); fn = getattr(torch.nn.functional, name)
+    options = {'weight': torch.tensor([1., .5, 2., 0., 1.])} if name == 'binary_cross_entropy' else {}
+    a = fn(v, target.to('vulkan'), reduction=reduction, **{k: t.to('vulkan') for k, t in options.items()}); b = fn(x, target, reduction=reduction, **options)
+    a.sum().backward(); b.sum().backward()
+    torch.testing.assert_close(a.cpu(), b); torch.testing.assert_close(v.grad.cpu(), x.grad)
+
+@pytest.mark.parametrize('name', ['erfinv', 'i0', 'special_i0e', 'special_i1', 'special_i1e', 'special_ndtri', 'special_erfcx', 'special_log_ndtr', 'special_airy_ai', 'special_bessel_j0', 'special_bessel_j1', 'special_bessel_y0', 'special_bessel_y1', 'special_spherical_bessel_j0', 'special_modified_bessel_i0', 'special_modified_bessel_i1', 'special_modified_bessel_k0', 'special_modified_bessel_k1', 'special_scaled_modified_bessel_k0', 'special_scaled_modified_bessel_k1'])
+@pytest.mark.parametrize('noncontiguous', [False, True])
+def test_additional_special_unary_functions(name, noncontiguous):
+    x = torch.cat((torch.linspace(-10, 10, 2001), torch.linspace(-1.01, 1.01, 1001), torch.tensor([float('nan'), float('inf'), -float('inf'), -0., 0., 1e-45, 1e-38, -1e-38, 20., 40., 80., 100., 1e5, 1e20, -1e20])))
+    fn = getattr(torch, name) if name in ['erfinv', 'i0'] else getattr(torch.special, name.removeprefix('special_'))
+    v = x.to('vulkan')
+    if noncontiguous:
+        storage = torch.empty(x.numel()*2+3, device='vulkan');v=storage[3::2];v.copy_(x)
+    vk.reset_execution_stats(); actual = fn(v); resident()
+    torch.testing.assert_close(actual.cpu(), fn(x), equal_nan=True)
+    output = torch.empty_like(v); fn(v, out=output)
+    torch.testing.assert_close(output.cpu(), fn(x), equal_nan=True)
+
+@pytest.mark.parametrize('name', ['special_chebyshev_polynomial_t', 'special_chebyshev_polynomial_u', 'special_chebyshev_polynomial_v', 'special_chebyshev_polynomial_w', 'special_hermite_polynomial_h', 'special_hermite_polynomial_he', 'special_laguerre_polynomial_l', 'special_legendre_polynomial_p', 'special_shifted_chebyshev_polynomial_t', 'special_shifted_chebyshev_polynomial_u', 'special_shifted_chebyshev_polynomial_v', 'special_shifted_chebyshev_polynomial_w', 'special_zeta'])
+def test_additional_special_binary_functions(name):
+    fn = getattr(torch.special, name.removeprefix('special_'))
+    x = torch.linspace(-2, 2, 201)[:, None]; n = torch.arange(-2, 16, dtype=torch.float32)[None, :]
+    if name == 'special_zeta': x=x+3.01;n=n+3.03
+    xv, nv = x.to('vulkan'), n.to('vulkan')
+    vk.reset_execution_stats();actual=fn(xv,nv);resident()
+    torch.testing.assert_close(actual.cpu(),fn(x,n),equal_nan=True)
+    torch.testing.assert_close(fn(xv,3.).cpu(),fn(x,3.),equal_nan=True)
+    torch.testing.assert_close(fn(.25,nv).cpu(),fn(.25,n),equal_nan=True)
+
+@pytest.mark.parametrize('values', [[1.25, -2.5, 0.], [float('inf'), -float('inf'), float('nan')]])
+def test_fp32_tensor_formatting_without_double_fallback(values):
+    value=torch.tensor(values,device='vulkan');vk.reset_execution_stats()
+    text=repr(value)
+    assert 'vulkan' in text
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    import torch._tensor_str as tensor_str
+    assert tensor_str.tensor_totype(torch.tensor(1.)).dtype==torch.float64
+
+
+def test_inplace_renorm_keeps_native_gradients():
+    x=torch.arange(30,dtype=torch.float32).reshape(2,3,5).div(10).sub(1).requires_grad_();v=x.detach().to('vulkan').requires_grad_()
+    for p in [2.,float('inf')]:
+        a=v.clone().renorm_(p,1,.5);b=x.clone().renorm_(p,1,.5)
+        ag=torch.autograd.grad(a.sum(),v)[0];bg=torch.autograd.grad(b.sum(),x)[0]
+        torch.testing.assert_close(a.cpu(),b);torch.testing.assert_close(ag.cpu(),bg)

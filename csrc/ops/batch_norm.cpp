@@ -37,8 +37,8 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm(
   auto y=at::empty(input.sizes(),input.options());
   auto mean=at::empty({training?c:0},input.options());
   auto inv=at::empty({training?c:0},input.options());
-  auto rmb=present(running_mean)?base(*running_mean):dummy;
-  auto rvb=present(running_var)?base(*running_var):dummy;
+  auto rmb=present(running_mean)?(training?write_base(*running_mean):base(*running_mean)):dummy;
+  auto rvb=present(running_var)?(training?write_base(*running_var):base(*running_var)):dummy;
   uint32_t flags=present(weight)|(present(bias)<<1)|(present(running_mean)<<2)|(present(running_var)<<3);
   std::vector<uint32_t> p={u32(input.size(0)),u32(c),u32(s),uint32_t(training),flags,
     present(running_mean)?u32(running_mean->storage_offset()):0,
@@ -96,10 +96,17 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_backward(
        u32(mean->storage_offset()),u32(mean->stride(0)),u32(inv->storage_offset()),u32(inv->stride(0)),bits(float(eps))},c,1536);
   return {dx,dw,db};
 }
+std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_legit(const at::Tensor& x,const Optional& w,const Optional& b,at::Tensor& mean,at::Tensor& var,bool train,double momentum,double eps){return batch_norm(x,w,b,mean,var,train,momentum,eps);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_no_stats(const at::Tensor& x,const Optional& w,const Optional& b,bool train,double momentum,double eps){return batch_norm(x,w,b,std::nullopt,std::nullopt,train,momentum,eps);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_no_training(const at::Tensor& x,const Optional& w,const Optional& b,const at::Tensor& mean,const at::Tensor& var,double momentum,double eps){return batch_norm(x,w,b,mean,var,false,momentum,eps);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> batch_norm_update(const at::Tensor& x,const Optional& w,const Optional& b,at::Tensor& mean,at::Tensor& var,double momentum,double eps){auto [out,m,r]=batch_norm(x,w,b,mean,var,true,momentum,eps);return {out,m,r,at::empty({0},x.options().dtype(at::kByte))};}
+std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor,at::Tensor,at::Tensor> batch_norm_functional(const at::Tensor& x,const Optional& w,const Optional& b,const at::Tensor& mean,const at::Tensor& var,double momentum,double eps){auto rm=mean.clone(),rv=var.clone();auto [out,m,r,reserve]=batch_norm_update(x,w,b,rm,rv,momentum,eps);return {out,m,r,reserve,rm,rv};}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_backward_general(const at::Tensor& grad,const at::Tensor& x,const at::Tensor& weight,const Optional& mean,const Optional& var,const Optional& saved_mean,const Optional& saved_var,bool update,double eps,std::array<bool,3> mask,const at::Tensor&){return batch_norm_backward(grad,x,weight.defined()?Optional(weight):std::nullopt,mean,var,saved_mean,saved_var,update,eps,mask);}
 } // namespace
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {
   if(!native::batch_norm_resize_enabled())return;
   m.impl("native_batch_norm",&batch_norm);
-  m.impl("native_batch_norm_backward",&batch_norm_backward);
+  m.impl("_native_batch_norm_legit",&batch_norm_legit);m.impl("_native_batch_norm_legit.no_stats",&batch_norm_no_stats);m.impl("_native_batch_norm_legit_no_training",&batch_norm_no_training);m.impl("_batch_norm_with_update",&batch_norm_update);m.impl("_batch_norm_with_update_functional",&batch_norm_functional);
+  m.impl("native_batch_norm_backward",&batch_norm_backward);m.impl("batch_norm_backward",&batch_norm_backward_general);
 }
 } // namespace torch_vulkan::ops

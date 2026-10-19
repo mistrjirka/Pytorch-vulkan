@@ -11,7 +11,7 @@ layout(push_constant) uniform Params { uint rows; uint row_size; } p;
 shared float sum_dy[256];
 shared float sum_dy_x[256];
 void main() {
-    uint row=gl_WorkGroupID.x;
+    uint row=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
     uint tid=gl_LocalInvocationID.x;
     if (row>=p.rows) return;
     uint base=row*p.row_size;

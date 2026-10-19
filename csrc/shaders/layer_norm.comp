@@ -18,7 +18,7 @@ shared float shared_sum[256];
 shared float shared_sq_sum[256];
 
 void main() {
-    uint row = gl_WorkGroupID.x;
+    uint row = gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
     uint tid = gl_LocalInvocationID.x;
 
     if (row >= params.num_rows) return;

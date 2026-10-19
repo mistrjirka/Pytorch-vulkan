@@ -133,6 +133,11 @@ def manual_seed_all(seed: int) -> None:
 
 torch._register_device_module("vulkan", sys.modules[__name__])
 
+# This is backend arithmetic support, independent of physical-device FP64 features.
+has_fp64 = False
+from .formatting import install_fp32_formatter as _install_fp32_formatter
+_install_fp32_formatter(sys.modules[__name__])
+
 
 def conv_dispatch_stats() -> dict:
     """Convolution plan-cache counters and selections by phase/implementation."""

@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer V{uint v[];};
+layout(binding=1) readonly buffer I{uvec2 indices[];};
+layout(binding=2) writeonly buffer Y{uint y[];};
+layout(binding=3) writeonly buffer O{uvec2 output_indices[];};
+layout(push_constant) uniform P{uint rows,n,inner,type;}p;
+bool same(uint a,uint b){uint width=p.type==2u?2u:1u;if(p.type==0u)return uintBitsToFloat(v[a])==uintBitsToFloat(v[b]);return v[a*width]==v[b*width]&&(width==1u||v[a*2u+1u]==v[b*2u+1u]);}
+void main(){uint row=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(row>=p.rows)return;uint base=row/p.inner*p.n*p.inner+row%p.inner,best=base,best_count=0u,start=0u;while(start<p.n){uint end=start+1u;while(end<p.n&&same(base+start*p.inner,base+end*p.inner))end++;uint count=end-start;if(count>best_count){best_count=count;best=base+(end-1u)*p.inner;}start=end;}uint width=p.type==2u?2u:1u;y[row*width]=v[best*width];if(width==2u)y[row*2u+1u]=v[best*2u+1u];output_indices[row]=indices[best];}

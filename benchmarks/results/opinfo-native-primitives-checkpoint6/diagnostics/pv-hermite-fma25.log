@@ -1,0 +1,6 @@
+hermite_polynomial_h 0 not close 50 unequal 1486
+hermite_polynomial_h 1 not close 0 unequal 0
+hermite_polynomial_h 2 not close 44 unequal 1690
+hermite_polynomial_he 0 not close 28 unequal 1266
+hermite_polynomial_he 1 not close 0 unequal 0
+hermite_polynomial_he 2 not close 22 unequal 1562

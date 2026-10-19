@@ -10,11 +10,13 @@
 namespace torch_vulkan::ops {
 namespace {
 at::Tensor masked_fill_tensor(const at::Tensor& x,const at::Tensor& mask,const at::Tensor& value){
- TORCH_CHECK(value.dim()==0,"masked_fill_ only supports a 0-dimensional value tensor");
+ TORCH_CHECK(value.dim()==0,"masked_fill_ only supports a 0-dimensional value tensor, but got tensor with ",value.dim()," dimension");
+ auto converted=value;
+ if(value.is_complex()&&!x.is_complex()){TORCH_CHECK(at::imag(value).eq(0).cpu().item<bool>(),"value cannot be converted to type ",x.scalar_type()," without overflow");converted=at::real(value);}
  TORCH_CHECK(mask.scalar_type()==at::kBool,"masked_fill_ only supports boolean masks");
  TORCH_CHECK(x.device()==mask.device(),"masked_fill device mismatch");
  TORCH_CHECK(value.device()==x.device()||value.is_cpu(),"masked_fill value device mismatch");
- return at::where(mask,value.to(x.device(),x.scalar_type()),x);
+ return at::where(mask,converted.to(x.device(),x.scalar_type()),x);
 }
 at::Tensor masked_fill_scalar(const at::Tensor& x,const at::Tensor& mask,const at::Scalar& value){return masked_fill_tensor(x,mask,at::scalar_tensor(value,at::TensorOptions().dtype(x.scalar_type())));}
 at::Tensor& assign(at::Tensor& x,const at::Tensor& result){

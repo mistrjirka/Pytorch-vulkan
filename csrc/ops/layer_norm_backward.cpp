@@ -34,7 +34,7 @@ static void dispatch(const std::string& shader,
   std::vector<TensorBuffer> bindings(inputs);
   bindings.insert(bindings.end(),outputs.begin(),outputs.end());
   auto algorithm=ctx.get_or_create_algorithm(
-      shader,bindings,kp::Workgroup({workgroups,1,1}),constants);
+      shader,bindings,native::grid(workgroups),constants);
   // run_compute tracks dependencies and owns queued bindings until completion.
   ctx.run_compute(algorithm,shader,inputs,outputs);
 }
@@ -59,10 +59,14 @@ static std::tuple<at::Tensor,at::Tensor,at::Tensor> native_layer_norm_backward(
                 "layer_norm_backward: shape mismatch");
     k*=extent;
   }
+  if(!input.numel()){
+    std::vector<int64_t> shape;for(auto e:normalized_shape)shape.push_back(e.expect_int());
+    return {output_mask[0]?at::empty_like(input):at::Tensor(),output_mask[1]?at::zeros(shape,input.options()):at::Tensor(),output_mask[2]?at::zeros(shape,input.options()):at::Tensor()};
+  }
   TORCH_CHECK(k>0 && input.numel()>0 && input.numel()%k==0,
               "layer_norm_backward: only nonempty FP32 tensors supported");
   const auto rows=input.numel()/k;
-  TORCH_CHECK(rows <= 65535 && k <= 65535,
+  TORCH_CHECK(rows <= UINT32_MAX && k <= UINT32_MAX,
               "layer_norm_backward: dispatch dimension too large");
   TORCH_CHECK(mean.numel()==rows && rstd.numel()==rows,
               "layer_norm_backward: saved mean/rstd size mismatch");

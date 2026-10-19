@@ -72,10 +72,8 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> forward(
     const std::optional<at::Tensor>& bias, c10::SymInt N,
     c10::SymInt C, c10::SymInt HxW,int64_t group,double eps) {
   const auto n=N.expect_int(),c=C.expect_int(),hw=HxW.expect_int();
-  TORCH_CHECK(group>0 && n>0 && c>0 && hw>0 && c%group==0,
+  TORCH_CHECK(group>0 && n>=0 && c>0 && hw>0 && c%group==0,
               "native_group_norm: invalid batch, channel, group or spatial dimensions");
-  TORCH_CHECK(std::isfinite(eps) && eps>=0,
-              "native_group_norm: eps must be finite and nonnegative");
   TORCH_CHECK(x.scalar_type()==at::kFloat,
               "Vulkan native_group_norm currently requires FP32");
   TORCH_CHECK(!weight || !weight->defined() ||
@@ -86,6 +84,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> forward(
               (bias->device()==x.device() && bias->scalar_type()==at::kFloat &&
                bias->numel()==c),
               "native_group_norm: bias must have C float elements");
+  if(n==0)return {at::empty_like(x),at::empty({n,group},x.options()),at::empty({n,group},x.options())};
   if(!native_enabled() || !eligible(x,n,c,hw,group) ||
      (weight && weight->defined() && !can_pack_view(*weight)) ||
      (bias && bias->defined() && !can_pack_view(*bias)))
@@ -112,7 +111,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> backward(
     c10::SymInt C,c10::SymInt HxW,int64_t group,
     std::array<bool,3> mask) {
   const auto n=N.expect_int(),c=C.expect_int(),hw=HxW.expect_int();
-  TORCH_CHECK(group>0 && n>0 && c>0 && hw>0 && c%group==0,
+  TORCH_CHECK(group>0 && n>=0 && c>0 && hw>0 && c%group==0,
               "native_group_norm_backward: invalid geometry");
   TORCH_CHECK(grad.sizes()==x.sizes() && mean.numel()==n*group &&
               rstd.numel()==n*group,
@@ -124,6 +123,7 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> backward(
               (weight->device()==x.device() && weight->numel()==c &&
                weight->scalar_type()==at::kFloat),
               "native_group_norm_backward: invalid gamma");
+  if(n==0)return {mask[0]?at::empty_like(x):at::Tensor(),mask[1]?at::zeros({c},x.options()):at::Tensor(),mask[2]?at::zeros({c},x.options()):at::Tensor()};
   const bool fit=native_enabled() && eligible(x,n,c,hw,group) &&
                  can_pack_view(grad) && can_pack_view(mean) && can_pack_view(rstd) &&
                  (!weight || !weight->defined() || can_pack_view(*weight));

@@ -1,0 +1,45 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+#include "fp32_trig.glsl"
+#include "fp32_precision.glsl"
+#include "special_functions_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X{float x[];};layout(binding=1) readonly buffer B{float b[];};layout(binding=2) writeonly buffer Y{float y[];};
+layout(push_constant) uniform P{uint count,op;}p;
+int degree(float n){return isnan(n)||isinf(n)||n>=2147483648.||n< -2147483648.?-1:int(n);}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;if(i>=p.count)return;float a=x[i],value;switch(p.op){
+case 0u:value=calc_erfinv(a);break;
+case 1u:value=exp(abs(a))*calc_i0e(a);break;
+case 2u:value=calc_i0e(a);break;
+case 3u:value=exp(abs(a))*calc_i1e(a);break;
+case 4u:value=calc_i1e(a);break;
+case 5u:value=calc_ndtri(a);break;
+case 6u:value=calc_erfcx(a);break;
+case 7u:value=calc_log_ndtr(a);break;
+case 8u:value=airy_ai_forward(a);break;
+case 9u:value=bessel_j0_forward(a);break;
+case 10u:value=bessel_j1_forward(a);break;
+case 11u:value=bessel_y0_forward(a);break;
+case 12u:value=bessel_y1_forward(a);break;
+case 13u:value=spherical_bessel_j0_forward(a);break;
+case 14u:value=modified_bessel_i0_forward(a);break;
+case 15u:value=modified_bessel_i1_forward(a);break;
+case 16u:value=modified_bessel_k0_forward(a);break;
+case 17u:value=modified_bessel_k1_forward(a);break;
+case 18u:value=scaled_modified_bessel_k0_forward(a);break;
+case 19u:value=scaled_modified_bessel_k1_forward(a);break;
+case 20u:value=chebyshev_polynomial_t_forward(a,degree(b[i]));break;
+case 21u:value=chebyshev_polynomial_u_forward(a,degree(b[i]));break;
+case 22u:value=chebyshev_polynomial_v_forward(a,degree(b[i]));break;
+case 23u:value=chebyshev_polynomial_w_forward(a,degree(b[i]));break;
+case 24u:value=hermite_polynomial_h_forward(a,degree(b[i]));break;
+case 25u:value=hermite_polynomial_he_forward(a,degree(b[i]));break;
+case 26u:value=laguerre_polynomial_l_forward(a,degree(b[i]));break;
+case 27u:value=legendre_polynomial_p_forward(a,degree(b[i]));break;
+case 28u:value=shifted_chebyshev_polynomial_t_forward(a,degree(b[i]));break;
+case 29u:value=shifted_chebyshev_polynomial_u_forward(a,degree(b[i]));break;
+case 30u:value=shifted_chebyshev_polynomial_v_forward(a,degree(b[i]));break;
+case 31u:value=shifted_chebyshev_polynomial_w_forward(a,degree(b[i]));break;
+case 32u:value=zeta(a,b[i]);break;
+default:value=special_nan();}y[i]=value;}

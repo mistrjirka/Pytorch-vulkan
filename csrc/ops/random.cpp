@@ -9,7 +9,10 @@ namespace {
 using namespace native;
 at::Tensor& random_fill(at::Tensor& out,uint32_t mode,double a,double b,const std::optional<at::Generator>& generator,const at::Tensor& probs={}) {
  if(out.scalar_type()==at::kComplexFloat&&(mode==0||mode==1)){auto real=at::view_as_real(out);random_fill(real,mode,a,mode==1?b/std::sqrt(2.):b,generator);return out;}
- TORCH_CHECK(out.scalar_type()==at::kFloat&&can_pack_view(out),"Vulkan random fill requires packable FP32 output; got ",out.scalar_type()," with shape ",out.sizes());at::assert_no_internal_overlap(out);
+ TORCH_CHECK(out.scalar_type()==at::kFloat,"Vulkan random fill requires FP32 output; got ",out.scalar_type());
+ if(!out.numel())return out;
+ if(out.dim()>8&&out.is_contiguous()){auto flat=out.view({-1});random_fill(flat,mode,a,b,generator,probs);return out;}
+ TORCH_CHECK(can_pack_view(out),"Vulkan random fill requires packable FP32 output; got ",out.scalar_type()," with shape ",out.sizes());at::assert_no_internal_overlap(out);
  if(!out.numel())return out;
  auto state=random_state(generator,(out.numel()+3)/4);
  std::vector<uint32_t> p={u32(out.numel()),mode,state[0],state[1],state[2],state[3],bits(float(a)),bits(float(b)),u32(out.storage_offset())};p.resize(25,0);std::fill(p.begin()+9,p.begin()+17,1);
@@ -60,6 +63,7 @@ std::tuple<at::Tensor,at::Tensor> dropout(const at::Tensor& x,double p,std::opti
   {u32(x.numel()),bits(float(keep)),state[0],state[1],state[2],state[3]},(x.numel()+511)/512);return {y,mask};
 }
 at::Tensor dropout_backward(const at::Tensor& grad,const at::Tensor& mask,double scale){
+ if(grad.scalar_type()!=at::kFloat&&device_copy_supported(grad.scalar_type()))return dropout_backward(grad.to(at::kFloat),mask,scale);
  TORCH_CHECK(grad.sizes()==mask.sizes()&&grad.device()==mask.device()&&grad.scalar_type()==at::kFloat&&mask.scalar_type()==at::kBool&&can_pack_view(grad)&&can_pack_view(mask),"dropout backward: invalid tensors");
  auto out=at::empty(grad.sizes(),grad.options());if(out.numel())run("dropout_backward",{base(packed(grad)),base(packed(mask,at::kBool),at::kBool)},{write_base(out)},{u32(out.numel()),bits(float(scale))},(out.numel()+127)/128);return out;
 }

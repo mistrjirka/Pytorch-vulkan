@@ -112,3 +112,67 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("round.decimals",&round_decimals);m.impl("round_.decimals",&round_decimals_inplace);
 }
 }
+
+#include "native_utils.h"
+#include "device_copy.h"
+#include <ATen/ExpandUtils.h>
+#include <ATen/MemoryOverlap.h>
+#include <torch/library.h>
+namespace torch_vulkan::ops {namespace {
+using namespace native;
+template<int Op>at::Tensor special_unary(const at::Tensor& raw){TORCH_CHECK(device_copy_supported(raw.scalar_type()),"special functions require real inputs");auto x=raw.to(at::kFloat),out=at::empty(raw.sizes(),x.options());if(out.numel()){auto input=packed(x);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);run("special_functions",{base(input),dummy},{write_base(out)},{u32(out.numel()),Op},(out.numel()+127)/128);}return out;}
+template<int Op>at::Tensor& special_inplace(at::Tensor& x){at::assert_no_internal_overlap(x);auto out=special_unary<Op>(x);TORCH_CHECK(c10::canCast(out.scalar_type(),x.scalar_type()),"result type cannot be cast to output type");x.copy_(out);return x;}
+template<int Op>at::Tensor special_binary(const at::Tensor& left,const at::Tensor& right){auto dev=left.is_cpu()?right.device():left.device();TORCH_CHECK((left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"special function inputs must be on the same device");TORCH_CHECK(device_copy_supported(left.scalar_type())&&device_copy_supported(right.scalar_type()),"special functions require real inputs");auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto a=packed(left.to(dev,at::kFloat).expand(shape)),b=packed(right.to(dev,at::kFloat).expand(shape)),out=at::empty(shape,a.options());if(out.numel())run("special_functions",{base(a),base(b)},{write_base(out)},{u32(out.numel()),Op},(out.numel()+127)/128);return out;}
+template<int Op>at::Tensor special_right_scalar(const at::Tensor& x,const at::Scalar& n){return special_binary<Op>(x,at::scalar_tensor(n,at::TensorOptions().dtype(at::result_type(x,n))));}
+template<int Op>at::Tensor special_left_scalar(const at::Scalar& x,const at::Tensor& n){return special_binary<Op>(at::scalar_tensor(x,at::TensorOptions().dtype(at::result_type(n,x))),n);}
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("erfinv",&special_unary<0>);
+ m.impl("i0",&special_unary<1>);
+ m.impl("special_i0e",&special_unary<2>);
+ m.impl("special_i1",&special_unary<3>);
+ m.impl("special_i1e",&special_unary<4>);
+ m.impl("special_ndtri",&special_unary<5>);
+ m.impl("special_erfcx",&special_unary<6>);
+ m.impl("special_log_ndtr",&special_unary<7>);
+ m.impl("special_airy_ai",&special_unary<8>);
+ m.impl("special_bessel_j0",&special_unary<9>);
+ m.impl("special_bessel_j1",&special_unary<10>);
+ m.impl("special_bessel_y0",&special_unary<11>);
+ m.impl("special_bessel_y1",&special_unary<12>);
+ m.impl("special_spherical_bessel_j0",&special_unary<13>);
+ m.impl("special_modified_bessel_i0",&special_unary<14>);
+ m.impl("special_modified_bessel_i1",&special_unary<15>);
+ m.impl("special_modified_bessel_k0",&special_unary<16>);
+ m.impl("special_modified_bessel_k1",&special_unary<17>);
+ m.impl("special_scaled_modified_bessel_k0",&special_unary<18>);
+ m.impl("special_scaled_modified_bessel_k1",&special_unary<19>);
+ m.impl("erfinv_",&special_inplace<0>);m.impl("i0_",&special_inplace<1>);
+ m.impl("special_chebyshev_polynomial_t",&special_binary<20>);
+ m.impl("special_chebyshev_polynomial_t.n_scalar",&special_right_scalar<20>);m.impl("special_chebyshev_polynomial_t.x_scalar",&special_left_scalar<20>);
+ m.impl("special_chebyshev_polynomial_u",&special_binary<21>);
+ m.impl("special_chebyshev_polynomial_u.n_scalar",&special_right_scalar<21>);m.impl("special_chebyshev_polynomial_u.x_scalar",&special_left_scalar<21>);
+ m.impl("special_chebyshev_polynomial_v",&special_binary<22>);
+ m.impl("special_chebyshev_polynomial_v.n_scalar",&special_right_scalar<22>);m.impl("special_chebyshev_polynomial_v.x_scalar",&special_left_scalar<22>);
+ m.impl("special_chebyshev_polynomial_w",&special_binary<23>);
+ m.impl("special_chebyshev_polynomial_w.n_scalar",&special_right_scalar<23>);m.impl("special_chebyshev_polynomial_w.x_scalar",&special_left_scalar<23>);
+ m.impl("special_hermite_polynomial_h",&special_binary<24>);
+ m.impl("special_hermite_polynomial_h.n_scalar",&special_right_scalar<24>);m.impl("special_hermite_polynomial_h.x_scalar",&special_left_scalar<24>);
+ m.impl("special_hermite_polynomial_he",&special_binary<25>);
+ m.impl("special_hermite_polynomial_he.n_scalar",&special_right_scalar<25>);m.impl("special_hermite_polynomial_he.x_scalar",&special_left_scalar<25>);
+ m.impl("special_laguerre_polynomial_l",&special_binary<26>);
+ m.impl("special_laguerre_polynomial_l.n_scalar",&special_right_scalar<26>);m.impl("special_laguerre_polynomial_l.x_scalar",&special_left_scalar<26>);
+ m.impl("special_legendre_polynomial_p",&special_binary<27>);
+ m.impl("special_legendre_polynomial_p.n_scalar",&special_right_scalar<27>);m.impl("special_legendre_polynomial_p.x_scalar",&special_left_scalar<27>);
+ m.impl("special_shifted_chebyshev_polynomial_t",&special_binary<28>);
+ m.impl("special_shifted_chebyshev_polynomial_t.n_scalar",&special_right_scalar<28>);m.impl("special_shifted_chebyshev_polynomial_t.x_scalar",&special_left_scalar<28>);
+ m.impl("special_shifted_chebyshev_polynomial_u",&special_binary<29>);
+ m.impl("special_shifted_chebyshev_polynomial_u.n_scalar",&special_right_scalar<29>);m.impl("special_shifted_chebyshev_polynomial_u.x_scalar",&special_left_scalar<29>);
+ m.impl("special_shifted_chebyshev_polynomial_v",&special_binary<30>);
+ m.impl("special_shifted_chebyshev_polynomial_v.n_scalar",&special_right_scalar<30>);m.impl("special_shifted_chebyshev_polynomial_v.x_scalar",&special_left_scalar<30>);
+ m.impl("special_shifted_chebyshev_polynomial_w",&special_binary<31>);
+ m.impl("special_shifted_chebyshev_polynomial_w.n_scalar",&special_right_scalar<31>);m.impl("special_shifted_chebyshev_polynomial_w.x_scalar",&special_left_scalar<31>);
+ m.impl("special_zeta",&special_binary<32>);
+ m.impl("special_zeta.other_scalar",&special_right_scalar<32>);m.impl("special_zeta.self_scalar",&special_left_scalar<32>);
+}
+}

@@ -5,6 +5,7 @@
 #include <ATen/MemoryOverlap.h>
 #include <ATen/native/Resize.h>
 #include <torch/library.h>
+#include <ATen/core/grad_mode.h>
 namespace torch_vulkan::ops {
 namespace {
 struct NativeOut : c10::OperatorKernel {
@@ -15,13 +16,17 @@ struct NativeOut : c10::OperatorKernel {
   std::vector<at::Tensor> outputs;for(size_t i=stack->size()-noutputs;i<stack->size();i++){auto out=(*stack)[i].toTensor();at::assert_no_internal_overlap(out);for(const auto& previous:outputs)at::assert_no_overlap(out,previous);outputs.push_back(out);}
   torch::jit::Stack args(stack->begin()+begin,stack->end()-noutputs);
   for(const auto& out:outputs)for(const auto& v:args){
-    auto validate=[&](const at::Tensor& t){at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
+    auto validate=[&](const at::Tensor& t){if(!t.defined())return;if(name=="aten::kthvalue"||name=="aten::median"||name=="aten::nanmedian"||name=="aten::mode")at::assert_no_overlap(out,t);else at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
     if(v.isTensor())validate(v.toTensor());else if(v.isTensorList())for(const auto& t:v.toTensorVector())validate(t);
   }
   const auto target=c10::Dispatcher::singleton().findSchemaOrThrow(name.c_str(),overload.c_str());
   TORCH_INTERNAL_ASSERT(target.schema().arguments().size()==args.size());target.callBoxed(&args);
   TORCH_INTERNAL_ASSERT(args.size()==outputs.size());
   for(size_t i=0;i<outputs.size();i++){TORCH_INTERNAL_ASSERT(args[i].isTensor());TORCH_CHECK(c10::canCast(args[i].toTensor().scalar_type(),outputs[i].scalar_type()),"result type cannot be cast to the desired output type");}
+  for(size_t i=0;i<outputs.size();i++)for(size_t j=begin;j<stack->size()-noutputs;j++){
+   auto check=[&](const at::Tensor& input){if(input.defined()&&input.is_same(outputs[i]))TORCH_CHECK(outputs[i].sizes()==args[i].toTensor().sizes(),"output with shape ",outputs[i].sizes()," does not match the broadcast shape ",args[i].toTensor().sizes());};
+   if((*stack)[j].isTensor())check((*stack)[j].toTensor());else if((*stack)[j].isTensorList())for(const auto& t:(*stack)[j].toTensorVector())check(t);
+  }
   for(size_t i=0;i<outputs.size();i++){auto value=args[i].toTensor();auto& out=outputs[i];at::native::resize_output(out,value.sizes());out.copy_(value);}
   stack->resize(begin);for(const auto& out:outputs)stack->push_back(out);
  }
@@ -62,7 +67,70 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("angle.out","angle");add("atan2.out","atan2");add("frac.out","frac");add("sinc.out","sinc");add("special_entr.out","special_entr");add("special_xlog1py.out","special_xlog1py");add("special_xlog1py.self_scalar_out","special_xlog1py","self_scalar");add("special_xlog1py.other_scalar_out","special_xlog1py","other_scalar");
  add("upsample_nearest1d.out","upsample_nearest1d");add("_upsample_nearest_exact1d.out","_upsample_nearest_exact1d");add("upsample_linear1d.out","upsample_linear1d");add("upsample_nearest1d_backward.grad_input","upsample_nearest1d_backward");add("_upsample_nearest_exact1d_backward.grad_input","_upsample_nearest_exact1d_backward");add("upsample_linear1d_backward.grad_input","upsample_linear1d_backward");
  for(auto name:{"upsample_nearest2d","upsample_nearest3d","_upsample_nearest_exact2d","_upsample_nearest_exact3d","upsample_bilinear2d","upsample_bicubic2d","upsample_trilinear3d","_upsample_bilinear2d_aa","_upsample_bicubic2d_aa"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+"_backward.grad_input").c_str(),(std::string(name)+"_backward").c_str());}
- add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");
+ add("kthvalue.values","kthvalue");add("median.out","median");add("median.dim_values","median","dim");add("nanmedian.out","nanmedian");add("nanmedian.dim_values","nanmedian","dim");add("mode.values","mode");
+ add("isin.Tensor_Tensor_out","isin","Tensor_Tensor");add("isin.Tensor_Scalar_out","isin","Tensor_Scalar");add("isin.Scalar_Tensor_out","isin","Scalar_Tensor");add("repeat_interleave.Tensor_out","repeat_interleave","Tensor");add("renorm.out","renorm");add("addr.out","addr");
+ add("smooth_l1_loss.out","smooth_l1_loss");add("smooth_l1_loss_backward.grad_input","smooth_l1_loss_backward");add("huber_loss.out","huber_loss");add("huber_loss_backward.out","huber_loss_backward");add("binary_cross_entropy.out","binary_cross_entropy");add("binary_cross_entropy_backward.grad_input","binary_cross_entropy_backward");
+ add("native_batch_norm.out","native_batch_norm");add("_native_batch_norm_legit.out","_native_batch_norm_legit");add("_native_batch_norm_legit.no_stats_out","_native_batch_norm_legit","no_stats");add("_native_batch_norm_legit_no_training.out","_native_batch_norm_legit_no_training");add("_batch_norm_with_update.out","_batch_norm_with_update");
+ add("erfinv.out","erfinv");
+ add("i0.out","i0");
+ add("special_i0e.out","special_i0e");
+ add("special_i1.out","special_i1");
+ add("special_i1e.out","special_i1e");
+ add("special_ndtri.out","special_ndtri");
+ add("special_erfcx.out","special_erfcx");
+ add("special_log_ndtr.out","special_log_ndtr");
+ add("special_airy_ai.out","special_airy_ai");
+ add("special_bessel_j0.out","special_bessel_j0");
+ add("special_bessel_j1.out","special_bessel_j1");
+ add("special_bessel_y0.out","special_bessel_y0");
+ add("special_bessel_y1.out","special_bessel_y1");
+ add("special_spherical_bessel_j0.out","special_spherical_bessel_j0");
+ add("special_modified_bessel_i0.out","special_modified_bessel_i0");
+ add("special_modified_bessel_i1.out","special_modified_bessel_i1");
+ add("special_modified_bessel_k0.out","special_modified_bessel_k0");
+ add("special_modified_bessel_k1.out","special_modified_bessel_k1");
+ add("special_scaled_modified_bessel_k0.out","special_scaled_modified_bessel_k0");
+ add("special_scaled_modified_bessel_k1.out","special_scaled_modified_bessel_k1");
+ add("special_chebyshev_polynomial_t.out","special_chebyshev_polynomial_t");
+ add("special_chebyshev_polynomial_t.n_scalar_out","special_chebyshev_polynomial_t","n_scalar");
+ add("special_chebyshev_polynomial_t.x_scalar_out","special_chebyshev_polynomial_t","x_scalar");
+ add("special_chebyshev_polynomial_u.out","special_chebyshev_polynomial_u");
+ add("special_chebyshev_polynomial_u.n_scalar_out","special_chebyshev_polynomial_u","n_scalar");
+ add("special_chebyshev_polynomial_u.x_scalar_out","special_chebyshev_polynomial_u","x_scalar");
+ add("special_chebyshev_polynomial_v.out","special_chebyshev_polynomial_v");
+ add("special_chebyshev_polynomial_v.n_scalar_out","special_chebyshev_polynomial_v","n_scalar");
+ add("special_chebyshev_polynomial_v.x_scalar_out","special_chebyshev_polynomial_v","x_scalar");
+ add("special_chebyshev_polynomial_w.out","special_chebyshev_polynomial_w");
+ add("special_chebyshev_polynomial_w.n_scalar_out","special_chebyshev_polynomial_w","n_scalar");
+ add("special_chebyshev_polynomial_w.x_scalar_out","special_chebyshev_polynomial_w","x_scalar");
+ add("special_hermite_polynomial_h.out","special_hermite_polynomial_h");
+ add("special_hermite_polynomial_h.n_scalar_out","special_hermite_polynomial_h","n_scalar");
+ add("special_hermite_polynomial_h.x_scalar_out","special_hermite_polynomial_h","x_scalar");
+ add("special_hermite_polynomial_he.out","special_hermite_polynomial_he");
+ add("special_hermite_polynomial_he.n_scalar_out","special_hermite_polynomial_he","n_scalar");
+ add("special_hermite_polynomial_he.x_scalar_out","special_hermite_polynomial_he","x_scalar");
+ add("special_laguerre_polynomial_l.out","special_laguerre_polynomial_l");
+ add("special_laguerre_polynomial_l.n_scalar_out","special_laguerre_polynomial_l","n_scalar");
+ add("special_laguerre_polynomial_l.x_scalar_out","special_laguerre_polynomial_l","x_scalar");
+ add("special_legendre_polynomial_p.out","special_legendre_polynomial_p");
+ add("special_legendre_polynomial_p.n_scalar_out","special_legendre_polynomial_p","n_scalar");
+ add("special_legendre_polynomial_p.x_scalar_out","special_legendre_polynomial_p","x_scalar");
+ add("special_shifted_chebyshev_polynomial_t.out","special_shifted_chebyshev_polynomial_t");
+ add("special_shifted_chebyshev_polynomial_t.n_scalar_out","special_shifted_chebyshev_polynomial_t","n_scalar");
+ add("special_shifted_chebyshev_polynomial_t.x_scalar_out","special_shifted_chebyshev_polynomial_t","x_scalar");
+ add("special_shifted_chebyshev_polynomial_u.out","special_shifted_chebyshev_polynomial_u");
+ add("special_shifted_chebyshev_polynomial_u.n_scalar_out","special_shifted_chebyshev_polynomial_u","n_scalar");
+ add("special_shifted_chebyshev_polynomial_u.x_scalar_out","special_shifted_chebyshev_polynomial_u","x_scalar");
+ add("special_shifted_chebyshev_polynomial_v.out","special_shifted_chebyshev_polynomial_v");
+ add("special_shifted_chebyshev_polynomial_v.n_scalar_out","special_shifted_chebyshev_polynomial_v","n_scalar");
+ add("special_shifted_chebyshev_polynomial_v.x_scalar_out","special_shifted_chebyshev_polynomial_v","x_scalar");
+ add("special_shifted_chebyshev_polynomial_w.out","special_shifted_chebyshev_polynomial_w");
+ add("special_shifted_chebyshev_polynomial_w.n_scalar_out","special_shifted_chebyshev_polynomial_w","n_scalar");
+ add("special_shifted_chebyshev_polynomial_w.x_scalar_out","special_shifted_chebyshev_polynomial_w","x_scalar");
+ add("special_zeta.out","special_zeta");
+ add("special_zeta.other_scalar_out","special_zeta","other_scalar");
+ add("special_zeta.self_scalar_out","special_zeta","self_scalar");
+ add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");add("var.correction_out","var","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");
  add("masked_fill.Scalar_out","masked_fill","Scalar");add("masked_fill.Tensor_out","masked_fill","Tensor");
