@@ -1,0 +1,4 @@
+{
+  ".venv/lib/python3.12/site-packages/torch/testing/_internal/common_methods_invocations.py": "64b34059b2889759f8596fe72488f30fbaaa21c1b8e4b875d4f5e3d8c5892475",
+  ".venv/lib/python3.12/site-packages/torch/testing/_internal/opinfo/definitions/sparse.py": "1a5405d30f62ae77a67857d29529d47105758a6ebed21c3185c44edd8f42d11a"
+}

@@ -39,7 +39,7 @@ at::Tensor cpu_unary(const at::Tensor& x,uint32_t op) {
 
 at::Tensor unary(const at::Tensor& x,uint32_t op) {
   if(device_copy_supported(x.scalar_type())&&x.scalar_type()!=at::kFloat){
-    if(op==7){TORCH_CHECK(x.scalar_type()!=at::kBool,"Negation of a bool tensor is not supported");return at::mul(x,-1);}
+    if(op==7){TORCH_CHECK(x.scalar_type()!=at::kBool,"Negation, the `-` operator, on a bool tensor is not supported. If you are trying to invert a mask, use the `~` or `logical_not()` operator instead.");return at::mul(x,-1);}
     return unary(x.to(at::kFloat),op);
   }
   if(!eligible(x))return cpu_unary(x,op);

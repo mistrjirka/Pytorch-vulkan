@@ -4,7 +4,7 @@ namespace torch_vulkan::ops {
 namespace {
 using namespace native;
 std::tuple<at::Tensor,at::Tensor,at::Tensor,at::Tensor> bag_forward(const at::Tensor& weight,const at::Tensor& indices,const at::Tensor& offsets,bool frequency,int64_t mode,bool sparse,const std::optional<at::Tensor>& per_sample,bool last,int64_t padding){
- TORCH_CHECK(!sparse,"Sparse embedding-bag gradients are not implemented");TORCH_CHECK(weight.dim()==2&&weight.scalar_type()==at::kFloat&&indices.dim()==1&&offsets.dim()==1&&indices.device()==weight.device()&&offsets.device()==weight.device(),"embedding_bag input mismatch");
+ TORCH_CHECK(!sparse||mode!=2,"max mode does not support sparse weights");TORCH_CHECK(weight.dim()==2&&weight.scalar_type()==at::kFloat&&indices.dim()==1&&offsets.dim()==1&&indices.device()==weight.device()&&offsets.device()==weight.device(),"embedding_bag input mismatch");
  TORCH_CHECK((indices.scalar_type()==at::kInt||indices.scalar_type()==at::kLong)&&(offsets.scalar_type()==at::kInt||offsets.scalar_type()==at::kLong),"embedding_bag requires integer indices/offsets");
  TORCH_CHECK(mode>=0&&mode<=2&&!(mode==2&&frequency),"embedding_bag invalid mode/frequency");TORCH_CHECK(padding>=-1&&padding<weight.size(0),"embedding_bag padding out of range");
  int64_t n=indices.numel(),bags=offsets.numel()-int(last),features=weight.size(1);TORCH_CHECK(bags>=0&&(bags>0||n==0),"embedding_bag invalid offsets");
@@ -25,7 +25,12 @@ at::Tensor bag_backward(const at::Tensor& grad,const at::Tensor& indices,const a
  run("embedding_bag_backward",{base(g),base(i,i.scalar_type()),base(mp,at::kLong),base(bs,at::kLong),base(mx,at::kLong),ps.defined()?base(ps):dummy,dummy},{write_base(out)},
  {u32(indices.numel()),u32(grad.size(0)),u32(grad.size(1)),u32(rows.expect_int()),uint32_t(indices.element_size()/4),uint32_t(padding),uint32_t(mode),uint32_t(ps.defined()),uint32_t(frequency),0},(out.numel()+127)/128);return out;
 }
-at::Tensor bag_backward_entry(const at::Tensor& g,const at::Tensor& i,const at::Tensor&,const at::Tensor& mp,const at::Tensor& bs,const at::Tensor& mx,c10::SymInt rows,bool freq,int64_t mode,bool sparse,const std::optional<at::Tensor>& ps,int64_t pad){TORCH_CHECK(!sparse,"Sparse embedding-bag gradients are not implemented");return bag_backward(g,i,mp,bs,mx,rows,freq,mode,ps,pad);}
+at::Tensor bag_backward_entry(const at::Tensor& g,const at::Tensor& i,const at::Tensor&,const at::Tensor& mp,const at::Tensor& bs,const at::Tensor& mx,c10::SymInt rows,bool freq,int64_t mode,bool sparse,const std::optional<at::Tensor>& ps,int64_t pad){if(sparse){
+ TORCH_CHECK(mode!=2,"max mode does not support sparse weights");auto values=at::index_select(g,0,mp);
+ if(mode==1&&values.numel()){auto sizes=at::index_select(bs,0,mp).to(at::kFloat).unsqueeze(1);values=values.div(sizes);}
+ if(ps&&ps->defined())values=values.mul(ps->unsqueeze(1));
+ return at::embedding_sparse_backward(values,i,rows.expect_int(),pad,freq);
+ }return bag_backward(g,i,mp,bs,mx,rows,freq,mode,ps,pad);}
 at::Tensor bag_ps_backward(const at::Tensor& grad,const at::Tensor& weight,const at::Tensor& indices,const at::Tensor&,const at::Tensor& mapping,int64_t mode,int64_t padding){
  TORCH_CHECK(mode==0,"per-sample gradient requires sum mode");auto out=at::empty(indices.sizes(),weight.options());if(!out.numel())return out;auto g=packed(grad),w=packed(weight),i=packed(indices,indices.scalar_type()),mp=packed(mapping,at::kLong);auto dummy=VulkanAllocator::instance().constant_float_buffer(1,0);
  run("embedding_bag_backward",{base(g),base(i,i.scalar_type()),base(mp,at::kLong),dummy,dummy,dummy,base(w)},{write_base(out)},

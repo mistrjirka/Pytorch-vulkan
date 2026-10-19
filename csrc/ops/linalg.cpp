@@ -8,7 +8,8 @@ namespace torch_vulkan::ops {
 namespace {
 using namespace native;
 at::Tensor& eye_out(int64_t n,int64_t m,at::Tensor& out){
- TORCH_CHECK(n>=0&&m>=0&&(out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong||out.scalar_type()==at::kComplexFloat),"Vulkan eye requires nonnegative sizes and FP32/complex64/int32/int64 output");
+ TORCH_CHECK(n>=0,"n must be greater or equal to 0, got ",n);TORCH_CHECK(m>=0,"m must be greater or equal to 0, got ",m);
+ TORCH_CHECK((out.scalar_type()==at::kFloat||out.scalar_type()==at::kInt||out.scalar_type()==at::kLong||out.scalar_type()==at::kComplexFloat),"Vulkan eye requires nonnegative sizes and FP32/complex64/int32/int64 output");
  out.resize_({n,m});at::assert_no_internal_overlap(out);out.zero_();if(std::min(n,m)>0)out.as_strided({std::min(n,m)},{out.stride(0)+out.stride(1)}).fill_(1);return out;
 }
 at::Tensor& eye_square(int64_t n,at::Tensor& out){return eye_out(n,n,out);}

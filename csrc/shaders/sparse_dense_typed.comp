@@ -1,0 +1,11 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer I {uvec2 indices[];};
+layout(binding=1) readonly buffer V {uint v[];};
+layout(binding=2) buffer Y {uint result_data[];};
+layout(push_constant) uniform P {uint count,features,nnz,sd,mask;uint sizes[8];uint kind,bytes;} p;
+#include "sparse_typed_values.glsl"
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;uint d=id%p.features;
+ if(p.mask!=0){uint n=id/p.features,address=0;bool valid=true;for(uint a=0;a<p.sd;a++){uvec2 i=indices[a*p.nnz+n];if(i.y!=0||i.x>=p.sizes[a])valid=false;address=address*p.sizes[a]+i.x;}sparse_write(id,valid?sparse_read(address*p.features+d):uvec2(0u));return;}
+ uint row=id/p.features;uvec2 sum=uvec2(0u);for(uint n=0;n<p.nnz;n++){uint r=row;bool match=true;for(int a=int(p.sd)-1;a>=0;a--){uvec2 i=indices[uint(a)*p.nnz+n];if(i.y!=0||i.x!=r%p.sizes[a])match=false;r/=p.sizes[a];}if(match)sum=sparse_add(sum,sparse_read(n*p.features+d));}sparse_write(id,sum);}

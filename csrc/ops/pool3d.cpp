@@ -11,13 +11,14 @@ std::vector<uint32_t> parameters(const at::Tensor& x,at::IntArrayRef kernel,at::
  TORCH_CHECK(!divisor||*divisor!=0,"pool divisor must not be zero");TORCH_CHECK(!ad||adaptive.size()==3,"adaptive 3D pooling requires three output sizes");
  std::vector<uint32_t> params(24);params[0]=u32(x.dim()==5?x.size(0)*x.size(1):x.size(0));
  for(int a=0;a<3;a++){
-  int64_t in=x.size(x.dim()-3+a);TORCH_CHECK(in>0&&in<INT32_MAX/4&&k[a]>0&&s[a]>0&&p[a]>=0&&d[a]>0&&k[a]<INT32_MAX/4&&s[a]<INT32_MAX/4&&p[a]<INT32_MAX/4&&d[a]<INT32_MAX/4,"invalid 3D pooling geometry");
+  int64_t in=x.size(x.dim()-3+a);TORCH_CHECK(p[a]>=0,"pad must be non-negative");TORCH_CHECK(in>=0&&in<INT32_MAX/4&&k[a]>0&&s[a]>0&&p[a]>=0&&d[a]>0&&k[a]<INT32_MAX/4&&s[a]<INT32_MAX/4&&p[a]<INT32_MAX/4&&d[a]<INT32_MAX/4,"invalid 3D pooling geometry");
   int64_t out=ad?adaptive[a]:at::native::pooling_output_shape<int64_t>(in,k[a],p[a],s[a],d[a],ceil);
-  TORCH_CHECK(out>0&&out<INT32_MAX/4&&uint64_t(k[a])*d[a]+uint64_t(out)*s[a]<INT32_MAX,"3D pooling window overflow");
+  TORCH_CHECK(in>0,"Expected input's non-batch dimensions to have positive length");TORCH_CHECK(out>0,"Output size is too small");
+  TORCH_CHECK(out<INT32_MAX/4&&uint64_t(k[a])*d[a]+uint64_t(out)*s[a]<INT32_MAX,"3D pooling window overflow");
   TORCH_CHECK(uint64_t(in)*out+std::max(in,out)<=UINT32_MAX,"adaptive pooling coordinate overflow");
   params[1+a]=u32(in);params[4+a]=u32(out);params[7+a]=u32(k[a]);params[10+a]=u32(s[a]);params[13+a]=u32(p[a]);params[16+a]=u32(d[a]);
  }
- TORCH_CHECK(x.size(-4)>0,"pooling channel dimension must be nonempty");
+ TORCH_CHECK(x.size(-4)>0,"Expected input's non-batch dimensions to have positive length");
  if(!ad)at::native::pool3d_shape_check(x,x.size(-4),k[0],k[1],k[2],s[0],s[1],s[2],p[0],p[1],p[2],d[0],d[1],d[2],params[1],params[2],params[3],params[4],params[5],params[6],"Vulkan pool3d",!maximum);
  uint64_t count=params[0];for(int a=0;a<3;a++){TORCH_CHECK(count<=UINT32_MAX/params[4+a],"pooling output overflow");count*=params[4+a];}
  params[19]=maximum;params[20]=backward;params[21]=ad;params[22]=include;params[23]=bits(divisor?float(*divisor):0);return params;

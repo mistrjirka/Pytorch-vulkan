@@ -1,0 +1,38 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Pointers {uint pointers[];};
+layout(binding=1) readonly buffer Columns {uint columns[];};
+layout(binding=2) readonly buffer Values {float values[];};
+layout(binding=3) readonly buffer Other {float other[];};
+layout(binding=4) readonly buffer Gradient {float gradient[];};
+layout(binding=5) readonly buffer SavedArgs {uint saved_args[];};
+layout(binding=6) readonly buffer EntryRows {uvec2 entry_rows[];};
+layout(binding=7) buffer Output {float result[];};
+layout(binding=8) buffer ArgOutput {uint arg_result[];};
+layout(push_constant) uniform P {uint rows,cols,width,nnz,words,reduce,phase,save_args,arg_words;float alpha,beta;}p;
+uint ptr(uint i){return pointers[i*p.words];}uint col(uint i){return columns[i*p.words];}
+void main(){
+ uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+gl_LocalInvocationID.x;
+ if(p.phase==0u){
+  if(i>=p.rows*p.width)return;uint r=i/p.width,j=i%p.width,start=ptr(r),end=ptr(r+1u),arg=p.nnz;float sum=0.0;
+  if(p.reduce>=2u&&start<end)sum=p.reduce==2u?uintBitsToFloat(0xff800000u):uintBitsToFloat(0x7f800000u);
+  for(uint e=start;e<end;e++){float v=values[e]*other[col(e)*p.width+j];if(p.reduce<2u)sum+=v;else if(arg==p.nnz||(!isnan(sum)&&(isnan(v)||(p.reduce==2u?v>sum:v<sum)))){sum=v;arg=e;}}
+  result[i]=p.reduce==1u&&end>start?divide_refined(sum,float(end-start)):sum;if(p.save_args!=0u){arg_result[i*p.arg_words]=arg;if(p.arg_words==2u)arg_result[2u*i+1u]=0u;}return;
+ }
+ if(p.phase==1u){
+  if(i>=p.nnz)return;uint r=entry_rows[i].x,c=col(i);float sum=0.0;
+  for(uint j=0u;j<p.width;j++){if(p.reduce>=2u&&saved_args[(r*p.width+j)*p.arg_words]!=i)continue;sum+=gradient[r*p.width+j]*other[c*p.width+j];}
+  result[i]=p.reduce==1u?divide_refined(sum,float(ptr(r+1u)-ptr(r))):sum;return;
+ }
+ if(p.phase==2u){
+  if(i>=p.cols*p.width)return;uint c=i/p.width,j=i%p.width;float sum=0.0;
+  for(uint e=0u;e<p.nnz;e++){if(col(e)!=c)continue;uint r=entry_rows[e].x;if(p.reduce>=2u&&saved_args[(r*p.width+j)*p.arg_words]!=e)continue;float grad=gradient[r*p.width+j];if(p.reduce==1u)grad=divide_refined(grad,float(ptr(r+1u)-ptr(r)));sum+=values[e]*grad;}
+  result[i]=sum;return;
+ }
+ if(i>=p.nnz)return;
+ uint r=entry_rows[i].x,c=col(i);float sum=0.0;
+ if(p.alpha!=0.0)for(uint k=0u;k<p.width;k++)sum+=other[r*p.width+k]*gradient[k*p.cols+c];
+ result[i]=(p.alpha!=0.0?p.alpha*sum:0.0)+(p.beta!=0.0?p.beta*values[i]:0.0);
+}

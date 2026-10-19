@@ -104,6 +104,7 @@ add_library(torch_vulkan_C SHARED
   csrc/ops/padding.cpp
   csrc/ops/grid_sample.cpp
   csrc/ops/sparse_coo.cpp
+  csrc/ops/sparse_compressed.cpp
   csrc/ops/out_adapters.cpp
   csrc/ops/factories.cpp
   csrc/ops/reduction_general.cpp

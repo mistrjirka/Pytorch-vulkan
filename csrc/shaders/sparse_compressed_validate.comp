@@ -1,0 +1,22 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer C {uint pointers[];};
+layout(binding=1) readonly buffer P {uint plain[];};
+layout(binding=2) buffer S {uint status[];};
+layout(push_constant) uniform Params {uint batches,rows,cols,nnz,words,strict;}p;
+shared uint bad[128];
+uint pointer(uint i){return pointers[i*p.words];}
+void main(){
+ uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;
+ uint count=max(p.batches*(p.rows+1u),p.batches*p.nnz),stride=128u*gl_NumWorkGroups.x*gl_NumWorkGroups.y,failed=0u;
+ for(uint i=group*128u+lane;i<count;){
+  if(i<p.batches*(p.rows+1u)){uint v=pointer(i),row=i%(p.rows+1u);bool high=p.words==2u?pointers[2u*i+1u]!=0u:v>0x7fffffffu;
+   if(high||v>p.nnz||(row==0u&&v!=0u)||(row==p.rows&&v!=p.nnz)||(row<p.rows&&v>pointer(i+1u)))failed=1u;
+  }
+  if(i<p.batches*p.nnz){uint v=plain[i*p.words];bool high=p.words==2u?plain[2u*i+1u]!=0u:v>0x7fffffffu;if(high||v>=p.cols)failed=1u;
+   if(p.strict!=0u&&i%p.nnz>0u){uint batch=i/p.nnz,pos=i%p.nnz,base=batch*(p.rows+1u),lo=0u,hi=p.rows;while(lo<hi){uint mid=lo+(hi-lo)/2u;if(pointer(base+mid+1u)<=pos)lo=mid+1u;else hi=mid;}if(pos>pointer(base+lo)&&v<=plain[(i-1u)*p.words])failed=1u;}
+  }
+  if(count-i<=stride)break;i+=stride;
+ }
+ bad[lane]=failed;barrier();for(uint step=64u;step>0u;step>>=1u){if(lane<step)bad[lane]|=bad[lane+step];barrier();}if(lane==0u&&bad[0]!=0u)atomicOr(status[0],bad[0]);
+}

@@ -1962,3 +1962,201 @@ def test_ldl_solve_single_rounding_across_fp32_exponents():
     expected=torch.tensor([fmaf(-a,b,c) for a,b,c in triples])
     result=torch.linalg.ldl_solve(ld.to('vulkan'),pivots.to('vulkan'),rhs.to('vulkan')).cpu()[:,1,0]
     torch.testing.assert_close(result,expected,rtol=0,atol=0,equal_nan=True)
+
+
+@pytest.mark.parametrize('order',[-float('inf'),-2.,-.5,0.,.5,1.,2.,3.5,float('inf')])
+@pytest.mark.parametrize('features',[1,5,129])
+@pytest.mark.parametrize('index_dtype',[torch.int32,torch.int64])
+def test_embedding_renorm_native_strides_duplicates_and_aliases(order,features,index_dtype):
+    torch.manual_seed(871)
+    source=torch.randn(2*features+1,15)
+    cpu=source[1::2,1::2].transpose(0,1)
+    storage=source.to('vulkan');weight=storage[1::2,1::2].transpose(0,1)
+    aliases=weight[:,::2];pointer=weight.data_ptr()
+    cpu[0].zero_();weight[0].zero_()
+    indices=torch.tensor([[4,2,4],[0,6,2]],dtype=index_dtype).t()
+    expected=cpu.clone();torch.embedding_renorm_(expected,indices,.75,order)
+    vk.reset_execution_stats()
+    assert torch.embedding_renorm_(weight,indices.to('vulkan'),.75,order) is weight
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    assert weight.data_ptr()==pointer
+    torch.testing.assert_close(weight.cpu(),expected,equal_nan=True)
+    torch.testing.assert_close(aliases.cpu(),expected[:,::2],equal_nan=True)
+
+
+@pytest.mark.parametrize('order',[0.,1.,2.,float('inf'),-1.,-float('inf')])
+@pytest.mark.parametrize('maximum',[-.5,0.,2.])
+def test_embedding_renorm_native_nonfinite_and_negative_indices(order,maximum):
+    source=torch.tensor([[0.,0.,0.],[1.,float('inf'),2.],[float('nan'),3.,4.],[1e-30,2e-30,3e-30],[1e30,-2e30,3e30]])
+    indices=torch.tensor([-1,0,1,2,3,-1])
+    expected=source.clone();torch.embedding_renorm_(expected,indices,maximum,order)
+    weight=source.to('vulkan');torch.embedding_renorm_(weight,indices.to('vulkan'),maximum,order)
+    torch.testing.assert_close(weight.cpu(),expected,equal_nan=True)
+
+
+def test_embedding_renorm_native_training_and_bounds():
+    torch.manual_seed(872)
+    cpu=torch.randn(17,9,requires_grad=True);weight=cpu.detach().to('vulkan').requires_grad_()
+    indices=torch.tensor([[1,5,1],[3,0,16]])
+    expected=torch.nn.functional.embedding(indices,cpu,max_norm=.5,norm_type=1.5,scale_grad_by_freq=True)
+    vk.reset_execution_stats()
+    actual=torch.nn.functional.embedding(indices.to('vulkan'),weight,max_norm=.5,norm_type=1.5,scale_grad_by_freq=True)
+    expected.square().sum().backward();actual.square().sum().backward()
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.cpu(),expected)
+    torch.testing.assert_close(weight.grad.cpu(),cpu.grad)
+    for invalid in [-18,17,2**32]:
+        with pytest.raises(IndexError):torch.embedding_renorm_(weight.detach(),torch.tensor([invalid],device='vulkan'),1.,2.)
+
+
+@pytest.mark.parametrize('mode,weighted',[('sum',False),('sum',True),('mean',False)])
+@pytest.mark.parametrize('include_last_offset',[False,True])
+@pytest.mark.parametrize('padding_idx',[None,3])
+def test_embedding_bag_native_sparse_weight_gradients(mode,weighted,include_last_offset,padding_idx):
+    torch.manual_seed(873)
+    cpu=torch.randn(13,7,requires_grad=True);weight=cpu.detach().to('vulkan').requires_grad_()
+    indices=torch.tensor([3,1,3,2,1,3,9,9,2]);offsets=torch.tensor([0,3,3,7]+([9] if include_last_offset else []))
+    ps=torch.randn(indices.numel(),requires_grad=True) if weighted else None
+    psv=ps.detach().to('vulkan').requires_grad_() if weighted else None
+    kwargs=dict(mode=mode,sparse=True,include_last_offset=include_last_offset,padding_idx=padding_idx)
+    expected=torch.nn.functional.embedding_bag(indices,cpu,offsets,per_sample_weights=ps,**kwargs)
+    vk.reset_execution_stats()
+    actual=torch.nn.functional.embedding_bag(indices.to('vulkan'),weight,offsets.to('vulkan'),per_sample_weights=psv,**kwargs)
+    grad=torch.randn_like(expected);expected.backward(grad);actual.backward(grad.to('vulkan'))
+    assert weight.grad.layout==torch.sparse_coo
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.cpu(),expected)
+    torch.testing.assert_close(weight.grad.to_dense().cpu(),cpu.grad.to_dense())
+    if weighted:torch.testing.assert_close(psv.grad.cpu(),ps.grad)
+
+
+@pytest.mark.parametrize('dtype',[torch.bool,torch.uint8,torch.int8,torch.int16,torch.int32,torch.int64,torch.float32,torch.complex64])
+@pytest.mark.parametrize('sparse_dim',[1,2,3])
+def test_sparse_coo_typed_dense_roundtrip_mask_and_duplicate_coalesce(dtype,sparse_dim):
+    raw=torch.arange(2*3*5,dtype=torch.int64).reshape(2,3,5)
+    data=((raw%7)-3).to(dtype);data[raw%3==0]=0
+    if dtype==torch.int64:data[data!=0]+=2**54
+    if dtype==torch.complex64:data=data+data.flip(-1)*1j
+    view=data.transpose(0,2);v=data.to('vulkan').transpose(0,2)
+    # Transfer a non-contiguous view so packing, coordinate extraction and exact
+    # value storage all participate in the conversion.
+    expected=view.to_sparse(sparse_dim)
+    vk.reset_execution_stats();actual=v.to_sparse(sparse_dim)
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.to_dense().cpu(),view,rtol=0,atol=0)
+    torch.testing.assert_close(actual.indices().cpu(),expected.indices(),rtol=0,atol=0)
+    torch.testing.assert_close(actual.values().cpu(),expected.values(),rtol=0,atol=0)
+    indices=torch.cat([expected.indices(),expected.indices().flip(1)],dim=1)
+    values=torch.cat([expected.values(),expected.values().flip(0)],dim=0)
+    reference=torch.sparse_coo_tensor(indices,values,view.shape).coalesce()
+    duplicate=torch.sparse_coo_tensor(indices.to('vulkan'),values.to('vulkan'),view.shape).coalesce()
+    torch.testing.assert_close(duplicate.indices().cpu(),reference.indices(),rtol=0,atol=0)
+    torch.testing.assert_close(duplicate.values().cpu(),reference.values(),rtol=0,atol=0)
+    torch.testing.assert_close(duplicate.to_dense().cpu(),reference.to_dense(),rtol=0,atol=0)
+    masked=v.sparse_mask(actual)
+    torch.testing.assert_close(masked.values().cpu(),expected.values(),rtol=0,atol=0)
+
+
+def test_sparse_coo_typed_noncanonical_bool_and_int64_overflow():
+    bits=torch.tensor([[0,3,128,0,254],[2,0,0,129,7]],dtype=torch.uint8)
+    value=bits.view(torch.bool).to('vulkan').to_sparse()
+    torch.testing.assert_close(value.to_dense().cpu(),bits.bool())
+    idx=torch.tensor([[0,0,1,1],[1,1,0,0]])
+    values=torch.tensor([2**63-1,3,-2**63,-5])
+    expected=torch.sparse_coo_tensor(idx,values,(2,2)).coalesce()
+    actual=torch.sparse_coo_tensor(idx.to('vulkan'),values.to('vulkan'),(2,2)).coalesce()
+    torch.testing.assert_close(actual.values().cpu(),expected.values(),rtol=0,atol=0)
+    torch.testing.assert_close(actual.to_dense().cpu(),expected.to_dense(),rtol=0,atol=0)
+
+
+@pytest.mark.parametrize('dtype',[torch.bool,torch.uint8,torch.int8,torch.int16,torch.int32,torch.int64,torch.float32,torch.complex64])
+def test_sparse_coo_zero_sparse_dim_constructor(dtype):
+    indices=torch.empty(0,1,dtype=torch.long);values=torch.arange(6).reshape(1,2,3).to(dtype)
+    expected=torch.sparse_coo_tensor(indices,values,(2,3),check_invariants=True)
+    actual=torch.sparse_coo_tensor(indices.to('vulkan'),values.to('vulkan'),(2,3),check_invariants=True)
+    torch.testing.assert_close(actual.to_dense().cpu(),expected.to_dense(),rtol=0,atol=0)
+    dense=values[0].to('vulkan')
+    torch.testing.assert_close(dense.sparse_mask(actual).values().cpu(),values,rtol=0,atol=0)
+
+
+def test_sparse_coo_conversion_zero_sparse_dim_error():
+    for device in ['cpu','vulkan']:
+        with pytest.raises(RuntimeError,match='sparse_dim argument must be in >0'):
+            torch.ones(2,3,device=device).to_sparse(0)
+
+@pytest.mark.parametrize('order',[-float('inf'),-2.,-.5,0.,.5,2.,float('inf')])
+def test_embedding_renorm_native_empty_features(order):
+    cpu=torch.empty(3,0);weight=cpu.to('vulkan');indices=torch.tensor([1,1])
+    if order<0 or abs(order)==float('inf'):
+        for x,idx in [(cpu,indices),(weight,indices.to('vulkan'))]:
+            with pytest.raises(RuntimeError,match='operation does not have an identity'):torch.embedding_renorm_(x,idx,1.,order)
+    else:
+        torch.embedding_renorm_(cpu,indices,1.,order);torch.embedding_renorm_(weight,indices.to('vulkan'),1.,order)
+        torch.testing.assert_close(weight.cpu(),cpu)
+
+
+@pytest.mark.parametrize('layout',[torch.sparse_csr,torch.sparse_csc,torch.sparse_bsr,torch.sparse_bsc])
+@pytest.mark.parametrize('dtype',[torch.float32,torch.bool,torch.int64,torch.complex64])
+@pytest.mark.parametrize('batch_dense',[((),0),((2,),0),((2,),1)])
+def test_sparse_compressed_native_formats_batches_dense_blocks(layout,dtype,batch_dense):
+    batch,dense=batch_dense
+    torch.manual_seed(881)
+    shape=batch+(6,8)+((3,) if dense else ())
+    data=torch.randint(1,4,shape).to(dtype)
+    if dtype==torch.int64:data[data!=0]+=2**54
+    # Each batch has the same sparsity pattern; values can differ.
+    mask=(torch.arange(48).reshape(6,8)%5!=0)
+    if dense:mask=mask.unsqueeze(-1)
+    data=data.masked_fill(mask,0)
+    kwargs={'layout':layout,'dense_dim':dense}
+    if layout in [torch.sparse_bsr,torch.sparse_bsc]:kwargs['blocksize']=(2,2)
+    expected=data.to_sparse(**kwargs)
+    vk.reset_execution_stats();actual=data.to('vulkan').to_sparse(**kwargs)
+    torch.testing.assert_close(actual.to_dense().cpu(),data,rtol=0,atol=0)
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    assert actual.layout==layout
+    cp='crow_indices' if layout in [torch.sparse_csr,torch.sparse_bsr] else 'ccol_indices'
+    ip='col_indices' if layout in [torch.sparse_csr,torch.sparse_bsr] else 'row_indices'
+    torch.testing.assert_close(getattr(actual,cp)().cpu(),getattr(expected,cp)(),rtol=0,atol=0)
+    torch.testing.assert_close(getattr(actual,ip)().cpu(),getattr(expected,ip)(),rtol=0,atol=0)
+    torch.testing.assert_close(actual.values().cpu(),expected.values(),rtol=0,atol=0)
+    torch.testing.assert_close(actual.cpu().to_dense(),data,rtol=0,atol=0)
+    torch.testing.assert_close(actual.transpose(len(batch),len(batch)+1).to_dense().cpu(),data.transpose(len(batch),len(batch)+1),rtol=0,atol=0)
+
+
+@pytest.mark.parametrize('reduce',['sum','mean','amax','amin'])
+@pytest.mark.parametrize('index_dtype',[torch.int32,torch.int64])
+@pytest.mark.parametrize('shape',[(5,9,7),(137,29,3),(3,4,0),(0,4,3),(3,0,4)])
+def test_sparse_csr_native_mm_reductions_and_gradients(reduce,index_dtype,shape):
+    rows,cols,width=shape;torch.manual_seed(882)
+    dense=torch.randn(rows,cols);dense[dense.abs()<.9]=0
+    if rows:dense[0].zero_()
+    reference=dense.to_sparse_csr()
+    cpu=torch.sparse_csr_tensor(reference.crow_indices().to(index_dtype),reference.col_indices().to(index_dtype),reference.values(),dense.shape,check_invariants=True).requires_grad_()
+    actual=torch.sparse_csr_tensor(cpu.crow_indices().to('vulkan'),cpu.col_indices().to('vulkan'),cpu.values().detach().to('vulkan'),dense.shape,check_invariants=True).requires_grad_()
+    assert actual.is_leaf and cpu.is_leaf
+    source=torch.randn(width,cols+1).t()[1:];b=source.detach().requires_grad_();bv=source.to('vulkan').detach().requires_grad_()
+    expected=torch.sparse.mm(cpu,b,reduce=reduce)
+    vk.reset_execution_stats();result=torch.sparse.mm(actual,bv,reduce=reduce)
+    grad=torch.randn_like(expected);expected.backward(grad);result.backward(grad.to('vulkan'))
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(result.cpu(),expected)
+    torch.testing.assert_close(bv.grad.cpu(),b.grad)
+    torch.testing.assert_close(actual.grad.to_dense().cpu(),cpu.grad.to_dense())
+
+
+@pytest.mark.parametrize('shape',[(5,7,9),(0,3,4),(4,0,3),(4,3,0)])
+@pytest.mark.parametrize('alpha,beta',[(.6,.2),(0.,1.),(1.,0.)])
+def test_sparse_csr_native_sampled_addmm_training(shape,alpha,beta):
+    rows,cols,width=shape;torch.manual_seed(883)
+    dense=torch.randn(rows,cols);dense[dense.abs()<1.1]=0
+    cpu=dense.to_sparse_csr().detach().requires_grad_();a=cpu.to('vulkan').detach().requires_grad_()
+    b=torch.randn(rows,width,requires_grad=True);c=torch.randn(width,cols,requires_grad=True)
+    bv=b.detach().to('vulkan').requires_grad_();cv=c.detach().to('vulkan').requires_grad_()
+    expected=torch.sparse.sampled_addmm(cpu,b,c,alpha=alpha,beta=beta)
+    vk.reset_execution_stats();actual=torch.sparse.sampled_addmm(a,bv,cv,alpha=alpha,beta=beta)
+    expected.to_dense().square().sum().backward();actual.to_dense().square().sum().backward()
+    assert vk.execution_stats()['cpu_fallback_calls']==0
+    torch.testing.assert_close(actual.to_dense().cpu(),expected.to_dense())
+    torch.testing.assert_close(a.grad.to_dense().cpu(),cpu.grad.to_dense())
+    torch.testing.assert_close(bv.grad.cpu(),b.grad);torch.testing.assert_close(cv.grad.cpu(),c.grad)

@@ -1,0 +1,66 @@
+{
+  "scope": "Focused rechecks and repository verification; the full audit is the earlier immutable a6c59e9 source",
+  "runs": {
+    "focused52": {
+      "cases": 266,
+      "outcomes": {
+        "error": 19,
+        "skipped": 4,
+        "passed": 241,
+        "expected_failure": 2
+      },
+      "backend_source_sha256": "f8a2150131b3de3c60858bf5653e355e8e4847b883bf9f2648bea51fb57035b1",
+      "fallback_calls_or_attempts": 3,
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused53": {
+      "cases": 266,
+      "outcomes": {
+        "passed": 246,
+        "skipped": 4,
+        "error": 14,
+        "expected_failure": 2
+      },
+      "backend_source_sha256": "50e4dfaac1ec535226b9535927a368712c943111af723091d7a3bfc3b4f92857",
+      "fallback_calls_or_attempts": 2,
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused54": {
+      "cases": 12,
+      "outcomes": {
+        "passed": 7,
+        "skipped": 5
+      },
+      "backend_source_sha256": "43e6e51803c814013dff9e5874cf420de667fb1fbcd4f0669aa5757df1feb84b",
+      "fallback_calls_or_attempts": 0,
+      "passed_case_fallback_calls_or_attempts": 0
+    },
+    "focused55": {
+      "cases": 287,
+      "outcomes": {
+        "passed": 255,
+        "skipped": 16,
+        "error": 14,
+        "expected_failure": 2
+      },
+      "backend_source_sha256": "feafd52d57545c537af6d925d875d8cf586cff3b28fc72113bf5ae5e6c0237c2",
+      "fallback_calls_or_attempts": 2,
+      "passed_case_fallback_calls_or_attempts": 0
+    }
+  },
+  "before_a6c59e9_for_focused55": {
+    "error": 41,
+    "skipped": 16,
+    "passed": 228,
+    "expected_failure": 2
+  },
+  "recovered_errors_as_passed": 27,
+  "strict_regressions_per_device": 1425,
+  "ordinary_repository_rtx_passed": 3169,
+  "strict_repository_v100": {
+    "passed": 3158,
+    "raw_failed": 11,
+    "all_failures": "explicit deferred FP64; same IDs and source hashes as checkpoint 9"
+  },
+  "backend_source_sha256": "feafd52d57545c537af6d925d875d8cf586cff3b28fc72113bf5ae5e6c0237c2"
+}

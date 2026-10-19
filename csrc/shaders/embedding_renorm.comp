@@ -1,0 +1,30 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Weight {float weight[];};
+layout(binding=1) readonly buffer Indices {uvec2 indices[];};
+layout(binding=2) buffer Output {float result[];};
+layout(push_constant) uniform P {uint count,features,offset,row_stride,column_stride;float maximum,order;}p;
+shared float partial[128];shared uint invalid[128];shared float norm;
+void main(){
+ uint group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x,lane=gl_LocalInvocationID.x;
+ if(group>=p.count)return;
+ uvec2 index=indices[group];if(group>0u&&all(equal(index,indices[group-1u])))return;
+ uint row=p.offset+index.x*p.row_stride;
+ bool infinite=isinf(p.order);float value=infinite&&p.order<0.0?uintBitsToFloat(0x7f800000u):0.0;uint bad=0u;
+ for(uint j=lane;j<p.features;j+=128u){
+  float v=abs(weight[row+j*p.column_stride]);bad|=uint(isnan(v));
+  if(p.order==0.0)value+=float(v!=0.0);
+  else if(infinite)value=p.order<0.0?min(value,v):max(value,v);
+  else if(p.order==1.0)value+=v;
+  else if(p.order==2.0)value+=v*v;
+  else if(p.order==-1.0)value+=divide_refined(1.0,v);
+  else value+=v==0.0?(p.order<0.0?uintBitsToFloat(0x7f800000u):0.0):isinf(v)?(p.order<0.0?0.0:v):pow(v,p.order);
+ }
+ partial[lane]=value;invalid[lane]=bad;barrier();
+ for(uint step=64u;step>0u;step>>=1u){if(lane<step){invalid[lane]|=invalid[lane+step];partial[lane]=infinite?(p.order<0.0?min(partial[lane],partial[lane+step]):max(partial[lane],partial[lane+step])):partial[lane]+partial[lane+step];}barrier();}
+ if(lane==0u){float total=partial[0];norm=(isnan(p.order)||(p.order!=0.0&&invalid[0]!=0u))?uintBitsToFloat(0x7fc00000u):infinite||p.order==0.0||p.order==1.0?total:p.order==2.0?sqrt(total):p.order==-1.0?divide_refined(1.0,total):total==0.0?(p.order<0.0?uintBitsToFloat(0x7f800000u):0.0):pow(total,divide_refined(1.0,p.order));}
+ barrier();
+ if(norm>p.maximum){float scale=divide_refined(p.maximum,norm+1e-7);for(uint j=lane;j<p.features;j+=128u){uint at=row+j*p.column_stride;result[at]=weight[at]*scale;}}
+}

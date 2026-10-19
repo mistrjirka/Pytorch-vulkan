@@ -1,6 +1,7 @@
 #include "native_utils.h"
 #include "device_copy.h"
 #include <ATen/MemoryOverlap.h>
+#include <cmath>
 #include <ATen/native/Resize.h>
 #include <torch/library.h>
 namespace torch_vulkan::ops {
@@ -90,6 +91,21 @@ at::Tensor embedding_backward(const at::Tensor& grad,const at::Tensor& indices,c
  run("embedding_gradient",{base(packed(grad)),hb,nb},{write_base(out)},{u32(out.numel()),u32(grad.size(-1)),uint32_t(pad),uint32_t(frequency)},(out.numel()+127)/128);
  return out;
 }
+at::Tensor& embedding_renorm_native(at::Tensor& weight,const at::Tensor& indices,double maximum,double order){
+ TORCH_CHECK(weight.dim()==2,"'weight' must be 2-D");
+ TORCH_CHECK(weight.scalar_type()==at::kFloat&&can_iterate_fp32(weight),"Vulkan embedding renorm requires FP32 strided weight within device indexing limits");
+ TORCH_CHECK(indices.device()==weight.device()&&(indices.scalar_type()==at::kInt||indices.scalar_type()==at::kLong),"embedding_renorm_: indices must be Int or Long on the weight device");
+ at::assert_no_internal_overlap(weight);if(!indices.numel())return weight;
+ auto raw=indices.reshape({-1}).to(at::kLong);
+ // CPU embedding_renorm_ indexes rows through select, which accepts negative
+ // indices. Normalize those indices before the common GPU bounds validation.
+ auto normalized=at::where(raw.lt(0),raw.add(weight.size(0)),raw);
+ validate_index(normalized,weight.size(0));if(!weight.size(1)){TORCH_CHECK(!(order<0||std::isinf(order)),"linalg.vector_norm cannot compute the ",order," norm on an empty tensor because the operation does not have an identity");return weight;}
+ auto sorted=std::get<0>(at::sort(normalized,0,false));
+ auto wb=write_base(weight);auto ib=base(sorted,at::kLong);
+ run("embedding_renorm",{wb,ib},{wb},{u32(sorted.numel()),u32(weight.size(1)),u32(weight.storage_offset()),u32(weight.stride(0)),u32(weight.stride(1)),bits(float(maximum)),bits(float(order))},sorted.numel(),1028);
+ return weight;
+}
 uint32_t reduction_mode(c10::string_view reduce,bool scatter){
  if(reduce=="sum"&&scatter)return 4;if(reduce=="prod")return 5;if(reduce=="mean")return 6;if(reduce=="amax")return 7;if(reduce=="amin")return 8;
  TORCH_CHECK(false,"reduce must be ",scatter?"sum, prod, mean, amax or amin":"prod, mean, amax or amin");
@@ -138,6 +154,6 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("scatter.value",&scatter_value_native);m.impl("scatter_.value",&scatter_value__native);m.impl("scatter.value_out",&scatter_value_out_native);
  m.impl("index_select",&index_select_native);m.impl("index_select.out",&index_select_out_native);
  m.impl("index_add",&index_add_native);m.impl("index_add_",&index_add__native);m.impl("index_add.out",&index_add_out_native);
- m.impl("embedding_dense_backward",&embedding_backward);
+ m.impl("embedding_dense_backward",&embedding_backward);m.impl("embedding_renorm_",&embedding_renorm_native);
 }
 }

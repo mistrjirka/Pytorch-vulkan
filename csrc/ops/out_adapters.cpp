@@ -3,6 +3,7 @@
 // adapting composite functions that call their own out variant would recurse.
 #include "native_utils.h"
 #include <ATen/MemoryOverlap.h>
+#include <cctype>
 #include <ATen/native/Resize.h>
 #include <torch/library.h>
 #include <ATen/core/grad_mode.h>
@@ -16,8 +17,10 @@ struct NativeOut : c10::OperatorKernel {
   std::vector<at::Tensor> outputs;for(size_t i=stack->size()-noutputs;i<stack->size();i++){auto out=(*stack)[i].toTensor();at::assert_no_internal_overlap(out);for(const auto& previous:outputs)at::assert_no_overlap(out,previous);outputs.push_back(out);}
   if(name=="aten::hash_tensor")for(const auto& out:outputs)TORCH_CHECK(out.scalar_type()==at::kUInt64,"Expected result to be of dtype uint64, but got ",out.scalar_type());
   torch::jit::Stack args(stack->begin()+begin,stack->end()-noutputs);
+  if(name=="aten::aminmax"){auto dtype=args[0].toTensor().scalar_type();for(const auto& out:outputs)if(out.scalar_type()!=dtype){auto expected=std::string(c10::toString(dtype)),actual=std::string(c10::toString(out.scalar_type()));for(auto& c:expected)c=std::tolower(c);for(auto& c:actual)c=std::tolower(c);TORCH_CHECK(false,"Expected out tensor to have dtype ",expected,", but got ",actual," instead");}}
+
   for(const auto& out:outputs)for(const auto& v:args){
-    auto validate=[&](const at::Tensor& t){if(!t.defined())return;if(name=="aten::kthvalue"||name=="aten::median"||name=="aten::nanmedian"||name=="aten::mode")at::assert_no_overlap(out,t);else at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
+    auto validate=[&](const at::Tensor& t){if(!t.defined())return;if(name=="aten::cat"){TORCH_CHECK(!t.is_same(out),"unsupported operation: some elements of the input tensor and the written-to tensor refer to a single memory location.");at::assert_no_overlap(out,t);}else if(name=="aten::kthvalue"||name=="aten::median"||name=="aten::nanmedian"||name=="aten::mode")at::assert_no_overlap(out,t);else at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
     if(v.isTensor())validate(v.toTensor());else if(v.isTensorList())for(const auto& t:v.toTensorVector())validate(t);
   }
   const auto target=c10::Dispatcher::singleton().findSchemaOrThrow(name.c_str(),overload.c_str());

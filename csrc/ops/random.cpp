@@ -51,7 +51,7 @@ at::Tensor& integer_random(at::Tensor& out,int64_t from,std::optional<int64_t> t
 }
 at::Tensor& integer_random_to(at::Tensor& out,int64_t to,std::optional<at::Generator> generator){return integer_random(out,0,to,generator);}
 at::Tensor& integer_random_default(at::Tensor& out,std::optional<at::Generator> generator){return integer_random(out,0,std::nullopt,generator);}
-at::Tensor& uniform(at::Tensor& out,double from,double to,std::optional<at::Generator> g){TORCH_CHECK(std::isfinite(from)&&std::isfinite(to)&&from<=to&&std::abs(from)<=std::numeric_limits<float>::max()&&std::abs(to)<=std::numeric_limits<float>::max(),"uniform: invalid range");return random_fill(out,0,from,to,g);}
+at::Tensor& uniform(at::Tensor& out,double from,double to,std::optional<at::Generator> g){TORCH_CHECK(from<=to,"uniform_ expects to return a [from, to) range, but found from=",from," > to=",to);TORCH_CHECK(std::isfinite(from)&&std::isfinite(to)&&std::abs(from)<=std::numeric_limits<float>::max()&&std::abs(to)<=std::numeric_limits<float>::max(),"uniform: invalid range");return random_fill(out,0,from,to,g);}
 at::Tensor& normal(at::Tensor& out,double mean,double std,std::optional<at::Generator> g){TORCH_CHECK(std>=0,"normal expects std >= 0.0, but found std ",std);return random_fill(out,1,mean,std,g);}
 at::Tensor& bernoulli_scalar(at::Tensor& out,double p,std::optional<at::Generator> g){TORCH_CHECK(p>=0&&p<=1,"bernoulli: probability must be in [0,1]");return random_fill(out,2,p,0,g);}
 at::Tensor& bernoulli_tensor(at::Tensor& out,const at::Tensor& probs,std::optional<at::Generator> g){

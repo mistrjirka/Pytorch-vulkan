@@ -14,7 +14,7 @@ struct Pool {
 };
 std::array<int64_t,2> pair(at::IntArrayRef values,const char* name) {
   TORCH_CHECK(values.size()==1 || values.size()==2,"Vulkan max_pool2d: ",name," requires one or two values");
-  for(auto v:values)TORCH_CHECK(v>=0 && v<=INT32_MAX,"Vulkan max_pool2d: invalid ",name);
+  for(auto v:values){if(std::strcmp(name,"padding")==0)TORCH_CHECK(v>=0,"pad must be non-negative");TORCH_CHECK(v>=0 && v<=INT32_MAX,"Vulkan max_pool2d: invalid ",name);}
   return {values[0],values.size()==1?values[0]:values[1]};
 }
 Pool params(const at::Tensor& input,at::IntArrayRef kernel,at::IntArrayRef stride,
@@ -29,11 +29,12 @@ Pool params(const at::Tensor& input,at::IntArrayRef kernel,at::IntArrayRef strid
   auto h=input.size(-2),w=input.size(-1),c=input.size(-3);
   for(int axis=0;axis<2;++axis) {
     const auto size=axis?w:h;
-    TORCH_CHECK(size>0 && size+p[axis]+d[axis]*(k[axis]-1)+1+s[axis]<=INT32_MAX,
+    TORCH_CHECK(size>=0 && size+p[axis]+d[axis]*(k[axis]-1)+1+s[axis]<=INT32_MAX,
                 "Vulkan max_pool2d spatial arithmetic exceeds int32");
   }
   auto oh=at::native::pooling_output_shape<int64_t>(h,k[0],p[0],s[0],d[0],ceil);
   auto ow=at::native::pooling_output_shape<int64_t>(w,k[1],p[1],s[1],d[1],ceil);
+  TORCH_CHECK(c>0&&h>0&&w>0,"Expected 3D or 4D (batch mode) tensor with optional 0 dim batch size for input");
   at::native::pool2d_shape_check(input,k[0],k[1],s[0],s[1],p[0],p[1],d[0],d[1],
       c,h,w,oh,ow,at::MemoryFormat::Contiguous);
   u32(input.numel());

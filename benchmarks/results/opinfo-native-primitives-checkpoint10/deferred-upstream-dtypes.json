@@ -1,0 +1,72 @@
+[
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_cat_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_complex_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_dot_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv1d_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv2d_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_nn_functional_conv3d_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_scatter_add_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The error generator constructs a Double zeros destination (Half on MPS) before yielding the case."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_scatter_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The error generator constructs a Double zeros destination (Half on MPS) before yielding the case."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout0_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "error_inputs_sparse_mul unconditionally selects torch.float64 for all five layout fixtures."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout1_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "error_inputs_sparse_mul unconditionally selects torch.float64 for all five layout fixtures."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout2_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "error_inputs_sparse_mul unconditionally selects torch.float64 for all five layout fixtures."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout3_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "error_inputs_sparse_mul unconditionally selects torch.float64 for all five layout fixtures."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_sparse_mul_layout4_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "error_inputs_sparse_mul unconditionally selects torch.float64 for all five layout fixtures."
+  },
+  {
+    "id": "TestCommonPRIVATEUSE1.test_errors_vdot_vulkan",
+    "status": "raw error; deferred dtype, not counted as pass",
+    "reason": "The fixture explicitly constructs Double or Half tensors before the remaining assertions."
+  }
+]

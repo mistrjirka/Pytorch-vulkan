@@ -753,7 +753,7 @@ at::Tensor vulkan_gelu_backward(const at::Tensor& grad,
 // Validate on GPU before gathering; only a four-byte result crosses to the host.
 at::Tensor vulkan_embedding(const at::Tensor& weight, const at::Tensor& indices,
     int64_t padding_idx, bool scale_grad_by_freq, bool sparse) {
-  TORCH_CHECK(weight.dim()==2, "embedding: weight must be 2-D");
+  TORCH_CHECK(weight.dim()==2, "'weight' must be 2-D");
   TORCH_CHECK(weight.scalar_type()==at::kFloat, "embedding: only float32 weight");
   TORCH_CHECK(indices.scalar_type()==at::kLong || indices.scalar_type()==at::kInt,
               "embedding: indices must have int32 or int64 dtype");

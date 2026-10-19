@@ -1,0 +1,10 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint v[];};
+layout(binding=1) readonly buffer Rank {uint ranks[];};
+layout(binding=2) writeonly buffer I {uvec2 indices[];};
+layout(binding=3) buffer V {uint result_data[];};
+layout(push_constant) uniform P {uint rows,features,nnz,sd;uint sizes[8];uint kind,bytes;} p;
+#include "sparse_typed_values.glsl"
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.rows*p.features)return;uint row=id/p.features,d=id%p.features,target=ranks[row];if(target==0xffffffff)return;sparse_write(target*p.features+d,sparse_read(id));if(d==0){uint r=row;for(int a=int(p.sd)-1;a>=0;a--){indices[uint(a)*p.nnz+target]=uvec2(r%p.sizes[a],0);r/=p.sizes[a];}}}

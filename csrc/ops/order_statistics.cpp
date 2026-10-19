@@ -55,7 +55,7 @@ at::Tensor flip_native(const at::Tensor& x,at::IntArrayRef dims){
  }return out;
 }
 at::Tensor triangle(const at::Tensor& x,int64_t diagonal,bool upper){
- TORCH_CHECK(x.dim()>=2&&can_pack_view(x),"triangular requires packable rank>=2 tensor");auto out=at::empty(x.sizes(),x.options());if(!out.numel())return out;
+ TORCH_CHECK(x.dim()>=2,"input tensor must have at least 2 dimensions");TORCH_CHECK(can_pack_view(x),"triangular requires packable input");auto out=at::empty(x.sizes(),x.options());if(!out.numel())return out;
  diagonal=std::clamp<int64_t>(diagonal,INT32_MIN,INT32_MAX);
  run("triangular",{base(packed(x,x.scalar_type()),x.scalar_type())},{write_base(out,out.scalar_type())},
   {u32(x.numel()),u32(x.size(-2)),u32(x.size(-1)),uint32_t(x.element_size()/4),uint32_t(x.scalar_type()==at::kBool),uint32_t(int32_t(diagonal)),uint32_t(upper)},(x.numel()+(x.scalar_type()==at::kBool?511:127))/(x.scalar_type()==at::kBool?512:128));return out;
