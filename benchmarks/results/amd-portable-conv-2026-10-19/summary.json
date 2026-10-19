@@ -1,0 +1,269 @@
+{
+  "device_results": {
+    "RTX": {
+      "conv3x3_large": {
+        "forward": {
+          "baseline_ms": 0.20449000294320285,
+          "new_ms": 0.20482549734879285,
+          "ratio": 1.001640639643803
+        },
+        "dinput": {
+          "baseline_ms": 0.23990099725779146,
+          "new_ms": 0.22327450278680772,
+          "ratio": 0.930694350331869
+        },
+        "dweight": {
+          "baseline_ms": 0.27754600159823895,
+          "new_ms": 0.2714889997150749,
+          "ratio": 0.97817658388777
+        },
+        "dbias": {
+          "baseline_ms": 0.1047194964485243,
+          "new_ms": 0.09950499224942178,
+          "ratio": 0.9502050298564436
+        }
+      },
+      "conv3x3_small": {
+        "forward": {
+          "baseline_ms": 0.15514848928432912,
+          "new_ms": 0.15578398597426713,
+          "ratio": 1.0040960546433255
+        },
+        "dinput": {
+          "baseline_ms": 0.1847234962042421,
+          "new_ms": 0.18241850193589926,
+          "ratio": 0.9875219215979201
+        },
+        "dweight": {
+          "baseline_ms": 0.1799145102268085,
+          "new_ms": 0.1798244920792058,
+          "ratio": 0.9994996615476472
+        },
+        "dbias": {
+          "baseline_ms": 0.0826184987090528,
+          "new_ms": 0.08254351268988103,
+          "ratio": 0.9990923822104799
+        }
+      },
+      "grouped": {
+        "forward": {
+          "baseline_ms": 0.11076049122493714,
+          "new_ms": 0.11353600712027401,
+          "ratio": 1.0250587178211428
+        },
+        "dinput": {
+          "baseline_ms": 0.1321199961239472,
+          "new_ms": 0.13428449165076017,
+          "ratio": 1.0163828004110926
+        },
+        "dweight": {
+          "baseline_ms": 0.17853699682746083,
+          "new_ms": 0.18340148380957544,
+          "ratio": 1.0272463806861032
+        },
+        "dbias": {
+          "baseline_ms": 0.09249700815416873,
+          "new_ms": 0.10069250129163265,
+          "ratio": 1.0886027916038554
+        }
+      },
+      "rect3x5": {
+        "forward": {
+          "baseline_ms": 0.0973109999904409,
+          "new_ms": 0.09625349775888026,
+          "ratio": 0.9891327575334287
+        },
+        "dinput": {
+          "baseline_ms": 0.15608999819960445,
+          "new_ms": 0.15722648822702467,
+          "ratio": 1.007280991995188
+        },
+        "dweight": {
+          "baseline_ms": 0.12902950402349234,
+          "new_ms": 0.130161497509107,
+          "ratio": 1.0087731367657475
+        },
+        "dbias": {
+          "baseline_ms": 0.08197748684324324,
+          "new_ms": 0.08284398063551635,
+          "ratio": 1.0105698994399523
+        }
+      },
+      "filter11x11": {
+        "forward": {
+          "baseline_ms": 0.42212949483655393,
+          "new_ms": 0.4252905200701207,
+          "ratio": 1.0074882832690728
+        },
+        "dinput": {
+          "baseline_ms": 0.6211340078152716,
+          "new_ms": 0.6218700000317767,
+          "ratio": 1.0011849169539015
+        },
+        "dweight": {
+          "baseline_ms": 0.47830901166889817,
+          "new_ms": 0.47554849879816175,
+          "ratio": 0.9942285994965795
+        },
+        "dbias": {
+          "baseline_ms": 0.11996801185887307,
+          "new_ms": 0.11003451072610915,
+          "ratio": 0.9171987517435114
+        }
+      }
+    },
+    "V100": {
+      "conv3x3_large": {
+        "forward": {
+          "baseline_ms": 0.17009601288009435,
+          "new_ms": 0.1712334924377501,
+          "ratio": 1.0066872793688444
+        },
+        "dinput": {
+          "baseline_ms": 0.20838201453443617,
+          "new_ms": 0.18747799913398921,
+          "ratio": 0.8996841668550408
+        },
+        "dweight": {
+          "baseline_ms": 0.21220449707470834,
+          "new_ms": 0.213110979530029,
+          "ratio": 1.004271740080049
+        },
+        "dbias": {
+          "baseline_ms": 0.09887399210128933,
+          "new_ms": 0.09840801067184657,
+          "ratio": 0.9952871182852069
+        }
+      },
+      "conv3x3_small": {
+        "forward": {
+          "baseline_ms": 0.14054650091566145,
+          "new_ms": 0.15341049584094435,
+          "ratio": 1.0915283898316492
+        },
+        "dinput": {
+          "baseline_ms": 0.16811699606478214,
+          "new_ms": 0.16656401567161083,
+          "ratio": 0.9907625021293333
+        },
+        "dweight": {
+          "baseline_ms": 0.17524500435683876,
+          "new_ms": 0.17573150398675352,
+          "ratio": 1.002776111260348
+        },
+        "dbias": {
+          "baseline_ms": 0.0816215033410117,
+          "new_ms": 0.08158650598488748,
+          "ratio": 0.9995712238234818
+        }
+      },
+      "grouped": {
+        "forward": {
+          "baseline_ms": 0.09590349509380758,
+          "new_ms": 0.1101749949157238,
+          "ratio": 1.1488110501912012
+        },
+        "dinput": {
+          "baseline_ms": 0.11365600221324712,
+          "new_ms": 0.11310999980196357,
+          "ratio": 0.9951960090039141
+        },
+        "dweight": {
+          "baseline_ms": 0.15311951574403793,
+          "new_ms": 0.15399151016026735,
+          "ratio": 1.005694861376698
+        },
+        "dbias": {
+          "baseline_ms": 0.085528998170048,
+          "new_ms": 0.08673600677866489,
+          "ratio": 1.0141122734328902
+        }
+      },
+      "rect3x5": {
+        "forward": {
+          "baseline_ms": 0.09271751332562417,
+          "new_ms": 0.11080599506385624,
+          "ratio": 1.1950923950549157
+        },
+        "dinput": {
+          "baseline_ms": 0.15412151697091758,
+          "new_ms": 0.16009299724828452,
+          "ratio": 1.0387452731761895
+        },
+        "dweight": {
+          "baseline_ms": 0.13062248763162643,
+          "new_ms": 0.13393950939644128,
+          "ratio": 1.02539395646919
+        },
+        "dbias": {
+          "baseline_ms": 0.08252849511336535,
+          "new_ms": 0.08649600204080343,
+          "ratio": 1.0480743883914048
+        }
+      },
+      "filter11x11": {
+        "forward": {
+          "baseline_ms": 0.3551800036802888,
+          "new_ms": 0.36672600253950804,
+          "ratio": 1.0325074574570146
+        },
+        "dinput": {
+          "baseline_ms": 0.5776279867859557,
+          "new_ms": 0.5921354895690456,
+          "ratio": 1.0251156507561427
+        },
+        "dweight": {
+          "baseline_ms": 0.4028685070807114,
+          "new_ms": 0.41905899706762284,
+          "ratio": 1.0401880258753207
+        },
+        "dbias": {
+          "baseline_ms": 0.10241501149721444,
+          "new_ms": 0.129620500956662,
+          "ratio": 1.2656396661165978
+        }
+      }
+    }
+  },
+  "model_results": {
+    "before": {
+      "training_median_ms": 51.65818474779371,
+      "inference_median_ms": 9.01784174493514,
+      "training_process_medians_ms": [
+        51.817828993080184,
+        51.49854050250724
+      ],
+      "inference_process_medians_ms": [
+        9.012366994284093,
+        9.023316495586187
+      ]
+    },
+    "after": {
+      "training_median_ms": 51.39612325729104,
+      "inference_median_ms": 9.070897751371376,
+      "training_process_medians_ms": [
+        51.47484550252557,
+        51.31740101205651
+      ],
+      "inference_process_medians_ms": [
+        9.069656502106227,
+        9.072139000636525
+      ]
+    }
+  },
+  "source_identity": {
+    "baseline_shader_hash": "6c80dd72b3d4af781872b4a66d4404292725980249c6d3b97b84e43edbcb289a",
+    "candidate_shader_hash": "e9ed9dc5b7a55c885c86d4efb9fe797c5ea2ecbbbfe43407689df61935271d0b",
+    "changed_shaders": [
+      "conv2d_backward_input_tiled_register3.spv"
+    ],
+    "validation_devices": [
+      "NVIDIA GeForce RTX 2080 Ti",
+      "NVIDIA Tesla V100",
+      "llvmpipe (Lavapipe)"
+    ],
+    "real_amd_gpu_tested": false,
+    "shader_compiler": "glslangValidator + spirv-val",
+    "notes": "The generic source contains conditional code, but only the 3x3 register input-gradient SPIR-V changed. Operator benchmarks are isolated wall-time timings and do not themselves prove AMD speedups."
+  }
+}

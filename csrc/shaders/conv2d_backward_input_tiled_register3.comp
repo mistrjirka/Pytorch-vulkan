@@ -5,4 +5,5 @@
 #define CONV_RM 2
 #define CONV_RN 2
 #define CONV_FIXED_3X3 1
+#define CONV_HOIST_SPATIAL 1
 #include "conv2d_backward_input_tiled_body.glsl"

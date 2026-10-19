@@ -20,6 +20,9 @@
 #define CONV_TK 16
 #define CONV_WG_M (CONV_TM / CONV_RM)
 #define CONV_WG_N (CONV_TN / CONV_RN)
+#if defined(CONV_HOIST_SPATIAL) && ((CONV_WG_M*CONV_WG_N)%CONV_TN != 0)
+#error Hoisted spatial address requires THREADS divisible by TN
+#endif
 layout(local_size_x=CONV_WG_N,local_size_y=CONV_WG_M,local_size_z=1) in;
 const uint TM=CONV_TM;
 const uint TN=CONV_TN;

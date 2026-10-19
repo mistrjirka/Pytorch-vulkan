@@ -146,6 +146,7 @@ and device; it is disabled by default because small workloads can regress.
 See [candidate dispatch, validation and matched CUDA measurements](docs/convolution-candidate-dispatch.md).
 The [register-tile report](docs/convolution-register-tiles.md) compares the new
 four-output-per-thread candidate with CUDA and records where it helps or regresses.
+The [AMD portability and FP32 input-gradient optimization](docs/amd-convolution-portability-2026-10-19.md) documents a vendor-neutral shader change, numerical tests on three Vulkan implementations and an explicit AMD GPU verification script. Physical Radeon results remain unverified.
 
 [Native fallback removal and current network profile](docs/native-fallback-removal-6d145b4.md): general activation, mutation, loss and strided-allocation kernels remove the measured FP32 tensor CPU fallbacks. Includes matched before/after/CUDA timings, full-gradient comparisons and cross-device correctness results. The [earlier profile](docs/network-profile-795d34e.md) records the original bottlenecks.
 
