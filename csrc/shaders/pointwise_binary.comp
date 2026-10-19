@@ -1,0 +1,31 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#include "fp32_math.glsl"
+#include "fp32_remainder.glsl"
+#include "fp32_norm.glsl"
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer A {float a[];};
+layout(binding=1) readonly buffer B {float b[];};
+layout(binding=2) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,op;}p;
+float power(float x,float e){
+ if(e==0.0||x==1.0)return 1.0;if(e==1.0)return x;if(e==2.0)return x*x;
+ if(isnan(x)||isnan(e))return uintBitsToFloat(0x7fc00000u);
+ float ax=abs(x);if(isinf(e)){if(ax==1.0)return 1.0;return (ax>1.0)==(e>0.0)?uintBitsToFloat(0x7f800000u):0.0;}
+ bool integer=floor(e)==e,odd=integer && mod(abs(e),2.0)==1.0;
+ bool negative=(floatBitsToUint(x)&0x80000000u)!=0;
+ if(ax==0.0||isinf(ax)){float v=(ax==0.0)==(e>0.0)?0.0:uintBitsToFloat(0x7f800000u);return negative&&odd?-v:v;}
+ if(x<0.0&&!integer)return uintBitsToFloat(0x7fc00000u);
+ float v=pow(ax,e);return x<0.0&&odd?-v:v;
+}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;float x=a[i],v=b[i],z;
+ if(p.op==0)z=exact_fmod(x,v);
+ else if(p.op==1)z=remainder_value(x,v);
+ else if(p.op==2)z=power(x,v);
+ else if(p.op==3)z=floor_quotient(x,v);
+ else if(p.op==4)z=portable_hypot(x,v);
+ else if(p.op==5)z=uintBitsToFloat((floatBitsToUint(x)&0x7fffffffu)|(floatBitsToUint(v)&0x80000000u));
+ else if(p.op==6||p.op==7){if(x==v)z=x+(p.op==6?0.6931471805599453:1.);else{float hi=max(x,v),delta=abs(x-v);z=hi+(p.op==6?log(1.+exp(-delta)):log2(1.+exp2(-delta)));}}
+ else if(p.op==8)z=isnan(v)?v:x==0.?0.:x*log(v);
+ else {if(isnan(x)||isnan(v))z=uintBitsToFloat(0x7fc00000u);else if(x==v)z=v;else if(x==0.)z=uintBitsToFloat((floatBitsToUint(v)&0x80000000u)|1u);else{uint bits=floatBitsToUint(x);bits+=(v>x)==(x>0.)?1u:0xffffffffu;z=uintBitsToFloat(bits);}}
+ if(p.op!=2&&p.op!=5&&p.op!=8&&!(p.op==4&&(isinf(x)||isinf(v)))&&(isnan(x)||isnan(v)))z=uintBitsToFloat(0x7fc00000u);y[i]=z;}

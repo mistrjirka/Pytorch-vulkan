@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) readonly buffer I {uint idx[];};
+layout(binding=2) readonly buffer S {uint src[];};
+layout(binding=3) writeonly buffer Y {uint y[];};
+layout(push_constant) uniform P {uint count,mode,axis,rank,words,include;uint xs[8],is[8];uint width;}p;
+uvec2 plus64(uvec2 a,uvec2 b){uint lo=a.x+b.x;return uvec2(lo,a.y+b.y+uint(lo<a.x));}
+uvec2 neg64(uvec2 a){return plus64(~a,uvec2(1,0));}
+uvec2 times64(uvec2 a,uvec2 b){uint hi,lo;umulExtended(a.x,b.x,hi,lo);return uvec2(lo,hi+a.x*b.y+a.y*b.x);}
+bool less64(uvec2 a,uvec2 b){return a.y==b.y?a.x<b.x:int(a.y)<int(b.y);}
+uvec2 loadx(uint i){uint a=x[i*p.width];return uvec2(a,p.width==2?x[i*2+1]:(int(a)<0?0xffffffffu:0));}
+uvec2 loads(uint i){uint a=src[i*p.width];return uvec2(a,p.width==2?src[i*2+1]:(int(a)<0?0xffffffffu:0));}
+uvec2 floor_div(uvec2 a,uint b){bool negative=int(a.y)<0;if(negative)a=neg64(a);uvec2 q=uvec2(0);uint rem=0;for(int bit=63;bit>=0;bit--){bool carry=(rem&0x80000000u)!=0;rem=(rem<<1)|((bit>=32?a.y:a.x)>>(uint(bit)&31u)&1u);if(carry||rem>=b){rem-=b;if(bit>=32)q.y|=1u<<(bit-32);else q.x|=1u<<bit;}}if(negative){q=neg64(q);if(rem!=0)q=plus64(q,uvec2(0xffffffffu));}return q;}
+void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;uint coords[8],r=id;for(int d=7;d>=0;d--){coords[d]=r%p.xs[d];r/=p.xs[d];}uvec2 result=loadx(id);bool within=true,found=false;uint count=p.include!=0?1:0;for(uint d=0;d<8;d++)if(d!=p.axis&&coords[d]>=p.is[d])within=false;
+ if(within){uint wanted=coords[p.axis];for(uint k=0;k<p.is[p.axis];k++){coords[p.axis]=k;uint address=0;for(int d=0;d<8;d++)address=address*p.is[d]+coords[d];if(idx[address*p.words]!=wanted)continue;uvec2 v=loads(address);if(p.include==0&&!found){result=p.mode==5?uvec2(1,0):p.mode>=7?v:uvec2(0);}found=true;count++;
+ if(p.mode==4||p.mode==6)result=plus64(result,v);else if(p.mode==5)result=times64(result,v);else if(p.mode==7)result=less64(result,v)?v:result;else if(p.mode==8)result=less64(v,result)?v:result;
+ if(p.width==1)result.y=int(result.x)<0?0xffffffffu:0;
+ }}if(p.mode==6&&found)result=floor_div(result,count);y[id*p.width]=result.x;if(p.width==2)y[id*2+1]=result.y;}

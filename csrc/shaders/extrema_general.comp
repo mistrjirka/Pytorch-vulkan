@@ -1,0 +1,13 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer V {uint values[];};
+layout(binding=2) writeonly buffer I {uvec2 indices[];};
+layout(push_constant) uniform P {uint count,reduced,mask,type,maximum;uint dims[8];}p;
+uint address(uint outer,uint inner){uint addr=0,stride=1;for(int d=7;d>=0;d--){uint c;if((p.mask&(1u<<d))!=0){c=inner%p.dims[d];inner/=p.dims[d];}else{c=outer%p.dims[d];outer/=p.dims[d];}addr+=c*stride;stride*=p.dims[d];}return addr;}
+uvec2 load_value(uint i){return p.type==2?uvec2(x[2*i],x[2*i+1]):uvec2(x[i],0);}
+bool better(uvec2 a,uvec2 b){
+ if(p.type==0){float av=uintBitsToFloat(a.x),bv=uintBitsToFloat(b.x);if(isnan(bv))return false;if(isnan(av))return true;return p.maximum!=0?av>bv:av<bv;}
+ bool less=p.type==1?int(a.x)<int(b.x):(a.y==b.y?a.x<b.x:int(a.y)<int(b.y));bool greater=p.type==1?int(a.x)>int(b.x):(a.y==b.y?a.x>b.x:int(a.y)>int(b.y));return p.maximum!=0?greater:less;
+}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uvec2 best=load_value(address(i,0));uint index=0;for(uint j=1;j<p.reduced;j++){uvec2 value=load_value(address(i,j));if(better(value,best)){best=value;index=j;}}if(p.type==2){values[2*i]=best.x;values[2*i+1]=best.y;}else values[i]=best.x;indices[i]=uvec2(index,0);}

@@ -101,6 +101,7 @@ inline at::Tensor packed(const at::Tensor& src,at::ScalarType dtype=at::kFloat) 
   TORCH_CHECK(src.device().type()==c10::DeviceType::PrivateUse1 && src.scalar_type()==dtype,
               "Vulkan native operator tensor device/dtype mismatch");
   if(!src.numel())return at::empty(src.sizes(),src.options());
+  if(src.is_neg()||src.is_conj()){auto out=at::empty(src.sizes(),src.options());out.copy_(src);return out;}
   base(src,dtype);
   if(src.is_contiguous() && src.storage_offset()==0) return src;
   TORCH_CHECK(src.dim()<=8,"Vulkan native packing supports at most 8 dimensions");

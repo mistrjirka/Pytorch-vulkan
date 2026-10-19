@@ -1,4 +1,7 @@
 #include "native_utils.h"
+#include "../vulkan_device.h"
+#include <ATen/EmptyTensor.h>
+#include <ATen/native/TensorFactories.h>
 #include "../vulkan_generator.h"
 #include <ATen/native/Resize.h>
 #include <ATen/MemoryOverlap.h>
@@ -7,6 +10,12 @@
 namespace torch_vulkan::ops {
 namespace {
 using namespace native;
+at::Tensor efficient_zero(c10::SymIntArrayRef size,std::optional<at::ScalarType> dtype,std::optional<at::Layout> layout,std::optional<at::Device> device,std::optional<bool> pin){
+ auto dev=device.value_or(c10::Device(c10::DeviceType::PrivateUse1,0));validate_vulkan_device(dev);TORCH_CHECK(layout.value_or(at::kStrided)==at::kStrided&&!pin.value_or(false),"invalid ZeroTensor layout or pinning");
+ static at::native::ZeroTensorAllocator allocator(c10::Device(c10::DeviceType::PrivateUse1,0));
+ return at::Tensor(at::detail::empty_generic_symint(size,&allocator,c10::DispatchKeySet({c10::DispatchKey::PrivateUse1,c10::DispatchKey::ZeroTensor}),c10::dtype_or_default(dtype),std::nullopt));
+}
+
 at::Tensor& arange_out(const at::Scalar& start,const at::Scalar& end,const at::Scalar& step,at::Tensor& out){
  double a=start.toDouble(),b=end.toDouble(),s=step.toDouble();
  TORCH_CHECK(s!=0,"step must be nonzero");TORCH_CHECK(std::isfinite(a)&&std::isfinite(b)&&std::isfinite(s),"unsupported range: non-finite bounds or step");
@@ -39,5 +48,5 @@ at::Tensor& randperm_out(c10::SymInt count,std::optional<at::Generator> gen,at::
 }
 at::Tensor& randperm_default(c10::SymInt count,at::Tensor& out){return randperm_out(count,std::nullopt,out);}
 }
-TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("arange.start_out",&arange_out);m.impl("arange.out",&arange_end);m.impl("linspace.out",&linspace_out);m.impl("randperm.generator_out",&randperm_out);m.impl("randperm.out",&randperm_default);}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){m.impl("_efficientzerotensor",&efficient_zero);m.impl("arange.start_out",&arange_out);m.impl("arange.out",&arange_end);m.impl("linspace.out",&linspace_out);m.impl("randperm.generator_out",&randperm_out);m.impl("randperm.out",&randperm_default);}
 }

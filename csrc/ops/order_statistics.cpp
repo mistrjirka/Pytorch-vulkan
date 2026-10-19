@@ -8,12 +8,13 @@ namespace {
 using namespace native;
 int64_t axis(const at::Tensor& x,int64_t d){if(d<0)d+=std::max<int64_t>(1,x.dim());TORCH_CHECK(d>=0&&d<std::max<int64_t>(1,x.dim()),"dimension out of range");return d;}
 std::tuple<at::Tensor,at::Tensor> sort_native(const at::Tensor& x,int64_t raw,bool descending){
- int64_t d=axis(x,raw);TORCH_CHECK(x.scalar_type()==at::kFloat&&can_pack_view(x),"Vulkan sort requires packable FP32 data");
+ int64_t d=axis(x,raw);TORCH_CHECK(device_copy_supported(x.scalar_type())&&can_pack_view(x),"Vulkan sort requires packable real data");
+ if(x.element_size()<4){auto [v,i]=sort_native(x.to(at::kInt),raw,descending);return {v.to(x.scalar_type()),i};}
  auto values=at::empty(x.sizes(),x.options()),indices=at::empty(x.sizes(),x.options().dtype(at::kLong));
  if(x.numel()){
   uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);
-  run("sort_axis",{base(packed(x))},{write_base(values),write_base(indices,at::kLong)},
-   {u32(x.numel()),u32(x.dim()?x.size(d):1),u32(inner),uint32_t(descending)},(x.numel()+127)/128);
+  auto dtype=x.scalar_type();std::vector<uint32_t> p={u32(x.numel()),u32(x.dim()?x.size(d):1),u32(inner),uint32_t(descending)};if(dtype!=at::kFloat)p.push_back(u32(x.element_size()/4));
+  run(dtype==at::kFloat?"sort_axis":"sort_integer",{base(packed(x,dtype),dtype)},{write_base(values,dtype),write_base(indices,at::kLong)},p,(x.numel()+127)/128);
  }return {values,indices};
 }
 std::tuple<at::Tensor,at::Tensor> sort_stable_native(const at::Tensor& x,std::optional<bool>,int64_t d,bool desc){return sort_native(x,d,desc);}
@@ -24,11 +25,23 @@ std::tuple<at::Tensor&,at::Tensor&> sort_out_native(const at::Tensor& x,int64_t 
 std::tuple<at::Tensor&,at::Tensor&> sort_stable_out_native(const at::Tensor& x,std::optional<bool>,int64_t d,bool desc,at::Tensor& v,at::Tensor& i){return sort_out_native(x,d,desc,v,i);}
 std::tuple<at::Tensor,at::Tensor> topk_native(const at::Tensor& x,c10::SymInt k_,int64_t raw,bool largest,bool){
  int64_t d=axis(x,raw),k=k_.expect_int();TORCH_CHECK(k>=0&&k<=(x.dim()?x.size(d):1),"topk k out of range");auto [v,i]=sort_native(x,d,largest);
- if(x.dim()){v=v.narrow(d,0,k);i=i.narrow(d,0,k);if(k){v=packed(v);i=packed(i,at::kLong);}}
+ if(x.dim()){v=v.narrow(d,0,k);i=i.narrow(d,0,k);if(k){v=packed(v,v.scalar_type());i=packed(i,at::kLong);}}
  return {v,i};
 }
+std::tuple<at::Tensor,at::Tensor> general_scan(const at::Tensor& x,int64_t raw,std::optional<at::ScalarType> requested,uint32_t mode){
+ auto d=axis(x,raw);TORCH_CHECK(device_copy_supported(x.scalar_type()),"scan supports real input");auto dtype=requested.value_or(mode>=2||x.is_floating_point()?x.scalar_type():at::kLong);TORCH_CHECK(device_copy_supported(dtype)&&(dtype!=at::kBool||mode>=2),"unsupported scan output dtype");
+ auto compute=dtype==at::kBool||dtype==at::kByte||dtype==at::kChar||dtype==at::kShort?at::kInt:dtype;auto values=at::empty(x.sizes(),x.options().dtype(compute)),indices=at::empty(mode>=2?x.sizes():at::IntArrayRef({0}),x.options().dtype(at::kLong));
+ if(x.numel()){uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);auto n=x.dim()?x.size(d):1,rows=x.numel()/n;auto input=packed(x.to(compute),compute);auto ib=mode>=2?write_base(indices,at::kLong):VulkanAllocator::instance().constant_float_buffer(1,0);
+ run("scan_general",{base(input,compute)},{write_base(values,compute),ib},{u32(rows),u32(n),u32(inner),compute==at::kFloat?0u:compute==at::kInt?1u:2u,mode},(rows+127)/128);
+ }return {values.to(dtype),indices};
+}
+at::Tensor cumprod_native(const at::Tensor& x,int64_t dim,std::optional<at::ScalarType> dtype){return std::get<0>(general_scan(x,dim,dtype,1));}
+std::tuple<at::Tensor,at::Tensor> cummax_native(const at::Tensor& x,int64_t dim){return general_scan(x,dim,std::nullopt,2);}
+std::tuple<at::Tensor,at::Tensor> cummin_native(const at::Tensor& x,int64_t dim){return general_scan(x,dim,std::nullopt,3);}
+
 at::Tensor scan_native(const at::Tensor& x,int64_t raw,std::optional<at::ScalarType> dtype){
- int64_t d=axis(x,raw);TORCH_CHECK(x.scalar_type()==at::kFloat&&dtype.value_or(at::kFloat)==at::kFloat&&can_pack_view(x),"Vulkan cumsum requires packable FP32 input/output");
+ if(x.scalar_type()!=at::kFloat||dtype.value_or(at::kFloat)!=at::kFloat)return std::get<0>(general_scan(x,raw,dtype,0));
+ int64_t d=axis(x,raw);TORCH_CHECK(can_pack_view(x),"cumsum exceeds Vulkan indexing limits");
  auto out=at::empty(x.sizes(),x.options());if(!x.numel())return out;uint64_t inner=1;for(int a=d+1;a<x.dim();a++)inner*=x.size(a);
  int64_t n=x.dim()?x.size(d):1,rows=x.numel()/n;run("scan_axis",{base(packed(x))},{write_base(out)},{u32(rows),u32(n),u32(inner)},rows,516);return out;
 }
@@ -63,10 +76,19 @@ std::tuple<at::Tensor,at::Tensor> var_mean_native(const at::Tensor& x,at::Option
 at::Tensor var_native(const at::Tensor& x,at::OptionalIntArrayRef dims,const std::optional<at::Scalar>& correction,bool keepdim){return std::get<0>(var_mean_native(x,dims,correction,keepdim));}
 at::Tensor var_dim_native(const at::Tensor& x,at::OptionalIntArrayRef dims,bool unbiased,bool keepdim){return var_native(x,dims,at::Scalar(unbiased?1:0),keepdim);}
 at::Tensor var_all_native(const at::Tensor& x,bool unbiased){return var_dim_native(x,std::nullopt,unbiased,false);}
+std::tuple<at::Tensor,at::Tensor,at::Tensor> unique_native(const at::Tensor& x,bool sorted,bool inverse,bool counts){
+ auto flat=x.reshape({-1});auto empty=at::empty({0},x.options().dtype(at::kLong));if(!x.numel())return {flat.clone(),inverse?empty.reshape(x.sizes()):empty,empty.clone()};auto [values,order]=sort_native(flat,0,false);
+ auto change=at::cat({at::ones({1},x.options().dtype(at::kBool)),at::ne(values.narrow(0,1,values.numel()-1),values.narrow(0,0,values.numel()-1))});auto positions=at::nonzero(change).select(1,0);auto output=at::index_select(values,0,positions);auto inv=empty,frequency=empty.clone();
+ if(inverse){auto groups=at::cumsum(change,0,at::kLong).sub(1);inv=at::empty_like(order);inv.scatter_(0,order,groups);inv=inv.reshape(x.sizes());}
+ if(counts){auto ends=at::cat({positions.narrow(0,1,positions.numel()-1),at::full({1},x.numel(),positions.options())});frequency=ends.sub(positions);}
+ return {output,inv,frequency};
+}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("_unique2",&unique_native);
  m.impl("sort",&sort_native);m.impl("sort.stable",&sort_stable_native);m.impl("sort.values",&sort_out_native);m.impl("sort.values_stable",&sort_stable_out_native);
  m.impl("tril",&tril_native);m.impl("triu",&triu_native);m.impl("tril.out",&tril_out);m.impl("triu.out",&triu_out);m.impl("tril_",&tril_inplace);m.impl("triu_",&triu_inplace);
+ m.impl("cumprod",&cumprod_native);m.impl("cummax",&cummax_native);m.impl("cummin",&cummin_native);
  m.impl("topk",&topk_native);m.impl("cumsum",&scan_native);m.impl("flip",&flip_native);
  m.impl("var.correction",&var_native);m.impl("var.dim",&var_dim_native);m.impl("var",&var_all_native);m.impl("var_mean.correction",&var_mean_native);
 }

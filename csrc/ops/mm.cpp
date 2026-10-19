@@ -461,7 +461,7 @@ at::Tensor vulkan_to_copy(
       if(target_dtype==self.scalar_type()){
         auto result=at::empty_like(self,self.options(),memory_format);result.copy_(self);return result;
       }
-      if(device_copy_supported(self.scalar_type())&&device_copy_supported(target_dtype)){
+      if((device_copy_supported(self.scalar_type())||self.scalar_type()==at::kComplexFloat)&&(device_copy_supported(target_dtype)||target_dtype==at::kComplexFloat)){
         auto result=at::empty_like(self,self.options().dtype(target_dtype),memory_format);
         copy_on_device(result,self);return result;
       }

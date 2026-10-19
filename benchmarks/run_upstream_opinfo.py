@@ -98,10 +98,17 @@ def worker(args):
         if build_manifest.get('extension_sha256') == manifest['extension_sha256']:
             manifest.update(build_manifest)
             manifest['source_identity'] = 'recorded_after_build'
+    manifest['match_substrings'] = args.match
+    manifest['planned_test_ids'] = [r['id'] for r in selected if not args.match or any(term in r['id'] for term in args.match)]
+    runtime_assets = {name: digest for name, digest in source_hashes.items() if name.endswith(('.spv', '.py'))}
+    manifest['runtime_asset_files'] = runtime_assets
+    manifest['runtime_assets_match_build'] = all(manifest['backend_source_files'].get(name) == digest for name, digest in runtime_assets.items())
+    if not manifest['runtime_assets_match_build'] and manifest['source_identity'] == 'recorded_after_build':
+        manifest['source_identity'] = 'recorded_build_with_modified_runtime_assets'
     (args.out/'inventory.json').write_text(json.dumps(manifest,indent=2)+'\n')
     if args.collect: return
     done = {r['id'] for r in read_rows(args.out/'results.jsonl')}
-    chosen = [r for r in selected if r['id'] not in done and (not args.match or args.match in r['id'])]
+    chosen = [r for r in selected if r['id'] not in done and (not args.match or any(term in r['id'] for term in args.match))]
     info = {r['id']:r for r in chosen}
     current = args.out/'current.json'
     class Result(unittest.TestResult):
@@ -143,7 +150,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
     p.add_argument('--collect',action='store_true');p.add_argument('--worker',action='store_true')
-    p.add_argument('--match',default='');p.add_argument('--timeout',type=float,default=30)
+    p.add_argument('--match',action='append',default=[],help='Optional debugging substring filter; repeat to take the union');p.add_argument('--timeout',type=float,default=30)
     args=p.parse_args();args.source=args.source.resolve();args.out=args.out.resolve();args.out.mkdir(parents=True,exist_ok=True)
     assert hashlib.sha256(args.source.read_bytes()).hexdigest()==SOURCE_SHA256,'Upstream source hash mismatch'
     if args.worker:return worker(args)
@@ -154,7 +161,8 @@ def main():
     restarts=0
     while True:
         current=args.out/'current.json';current.unlink(missing_ok=True)
-        cmd=[sys.executable,str(Path(__file__).resolve()),'--worker','--source',str(args.source),'--out',str(args.out),'--match',args.match]
+        cmd=[sys.executable,str(Path(__file__).resolve()),'--worker','--source',str(args.source),'--out',str(args.out)]
+        for term in args.match:cmd.extend(['--match',term])
         if args.collect:cmd.append('--collect')
         started=time.time();last_report=0;reason=None
         with (args.out/'worker.log').open('a') as log:

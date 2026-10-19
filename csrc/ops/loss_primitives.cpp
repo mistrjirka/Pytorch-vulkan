@@ -62,6 +62,7 @@ at::Tensor sigmoid_native(const at::Tensor& x) {
   return supported(x)?unary(x,0):at::sigmoid(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }
 at::Tensor abs_native(const at::Tensor& x) {
+  if(x.scalar_type()==at::kComplexFloat){auto out=at::empty(x.sizes(),x.options().dtype(at::kFloat));if(x.numel())run("complex_magnitude",{base(packed(x,at::kComplexFloat),at::kComplexFloat)},{write_base(out)},{u32(x.numel())},(x.numel()+127)/128);return out;}
   if(integer_type(x.scalar_type()))return at::where(x.lt(0),at::mul(x,-1),x);
   return supported(x)?unary(x,1):at::abs(native::cpu_fallback_tensor(x,__func__)).to(x.device());
 }

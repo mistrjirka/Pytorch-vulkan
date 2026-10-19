@@ -34,7 +34,7 @@ at::Tensor all_native(const at::Tensor& x){
 at::Tensor where_native(const at::Tensor& cond,const at::Tensor& left,const at::Tensor& right){
  TORCH_CHECK(cond.scalar_type()==at::kBool,"where expected condition to be a boolean tensor");
  auto dev=cond.is_cpu()?(left.is_cpu()?right.device():left.device()):cond.device();auto dtype=at::result_type(left,right);
- if(!device_copy_supported(dtype))return at::where(cpu_fallback_tensor(cond,__func__),cpu_fallback_tensor(left,__func__),cpu_fallback_tensor(right,__func__)).to(dev);
+ if(!device_copy_supported(dtype)&&dtype!=at::kComplexFloat)return at::where(cpu_fallback_tensor(cond,__func__),cpu_fallback_tensor(left,__func__),cpu_fallback_tensor(right,__func__)).to(dev);
  for(const auto& t:{cond,left,right})TORCH_CHECK(t.device()==dev||(t.is_cpu()&&t.dim()==0),"where device mismatch");
  auto shape=at::infer_size_dimvector(at::infer_size_dimvector(cond.sizes(),left.sizes()),right.sizes());auto out=at::empty(shape,left.options().device(dev).dtype(dtype));if(!out.numel())return out;
  auto c=cond.to(dev).expand(shape),a=left.to(dev,dtype).expand(shape),b=right.to(dev,dtype).expand(shape);

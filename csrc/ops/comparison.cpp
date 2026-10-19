@@ -13,6 +13,13 @@ template<int Op>at::Tensor comparison(const at::Tensor& left,const at::Tensor& r
  auto dev=left.is_cpu()?right.device():left.device();
  TORCH_CHECK(dev.type()==c10::DeviceType::PrivateUse1&&(left.device()==dev||(left.is_cpu()&&left.dim()==0))&&(right.device()==dev||(right.is_cpu()&&right.dim()==0)),"comparison: expected tensors on the same device");
  auto dtype=at::result_type(left,right);
+ if(dtype==at::kComplexFloat){
+  auto a=at::resolve_conj(left.to(dev,dtype)),b=at::resolve_conj(right.to(dev,dtype));
+  if constexpr(Op==0)return at::logical_and(at::eq(at::real(a),at::real(b)),at::eq(at::imag(a),at::imag(b)));
+  if constexpr(Op==1)return at::logical_or(at::ne(at::real(a),at::real(b)),at::ne(at::imag(a),at::imag(b)));
+  if constexpr(Op>=6)return comparison<Op>(a.to(at::kBool),b.to(at::kBool));
+  TORCH_CHECK(false,"ordering comparisons are not implemented for complex tensors");
+ }
  TORCH_CHECK(device_copy_supported(dtype),"Vulkan comparison supports FP32/int32/int64/bool");
  if(dtype==at::kByte||dtype==at::kChar||dtype==at::kShort)dtype=at::kInt;
  auto shape=at::infer_size_dimvector(left.sizes(),right.sizes());auto out=at::empty(shape,left.options().device(dev).dtype(at::kBool));if(!out.numel())return out;
@@ -35,6 +42,8 @@ template<int Op>at::Tensor& comparison_scalar_out(const at::Tensor& a,const at::
 template<int Op>at::Tensor& comparison_inplace(at::Tensor& a,const at::Tensor& b){auto value=comparison<Op>(a,b);TORCH_CHECK(a.sizes()==value.sizes(),"comparison in-place broadcast shape mismatch");a.copy_(value);return a;}
 template<int Op>at::Tensor& comparison_scalar_inplace(at::Tensor& a,const at::Scalar& b){a.copy_(comparison_scalar<Op>(a,b));return a;}
 template<int Op>at::Tensor unary_predicate(const at::Tensor& x){
+ if constexpr(Op==2||Op==3)TORCH_CHECK(!x.is_complex(),"isposinf/isneginf do not support complex inputs");
+ if constexpr(Op==4)if(x.scalar_type()==at::kComplexFloat){auto y=at::resolve_conj(x);return at::logical_or(at::isinf(at::real(y)),at::isinf(at::imag(y)));}
  if constexpr(Op==0)return comparison<1>(x,x);
  if constexpr(Op==1)return comparison_scalar<0>(x,0);
  if constexpr(Op==2)return comparison_scalar<0>(x,INFINITY);

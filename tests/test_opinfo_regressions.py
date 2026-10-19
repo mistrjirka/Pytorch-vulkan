@@ -538,3 +538,325 @@ def test_division_full_float32_range():
     av,bv=a.to('vulkan'),b.to('vulkan');vk.reset_execution_stats();actual=av/bv;resident()
     reference=(a.double()/b.double()).float()
     torch.testing.assert_close(actual.cpu(),reference,rtol=0,atol=0,equal_nan=True)
+
+
+@pytest.mark.parametrize('reduce', ['sum', 'prod', 'mean', 'amax', 'amin'])
+@pytest.mark.parametrize('include', [True, False])
+def test_scatter_reduce_native_forward_backward(reduce, include):
+    torch.manual_seed(73)
+    x=torch.randn(3,5,requires_grad=True); source=torch.randn(3,7,requires_grad=True)
+    index=torch.tensor([[0,0,2,3,2,0,2], [1,1,3,1,3,3,1], [4,4,4,0,0,4,0]])
+    xv=x.detach().to('vulkan').requires_grad_(); sv=source.detach().to('vulkan').requires_grad_(); iv=index.to('vulkan')
+    expected=x.scatter_reduce(1,index,source,reduce=reduce,include_self=include)
+    vk.reset_execution_stats(); actual=xv.scatter_reduce(1,iv,sv,reduce=reduce,include_self=include)
+    stats=vk.execution_stats(); assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    torch.testing.assert_close(actual.cpu(),expected)
+    actual.sum().backward(); expected.sum().backward()
+    torch.testing.assert_close(xv.grad.cpu(),x.grad);torch.testing.assert_close(sv.grad.cpu(),source.grad)
+    base=torch.zeros((5,3),device='vulkan'); out=base.t()
+    torch.scatter_reduce(xv.detach(),1,iv,sv.detach(),reduce=reduce,include_self=include,out=out)
+    torch.testing.assert_close(out.cpu(),expected.detach())
+
+
+@pytest.mark.parametrize('reduce', ['prod', 'mean', 'amax', 'amin'])
+@pytest.mark.parametrize('include', [True, False])
+def test_index_reduce_native(reduce,include):
+    x=torch.tensor([[1.,2.,3.],[4.,5.,6.],[7.,8.,9.],[10.,11.,12.]])
+    s=torch.tensor([[2.,1.,-1.],[0.,3.,4.],[5.,-2.,1.]])
+    index=torch.tensor([1,1,3])
+    xv,sv,iv=[t.to('vulkan') for t in (x,s,index)]
+    vk.reset_execution_stats(); actual=torch.index_reduce(xv,0,iv,sv,reduce,include_self=include)
+    stats=vk.execution_stats(); assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    torch.testing.assert_close(actual.cpu(),torch.index_reduce(x,0,index,s,reduce,include_self=include))
+    actual=xv.clone(); actual.index_reduce_(0,iv,sv,reduce,include_self=include)
+    torch.testing.assert_close(actual.cpu(),torch.index_reduce(x,0,index,s,reduce,include_self=include))
+
+
+def test_roll_nansum_std_and_index_copy():
+    x=torch.arange(24.).reshape(2,3,4); v=x.to('vulkan')
+    vk.reset_execution_stats()
+    outputs=[torch.roll(v,(7,-2),(2,0)), torch.roll(v,-5), v.std(dim=(0,2),correction=0),torch.std_mean(v,dim=1,correction=1)]
+    resident(); expected=[torch.roll(x,(7,-2),(2,0)),torch.roll(x,-5),x.std(dim=(0,2),correction=0),torch.std_mean(x,dim=1,correction=1)]
+    for a,b in zip(outputs,expected):
+        if isinstance(a,tuple):
+            for aa,bb in zip(a,b):torch.testing.assert_close(aa.cpu(),bb)
+        else:torch.testing.assert_close(a.cpu(),b)
+    x[0,0,0]=float('nan');v=x.to('vulkan');vk.reset_execution_stats();result=v.nansum(dim=(0,2));resident();torch.testing.assert_close(result.cpu(),x.nansum(dim=(0,2)))
+    index=torch.tensor([1,0]); src=torch.randn(2,3,4); iv=index.to('vulkan');sv=src.to('vulkan')
+    vk.reset_execution_stats(); result=v.index_copy(0,iv,sv)
+    stats=vk.execution_stats();assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    torch.testing.assert_close(result.cpu(),x.index_copy(0,index,src))
+
+
+@pytest.mark.parametrize('n', [0,1,5,17])
+@pytest.mark.parametrize('batch', [(),(2,)])
+@pytest.mark.parametrize('upper', [False,True])
+def test_cholesky_inverse_solve_native(n,batch,upper):
+    torch.manual_seed(93)
+    raw=torch.randn(*batch,n,n); a=raw@raw.transpose(-1,-2)+torch.eye(n)*.8
+    rhs=torch.randn(*batch,n,3); av,bv=a.to('vulkan'),rhs.to('vulkan')
+    vk.reset_execution_stats(); factor,info=torch.linalg.cholesky_ex(av,upper=upper)
+    solution=torch.cholesky_solve(bv,factor,upper=upper); inverse=torch.cholesky_inverse(factor,upper=upper)
+    stats=vk.execution_stats();assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    ref=torch.linalg.cholesky(a,upper=upper)
+    torch.testing.assert_close(factor.cpu(),ref,rtol=1e-5,atol=3e-6); assert not info.cpu().any()
+    torch.testing.assert_close(solution.cpu(),torch.cholesky_solve(rhs,ref,upper=upper),rtol=2e-5,atol=5e-6)
+    torch.testing.assert_close(inverse.cpu(),torch.cholesky_inverse(ref,upper=upper),rtol=2e-5,atol=5e-6)
+    out=torch.empty_like(av).transpose(-1,-2);status=torch.empty(batch,dtype=torch.int32,device='vulkan')
+    torch.linalg.cholesky_ex(av,upper=upper,out=(out,status))
+    torch.testing.assert_close(out.cpu(),ref,rtol=1e-5,atol=3e-6)
+
+
+def test_linalg_inverse_multi_output_and_singular_status():
+    a=torch.tensor([[[3.,1.],[1.,2.]],[[2.,-1.],[1.,4.]]]); v=a.to('vulkan')
+    out=torch.empty_like(v).transpose(-1,-2); info=torch.empty(2,dtype=torch.int32,device='vulkan')
+    vk.reset_execution_stats(); torch.linalg.inv_ex(v,out=(out,info))
+    stats=vk.execution_stats();assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    torch.testing.assert_close(out.cpu(),torch.linalg.inv(a));assert not info.cpu().any()
+    lu=torch.empty_like(v);piv=torch.empty(2,2,dtype=torch.int32,device='vulkan');status=torch.empty_like(info)
+    torch.linalg.lu_factor_ex(v,out=(lu,piv,status)); ref=torch.linalg.lu_factor_ex(a)
+    for x,y in zip((lu,piv,status),ref):torch.testing.assert_close(x.cpu(),y)
+    singular=torch.zeros(3,3,device='vulkan'); factor,status=torch.linalg.cholesky_ex(singular)
+    assert status.cpu().item()==1
+    with pytest.raises(RuntimeError):torch.linalg.cholesky_ex(singular,check_errors=True)
+
+
+@pytest.mark.parametrize('left', [True,False])
+@pytest.mark.parametrize('upper', [True,False])
+def test_triangular_solve_native(left,upper):
+    torch.manual_seed(19);a=torch.randn(2,4,4);a.diagonal(dim1=-2,dim2=-1).add_(5)
+    b=torch.randn(2,4,3) if left else torch.randn(2,3,4)
+    av,bv=a.to('vulkan'),b.to('vulkan')
+    vk.reset_execution_stats();actual=torch.linalg.solve_triangular(av,bv,upper=upper,left=left)
+    stats=vk.execution_stats();assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    torch.testing.assert_close(actual.cpu(),torch.linalg.solve_triangular(a,b,upper=upper,left=left),rtol=1e-5,atol=3e-6)
+
+
+@pytest.mark.parametrize('probability', [.1,.5,.9])
+def test_alpha_dropout_distribution_and_gradient(probability):
+    torch.manual_seed(504)
+    x=torch.randn(200000).to('vulkan').requires_grad_()
+    vk.reset_execution_stats(); y=torch.nn.functional.alpha_dropout(x,p=probability,training=True)
+    y.sum().backward(); resident()
+    host=y.detach().cpu(); grad=x.grad.cpu()
+    # Alpha dropout preserves zero mean/unit variance for normalized inputs.
+    assert abs(float(host.mean()))<.02
+    assert abs(float(host.var())-1)<.04
+    alpha=-1.7580993408473766
+    scale=((1-probability)*(1+probability*alpha*alpha))**-.5
+    assert torch.all((grad==0)|torch.isclose(grad,torch.tensor(scale),rtol=1e-6,atol=1e-7))
+    assert abs(float((grad==0).float().mean())-probability)<.01
+
+
+@pytest.mark.parametrize('dtype', [torch.bool,torch.int8,torch.int32,torch.int64])
+def test_typed_gather_scatter_native(dtype):
+    x=torch.tensor([[1,2,3,4],[5,6,7,8]],dtype=dtype)
+    if dtype==torch.int64:x=x*2**40+13
+    index=torch.tensor([[3,0,3],[1,1,0]])
+    source=torch.tensor([[2,3,5],[7,11,13]],dtype=dtype)
+    xv,iv,sv=[t.to('vulkan') for t in (x,index,source)]
+    vk.reset_execution_stats()
+    actual=[xv.gather(1,iv),xv.scatter_add(1,iv,sv),xv.scatter(1,iv,sv),xv.scatter(1,iv,1)]
+    stats=vk.execution_stats();assert stats['cpu_fallback_calls']==0 and stats['host_read_max_bytes']<=4,stats
+    expected=[x.gather(1,index),x.scatter_add(1,index,source),x.scatter(1,index,source),x.scatter(1,index,1)]
+    for a,b in zip(actual,expected):torch.testing.assert_close(a.cpu(),b)
+
+@pytest.mark.parametrize('shape', [(), (13,), (3, 5)])
+def test_noncanonical_boolean_sum(shape):
+    raw = torch.full(shape, 37, dtype=torch.uint8)
+    x = raw.view(torch.bool)
+    v = raw.to('vulkan').view(torch.bool)
+    vk.reset_execution_stats()
+    outputs = [v.sum(), v.nansum(), v.sum(dtype=torch.float32)]
+    resident()
+    for actual, expected in zip(outputs, [x.sum(), x.nansum(), x.sum(dtype=torch.float32)]):
+        torch.testing.assert_close(actual.cpu(), expected)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.bool])
+def test_mask_selection_broadcast_and_scatter(dtype):
+    x = torch.arange(15).reshape(3, 5).to(dtype)
+    mask = torch.tensor([[True, False, True, False, True]])
+    source = torch.arange(20, 40).to(dtype)
+    a, m, s = [t.to('vulkan') for t in (x, mask, source)]
+    vk.reset_execution_stats()
+    selected, scattered = a.masked_select(m), a.masked_scatter(m, s)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    torch.testing.assert_close(selected.cpu(), x.masked_select(mask))
+    torch.testing.assert_close(scattered.cpu(), x.masked_scatter(mask, source))
+    view = torch.zeros(3, 10, dtype=dtype, device='vulkan')[:, ::2]
+    view.copy_(a); view.masked_scatter_(m, s)
+    torch.testing.assert_close(view.cpu(), x.masked_scatter(mask, source))
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.uint8, torch.int16, torch.bool])
+def test_general_extrema(dtype):
+    x = torch.tensor([[3, 7, 7], [-4, 0, 9]]).to(dtype)
+    if dtype == torch.int64: x = x * 2**40 + 3
+    if dtype == torch.float32: x[1, 1] = float('nan')
+    v = x.to('vulkan').t()
+    vk.reset_execution_stats()
+    pairs = [(v.max(), x.t().max()), (v.min(), x.t().min()), (v.amax((0, 1)), x.t().amax((0, 1)))]
+    for actual, expected in zip(v.max(0), x.t().max(0)): pairs.append((actual, expected))
+    if dtype != torch.bool: pairs.append((v.argmin(), x.t().argmin()))
+    resident()
+    for actual, expected in pairs: torch.testing.assert_close(actual.cpu(), expected, equal_nan=True)
+
+@pytest.mark.parametrize('conjugate', [False, True])
+@pytest.mark.parametrize('negative', [False, True])
+def test_complex_copy_predicates_and_magnitude(conjugate, negative):
+    x = torch.tensor([[1+2j, -3+4j], [complex(float('inf'), 2), complex(0, float('nan'))]], dtype=torch.complex64)
+    v = x.to('vulkan')
+    if conjugate: x, v = x.conj(), v.conj()
+    if negative: x, v = torch._neg_view(x), torch._neg_view(v)
+    vk.reset_execution_stats()
+    actual = [v.clone(), v.abs(), v == v, torch.isinf(v), v.to(torch.bool), v.to(torch.float32)]
+    resident()
+    expected = [x.clone(), x.abs(), x == x, torch.isinf(x), x.to(torch.bool), x.to(torch.float32)]
+    for a, b in zip(actual, expected): torch.testing.assert_close(a.cpu(), b, equal_nan=True)
+
+
+def test_efficient_zero_device_materialization():
+    z = torch._efficientzerotensor((3, 4), device='vulkan', dtype=torch.float32)
+    x = torch.arange(12, dtype=torch.float32).reshape(3, 4).to('vulkan')
+    vk.reset_execution_stats()
+    actual = z + x
+    resident()
+    torch.testing.assert_close(actual.cpu(), x.cpu())
+
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+@pytest.mark.parametrize('reduce', ['sum', 'prod', 'mean', 'amax', 'amin'])
+@pytest.mark.parametrize('include', [True, False])
+def test_integer_scatter_reductions(dtype, reduce, include):
+    x = torch.tensor([[-17, 31, 9], [7, -8, 9]], dtype=dtype)
+    src = torch.tensor([[-7, 4, 3, -8], [12, -19, 11, 9]], dtype=dtype)
+    if dtype == torch.int64:
+        x = x * 2**40 + 1
+        src = src * 2**36 - 3
+    index = torch.tensor([[0, 0, 2, 2], [1, 2, 1, 2]])
+    a, i, s = [t.to('vulkan') for t in (x, index, src)]
+    vk.reset_execution_stats()
+    actual = a.scatter_reduce(1, i, s, reduce, include_self=include)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    torch.testing.assert_close(actual.cpu(), x.scatter_reduce(1, index, src, reduce, include_self=include))
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int64, torch.bool])
+def test_index_fill_general(dtype):
+    x = torch.arange(12).reshape(3, 4).to(dtype)
+    index = torch.tensor([0, 2])
+    a, i = x.to('vulkan'), index.to('vulkan')
+    torch.testing.assert_close(a.index_fill(0, i, 7).cpu(), x.index_fill(0, index, 7))
+    a.index_fill_(1, i, 0)
+    torch.testing.assert_close(a.cpu(), x.index_fill(1, index, 0))
+
+@pytest.mark.parametrize('shape', [(3, 5), (5, 3), (4, 4), (2, 4, 3), (0, 3), (3, 0), (0, 3, 3)])
+def test_lu_unpack_general(shape):
+    torch.manual_seed(912)
+    x = torch.randn(shape)
+    v = x.to('vulkan')
+    vk.reset_execution_stats()
+    p, l, u = torch.linalg.lu(v)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    torch.testing.assert_close((p @ l @ u).cpu(), x, atol=2e-5, rtol=2e-5)
+    expected = torch.linalg.lu(x)
+    for a, b in zip((p, l, u), expected): torch.testing.assert_close(a.cpu(), b, atol=2e-5, rtol=2e-5)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.int16, torch.bool])
+@pytest.mark.parametrize('dim', [0, 1, -1])
+def test_general_scans(dtype, dim):
+    x = torch.tensor([[2, -1, -1, 0], [3, 0, 4, 4], [-2, 5, 1, -3]]).to(dtype).t()
+    if dtype == torch.int64: x = x * 2**32 + 1
+    if dtype == torch.float32: x[1, 1] = float('nan')
+    v = x.to('vulkan')
+    vk.reset_execution_stats()
+    actual = [v.cumsum(dim), v.cumprod(dim), *v.cummax(dim), *v.cummin(dim)]
+    resident()
+    expected = [x.cumsum(dim), x.cumprod(dim), *x.cummax(dim), *x.cummin(dim)]
+    for a, b in zip(actual, expected): torch.testing.assert_close(a.cpu(), b, equal_nan=True)
+
+@pytest.mark.parametrize('reduction', ['none', 'mean', 'sum'])
+@pytest.mark.parametrize('shape', [(2, 4, 3, 5), (0, 4, 3, 5), (2, 4, 0, 5)])
+def test_nll_spatial_and_empty(shape, reduction):
+    torch.manual_seed(991)
+    x = torch.randn(shape, requires_grad=True)
+    target = torch.randint(0, 4, (shape[0], shape[2], shape[3]))
+    weight = torch.rand(4)
+    if target.numel(): target.flatten()[0] = -100
+    v = x.detach().to('vulkan').requires_grad_()
+    t, w = target.to('vulkan'), weight.to('vulkan')
+    vk.reset_execution_stats()
+    actual = torch.nn.functional.nll_loss(v, t, w, reduction=reduction)
+    actual.sum().backward()
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    expected = torch.nn.functional.nll_loss(x, target, weight, reduction=reduction)
+    expected.sum().backward()
+    torch.testing.assert_close(actual.cpu(), expected, equal_nan=True)
+    torch.testing.assert_close(v.grad.cpu(), x.grad, equal_nan=True)
+
+
+def test_selection_alias_and_misc_compositions():
+    x = torch.arange(6, dtype=torch.float32, device='vulkan')
+    mask = torch.tensor([True, False, True, False, False, True], device='vulkan')
+    with pytest.raises(RuntimeError, match='unsupported operation'):
+        torch.masked_select(x, mask, out=x)
+    a = torch.tensor([float('nan'), 1., -2., float('inf')])
+    b = torch.tensor([2., float('nan'), -3., float('inf')])
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    torch.testing.assert_close(torch.fmax(av, bv).cpu(), torch.fmax(a, b), equal_nan=True)
+    torch.testing.assert_close(torch.fmin(av, bv).cpu(), torch.fmin(a, b), equal_nan=True)
+    for actual, expected in zip(torch.aminmax(av), torch.aminmax(a)): torch.testing.assert_close(actual.cpu(), expected, equal_nan=True)
+    c, d = torch.randn(2, 3), torch.randn(1, 3)
+    torch.testing.assert_close(torch.linalg.cross(c.to('vulkan'), d.to('vulkan')).cpu(), torch.linalg.cross(c, d))
+    m, n = torch.randn(2, 3, 4), torch.randn(2, 4, 5)
+    bias = torch.full((5,), float('nan'))
+    torch.testing.assert_close(torch.baddbmm(bias.to('vulkan'), m.to('vulkan'), n.to('vulkan'), beta=0, alpha=.5).cpu(), torch.baddbmm(bias, m, n, beta=0, alpha=.5))
+    torch.testing.assert_close(torch.count_nonzero(av).cpu(), torch.count_nonzero(a))
+
+@pytest.mark.parametrize('operation', ['fmod', 'remainder', 'floor_divide'])
+def test_binary_remainder_full_fp32_range(operation):
+    generator = torch.Generator().manual_seed(4423)
+    a = torch.randint(-(2**31), 2**31 - 1, (30000,), dtype=torch.int32, generator=generator).view(torch.float32)
+    b = torch.randint(-(2**31), 2**31 - 1, (30000,), dtype=torch.int32, generator=generator).view(torch.float32)
+    a = torch.cat((a, torch.tensor([0., -0., float('inf'), -float('inf'), float('nan'), 1e-45, -1e-45])))
+    b = torch.cat((b, torch.tensor([-1., 2., 3., -4., 5., 1e-45, 2e-45])))
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    vk.reset_execution_stats()
+    actual = getattr(torch, operation)(av, bv)
+    resident()
+    # CPU vectorized FP32 fmod overflows for large finite quotients. CUDA
+    # agrees exactly with the FP64 remainder rounded to FP32 on this corpus.
+    expected = getattr(torch, operation)(a, b) if operation == 'floor_divide' else getattr(torch, operation)(a.double(), b.double()).float()
+    torch.testing.assert_close(actual.cpu(), expected, rtol=0, atol=0, equal_nan=True)
+    zeros = (expected == 0)
+    torch.testing.assert_close(torch.signbit(actual.cpu()[zeros]), torch.signbit(expected[zeros]))
+
+@pytest.mark.parametrize('operation', ['hypot', 'copysign', 'logaddexp', 'logaddexp2', 'xlogy', 'nextafter', 'pow'])
+def test_binary_math_ieee_cases(operation):
+    x = torch.tensor([0., -0., 1., -1., 2., -2., float('inf'), -float('inf'), float('nan')])
+    y = torch.tensor([0., -0., .5, -.5, 1., 2., 3., -3., float('inf'), -float('inf'), float('nan')])
+    a, b = torch.broadcast_tensors(x[:, None], y[None, :])
+    av, bv = a.to('vulkan'), b.to('vulkan')
+    vk.reset_execution_stats()
+    actual = getattr(torch, operation)(av, bv)
+    resident()
+    expected = getattr(torch, operation)(a, b)
+    torch.testing.assert_close(actual.cpu(), expected, equal_nan=True)
+
+@pytest.mark.parametrize('dtype', [torch.float32, torch.int32, torch.int64, torch.bool, torch.int16])
+def test_unique_inverse_counts_and_sort(dtype):
+    x = torch.tensor([[4, 2, -2, 4, 7], [2, 0, -2, 8, 8]], dtype=dtype)
+    if dtype == torch.int64: x = x * 2**40 + 3
+    v = x.to('vulkan')
+    vk.reset_execution_stats()
+    actual = torch.unique(v, return_inverse=True, return_counts=True)
+    assert vk.execution_stats()['cpu_fallback_calls'] == 0
+    expected = torch.unique(x, return_inverse=True, return_counts=True)
+    for a, b in zip(actual, expected): torch.testing.assert_close(a.cpu(), b)
+    for a, b in zip(v.sort(dim=0, descending=True), x.sort(dim=0, descending=True)): torch.testing.assert_close(a.cpu(), b)
+
+
+def test_magnitude_extreme_finite_inputs():
+    limit = torch.finfo(torch.float32).max
+    a = torch.tensor([limit, limit, 1., 1e-38, 1e-45])
+    b = torch.tensor([limit, 1., limit, 1e-38, 1e-45])
+    torch.testing.assert_close(torch.hypot(a.to('vulkan'), b.to('vulkan')).cpu(), torch.hypot(a, b), rtol=1e-6, atol=0)
+    c = torch.complex(a, b)
+    torch.testing.assert_close(c.to('vulkan').abs().cpu(), c.abs(), rtol=1e-6, atol=0)

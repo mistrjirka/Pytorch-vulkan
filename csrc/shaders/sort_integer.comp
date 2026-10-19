@@ -1,0 +1,9 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {uint x[];};
+layout(binding=1) writeonly buffer V {uint v[];};
+layout(binding=2) writeonly buffer I {uvec2 indices[];};
+layout(push_constant) uniform P {uint count,n,inner,desc,width;}p;
+uvec2 loadv(uint i){uint a=x[i*p.width];return uvec2(a,p.width==2?x[2*i+1]:(int(a)<0?0xffffffffu:0));}
+bool less(uvec2 a,uvec2 b){return a.y==b.y?a.x<b.x:int(a.y)<int(b.y);}
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint col=i/p.inner%p.n,base=i-col*p.inner;uvec2 value=loadv(i);uint rank=0;for(uint j=0;j<p.n;j++){uvec2 other=loadv(base+j*p.inner);if((p.desc!=0?less(value,other):less(other,value))||(all(equal(other,value))&&j<col))rank++;}uint target=base+rank*p.inner;v[target*p.width]=value.x;if(p.width==2)v[2*target+1]=value.y;indices[target]=uvec2(col,0);}

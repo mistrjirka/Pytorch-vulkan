@@ -23,6 +23,7 @@ at::Tensor reduce_fp32(const at::Tensor& self,at::OptionalIntArrayRef dim,bool k
 namespace {
 at::Tensor sum_dim(const at::Tensor& x,at::OptionalIntArrayRef dim,bool keepdim,std::optional<at::ScalarType> dtype){
  if((integer_type(x.scalar_type())||x.scalar_type()==at::kBool)&&integer_type(dtype.value_or(at::kLong)))return integer_sum(x,dim,keepdim,dtype);
+ if((integer_type(x.scalar_type())||x.scalar_type()==at::kBool)&&dtype==at::kFloat)return reduce_fp32(x.to(at::kFloat),dim,keepdim,false);
  const auto* flag=std::getenv("TORCH_VULKAN_NATIVE_SUM");
  if((flag&&!std::strcmp(flag,"0"))||x.scalar_type()!=at::kFloat||dtype.value_or(x.scalar_type())!=at::kFloat||!native::can_pack_view(x))return at::sum(native::cpu_fallback_tensor(x,__func__),dim,keepdim,dtype).to(x.device());
  return reduce_fp32(x,dim,keepdim,false);

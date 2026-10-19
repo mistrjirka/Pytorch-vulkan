@@ -1,0 +1,23 @@
+{
+  "fmod": {
+    "count": 30000,
+    "cpu_cuda_equal": 26275,
+    "vulkan_cuda_equal": 30000,
+    "vulkan_fp64_reference_equal": 30000,
+    "cuda_fp64_reference_equal": 30000
+  },
+  "remainder": {
+    "count": 30000,
+    "cpu_cuda_equal": 26275,
+    "vulkan_cuda_equal": 29743,
+    "vulkan_fp64_reference_equal": 29743,
+    "cuda_fp64_reference_equal": 30000
+  },
+  "floor_divide": {
+    "count": 30000,
+    "cpu_cuda_equal": 30000,
+    "vulkan_cuda_equal": 29923,
+    "vulkan_fp64_reference_equal": 29853,
+    "cuda_fp64_reference_equal": 29930
+  }
+}

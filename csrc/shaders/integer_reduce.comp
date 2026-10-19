@@ -4,5 +4,5 @@ layout(binding=0) readonly buffer X {uint x[];};
 layout(binding=1) writeonly buffer Y {uint y[];};
 layout(push_constant) uniform P {uint count,reduced,mask,iw,ow;uint sizes[8];} p;
 void main(){uint id=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(id>=p.count)return;uint coords[8],r=id;for(int d=7;d>=0;d--){coords[d]=0;if((p.mask&(1u<<d))==0){coords[d]=r%p.sizes[d];r/=p.sizes[d];}}
- uvec2 sum=uvec2(0);for(uint j=0;j<p.reduced;j++){r=j;for(int d=7;d>=0;d--)if((p.mask&(1u<<d))!=0){coords[d]=r%p.sizes[d];r/=p.sizes[d];}uint index=0;for(uint d=0;d<8;d++)index=index*p.sizes[d]+coords[d];uint lo=p.iw==0?((x[index/4]>>((index%4)*8))&255):x[index*p.iw];uint hi=p.iw==2?x[index*2+1]:p.iw==1&&int(lo)<0?0xffffffff:0;uint next=sum.x+lo;sum.y+=hi+uint(next<sum.x);sum.x=next;}
+ uvec2 sum=uvec2(0);for(uint j=0;j<p.reduced;j++){r=j;for(int d=7;d>=0;d--)if((p.mask&(1u<<d))!=0){coords[d]=r%p.sizes[d];r/=p.sizes[d];}uint index=0;for(uint d=0;d<8;d++)index=index*p.sizes[d]+coords[d];uint lo=p.iw==0?((x[index/4]>>((index%4)*8))&255):x[index*p.iw];if(p.iw==0)lo=uint(lo!=0);uint hi=p.iw==2?x[index*2+1]:p.iw==1&&int(lo)<0?0xffffffff:0;uint next=sum.x+lo;sum.y+=hi+uint(next<sum.x);sum.x=next;}
  y[id*p.ow]=sum.x;if(p.ow==2)y[id*2+1]=sum.y;}

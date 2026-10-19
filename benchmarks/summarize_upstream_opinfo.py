@@ -20,7 +20,7 @@ retry=read_rows(root/'timeout-recheck/results.jsonl') if (root/'timeout-recheck/
 
 def classify(r):
     text='\n'.join(r['details'])
-    fallback=re.search(r'CPU fallback forbidden: (aten::[^\n(]+)',text)
+    fallback=re.search(r'CPU fallback forbidden: (aten::[^\n(]+|Vulkan inline::[^\n]+)',text)
     if fallback:return 'forbidden_fallback',fallback.group(1)
     if 'Vulkan integer RNG supports' in text:return 'rng_dtype_rejection',None
     if 'Mismatched elements:' in text:return 'numerical_comparison',None
@@ -46,7 +46,7 @@ for r in rows:
     by_op[r['operator']][r['status']]+=1
     case_index.append({k:r[k] for k in ('id','family','operator','dtype','status','seconds')}|{'classification':cat,'first_fallback':op})
 summary={
- 'backend_commit':inv['backend_commit'],'torch':inv['torch'],'torch_git':inv['torch_git'],
+ 'backend_commit':inv['backend_commit'],'backend_source_sha256':inv.get('backend_source_sha256'),'source_identity':inv.get('source_identity'),'published_source_identity':json.loads((root/'source-identity.json').read_text()) if (root/'source-identity.json').exists() else None,'torch':inv['torch'],'torch_git':inv['torch_git'],
  'source_sha256':inv['source_sha256'],'extension_sha256':inv['extension_sha256'],'device':inv['device'],
  'opinfo_registry_entries':inv['opinfo_entries'],'selected_cases':len(rows),
  'generated_cases_outside_scope':len(inv['excluded']),'excluded_reasons':dict(collections.Counter(x['reason'] for x in inv['excluded'])),

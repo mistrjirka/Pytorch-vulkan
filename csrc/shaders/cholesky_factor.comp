@@ -1,0 +1,16 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer X {float x[];};
+layout(binding=1) buffer L {float l[];};
+layout(binding=2) writeonly buffer Info {int info[];};
+layout(push_constant) uniform P {uint batch,n,upper;}p;
+uint index(uint base,uint i,uint j){return base+(p.upper!=0?j*p.n+i:i*p.n+j);}
+void main(){uint batch=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(batch>=p.batch)return;uint base=batch*p.n*p.n;info[batch]=0;
+ for(uint i=0;i<p.n*p.n;i++)l[base+i]=0;
+ for(uint j=0;j<p.n;j++)for(uint i=j;i<p.n;i++){
+  float sum=0,correction=0;for(uint k=0;k<j;k++){float term=l[index(base,i,k)]*l[index(base,j,k)]-correction;float next=sum+term;correction=(next-sum)-term;sum=next;}
+  float value=x[index(base,i,j)]-sum;
+  if(i==j){if(!(value>0)){l[index(base,i,j)]=value;info[batch]=int(j+1);return;}l[index(base,i,j)]=sqrt(value);}
+  else l[index(base,i,j)]=value/l[index(base,j,j)];
+ }
+}

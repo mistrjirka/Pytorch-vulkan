@@ -1,0 +1,1 @@
+{"torch": "2.14.1+cu130", "device": "NVIDIA GeForce RTX 2080 Ti", "same_seed_cpu_cuda_equal": false, "different_elements": 14, "cpu_values": [-0.7791939377784729, 1.6655988693237305], "cuda_values": [-0.7791939377784729, 1.6655988693237305]}

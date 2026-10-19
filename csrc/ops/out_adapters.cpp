@@ -11,23 +11,19 @@ struct NativeOut : c10::OperatorKernel {
  std::string name,overload;
  NativeOut(std::string n,std::string o):name(std::move(n)),overload(std::move(o)){}
  void operator()(const c10::OperatorHandle& op,c10::DispatchKeySet,torch::jit::Stack* stack){
-  auto count=op.schema().arguments().size();auto begin=stack->size()-count;
-  auto out=stack->back().toTensor();at::assert_no_internal_overlap(out);
-  torch::jit::Stack args(stack->begin()+begin,stack->end()-1);
-  for(const auto& v:args)if(v.isTensor()){
-   auto t=v.toTensor();at::assert_no_partial_overlap(out,t);
-   TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");
-  }
-  for(const auto& value:args)if(value.isTensorList())for(const auto& t:value.toTensorVector()){
-   at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device(),"out tensor must be on the input device");
+  auto count=op.schema().arguments().size(),noutputs=op.schema().returns().size();auto begin=stack->size()-count;
+  std::vector<at::Tensor> outputs;for(size_t i=stack->size()-noutputs;i<stack->size();i++){auto out=(*stack)[i].toTensor();at::assert_no_internal_overlap(out);for(const auto& previous:outputs)at::assert_no_overlap(out,previous);outputs.push_back(out);}
+  torch::jit::Stack args(stack->begin()+begin,stack->end()-noutputs);
+  for(const auto& out:outputs)for(const auto& v:args){
+    auto validate=[&](const at::Tensor& t){at::assert_no_partial_overlap(out,t);TORCH_CHECK(t.device()==out.device()||(t.is_cpu()&&t.dim()==0),"out tensor must be on the same device as the input");};
+    if(v.isTensor())validate(v.toTensor());else if(v.isTensorList())for(const auto& t:v.toTensorVector())validate(t);
   }
   const auto target=c10::Dispatcher::singleton().findSchemaOrThrow(name.c_str(),overload.c_str());
-  TORCH_INTERNAL_ASSERT(target.schema().arguments().size()==args.size());
-  target.callBoxed(&args);
-  TORCH_INTERNAL_ASSERT(args.size()==1&&args[0].isTensor());auto value=args[0].toTensor();
-  TORCH_CHECK(c10::canCast(value.scalar_type(),out.scalar_type()),"result type ",value.scalar_type()," can't be cast to the desired output type ",out.scalar_type());
-  at::native::resize_output(out,value.sizes());out.copy_(value);
-  stack->resize(begin);stack->push_back(out);
+  TORCH_INTERNAL_ASSERT(target.schema().arguments().size()==args.size());target.callBoxed(&args);
+  TORCH_INTERNAL_ASSERT(args.size()==outputs.size());
+  for(size_t i=0;i<outputs.size();i++){TORCH_INTERNAL_ASSERT(args[i].isTensor());TORCH_CHECK(c10::canCast(args[i].toTensor().scalar_type(),outputs[i].scalar_type()),"result type cannot be cast to the desired output type");}
+  for(size_t i=0;i<outputs.size();i++){auto value=args[i].toTensor();auto& out=outputs[i];at::native::resize_output(out,value.sizes());out.copy_(value);}
+  stack->resize(begin);for(const auto& out:outputs)stack->push_back(out);
  }
 };
 }
@@ -40,7 +36,17 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("bitwise_and.Scalar_out","bitwise_and","Scalar");add("bitwise_or.Scalar_out","bitwise_or","Scalar");add("bitwise_xor.Scalar_out","bitwise_xor","Scalar");
  for(auto name:{"reciprocal","log","log1p","expm1","floor","ceil","trunc","round","sign","log10","log2","exp2","sinh","cosh","tan","asin","acos","atan","asinh","acosh","atanh","erf","erfc"})add((std::string(name)+".out").c_str(),name);
  add("round.decimals_out","round","decimals");
- add("cat.out","cat");
+ add("lu_unpack.out","lu_unpack");add("linalg_lu.out","linalg_lu");
+ add("linalg_solve_triangular.out","linalg_solve_triangular");
+ add("linalg_lu_factor_ex.out","linalg_lu_factor_ex");add("linalg_lu_solve.out","linalg_lu_solve");add("_linalg_solve_ex.result","_linalg_solve_ex");
+ add("linalg_inv_ex.inverse","linalg_inv_ex");add("linalg_cholesky_ex.L","linalg_cholesky_ex");add("cholesky_solve.out","cholesky_solve");add("cholesky_inverse.out","cholesky_inverse");add("std_mean.correction_out","std_mean","correction");
+ add("max.unary_out","max");add("min.unary_out","min");add("max.dim_max","max","dim");add("min.dim_min","min","dim");add("argmax.out","argmax");add("argmin.out","argmin");
+ add("nll_loss_forward.output","nll_loss_forward");add("nll_loss_backward.grad_input","nll_loss_backward");add("nll_loss2d_forward.output","nll_loss2d_forward");add("nll_loss2d_backward.grad_input","nll_loss2d_backward");
+ add("_softmax.out","_softmax");add("_log_softmax.out","_log_softmax");add("fmax.out","fmax");add("fmin.out","fmin");add("aminmax.out","aminmax");add("baddbmm.out","baddbmm");add("linalg_cross.out","linalg_cross");
+ add("fmod.Tensor_out","fmod","Tensor");add("fmod.Scalar_out","fmod","Scalar");add("remainder.Tensor_out","remainder","Tensor");add("remainder.Scalar_out","remainder","Scalar");add("pow.Tensor_Tensor_out","pow","Tensor_Tensor");add("floor_divide.out","floor_divide");add("floor_divide.Scalar_out","floor_divide","Scalar");add("div.out_mode","div","Tensor_mode");add("div.Scalar_mode_out","div","Scalar_mode");
+ add("hypot.out","hypot");add("copysign.out","copysign","Tensor");add("copysign.Scalar_out","copysign","Scalar");add("logaddexp.out","logaddexp");add("logaddexp2.out","logaddexp2");add("xlogy.OutTensor","xlogy","Tensor");add("xlogy.OutScalar_Other","xlogy","Scalar_Other");add("nextafter.out","nextafter");
+ add("_unique2.out","_unique2");add("topk.values","topk");
+ add("cat.out","cat");add("nansum.out","nansum");add("std.correction_out","std","correction");
  for(auto name:{"clamp_min","clamp_max"}){add((std::string(name)+".out").c_str(),name);add((std::string(name)+".Tensor_out").c_str(),name,"Tensor");}
  add("clamp.Tensor_out","clamp","Tensor");add("hardtanh.out","hardtanh");
  add("masked_fill.Scalar_out","masked_fill","Scalar");add("masked_fill.Tensor_out","masked_fill","Tensor");
@@ -51,6 +57,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  add("sum.IntList_out","sum","dim_IntList");add("sum.out","sum");
  add("mean.out","mean","dim");add("mean.dtype_out","mean");
  add("all.out","all","dim");add("all.all_out","all");
+ add("cumprod.out","cumprod");add("cummax.out","cummax");add("cummin.out","cummin");
  add("cumsum.out","cumsum");add("flip.out","flip");
 }
 }

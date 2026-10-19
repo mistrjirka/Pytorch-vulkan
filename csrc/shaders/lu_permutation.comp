@@ -1,0 +1,6 @@
+#version 450
+layout(local_size_x=128) in;
+layout(binding=0) readonly buffer Piv {int piv[];};
+layout(binding=1) writeonly buffer Y {float y[];};
+layout(push_constant) uniform P {uint count,m,k;}p;
+void main(){uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128+gl_LocalInvocationID.x;if(i>=p.count)return;uint batch=i/(p.m*p.m),row=(i/p.m)%p.m,col=i%p.m;for(uint j=0;j<p.k;j++){uint target=uint(piv[batch*p.k+j]-1);if(row==j)row=target;else if(row==target)row=j;}y[i]=row==col?1:0;}

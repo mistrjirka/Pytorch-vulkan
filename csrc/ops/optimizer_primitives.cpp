@@ -1,4 +1,5 @@
 #include "native_utils.h"
+#include "device_copy.h"
 #include <ATen/MemoryOverlap.h>
 #include <ATen/ExpandUtils.h>
 #include <ATen/native/Resize.h>
@@ -12,6 +13,7 @@ at::Tensor addcmul_native(const at::Tensor& x,const at::Tensor& a,const at::Tens
 at::Tensor addcdiv_native(const at::Tensor& x,const at::Tensor& a,const at::Tensor& b,const at::Scalar& value){fp32(x);fp32(a);fp32(b);return x.add(a.div(b),value);}
 at::Tensor& output(at::Tensor& out,const at::Tensor& result){TORCH_CHECK(out.device()==result.device()&&out.scalar_type()==result.scalar_type(),"optimizer output device/dtype mismatch");at::assert_no_internal_overlap(out);at::native::resize_output(out,result.sizes());out.copy_(result);return out;}
 at::Tensor extrema(const at::Tensor& x,const at::Tensor& y,bool minimum){
+ if(device_copy_supported(x.scalar_type())&&device_copy_supported(y.scalar_type())&&(x.scalar_type()!=at::kFloat||y.scalar_type()!=at::kFloat||x.device()!=y.device()))return minimum?at::clamp_max(x,y):at::clamp_min(x,y);
  fp32(x);fp32(y);TORCH_CHECK(x.device()==y.device(),"extrema device mismatch");auto shape=at::infer_size_dimvector(x.sizes(),y.sizes());auto out=at::empty(shape,x.options());if(!out.numel())return out;
  auto a=native::packed(x.expand(shape)),b=native::packed(y.expand(shape));native::run("extrema_fp32",{native::base(a),native::base(b)},{native::write_base(out)},{native::u32(out.numel()),uint32_t(minimum)},(out.numel()+127)/128);return out;
 }

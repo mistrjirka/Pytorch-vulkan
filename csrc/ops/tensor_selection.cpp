@@ -3,6 +3,7 @@
 #include "device_copy.h"
 #include <ATen/ExpandUtils.h>
 #include <ATen/MemoryOverlap.h>
+#include <ATen/native/Resize.h>
 #include <ATen/native/BinaryOps.h>
 #include <ATen/WrapDimUtils.h>
 #include <torch/library.h>
@@ -55,12 +56,48 @@ at::Tensor addmv(const at::Tensor& bias,const at::Tensor& matrix,const at::Tenso
  auto b=bias.dim()?bias.unsqueeze(1):bias;
  return at::addmm(b,matrix,vector.unsqueeze(1),beta,alpha).squeeze(1);
 }
+// General tensor compositions; all arithmetic dispatches to the device backend.
+at::Tensor roll_native(const at::Tensor& x,c10::SymIntArrayRef shifts,at::IntArrayRef dims){
+ TORCH_CHECK(!shifts.empty(),"`shifts` required");
+ if(dims.empty()){TORCH_CHECK(shifts.size()==1,"shifts and dimensions must align");return roll_native(x.reshape({-1}),shifts,{0}).reshape(x.sizes());}
+ TORCH_CHECK(shifts.size()==dims.size(),"shifts and dimensions must align");auto result=x;
+ for(size_t i=0;i<dims.size();i++){auto d=at::maybe_wrap_dim(dims[i],x.dim());auto n=x.size(d);if(!n)continue;auto shift=shifts[i].expect_int()%n;if(shift<0)shift+=n;if(shift)result=at::cat({result.narrow(d,n-shift,shift),result.narrow(d,0,n-shift)},d);}
+ return result.is_same(x)?result.clone():result;
+}
+at::Tensor nansum_native(const at::Tensor& x,at::OptionalIntArrayRef dims,bool keep,std::optional<at::ScalarType> dtype){if(!x.is_floating_point()&&!x.is_complex())return at::sum(x,dims,keep,dtype);return at::sum(at::where(at::isnan(x),at::zeros({},x.options()),x),dims,keep,dtype);}
+at::Tensor std_native(const at::Tensor& x,at::OptionalIntArrayRef dims,const std::optional<at::Scalar>& correction,bool keep){return at::sqrt(at::var(x,dims,correction,keep));}
+std::tuple<at::Tensor,at::Tensor> std_mean_native(const at::Tensor& x,at::OptionalIntArrayRef dims,const std::optional<at::Scalar>& correction,bool keep){auto result=at::var_mean(x,dims,correction,keep);return {at::sqrt(std::get<0>(result)),std::get<1>(result)};}
+
+at::Tensor masked_select_native(const at::Tensor& x,const at::Tensor& mask){
+ TORCH_CHECK(mask.scalar_type()==at::kBool,"masked_select: expected BoolTensor for mask");TORCH_CHECK(mask.device()==x.device(),"masked_select tensors must be on the same device");
+ auto shape=at::infer_size_dimvector(x.sizes(),mask.sizes());auto data=x.expand(shape).reshape({-1}),selection=mask.expand(shape).reshape({-1});
+ c10::List<std::optional<at::Tensor>> indices;indices.push_back(selection);return at::index(data,indices);
+}
+at::Tensor& masked_select_out(const at::Tensor& x,const at::Tensor& mask,at::Tensor& out){
+ TORCH_CHECK(out.device()==x.device()&&out.scalar_type()==x.scalar_type(),"masked_select output device/dtype mismatch");at::assert_no_internal_overlap(out);at::assert_no_overlap(out,x);at::assert_no_overlap(out,mask);auto value=masked_select_native(x,mask);at::native::resize_output(out,value.sizes());out.copy_(value);return out;
+}
+at::Tensor masked_scatter_native(const at::Tensor& x,const at::Tensor& mask,const at::Tensor& source){
+ TORCH_CHECK(mask.scalar_type()==at::kBool,"masked_scatter_ only supports boolean masks");TORCH_CHECK(mask.device()==x.device()&&source.device()==x.device()&&source.scalar_type()==x.scalar_type(),"masked_scatter source device/dtype mismatch");
+ auto shape=at::infer_size_dimvector(x.sizes(),mask.sizes());auto result=x.expand(shape).clone().reshape({-1});auto indices=at::nonzero(mask.expand(shape).reshape({-1})).select(1,0);
+ TORCH_CHECK(source.numel()>=indices.numel(),"Number of elements of source < number of ones in mask");c10::List<std::optional<at::Tensor>> list;list.push_back(indices);at::_index_put_impl_(result,list,source.reshape({-1}).narrow(0,0,indices.numel()),false,false);return result.reshape(shape);
+}
+at::Tensor& masked_scatter_inplace(at::Tensor& x,const at::Tensor& mask,const at::Tensor& source){at::assert_no_partial_overlap(x,source);at::assert_no_overlap(x,mask);return assign(x,masked_scatter_native(x,mask,source));}
+
+template<bool Max>at::Tensor finite_extrema(const at::Tensor& x,const at::Tensor& other){auto value=Max?at::maximum(x,other):at::minimum(x,other);if(x.is_floating_point())value=at::where(at::isnan(x),other,value);if(other.is_floating_point())value=at::where(at::isnan(other),x,value);return value;}
+std::tuple<at::Tensor,at::Tensor> aminmax_native(const at::Tensor& x,std::optional<int64_t> dim,bool keep){if(dim)return {std::get<0>(at::min(x,*dim,keep)),std::get<0>(at::max(x,*dim,keep))};auto a=at::min(x),b=at::max(x);if(keep){std::vector<int64_t> shape(x.dim(),1);a=a.reshape(shape);b=b.reshape(shape);}return {a,b};}
+at::Tensor count_nonzero_dims(const at::Tensor& x,at::IntArrayRef dims){return at::sum(at::ne(x,0),dims,false,at::kLong);}
+at::Tensor count_nonzero_dim(const at::Tensor& x,std::optional<int64_t> dim){if(dim)return count_nonzero_dims(x,{*dim});return at::sum(at::ne(x,0),at::kLong);}
+at::Tensor baddbmm_native(const at::Tensor& bias,const at::Tensor& a,const at::Tensor& b,const at::Scalar& beta,const at::Scalar& alpha){auto product=at::bmm(a,b).mul(alpha);auto shape=at::infer_size_dimvector(product.sizes(),bias.sizes());TORCH_CHECK(shape==product.sizes(),"baddbmm bias cannot expand output");if(beta.toDouble()==0)return product;return product.add(bias.mul(beta));}
+at::Tensor cross_native(const at::Tensor& a,const at::Tensor& b,int64_t raw){TORCH_CHECK(a.dim()==b.dim(),"linalg.cross: inputs must have the same number of dimensions.");auto d=at::maybe_wrap_dim(raw,a.dim());TORCH_CHECK(a.size(d)==3&&b.size(d)==3,"linalg.cross: inputs dimension must have length 3");return at::stack({a.select(d,1).mul(b.select(d,2)).sub(a.select(d,2).mul(b.select(d,1))),a.select(d,2).mul(b.select(d,0)).sub(a.select(d,0).mul(b.select(d,2))),a.select(d,0).mul(b.select(d,1)).sub(a.select(d,1).mul(b.select(d,0)))},d);}
 }
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
+ m.impl("fmax",&finite_extrema<true>);m.impl("fmin",&finite_extrema<false>);m.impl("aminmax",&aminmax_native);m.impl("count_nonzero.dim_IntList",&count_nonzero_dims);m.impl("count_nonzero",&count_nonzero_dim);m.impl("baddbmm",&baddbmm_native);m.impl("linalg_cross",&cross_native);
+ m.impl("masked_select",&masked_select_native);m.impl("masked_select.out",&masked_select_out);m.impl("masked_scatter",&masked_scatter_native);m.impl("masked_scatter_",&masked_scatter_inplace);
  m.impl("masked_fill.Scalar",&masked_fill_scalar);m.impl("masked_fill.Tensor",&masked_fill_tensor);m.impl("masked_fill_.Scalar",&masked_fill_scalar_);m.impl("masked_fill_.Tensor",&masked_fill_tensor_);
  m.impl("clamp_min",&bound_scalar<true>);m.impl("clamp_max",&bound_scalar<false>);m.impl("clamp_min.Tensor",&bound_tensor<true>);m.impl("clamp_max.Tensor",&bound_tensor<false>);
  m.impl("clamp_min_",&bound_scalar_<true>);m.impl("clamp_max_",&bound_scalar_<false>);m.impl("clamp_min_.Tensor",&bound_tensor_<true>);m.impl("clamp_max_.Tensor",&bound_tensor_<false>);
  m.impl("clamp.Tensor",&clamp_tensor);m.impl("clamp_.Tensor",&clamp_tensor_);m.impl("clamp_",&clamp_scalar_);m.impl("hardtanh",&hardtanh_native);m.impl("hardtanh_",&hardtanh_);
+ m.impl("roll",&roll_native);m.impl("nansum",&nansum_native);m.impl("std.correction",&std_native);m.impl("std_mean.correction",&std_mean_native);
  m.impl("any",&any_all);m.impl("any.dim",&any_dim);m.impl("any.dims",&boolean_dims<true>);m.impl("all.dims",&boolean_dims<false>);
  m.impl("rsub.Tensor",&reverse_sub);m.impl("rsub.Scalar",&reverse_sub_scalar);m.impl("addmv",&addmv);
 }

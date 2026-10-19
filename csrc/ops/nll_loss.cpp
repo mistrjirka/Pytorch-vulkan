@@ -14,7 +14,7 @@ bool eligible(const at::Tensor& x,const at::Tensor& target,const std::optional<a
   if(!can_pack_view(x) || !can_pack_view(target) ||
      (weight && weight->defined() && !can_pack_view(*weight))) return false;
   return x.scalar_type()==at::kFloat && (x.dim()==1 || x.dim()==2) &&
-      x.numel()>0 && x.numel()<=UINT32_MAX-127 && target.scalar_type()==at::kLong &&
+      x.numel()<=UINT32_MAX-127 && target.scalar_type()==at::kLong &&
       target.device()==x.device() && target.dim()<=1 &&
       (!weight || !weight->defined() || (weight->device()==x.device() &&
        weight->scalar_type()==at::kFloat && weight->dim()==1));
@@ -57,6 +57,7 @@ std::tuple<at::Tensor,at::Tensor> forward(const at::Tensor& input,const at::Tens
     return {out.to(input.device()),total.to(input.device())};
   }
   validate(input,target,weight,reduction,ignore);
+  if(input.numel()==0){std::vector<int64_t> shape;if(reduction==0&&input.dim()==2)shape.push_back(input.size(0));return {at::full(shape,reduction==1?std::numeric_limits<float>::quiet_NaN():0.f,input.options()),at::zeros({},input.options())};}
   auto x=packed(input),t=packed(target,at::kLong);
   auto w=weight && weight->defined()?packed(*weight):x;
   auto out=at::empty(reduction==0 && input.dim()==2?at::IntArrayRef({input.size(0)}):at::IntArrayRef({}),input.options());
@@ -75,6 +76,7 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,const at::Ten
   validate(input,target,weight,reduction,ignore);
   TORCH_CHECK(total_weight.numel()==1,"nll_loss_backward: total_weight must be scalar");
   TORCH_CHECK(reduction==0 && input.dim()==2 ? (grad.dim()==1 && grad.numel()==input.size(0)) : (grad.dim()<=1 && grad.numel()==1),"nll_loss_backward: gradient shape mismatch");
+  if(!input.numel())return at::empty_like(input);
   auto g=packed(grad),t=packed(target,at::kLong),total=packed(total_weight);
   auto w=weight && weight->defined()?packed(*weight):g;
   auto out=at::empty(input.sizes(),input.options());
@@ -82,8 +84,18 @@ at::Tensor backward(const at::Tensor& grad,const at::Tensor& input,const at::Ten
       {write_base(out)},params(input,weight,reduction,ignore),(input.numel()+127)/128);
   return out;
 }
+std::tuple<at::Tensor,at::Tensor> forward2d(const at::Tensor& input,const at::Tensor& target,const std::optional<at::Tensor>& weight,int64_t reduction,c10::SymInt ignore){
+ TORCH_CHECK(input.dim()==4&&target.dim()==3&&input.size(0)==target.size(0)&&input.size(2)==target.size(1)&&input.size(3)==target.size(2),"nll_loss2d input and target shapes must match");
+ auto flat=input.permute({0,2,3,1}).reshape({target.numel(),input.size(1)});auto [loss,total]=forward(flat,target.reshape({-1}),weight,reduction,ignore);if(reduction==0)loss=loss.reshape(target.sizes());return {loss,total};
+}
+at::Tensor backward2d(const at::Tensor& grad,const at::Tensor& input,const at::Tensor& target,const std::optional<at::Tensor>& weight,int64_t reduction,c10::SymInt ignore,const at::Tensor& total){
+ TORCH_CHECK(input.dim()==4&&target.dim()==3&&input.size(0)==target.size(0)&&input.size(2)==target.size(1)&&input.size(3)==target.size(2),"nll_loss2d input and target shapes must match");
+ if(reduction==0)TORCH_CHECK(grad.sizes()==target.sizes(),"nll_loss2d gradient shape mismatch");
+ auto flat=input.permute({0,2,3,1}).reshape({target.numel(),input.size(1)});auto result=backward(reduction==0?grad.reshape({-1}):grad,flat,target.reshape({-1}),weight,reduction,ignore,total);return result.reshape({input.size(0),input.size(2),input.size(3),input.size(1)}).permute({0,3,1,2});
+}
 } // namespace
 TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {
+  m.impl("nll_loss2d_forward",&forward2d);m.impl("nll_loss2d_backward",&backward2d);
   m.impl("nll_loss_forward",&forward);
   m.impl("nll_loss_backward",&backward);
 }
