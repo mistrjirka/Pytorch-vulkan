@@ -1,0 +1,1277 @@
+{
+  "method": "Median of process medians; serial rotating API order, same FP32 workload and physical GPU. Primary wall timing includes standard AdamW; no forced phase synchronization.",
+  "networks": [
+    {
+      "case": "embedding",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            7,
+            7,
+            7
+          ],
+          "shape": [
+            128,
+            64
+          ],
+          "parameters": 6438164,
+          "training_ms": {
+            "median": 8.242187992436811,
+            "min_run_median": 6.61858799867332,
+            "max_run_median": 8.30491099623032,
+            "run_medians": [
+              6.61858799867332,
+              8.242187992436811,
+              8.30491099623032
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 0.6074630073271692,
+            "min_run_median": 0.4038969927933067,
+            "max_run_median": 0.6399029807653278,
+            "run_medians": [
+              0.4038969927933067,
+              0.6074630073271692,
+              0.6399029807653278
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 114.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 95.16,
+            "algo_misses": 18.84,
+            "algo_evictions": 15.84,
+            "pipeline_hits": 18.84,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            7,
+            7,
+            7
+          ],
+          "shape": [
+            128,
+            64
+          ],
+          "parameters": 6438164,
+          "training_ms": {
+            "median": 5.838766024680808,
+            "min_run_median": 5.8055629779119045,
+            "max_run_median": 5.960067006526515,
+            "run_medians": [
+              5.838766024680808,
+              5.8055629779119045,
+              5.960067006526515
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 0.6372579955495894,
+            "min_run_median": 0.6315170030575246,
+            "max_run_median": 0.6390920025296509,
+            "run_medians": [
+              0.6390920025296509,
+              0.6372579955495894,
+              0.6315170030575246
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 74.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 70.48,
+            "algo_misses": 3.52,
+            "algo_evictions": 0.0,
+            "pipeline_hits": 3.52,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            7,
+            7,
+            7
+          ],
+          "shape": [
+            128,
+            64
+          ],
+          "parameters": 6438164,
+          "training_ms": {
+            "median": 2.364322019275278,
+            "min_run_median": 2.151317021343857,
+            "max_run_median": 2.3960290127433836,
+            "run_medians": [
+              2.364322019275278,
+              2.3960290127433836,
+              2.151317021343857
+            ]
+          },
+          "inference_ms": {
+            "median": 0.12697497732006013,
+            "min_run_median": 0.1268849882762879,
+            "max_run_median": 0.12825700105167925,
+            "run_medians": [
+              0.12697497732006013,
+              0.12825700105167925,
+              0.1268849882762879
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.4116318341232714,
+      "training_reduction_percent": 29.159999383190836,
+      "training_before_over_cuda": 3.48606827887313,
+      "training_after_over_cuda": 2.469530790256114
+    },
+    {
+      "case": "mlp",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            13,
+            13,
+            13
+          ],
+          "shape": [
+            256,
+            784
+          ],
+          "parameters": 1867786,
+          "training_ms": {
+            "median": 9.64857600047253,
+            "min_run_median": 8.322680980199948,
+            "max_run_median": 9.8852860101033,
+            "run_medians": [
+              8.322680980199948,
+              9.8852860101033,
+              9.64857600047253
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 0.7418720051646233,
+            "min_run_median": 0.7391070248559117,
+            "max_run_median": 0.7432150014210492,
+            "run_medians": [
+              0.7418720051646233,
+              0.7432150014210492,
+              0.7391070248559117
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 201.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 42.92,
+            "algo_misses": 158.08,
+            "algo_evictions": 158.08,
+            "pipeline_hits": 158.08,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            13,
+            13,
+            13
+          ],
+          "shape": [
+            256,
+            784
+          ],
+          "parameters": 1867786,
+          "training_ms": {
+            "median": 6.278200016822666,
+            "min_run_median": 6.230689992662519,
+            "max_run_median": 6.304894981440157,
+            "run_medians": [
+              6.278200016822666,
+              6.230689992662519,
+              6.304894981440157
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 0.7403590134344995,
+            "min_run_median": 0.7390259997919202,
+            "max_run_median": 0.7762360037304461,
+            "run_medians": [
+              0.7403590134344995,
+              0.7762360037304461,
+              0.7390259997919202
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 121.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 106.16,
+            "algo_misses": 14.84,
+            "algo_evictions": 12.6,
+            "pipeline_hits": 14.84,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            13,
+            13,
+            13
+          ],
+          "shape": [
+            256,
+            784
+          ],
+          "parameters": 1867786,
+          "training_ms": {
+            "median": 2.343111002119258,
+            "min_run_median": 2.229523001005873,
+            "max_run_median": 2.380521997110918,
+            "run_medians": [
+              2.229523001005873,
+              2.380521997110918,
+              2.343111002119258
+            ]
+          },
+          "inference_ms": {
+            "median": 0.21241299691610038,
+            "min_run_median": 0.21240301430225372,
+            "max_run_median": 0.21366498549468815,
+            "run_medians": [
+              0.21240301430225372,
+              0.21241299691610038,
+              0.21366498549468815
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.5368379431395653,
+      "training_reduction_percent": 34.93133062832074,
+      "training_before_over_cuda": 4.117848446678688,
+      "training_after_over_cuda": 2.679429190996186
+    },
+    {
+      "case": "mobilenet_v3",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            145,
+            145,
+            145
+          ],
+          "shape": [
+            2,
+            3,
+            96,
+            96
+          ],
+          "parameters": 1620356,
+          "training_ms": {
+            "median": 169.1909120127093,
+            "min_run_median": 160.81532201496884,
+            "max_run_median": 211.16392099065706,
+            "run_medians": [
+              211.16392099065706,
+              160.81532201496884,
+              169.1909120127093
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 12.91401099297218,
+            "min_run_median": 12.401716987369582,
+            "max_run_median": 24.450060009257868,
+            "run_medians": [
+              24.450060009257868,
+              12.401716987369582,
+              12.91401099297218
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 3329.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 3329.0,
+            "algo_evictions": 3329.0,
+            "pipeline_hits": 3329.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            145,
+            145,
+            145
+          ],
+          "shape": [
+            2,
+            3,
+            96,
+            96
+          ],
+          "parameters": 1620356,
+          "training_ms": {
+            "median": 134.15205301134847,
+            "min_run_median": 134.02327700168826,
+            "max_run_median": 135.6526349845808,
+            "run_medians": [
+              134.02327700168826,
+              134.15205301134847,
+              135.6526349845808
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 19.486781995510682,
+            "min_run_median": 17.750290979165584,
+            "max_run_median": 25.05017101066187,
+            "run_medians": [
+              19.486781995510682,
+              25.05017101066187,
+              17.750290979165584
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 2193.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 2193.0,
+            "algo_evictions": 2193.0,
+            "pipeline_hits": 2193.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            145,
+            145,
+            145
+          ],
+          "shape": [
+            2,
+            3,
+            96,
+            96
+          ],
+          "parameters": 1620356,
+          "training_ms": {
+            "median": 34.76912798942067,
+            "min_run_median": 34.22295898781158,
+            "max_run_median": 35.40845398674719,
+            "run_medians": [
+              34.22295898781158,
+              34.76912798942067,
+              35.40845398674719
+            ]
+          },
+          "inference_ms": {
+            "median": 3.8815870066173375,
+            "min_run_median": 3.8474739994853735,
+            "max_run_median": 3.961462003644556,
+            "run_medians": [
+              3.8474739994853735,
+              3.8815870066173375,
+              3.961462003644556
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.2611876465162761,
+      "training_reduction_percent": 20.709657856048903,
+      "training_before_over_cuda": 4.8661246857899245,
+      "training_after_over_cuda": 3.8583669125140965
+    },
+    {
+      "case": "resnet18",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            65,
+            65,
+            65
+          ],
+          "shape": [
+            4,
+            3,
+            64,
+            64
+          ],
+          "parameters": 11227812,
+          "training_ms": {
+            "median": 71.62179501028731,
+            "min_run_median": 62.40289201377891,
+            "max_run_median": 73.00631300313398,
+            "run_medians": [
+              62.40289201377891,
+              73.00631300313398,
+              71.62179501028731
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 12.794344016583636,
+            "min_run_median": 8.263480995083228,
+            "max_run_median": 13.716585002839565,
+            "run_medians": [
+              8.263480995083228,
+              12.794344016583636,
+              13.716585002839565
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 1368.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 1368.0,
+            "algo_evictions": 1368.0,
+            "pipeline_hits": 1368.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            65,
+            65,
+            65
+          ],
+          "shape": [
+            4,
+            3,
+            64,
+            64
+          ],
+          "parameters": 11227812,
+          "training_ms": {
+            "median": 67.37652298761532,
+            "min_run_median": 57.74436698993668,
+            "max_run_median": 68.38774800417013,
+            "run_medians": [
+              57.74436698993668,
+              67.37652298761532,
+              68.38774800417013
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 2.0,
+            "host_read_bytes_per_step": 8.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 14.201903017237782,
+            "min_run_median": 13.624523999169469,
+            "max_run_median": 14.656455983640626,
+            "run_medians": [
+              13.624523999169469,
+              14.656455983640626,
+              14.201903017237782
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 3.0,
+            "recorded_ops": 872.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 872.0,
+            "algo_evictions": 872.0,
+            "pipeline_hits": 872.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            65,
+            65,
+            65
+          ],
+          "shape": [
+            4,
+            3,
+            64,
+            64
+          ],
+          "parameters": 11227812,
+          "training_ms": {
+            "median": 15.337315009674057,
+            "min_run_median": 15.236555016599596,
+            "max_run_median": 15.510772005654871,
+            "run_medians": [
+              15.510772005654871,
+              15.337315009674057,
+              15.236555016599596
+            ]
+          },
+          "inference_ms": {
+            "median": 1.9899489998351783,
+            "min_run_median": 1.975352002773434,
+            "max_run_median": 2.001661021495238,
+            "run_medians": [
+              1.9899489998351783,
+              2.001661021495238,
+              1.975352002773434
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.063008179027765,
+      "training_reduction_percent": 5.927346587812032,
+      "training_before_over_cuda": 4.669774009669336,
+      "training_after_over_cuda": 4.392980319248667
+    },
+    {
+      "case": "transformer",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            4,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 77.80183502472937,
+            "min_run_median": 77.12969198473729,
+            "max_run_median": 78.83525098441169,
+            "run_medians": [
+              77.12969198473729,
+              78.83525098441169,
+              77.80183502472937
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 11.061712983064353,
+            "min_run_median": 10.985569009790197,
+            "max_run_median": 11.062939011026174,
+            "run_medians": [
+              11.061712983064353,
+              10.985569009790197,
+              11.062939011026174
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 1134.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 1134.0,
+            "algo_evictions": 1134.0,
+            "pipeline_hits": 1134.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            4,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 73.34885801537894,
+            "min_run_median": 72.89209999726154,
+            "max_run_median": 73.43038098770194,
+            "run_medians": [
+              73.43038098770194,
+              73.34885801537894,
+              72.89209999726154
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 10.945724992780015,
+            "min_run_median": 10.913217993220314,
+            "max_run_median": 10.98183001158759,
+            "run_medians": [
+              10.913217993220314,
+              10.945724992780015,
+              10.98183001158759
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 718.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 4.0,
+            "algo_misses": 714.0,
+            "algo_evictions": 714.0,
+            "pipeline_hits": 714.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            4,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 16.167766007129103,
+            "min_run_median": 15.964513004291803,
+            "max_run_median": 16.174346004845574,
+            "run_medians": [
+              16.174346004845574,
+              15.964513004291803,
+              16.167766007129103
+            ]
+          },
+          "inference_ms": {
+            "median": 1.2535069836303592,
+            "min_run_median": 1.2453430099412799,
+            "max_run_median": 1.2542680196929723,
+            "run_medians": [
+              1.2535069836303592,
+              1.2453430099412799,
+              1.2542680196929723
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.0607095615369606,
+      "training_reduction_percent": 5.723485838007614,
+      "training_before_over_cuda": 4.812157411878858,
+      "training_after_over_cuda": 4.536734263907339
+    },
+    {
+      "case": "transformer",
+      "scale": "reference",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            16,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 165.38248700089753,
+            "min_run_median": 163.81737700430676,
+            "max_run_median": 165.645625005709,
+            "run_medians": [
+              165.645625005709,
+              165.38248700089753,
+              163.81737700430676
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 23.20129601866938,
+            "min_run_median": 23.186808975879103,
+            "max_run_median": 23.242026014486328,
+            "run_medians": [
+              23.20129601866938,
+              23.242026014486328,
+              23.186808975879103
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 1134.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 1134.0,
+            "algo_evictions": 1134.0,
+            "pipeline_hits": 1134.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            16,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 149.94589900015853,
+            "min_run_median": 149.53500300180167,
+            "max_run_median": 150.0140510033816,
+            "run_medians": [
+              149.53500300180167,
+              149.94589900015853,
+              150.0140510033816
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median": 23.258765984792262,
+            "min_run_median": 23.169127001892775,
+            "max_run_median": 23.260566988028586,
+            "run_medians": [
+              23.260566988028586,
+              23.258765984792262,
+              23.169127001892775
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 718.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 4.0,
+            "algo_misses": 714.0,
+            "algo_evictions": 714.0,
+            "pipeline_hits": 714.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            54,
+            54,
+            54
+          ],
+          "shape": [
+            16,
+            128
+          ],
+          "parameters": 5293056,
+          "training_ms": {
+            "median": 16.251842986093834,
+            "min_run_median": 16.103145986562595,
+            "max_run_median": 16.633282997645438,
+            "run_medians": [
+              16.633282997645438,
+              16.251842986093834,
+              16.103145986562595
+            ]
+          },
+          "inference_ms": {
+            "median": 2.844668022589758,
+            "min_run_median": 2.811557991662994,
+            "max_run_median": 2.9040689987596124,
+            "run_medians": [
+              2.811557991662994,
+              2.9040689987596124,
+              2.844668022589758
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.1029477171677944,
+      "training_reduction_percent": 9.33387100452493,
+      "training_before_over_cuda": 10.17622968314485,
+      "training_after_over_cuda": 9.226393531395933
+    },
+    {
+      "case": "unet",
+      "scale": "medium",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 31.463850988075137,
+            "min_run_median": 31.044857983943075,
+            "max_run_median": 31.78866399684921,
+            "run_medians": [
+              31.044857983943075,
+              31.463850988075137,
+              31.78866399684921
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "inference_ms": {
+            "median": 2.747379010543227,
+            "min_run_median": 2.6166879979427904,
+            "max_run_median": 2.956235985038802,
+            "run_medians": [
+              2.956235985038802,
+              2.6166879979427904,
+              2.747379010543227
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 1.0,
+            "recorded_ops": 853.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 1.0,
+            "algo_misses": 852.0,
+            "algo_evictions": 852.0,
+            "pipeline_hits": 852.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 27.682621002895758,
+            "min_run_median": 24.518513993825763,
+            "max_run_median": 28.268433001358062,
+            "run_medians": [
+              27.682621002895758,
+              28.268433001358062,
+              24.518513993825763
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "inference_ms": {
+            "median": 2.964450017316267,
+            "min_run_median": 2.917115023592487,
+            "max_run_median": 3.0120789888314903,
+            "run_medians": [
+              2.917115023592487,
+              3.0120789888314903,
+              2.964450017316267
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 1.0,
+            "recorded_ops": 517.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 83.76,
+            "algo_misses": 433.24,
+            "algo_evictions": 433.24,
+            "pipeline_hits": 433.24,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            1,
+            3,
+            64,
+            64
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 10.048293974250555,
+            "min_run_median": 9.998499997891486,
+            "max_run_median": 10.057725012302399,
+            "run_medians": [
+              9.998499997891486,
+              10.057725012302399,
+              10.048293974250555
+            ]
+          },
+          "inference_ms": {
+            "median": 1.088271994376555,
+            "min_run_median": 1.0759890137705952,
+            "max_run_median": 1.1069870088249445,
+            "run_medians": [
+              1.1069870088249445,
+              1.088271994376555,
+              1.0759890137705952
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.136592195687823,
+      "training_reduction_percent": 12.017696074814467,
+      "training_before_over_cuda": 3.13126298540861,
+      "training_after_over_cuda": 2.754957316519041
+    },
+    {
+      "case": "unet",
+      "scale": "reference",
+      "variants": {
+        "before": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            8,
+            3,
+            96,
+            96
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 105.97039299318567,
+            "min_run_median": 105.4965179937426,
+            "max_run_median": 105.99487498984672,
+            "run_medians": [
+              105.4965179937426,
+              105.99487498984672,
+              105.97039299318567
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "inference_ms": {
+            "median": 21.750205021817237,
+            "min_run_median": 21.678235003491864,
+            "max_run_median": 21.783916017739102,
+            "run_medians": [
+              21.750205021817237,
+              21.678235003491864,
+              21.783916017739102
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 1.0,
+            "recorded_ops": 857.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 1.0,
+            "algo_misses": 856.0,
+            "algo_evictions": 856.0,
+            "pipeline_hits": 856.0,
+            "pipeline_misses": 0.0
+          }
+        },
+        "after": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            8,
+            3,
+            96,
+            96
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 93.2343780004885,
+            "min_run_median": 92.24700700724497,
+            "max_run_median": 93.49196500261314,
+            "run_medians": [
+              92.24700700724497,
+              93.2343780004885,
+              93.49196500261314
+            ]
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "inference_ms": {
+            "median": 21.738767012720928,
+            "min_run_median": 21.726821025367826,
+            "max_run_median": 21.766354009741917,
+            "run_medians": [
+              21.726821025367826,
+              21.738767012720928,
+              21.766354009741917
+            ]
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "steps": 75,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_per_step": {
+            "submissions": 1.0,
+            "recorded_ops": 521.0
+          },
+          "training_cache_per_step": {
+            "algo_hits": 83.24,
+            "algo_misses": 437.76,
+            "algo_evictions": 437.76,
+            "pipeline_hits": 437.76,
+            "pipeline_misses": 0.0
+          }
+        },
+        "cuda": {
+          "parity_comparisons": [
+            45,
+            45,
+            45
+          ],
+          "shape": [
+            8,
+            3,
+            96,
+            96
+          ],
+          "parameters": 472833,
+          "training_ms": {
+            "median": 10.137142991879955,
+            "min_run_median": 9.916611015796661,
+            "max_run_median": 11.419160000514239,
+            "run_medians": [
+              10.137142991879955,
+              11.419160000514239,
+              9.916611015796661
+            ]
+          },
+          "inference_ms": {
+            "median": 2.2873580164741725,
+            "min_run_median": 2.284304006025195,
+            "max_run_median": 2.2889119863975793,
+            "run_medians": [
+              2.284304006025195,
+              2.2889119863975793,
+              2.2873580164741725
+            ]
+          }
+        }
+      },
+      "training_speedup": 1.1366021339535342,
+      "training_reduction_percent": 12.018465377887333,
+      "training_before_over_cuda": 10.453674479887477,
+      "training_after_over_cuda": 9.197303231805156
+    }
+  ]
+}

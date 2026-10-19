@@ -13,8 +13,7 @@ import torch_vulkan
     (2, 3, 4096),
 ])
 def test_last_axis_log_softmax_forward_backward(shape, monkeypatch):
-    # Small tensors default to faster CPU fallback; force GPU execution so
-    # the actual shader is tested across all input sizes and layouts.
+    # Exercise the explicit GPU diagnostic control as well as the default path.
     monkeypatch.setenv("TORCH_VULKAN_NATIVE_LOGSOFTMAX", "1")
     assert torch._C._dispatch_has_kernel_for_dispatch_key(
         "aten::_log_softmax", "PrivateUse1")
@@ -32,7 +31,7 @@ def test_last_axis_log_softmax_forward_backward(shape, monkeypatch):
     torch.testing.assert_close(vulkan_grad.cpu(),reference_grad,atol=5e-5,rtol=5e-5)
 
 
-def test_non_last_dim_routes_through_correct_cpu_fallback():
+def test_non_last_dim_forward_backward():
     torch.manual_seed(909)
     cpu = torch.randn(4, 6, 3, requires_grad=True)
     vulkan = cpu.detach().to("vulkan").requires_grad_()
@@ -59,7 +58,7 @@ def test_cross_entropy_backward_vulkan():
 
 
 def test_auto_logsoftmax_large_uses_correct_gradient():
-    # Larger than the 32768-element native crossover threshold.
+    # Also exercise wide reductions.
     torch.manual_seed(3333)
     x = torch.randn(32, 2048, requires_grad=True)
     v = x.detach().to("vulkan").requires_grad_()
@@ -72,9 +71,8 @@ def test_auto_logsoftmax_large_uses_correct_gradient():
     torch.testing.assert_close(actual.cpu(), expected, atol=5e-5, rtol=5e-5)
 
 
-def test_large_cross_entropy_gpu_logsoftmax_and_cpu_loss_boundary(monkeypatch):
-    # Exercises true native Vulkan log-softmax, CPU NLL fallback, and the
-    # gradient crossing that boundary while GPU residency is enabled.
+def test_large_cross_entropy_gpu_forward_backward(monkeypatch):
+    # Exercise native log-softmax and NLL forward/backward together.
     monkeypatch.setenv("TORCH_VULKAN_NATIVE_LOGSOFTMAX", "1")
     torch.manual_seed(913)
     x_cpu = torch.randn(64, 2048, requires_grad=True)

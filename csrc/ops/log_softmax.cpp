@@ -1,88 +1,68 @@
-// GPU-native row-wise FP32 log-softmax forward/backward. Cross-entropy
-// otherwise invokes CPU fallback and repeatedly copies Vulkan tensors.
-#include "../vulkan_context.h"
-#include "../vulkan_allocator.h"
-#include <ATen/Functions.h>
+// General FP32 log-softmax with device-only axis/layout normalization.
+#include "native_utils.h"
+#include <ATen/WrapDimUtils.h>
 #include <torch/library.h>
-#include <c10/util/Exception.h>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <vector>
 
 namespace torch_vulkan::ops {
-static bool supports_rowwise(const at::Tensor& t, int64_t dim) {
-  if (t.dim()<1 || t.scalar_type()!=at::kFloat ||
-      !t.is_contiguous() || t.storage_offset()!=0 ||
-      t.numel()==0)
-    return false;
-  const int64_t axis=dim<0 ? dim+t.dim():dim;
-  return axis==t.dim()-1 && t.size(-1)>0 &&
-         t.size(-1)<=UINT32_MAX &&
-         t.numel()/t.size(-1)<=65535;
-}
+namespace {
+using namespace native;
 
-static bool native_enabled(int64_t elements) {
-  // Tiny eager reductions previously favored CPU; resident deferred execution
-  // keeps them on GPU to preserve batching and avoid host/device boundaries.
-  // Allow 0/1 to force either for controlled benchmarking.
-  const auto* env=std::getenv("TORCH_VULKAN_NATIVE_LOGSOFTMAX");
-  if (env && std::strcmp(env,"0")==0) return false;
-  if (env && std::strcmp(env,"1")==0) return true;
-  auto& ctx=VulkanContext::instance();
-  return elements >= 32768 || (ctx.gpu_resident_enabled() && ctx.deferred_enabled());
+bool enabled() {
+  const auto* flag=std::getenv("TORCH_VULKAN_NATIVE_LOGSOFTMAX");
+  return !flag || std::strcmp(flag,"0")!=0;
 }
-static at::Tensor log_softmax_native(const at::Tensor& input,
-                                    int64_t dim, bool half_to_float) {
-  if (!native_enabled(input.numel()) || !supports_rowwise(input,dim) || half_to_float)
-    return at::_log_softmax(input.to(at::kCPU),dim,half_to_float).to(input.device());
-  const auto rows=static_cast<uint32_t>(input.numel()/input.size(-1));
-  const auto cols=static_cast<uint32_t>(input.size(-1));
-  auto result=at::empty(input.sizes(),input.options());
-  auto& alloc=VulkanAllocator::instance();
-  auto src=alloc.get_kompute_tensor(const_cast<void*>(input.const_data_ptr()));
-  auto dst=alloc.get_kompute_tensor(result.data_ptr());
-  auto& ctx=VulkanContext::instance();
-  auto algo=ctx.get_or_create_algorithm("log_softmax",
-      {src,dst},kp::Workgroup({rows,1,1}),{rows,cols});
-  if (ctx.can_enqueue({src,dst}))
-    ctx.enqueue_compute(algo,{src,dst},{dst});
-  else
-    ctx.run_compute(algo,"log_softmax",{src},{dst});
+std::vector<int64_t> order(const at::Tensor& input,int64_t axis) {
+  std::vector<int64_t> result;
+  for(int64_t d=0;d<input.dim();++d)if(d!=axis)result.push_back(d);
+  if(input.dim())result.push_back(axis);
   return result;
 }
-
-static at::Tensor log_softmax_backward_native(
-    const at::Tensor& grad_output,
-    const at::Tensor& output, int64_t dim, at::ScalarType input_dtype) {
+at::Tensor rows(const at::Tensor& input,const std::vector<int64_t>& axes) {
+  if(!input.dim())return packed(input.reshape({1}));
+  bool identity=true;
+  for(size_t d=0;d<axes.size();++d)identity&=axes[d]==int64_t(d);
+  return packed(identity?input:input.permute(axes));
+}
+at::Tensor restore(const at::Tensor& input,const at::Tensor& result,
+                   const std::vector<int64_t>& axes) {
+  if(!input.dim())return result.reshape({});
+  bool identity=true;std::vector<int64_t> inverse(axes.size());
+  for(size_t d=0;d<axes.size();++d){inverse[axes[d]]=d;identity&=axes[d]==int64_t(d);}
+  return identity?result:packed(result.permute(inverse));
+}
+bool supported(const at::Tensor& input) {
+  return input.scalar_type()==at::kFloat && can_pack_data(input);
+}
+at::Tensor log_softmax_native(const at::Tensor& input,int64_t dim,bool half_to_float) {
+  const auto axis=at::maybe_wrap_dim(dim,input.dim());
+  if(!enabled() || !supported(input) || half_to_float)
+    return at::_log_softmax(cpu_fallback_tensor(input,__func__),dim,half_to_float).to(input.device());
+  if(!input.numel())return at::empty(input.sizes(),input.options());
+  auto axes=order(input,axis);auto x=rows(input,axes);
+  auto out=at::empty(x.sizes(),input.options());
+  const auto cols=u32(x.size(-1)),count=u32(x.numel()/cols);
+  run("log_softmax",{base(x)},{write_base(out)},{count,cols},count,1024);
+  return restore(input,out,axes);
+}
+at::Tensor log_softmax_backward_native(const at::Tensor& grad_output,
+    const at::Tensor& output,int64_t dim,at::ScalarType input_dtype) {
   TORCH_CHECK(grad_output.sizes()==output.sizes(),
               "log_softmax_backward_data: gradient/output shape mismatch");
-  if (!native_enabled(grad_output.numel()) || !supports_rowwise(grad_output,dim) ||
-      !supports_rowwise(output,dim) || input_dtype!=at::kFloat) {
-    auto grad_cpu=grad_output.to(at::kCPU);
-    auto output_cpu=output.to(at::kCPU);
-    return at::_log_softmax_backward_data(
-        grad_cpu,output_cpu,dim,input_dtype).to(output.device());
-  }
-  const auto rows=static_cast<uint32_t>(output.numel()/output.size(-1));
-  const auto cols=static_cast<uint32_t>(output.size(-1));
-  auto result=at::empty(output.sizes(),output.options());
-  auto& alloc=VulkanAllocator::instance();
-  auto grad=alloc.get_kompute_tensor(const_cast<void*>(grad_output.const_data_ptr()));
-  auto logp=alloc.get_kompute_tensor(const_cast<void*>(output.const_data_ptr()));
-  auto dst=alloc.get_kompute_tensor(result.data_ptr());
-  auto& ctx=VulkanContext::instance();
-  auto algo=ctx.get_or_create_algorithm("log_softmax_backward",
-      {grad,logp,dst},kp::Workgroup({rows,1,1}),{rows,cols});
-  if (ctx.can_enqueue({grad,logp,dst}))
-    ctx.enqueue_compute(algo,{grad,logp,dst},{dst});
-  else
-    ctx.run_compute(algo,"log_softmax_backward",{grad,logp},{dst});
-  return result;
+  TORCH_CHECK(grad_output.device()==output.device(),
+              "log_softmax_backward_data: gradient/output device mismatch");
+  const auto axis=at::maybe_wrap_dim(dim,output.dim());
+  if(!enabled() || !supported(grad_output) || !supported(output) || input_dtype!=at::kFloat)
+    return at::_log_softmax_backward_data(cpu_fallback_tensor(grad_output,__func__),
+        cpu_fallback_tensor(output,__func__),dim,input_dtype).to(output.device());
+  if(!output.numel())return at::empty(output.sizes(),output.options());
+  auto axes=order(output,axis);auto g=rows(grad_output,axes),p=rows(output,axes);
+  auto out=at::empty(p.sizes(),output.options());
+  const auto cols=u32(p.size(-1)),count=u32(p.numel()/cols);
+  run("log_softmax_backward",{base(g),base(p)},{write_base(out)},{count,cols},count,512);
+  return restore(output,out,axes);
 }
-
-TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
+}
+TORCH_LIBRARY_IMPL(aten,PrivateUse1,m) {
   m.impl("_log_softmax",&log_softmax_native);
   m.impl("_log_softmax_backward_data",&log_softmax_backward_native);
 }

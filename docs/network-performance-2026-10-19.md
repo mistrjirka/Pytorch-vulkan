@@ -1,3 +1,5 @@
+> Historical baseline measurements: the [current optimization report](pointwise-optimization-2026-10-19.md) contains the final build and refreshed results. The old non-deferred timestamp diagnostics on small classifiers included an uncounted CPU log-softmax route; their counters alone did not establish GPU-only execution. The normal deferred wall measurements were on the GPU path. That eager route is now removed and audited.
+
 # Matched Vulkan and CUDA network performance — 19 October 2026
 
 CUDA is faster on every accepted whole-network comparison in this FP32 eager suite. The six medium zoo cases are 3.18–4.80× slower on Vulkan; the larger U-Net and transformer are 10.51× and 9.41× slower. The closest focused result is pooling-classifier inference at 1.23×. All 63 Vulkan timing processes pass the CPU output and gradient gate, and 3,150 measured Vulkan training/inference executions record zero CPU fallback.

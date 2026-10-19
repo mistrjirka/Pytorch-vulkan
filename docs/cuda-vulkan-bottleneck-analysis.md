@@ -1,3 +1,5 @@
+> Historical measurements: the small/eager log-softmax CPU crossover described below has been removed. Current FP32 eager/deferred execution and audited fallback behavior are documented in [the pointwise and log-softmax report](pointwise-optimization-2026-10-19.md).
+
 # CUDA versus Vulkan: bottleneck investigation and optimization results
 
 **18 October 2026.** PyTorch 2.14.1, actual RTX 2080 Ti, with additional Vulkan validation on Tesla V100. See also [the earlier investigation](performance-investigation-2026-10-18.md).

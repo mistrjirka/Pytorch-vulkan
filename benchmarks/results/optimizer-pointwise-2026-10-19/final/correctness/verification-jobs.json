@@ -1,0 +1,87 @@
+{
+  "session_id": "s_2ec8e7c05f2dbfa8",
+  "jobs": [
+    {
+      "job_id": "j_8dfbe69a04e7cd81",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 90848.373,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-pointwise-final-full-rtx.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/final/correctness/upstream-rtx --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ --match _log_softmax_ > /tmp/pv-pointwise-final-upstream-rtx.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_61cd21cfa233734c",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 74013.079,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-pointwise-final-full-v100.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/final/correctness/upstream-v100 --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ --match _log_softmax_ > /tmp/pv-pointwise-final-upstream-v100.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_7736d67325cf76f8",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 108443.759,
+      "command": "set -e\nulimit -c 0\n.venv/bin/python -m pytest -q tests > /tmp/pv-pointwise-final-full-lvp.log 2>&1\n.venv/bin/python benchmarks/run_upstream_opinfo.py --source /workspace/pytorch-opinfo-5c488690/test/test_ops.py --out benchmarks/results/optimizer-pointwise-2026-10-19/final/correctness/upstream-lvp --match _lerp_ --match _addcmul_ --match _addcdiv_ --match _maximum_ --match _minimum_ --match _log_softmax_ > /tmp/pv-pointwise-final-upstream-lvp.log 2>&1",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_DEFER_SUBMISSIONS",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX",
+        "VK_ICD_FILENAMES"
+      ]
+    },
+    {
+      "job_id": "j_dc908f951b29b683",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 12363.183,
+      "command": "set -e\nulimit -c 0\nfor pv_defer in 1 0; do\nTORCH_VULKAN_DEFER_SUBMISSIONS=\"$pv_defer\" .venv/bin/python -m pytest -q tests/test_logsoftmax_residency.py tests/test_native_logsoftmax.py tests/test_optimizer_pointwise.py > \"/tmp/pv-logsoftmax-focused-rtx-$pv_defer.log\" 2>&1\ndone",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_FORBID_CPU_FALLBACK",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_7a8d21caa6628430",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 11836.254,
+      "command": "set -e\nulimit -c 0\nfor pv_defer in 1 0; do\nTORCH_VULKAN_DEFER_SUBMISSIONS=\"$pv_defer\" .venv/bin/python -m pytest -q tests/test_logsoftmax_residency.py tests/test_native_logsoftmax.py tests/test_optimizer_pointwise.py > \"/tmp/pv-logsoftmax-focused-v100-$pv_defer.log\" 2>&1\ndone",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_FORBID_CPU_FALLBACK",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX"
+      ]
+    },
+    {
+      "job_id": "j_c3ec98d73f33f971",
+      "status": "finished",
+      "exit_code": 0,
+      "duration_ms": 11906.011,
+      "command": "set -e\nulimit -c 0\nfor pv_defer in 1 0; do\nTORCH_VULKAN_DEFER_SUBMISSIONS=\"$pv_defer\" .venv/bin/python -m pytest -q tests/test_logsoftmax_residency.py tests/test_native_logsoftmax.py tests/test_optimizer_pointwise.py > \"/tmp/pv-logsoftmax-focused-lvp-$pv_defer.log\" 2>&1\ndone",
+      "environment_names": [
+        "PYTHONPATH",
+        "TORCH_VULKAN_FORBID_CPU_FALLBACK",
+        "TORCH_VULKAN_GPU_RESIDENT",
+        "TORCH_VULKAN_PHYSICAL_DEVICE_INDEX",
+        "VK_ICD_FILENAMES"
+      ]
+    }
+  ],
+  "device_order": "RTX 2080 Ti, V100, Lavapipe; full suites/upstream first, eager+deferred focused suites second",
+  "modes": "Full suites/upstream GPU resident and deferred; focused suites GPU resident with deferral 1 and 0 in separate processes."
+}

@@ -1,3 +1,5 @@
+> Historical audit note: the inline log-softmax CPU route was later found to bypass fallback counting. The numerical outcomes below remain the recorded results, but their zero counters alone are not exhaustive residency proof. The [current report](pointwise-optimization-2026-10-19.md) documents the fix and new eager/deferred residency checks.
+
 # Final verification of the agreed correctness and fallback scope
 
 The agreed single-device FP32 correctness/native-execution gate passes for
