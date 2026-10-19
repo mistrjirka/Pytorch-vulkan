@@ -1,0 +1,7 @@
+# Complete per-run JSON is published in the compressed *-raw.jsonl.gz files.
+*-r*-*.json
+*-r*-*.log
+*-index.json
+diagnostics/
+gpu-telemetry.csv
+software-venv*.json

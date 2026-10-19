@@ -1,0 +1,2342 @@
+{
+  "wall": [
+    {
+      "round": 0,
+      "case": "mlp",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7734763622283936,
+      "status": "passed",
+      "training": 2.3571210040245205,
+      "inference": 0.21334399934858084,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "mlp",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.177579879760742,
+      "status": "passed",
+      "training": 9.60537898936309,
+      "inference": 0.7377819856628776,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 19.052663803100586,
+      "status": "passed",
+      "training": 31.922952010063455,
+      "inference": 2.9915720224380493,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.47490119934082,
+      "status": "passed",
+      "training": 10.05060100578703,
+      "inference": 1.0811460088007152,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.9257707595825195,
+      "status": "passed",
+      "training": 15.18222299637273,
+      "inference": 2.02700198860839,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.192646265029907,
+      "status": "passed",
+      "training": 73.76487299916334,
+      "inference": 8.85803799610585,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "mobilenet_v3",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 22.461827278137207,
+      "status": "passed",
+      "training": 208.64652501768433,
+      "inference": 24.765473004663363,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "mobilenet_v3",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 5.476831674575806,
+      "status": "passed",
+      "training": 34.728402009932324,
+      "inference": 3.8814950094092637,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "embedding",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.723362445831299,
+      "status": "passed",
+      "training": 2.4309690052177757,
+      "inference": 0.12587298988364637,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "embedding",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.126479148864746,
+      "status": "passed",
+      "training": 7.306584011530504,
+      "inference": 0.6346440059132874,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 9.836061716079712,
+      "status": "passed",
+      "training": 77.80282301246189,
+      "inference": 11.097681010141969,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.424405813217163,
+      "status": "passed",
+      "training": 16.05471401126124,
+      "inference": 1.2498430151026696,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "pool_classifier",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.02386212348938,
+      "status": "passed",
+      "training": 1.9682429847307503,
+      "inference": 0.20115202642045915,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "pool_classifier",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.626971006393433,
+      "status": "passed",
+      "training": 3.182360000209883,
+      "inference": 0.2309769915882498,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bilinear_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.376008033752441,
+      "status": "passed",
+      "training": 2.2476800077129155,
+      "inference": 0.1875970046967268,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bilinear_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.772181749343872,
+      "status": "passed",
+      "training": 1.5399100084323436,
+      "inference": 0.12901797890663147,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bicubic_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.672628164291382,
+      "status": "passed",
+      "training": 1.383230002829805,
+      "inference": 0.12110400712117553,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bicubic_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.075092792510986,
+      "status": "passed",
+      "training": 2.20712399459444,
+      "inference": 0.16995400073938072,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "reduction_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.726294279098511,
+      "status": "passed",
+      "training": 2.9357919993344694,
+      "inference": 0.275790982414037,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "reduction_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.9456145763397217,
+      "status": "passed",
+      "training": 1.8372199847362936,
+      "inference": 0.18316900241188705,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6720738410949707,
+      "status": "passed",
+      "training": 1.779562997398898,
+      "inference": 0.1549969892948866,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.375534296035767,
+      "status": "passed",
+      "training": 3.2188570185098797,
+      "inference": 0.3155140148010105,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "volume_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.4259631633758545,
+      "status": "passed",
+      "training": 3.7618910137098283,
+      "inference": 0.49873298848979175,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "volume_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7224340438842773,
+      "status": "passed",
+      "training": 1.5687019913457334,
+      "inference": 0.1652160135563463,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spatial_transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.5739259719848633,
+      "status": "passed",
+      "training": 1.2547009973786771,
+      "inference": 0.11347999679856002,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spatial_transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.0255513191223145,
+      "status": "passed",
+      "training": 2.0307280065026134,
+      "inference": 0.18286900012753904,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "recurrent_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.141206979751587,
+      "status": "passed",
+      "training": 35.04927098401822,
+      "inference": 5.245624983217567,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "recurrent_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8727073669433594,
+      "status": "passed",
+      "training": 6.896089005749673,
+      "inference": 0.4055699973832816,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "retrieval_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7737791538238525,
+      "status": "passed",
+      "training": 1.8282629898749292,
+      "inference": 0.20402701920829713,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "retrieval_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.475337982177734,
+      "status": "passed",
+      "training": 4.4755099806934595,
+      "inference": 0.7201920088846236,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spectral_filter",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.125442981719971,
+      "status": "passed",
+      "training": 2.4933230015449226,
+      "inference": 0.23128802422434092,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spectral_filter",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6222267150878906,
+      "status": "passed",
+      "training": 1.4414869947358966,
+      "inference": 0.11429100413806736,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "solve_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8730926513671875,
+      "status": "passed",
+      "training": 1.5717170026618987,
+      "inference": 0.22526600514538586,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "solve_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.323720216751099,
+      "status": "passed",
+      "training": 2.7987580106128007,
+      "inference": 0.4104789986740798,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 300,
+        "host_read_calls": 75,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "causal_attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.1755876541137695,
+      "status": "passed",
+      "training": 3.2187850156333297,
+      "inference": 0.31141602084971964,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "causal_attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6732594966888428,
+      "status": "passed",
+      "training": 1.8018140108324587,
+      "inference": 0.15896398690529168,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "mlp",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.026030540466309,
+      "status": "passed",
+      "training": 9.609237022232264,
+      "inference": 0.7383460178971291,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "mlp",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7738187313079834,
+      "status": "passed",
+      "training": 2.374031988438219,
+      "inference": 0.21296399063430727,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.173740863800049,
+      "status": "passed",
+      "training": 10.19067200832069,
+      "inference": 1.0906080133281648,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 19.00210165977478,
+      "status": "passed",
+      "training": 32.01647600508295,
+      "inference": 2.8243749984540045,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.442598342895508,
+      "status": "passed",
+      "training": 71.90194001304917,
+      "inference": 9.88889200380072,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.925796985626221,
+      "status": "passed",
+      "training": 15.28960099676624,
+      "inference": 2.050553011940792,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "mobilenet_v3",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 5.529242515563965,
+      "status": "passed",
+      "training": 34.36720801983029,
+      "inference": 3.837468015262857,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "mobilenet_v3",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 20.106041431427002,
+      "status": "passed",
+      "training": 143.23500799946487,
+      "inference": 23.913751007057726,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "embedding",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.125873804092407,
+      "status": "passed",
+      "training": 8.368156995857134,
+      "inference": 0.6341020052786916,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "embedding",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7232248783111572,
+      "status": "passed",
+      "training": 2.4280409852508456,
+      "inference": 0.13398798182606697,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.374125003814697,
+      "status": "passed",
+      "training": 16.27647300483659,
+      "inference": 1.2568840174935758,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 9.384849548339844,
+      "status": "passed",
+      "training": 76.27280199085362,
+      "inference": 11.10628101741895,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "pool_classifier",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.675933122634888,
+      "status": "passed",
+      "training": 3.057093999814242,
+      "inference": 0.2451739856041968,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "pool_classifier",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.0229268074035645,
+      "status": "passed",
+      "training": 1.9775079854298383,
+      "inference": 0.19943900406360626,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "bilinear_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6224405765533447,
+      "status": "passed",
+      "training": 1.1222759785596281,
+      "inference": 0.12087399954907596,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "bilinear_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.026195049285889,
+      "status": "passed",
+      "training": 2.204185992013663,
+      "inference": 0.1836189767345786,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "bicubic_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.0757715702056885,
+      "status": "passed",
+      "training": 2.002674009418115,
+      "inference": 0.18250700668431818,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "bicubic_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.77300763130188,
+      "status": "passed",
+      "training": 1.445363013772294,
+      "inference": 0.12260698713362217,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "reduction_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.074321269989014,
+      "status": "passed",
+      "training": 1.8472259980626404,
+      "inference": 0.18533301772549748,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "reduction_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.5739312171936035,
+      "status": "passed",
+      "training": 2.4552410177420825,
+      "inference": 0.23751999833621085,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.666568040847778,
+      "status": "passed",
+      "training": 3.251943999202922,
+      "inference": 0.31518301693722606,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6724023818969727,
+      "status": "passed",
+      "training": 1.7568490002304316,
+      "inference": 0.15405501471832395,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "volume_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6725642681121826,
+      "status": "passed",
+      "training": 1.2290830200072378,
+      "inference": 0.16630699974484742,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "volume_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.225689172744751,
+      "status": "passed",
+      "training": 3.038168011698872,
+      "inference": 0.3934779961127788,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "spatial_transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.225794553756714,
+      "status": "passed",
+      "training": 2.0070610044058412,
+      "inference": 0.1820070028770715,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "spatial_transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6719119548797607,
+      "status": "passed",
+      "training": 1.2606609961949289,
+      "inference": 0.10945199755951762,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "recurrent_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.822875499725342,
+      "status": "passed",
+      "training": 6.987931003095582,
+      "inference": 0.4104289982933551,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "recurrent_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.341505765914917,
+      "status": "passed",
+      "training": 34.23364998889156,
+      "inference": 5.212368007050827,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "retrieval_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.774984359741211,
+      "status": "passed",
+      "training": 4.501883988268673,
+      "inference": 0.7312920060940087,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "retrieval_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.9332752227783203,
+      "status": "passed",
+      "training": 1.8387289892416447,
+      "inference": 0.20595098612830043,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "spectral_filter",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.522753953933716,
+      "status": "passed",
+      "training": 1.4490390021819621,
+      "inference": 0.11692597763612866,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "spectral_filter",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.17380952835083,
+      "status": "passed",
+      "training": 2.4638560134917498,
+      "inference": 0.21823399583809078,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "solve_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.373793840408325,
+      "status": "passed",
+      "training": 2.9568969912361354,
+      "inference": 0.41443598456680775,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 300,
+        "host_read_calls": 75,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "solve_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.672122001647949,
+      "status": "passed",
+      "training": 1.5820950211491436,
+      "inference": 0.22196999634616077,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "causal_attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8218142986297607,
+      "status": "passed",
+      "training": 1.7919839883688837,
+      "inference": 0.1574820198584348,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "causal_attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.324948787689209,
+      "status": "passed",
+      "training": 3.1763830047566444,
+      "inference": 0.3103629860561341,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "mlp",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.82275390625,
+      "status": "passed",
+      "training": 2.2749560012016445,
+      "inference": 0.2127230109181255,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "mlp",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.125678062438965,
+      "status": "passed",
+      "training": 9.659128001658246,
+      "inference": 0.7115560001693666,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 19.097801446914673,
+      "status": "passed",
+      "training": 31.710115988971666,
+      "inference": 2.918354992289096,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.27310848236084,
+      "status": "passed",
+      "training": 9.91670400253497,
+      "inference": 1.0967380076181144,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.975262641906738,
+      "status": "passed",
+      "training": 15.424797020386904,
+      "inference": 2.061119972495362,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.491141557693481,
+      "status": "passed",
+      "training": 72.67604701337405,
+      "inference": 13.54345798608847,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "mobilenet_v3",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 21.154523849487305,
+      "status": "passed",
+      "training": 145.60780799365602,
+      "inference": 24.371033010538667,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "mobilenet_v3",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 5.57525897026062,
+      "status": "passed",
+      "training": 35.25138599798083,
+      "inference": 3.8886190159246325,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "embedding",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8726396560668945,
+      "status": "passed",
+      "training": 2.424831996904686,
+      "inference": 0.12566300574690104,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "embedding",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.12528920173645,
+      "status": "passed",
+      "training": 8.22993298061192,
+      "inference": 0.6323490233626217,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 9.635157346725464,
+      "status": "passed",
+      "training": 77.21991499420255,
+      "inference": 11.172522994456813,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.42385458946228,
+      "status": "passed",
+      "training": 16.091105004306883,
+      "inference": 1.2574749998748302,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "pool_classifier",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.9729790687561035,
+      "status": "passed",
+      "training": 1.9647419976536185,
+      "inference": 0.19949799752794206,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "pool_classifier",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.726437330245972,
+      "status": "passed",
+      "training": 3.0593059782404453,
+      "inference": 0.25635401834733784,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "bilinear_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.325077056884766,
+      "status": "passed",
+      "training": 2.1581290056928992,
+      "inference": 0.16261098789982498,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "bilinear_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6714112758636475,
+      "status": "passed",
+      "training": 1.378999004373327,
+      "inference": 0.12234601308591664,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "bicubic_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.571340322494507,
+      "status": "passed",
+      "training": 1.404745999025181,
+      "inference": 0.12384800356812775,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "bicubic_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.075159549713135,
+      "status": "passed",
+      "training": 2.209364000009373,
+      "inference": 0.18427098984830081,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "reduction_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.526507139205933,
+      "status": "passed",
+      "training": 2.8959230112377554,
+      "inference": 0.26545001310296357,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "reduction_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.022860050201416,
+      "status": "passed",
+      "training": 1.8460720020812005,
+      "inference": 0.18385998555459082,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6221840381622314,
+      "status": "passed",
+      "training": 1.7761530179996043,
+      "inference": 0.15796200023032725,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.376529693603516,
+      "status": "passed",
+      "training": 3.030670981388539,
+      "inference": 0.32512101461179554,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "volume_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.423881530761719,
+      "status": "passed",
+      "training": 3.6518799897748977,
+      "inference": 0.47216200619004667,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "volume_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.72224760055542,
+      "status": "passed",
+      "training": 1.5865519817452878,
+      "inference": 0.16796999261714518,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "spatial_transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8211381435394287,
+      "status": "passed",
+      "training": 1.2589769903570414,
+      "inference": 0.1105050032492727,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "spatial_transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.87346887588501,
+      "status": "passed",
+      "training": 2.0403609960339963,
+      "inference": 0.2073829818982631,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "recurrent_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.891680002212524,
+      "status": "passed",
+      "training": 32.54012399702333,
+      "inference": 3.5238730197306722,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "recurrent_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.871626138687134,
+      "status": "passed",
+      "training": 6.128326989710331,
+      "inference": 0.26843600790016353,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "retrieval_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8789827823638916,
+      "status": "passed",
+      "training": 1.811889000236988,
+      "inference": 0.20293498528189957,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "retrieval_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.422396898269653,
+      "status": "passed",
+      "training": 4.63623899850063,
+      "inference": 0.7314620015677065,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "spectral_filter",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.323765277862549,
+      "status": "passed",
+      "training": 2.47334101004526,
+      "inference": 0.24555399431847036,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "spectral_filter",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8210413455963135,
+      "status": "passed",
+      "training": 1.4514420181512833,
+      "inference": 0.11687600635923445,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "solve_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7220747470855713,
+      "status": "passed",
+      "training": 1.5764639829285443,
+      "inference": 0.22206100402399898,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "solve_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.422505617141724,
+      "status": "passed",
+      "training": 2.653523988556117,
+      "inference": 0.4116609925404191,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 300,
+        "host_read_calls": 75,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "causal_attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 5.224952220916748,
+      "status": "passed",
+      "training": 3.11330400290899,
+      "inference": 0.31109500559978187,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "causal_attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6215758323669434
+    }
+  ],
+  "reference": [
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 1,
+      "seconds": 4.574716329574585,
+      "status": "failed",
+      "training": null,
+      "inference": null,
+      "audit": null,
+      "error": [
+        "AssertionError: CPU output/gradient parity failed: input_gradient, gradient/conv1.weight, gradient/bn1.weight, gradient/bn1.bias, gradient/layer1.0.conv1.weight, gradient/layer1.0.bn1.weight, gradient/layer1.0.bn1.bias, gradient/layer1.0.conv2.weight, gradient/layer1.0.bn2.weight, gradient/layer1.0.bn2.bias, gradient/layer1.1.conv1.weight, gradient/layer1.1.bn1.weight, gradient/layer1.1.conv2.weight, gradient/layer2.0.conv1.weight, gradient/layer2.0.conv2.weight, gradient/layer2.0.bn2.bias, gradient/layer2.0.downsample.0.weight, gradient/layer2.0.downsample.1.bias, gradient/layer2.1.conv1.weight, gradient/layer2.1.conv2.weight, gradient/layer2.1.bn2.weight, gradient/layer2.1.bn2.bias, gradient/layer3.1.conv2.weight, gradient/layer3.1.bn2.bias"
+      ]
+    },
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 16.46395254135132,
+      "status": "passed",
+      "training": 118.17963101202622,
+      "inference": 19.427785009611398,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 27.473536729812622,
+      "status": "passed",
+      "training": 100.96209499170072,
+      "inference": 21.587715978967026,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.4830474853515625,
+      "status": "passed",
+      "training": 11.432276980485767,
+      "inference": 2.283830981468782,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.875143766403198,
+      "status": "passed",
+      "training": 15.999037015717477,
+      "inference": 2.9683260072488338,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.9445960521698,
+      "status": "passed",
+      "training": 165.3658059949521,
+      "inference": 23.30884398543276,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 16.650593757629395,
+      "status": "passed",
+      "training": 118.01102000754327,
+      "inference": 19.43816099083051,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 1,
+      "seconds": 4.474827527999878,
+      "status": "failed",
+      "training": null,
+      "inference": null,
+      "audit": null,
+      "error": [
+        "AssertionError: CPU output/gradient parity failed: input_gradient, gradient/conv1.weight, gradient/bn1.weight, gradient/bn1.bias, gradient/layer1.0.conv1.weight, gradient/layer1.0.bn1.weight, gradient/layer1.0.bn1.bias, gradient/layer1.0.conv2.weight, gradient/layer1.0.bn2.weight, gradient/layer1.0.bn2.bias, gradient/layer1.1.conv1.weight, gradient/layer1.1.bn1.weight, gradient/layer1.1.conv2.weight, gradient/layer2.0.conv1.weight, gradient/layer2.0.conv2.weight, gradient/layer2.0.bn2.bias, gradient/layer2.0.downsample.0.weight, gradient/layer2.0.downsample.1.bias, gradient/layer2.1.conv1.weight, gradient/layer2.1.conv2.weight, gradient/layer2.1.bn2.weight, gradient/layer2.1.bn2.bias, gradient/layer3.1.conv2.weight, gradient/layer3.1.bn2.bias"
+      ]
+    },
+    {
+      "round": 1,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.424504280090332,
+      "status": "passed",
+      "training": 10.006420983700082,
+      "inference": 2.287467010319233,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 27.071579217910767,
+      "status": "passed",
+      "training": 105.16961201210506,
+      "inference": 21.809141006087884,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 14.045196771621704,
+      "status": "passed",
+      "training": 162.68604999640957,
+      "inference": 23.196363006718457,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 400,
+        "host_read_calls": 100,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 1,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 5.0085883140563965,
+      "status": "passed",
+      "training": 17.516227992018685,
+      "inference": 2.982701000291854,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 1,
+      "seconds": 4.478965759277344,
+      "status": "failed",
+      "training": null,
+      "inference": null,
+      "audit": null,
+      "error": [
+        "AssertionError: CPU output/gradient parity failed: input_gradient, gradient/conv1.weight, gradient/bn1.weight, gradient/bn1.bias, gradient/layer1.0.conv1.weight, gradient/layer1.0.bn1.weight, gradient/layer1.0.bn1.bias, gradient/layer1.0.conv2.weight, gradient/layer1.0.bn2.weight, gradient/layer1.0.bn2.bias, gradient/layer1.1.conv1.weight, gradient/layer1.1.bn1.weight, gradient/layer1.1.conv2.weight, gradient/layer2.0.conv1.weight, gradient/layer2.0.conv2.weight, gradient/layer2.0.bn2.bias, gradient/layer2.0.downsample.0.weight, gradient/layer2.0.downsample.1.bias, gradient/layer2.1.conv1.weight, gradient/layer2.1.conv2.weight, gradient/layer2.1.bn2.weight, gradient/layer2.1.bn2.bias, gradient/layer3.1.conv2.weight, gradient/layer3.1.bn2.bias"
+      ]
+    },
+    {
+      "round": 2,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 16.451082229614258,
+      "status": "passed",
+      "training": 118.06476002675481,
+      "inference": 19.408342021051794,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 200,
+        "host_read_calls": 50,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 27.574010133743286,
+      "status": "passed",
+      "training": 105.6849510059692,
+      "inference": 21.67597200605087,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.524606466293335,
+      "status": "passed",
+      "training": 9.956758003681898,
+      "inference": 2.289420983288437,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 5.026034116744995,
+      "status": "passed",
+      "training": 19.679282006109133,
+      "inference": 2.9407539987005293,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 2,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 13.99505066871643
+    }
+  ],
+  "smoke": [
+    {
+      "round": 0,
+      "case": "mlp",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.973123073577881,
+      "status": "passed",
+      "training": 2.5394470139872283,
+      "inference": 0.2133430098183453,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "mlp",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.774919748306274,
+      "status": "passed",
+      "training": 8.337438019225374,
+      "inference": 0.7489720010198653,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 40,
+        "host_read_calls": 10,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 8.882354259490967,
+      "status": "passed",
+      "training": 54.566582024563104,
+      "inference": 5.181974003789946,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "unet",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.9732613563537598,
+      "status": "passed",
+      "training": 10.24702299037017,
+      "inference": 1.0998499928973615,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.524055480957031,
+      "status": "passed",
+      "training": 15.11829299852252,
+      "inference": 2.0850489963777363,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "resnet18",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 9.53451418876648,
+      "status": "passed",
+      "training": 79.33629001490772,
+      "inference": 9.781013010069728,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 40,
+        "host_read_calls": 10,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "mobilenet_v3",
+      "backend": "vulkan",
+      "returncode": 1,
+      "seconds": 7.079092025756836,
+      "status": "failed",
+      "training": null,
+      "inference": null,
+      "audit": null,
+      "error": [
+        "AssertionError: CPU output/gradient parity failed: output, input_gradient, gradient/features.0.0.weight, gradient/features.0.1.weight, gradient/features.0.1.bias, gradient/features.1.block.0.0.weight, gradient/features.1.block.0.1.weight, gradient/features.1.block.0.1.bias, gradient/features.1.block.1.fc1.weight, gradient/features.1.block.1.fc1.bias, gradient/features.1.block.1.fc2.weight, gradient/features.1.block.1.fc2.bias, gradient/features.1.block.2.0.weight, gradient/features.1.block.2.1.weight, gradient/features.2.block.0.0.weight, gradient/features.2.block.0.1.weight, gradient/features.2.block.0.1.bias, gradient/features.2.block.1.0.weight, gradient/features.2.block.1.1.weight, gradient/features.2.block.1.1.bias, gradient/features.2.block.2.0.weight, gradient/features.2.block.2.1.weight, gradient/features.3.block.0.0.weight, gradient/features.3.block.0.1.weight, gradient/features.3.block.0.1.bias, gradient/features.3.block.1.0.weight, gradient/features.3.block.1.1.weight, gradient/features.3.block.1.1.bias, gradient/features.3.block.2.0.weight, gradient/features.3.block.2.1.weight, gradient/features.4.block.0.0.weight, gradient/features.4.block.0.1.weight, gradient/features.4.block.0.1.bias, gradient/features.4.block.1.0.weight, gradient/features.4.block.1.1.weight, gradient/features.4.block.1.1.bias, gradient/features.4.block.2.fc1.weight, gradient/features.4.block.2.fc1.bias, gradient/features.4.block.2.fc2.weight, gradient/features.4.block.2.fc2.bias, gradient/features.4.block.3.0.weight, gradient/features.4.block.3.1.weight, gradient/features.5.block.0.0.weight, gradient/features.5.block.0.1.weight, gradient/features.5.block.0.1.bias, gradient/features.5.block.1.0.weight, gradient/features.5.block.1.1.weight, gradient/features.5.block.1.1.bias, gradient/features.5.block.2.fc1.weight, gradient/features.5.block.2.fc1.bias, gradient/features.5.block.2.fc2.weight, gradient/features.5.block.2.fc2.bias, gradient/features.5.block.3.0.weight, gradient/features.5.block.3.1.weight, gradient/features.6.block.0.0.weight, gradient/features.6.block.0.1.weight, gradient/features.6.block.0.1.bias, gradient/features.6.block.1.0.weight, gradient/features.6.block.1.1.weight, gradient/features.6.block.1.1.bias, gradient/features.6.block.2.fc1.bias, gradient/features.6.block.2.fc2.weight, gradient/features.6.block.2.fc2.bias, gradient/features.6.block.3.0.weight, gradient/features.6.block.3.1.weight, gradient/features.7.block.0.0.weight, gradient/features.7.block.0.1.weight, gradient/features.7.block.0.1.bias, gradient/features.7.block.1.0.weight, gradient/features.7.block.1.1.weight, gradient/features.7.block.1.1.bias, gradient/features.7.block.2.fc1.weight, gradient/features.7.block.2.fc1.bias, gradient/features.7.block.2.fc2.weight, gradient/features.7.block.2.fc2.bias, gradient/features.7.block.3.0.weight, gradient/features.7.block.3.1.weight, gradient/features.8.block.0.0.weight, gradient/features.8.block.0.1.weight, gradient/features.8.block.0.1.bias, gradient/features.8.block.1.0.weight, gradient/features.8.block.1.1.weight, gradient/features.8.block.1.1.bias, gradient/features.8.block.2.fc1.weight, gradient/features.8.block.2.fc1.bias, gradient/features.8.block.2.fc2.weight, gradient/features.8.block.2.fc2.bias, gradient/features.8.block.3.0.weight, gradient/features.8.block.3.1.weight, gradient/features.9.block.0.0.weight, gradient/features.9.block.0.1.weight, gradient/features.9.block.0.1.bias, gradient/features.9.block.1.0.weight, gradient/features.9.block.1.1.weight, gradient/features.9.block.1.1.bias, gradient/features.9.block.2.fc1.bias, gradient/features.9.block.2.fc2.weight, gradient/features.9.block.2.fc2.bias, gradient/features.9.block.3.0.weight, gradient/features.9.block.3.1.weight, gradient/features.10.block.0.0.weight, gradient/features.10.block.0.1.weight, gradient/features.10.block.0.1.bias, gradient/features.10.block.1.0.weight, gradient/features.10.block.1.1.weight, gradient/features.10.block.1.1.bias, gradient/features.10.block.2.fc1.bias, gradient/features.10.block.2.fc2.bias, gradient/features.10.block.3.0.weight, gradient/features.10.block.3.1.weight, gradient/features.11.block.0.0.weight, gradient/features.11.block.0.1.weight, gradient/features.11.block.0.1.bias, gradient/features.11.block.1.0.weight, gradient/features.11.block.1.1.weight, gradient/features.11.block.1.1.bias, gradient/features.11.block.2.fc2.bias, gradient/features.11.block.3.0.weight, gradient/features.11.block.3.1.weight, gradient/features.12.0.weight, gradient/features.12.1.weight, gradient/features.12.1.bias, gradient/classifier.0.weight, gradient/classifier.0.bias, gradient/classifier.3.weight"
+      ]
+    },
+    {
+      "round": 0,
+      "case": "mobilenet_v3",
+      "backend": "cuda",
+      "returncode": 1,
+      "seconds": 4.274203538894653,
+      "status": "failed",
+      "training": null,
+      "inference": null,
+      "audit": null,
+      "error": [
+        "AssertionError: CPU output/gradient parity failed: output, input_gradient, gradient/features.0.0.weight, gradient/features.0.1.weight, gradient/features.0.1.bias, gradient/features.1.block.0.0.weight, gradient/features.1.block.0.1.weight, gradient/features.1.block.0.1.bias, gradient/features.1.block.1.fc1.weight, gradient/features.1.block.1.fc1.bias, gradient/features.1.block.1.fc2.weight, gradient/features.1.block.1.fc2.bias, gradient/features.1.block.2.0.weight, gradient/features.1.block.2.1.weight, gradient/features.2.block.0.0.weight, gradient/features.2.block.0.1.weight, gradient/features.2.block.0.1.bias, gradient/features.2.block.1.0.weight, gradient/features.2.block.1.1.weight, gradient/features.2.block.1.1.bias, gradient/features.2.block.2.0.weight, gradient/features.2.block.2.1.weight, gradient/features.3.block.0.0.weight, gradient/features.3.block.0.1.weight, gradient/features.3.block.0.1.bias, gradient/features.3.block.1.0.weight, gradient/features.3.block.1.1.weight, gradient/features.3.block.1.1.bias, gradient/features.3.block.2.0.weight, gradient/features.3.block.2.1.weight, gradient/features.4.block.0.0.weight, gradient/features.4.block.0.1.weight, gradient/features.4.block.0.1.bias, gradient/features.4.block.1.0.weight, gradient/features.4.block.1.1.weight, gradient/features.4.block.1.1.bias, gradient/features.4.block.2.fc1.weight, gradient/features.4.block.2.fc1.bias, gradient/features.4.block.2.fc2.weight, gradient/features.4.block.2.fc2.bias, gradient/features.4.block.3.0.weight, gradient/features.4.block.3.1.weight, gradient/features.5.block.0.0.weight, gradient/features.5.block.0.1.weight, gradient/features.5.block.0.1.bias, gradient/features.5.block.1.0.weight, gradient/features.5.block.1.1.weight, gradient/features.5.block.1.1.bias, gradient/features.5.block.2.fc1.weight, gradient/features.5.block.2.fc1.bias, gradient/features.5.block.2.fc2.weight, gradient/features.5.block.2.fc2.bias, gradient/features.5.block.3.0.weight, gradient/features.5.block.3.1.weight, gradient/features.6.block.0.0.weight, gradient/features.6.block.0.1.weight, gradient/features.6.block.0.1.bias, gradient/features.6.block.1.0.weight, gradient/features.6.block.1.1.weight, gradient/features.6.block.1.1.bias, gradient/features.6.block.2.fc1.bias, gradient/features.6.block.2.fc2.weight, gradient/features.6.block.2.fc2.bias, gradient/features.6.block.3.0.weight, gradient/features.6.block.3.1.weight, gradient/features.7.block.0.0.weight, gradient/features.7.block.0.1.weight, gradient/features.7.block.0.1.bias, gradient/features.7.block.1.0.weight, gradient/features.7.block.1.1.weight, gradient/features.7.block.1.1.bias, gradient/features.7.block.2.fc1.weight, gradient/features.7.block.2.fc1.bias, gradient/features.7.block.2.fc2.weight, gradient/features.7.block.2.fc2.bias, gradient/features.7.block.3.0.weight, gradient/features.7.block.3.1.weight, gradient/features.8.block.0.0.weight, gradient/features.8.block.0.1.weight, gradient/features.8.block.0.1.bias, gradient/features.8.block.1.0.weight, gradient/features.8.block.1.1.weight, gradient/features.8.block.1.1.bias, gradient/features.8.block.2.fc1.weight, gradient/features.8.block.2.fc1.bias, gradient/features.8.block.2.fc2.weight, gradient/features.8.block.2.fc2.bias, gradient/features.8.block.3.0.weight, gradient/features.8.block.3.1.weight, gradient/features.9.block.0.0.weight, gradient/features.9.block.0.1.weight, gradient/features.9.block.0.1.bias, gradient/features.9.block.1.0.weight, gradient/features.9.block.1.1.weight, gradient/features.9.block.1.1.bias, gradient/features.9.block.2.fc1.bias, gradient/features.9.block.2.fc2.weight, gradient/features.9.block.2.fc2.bias, gradient/features.9.block.3.0.weight, gradient/features.9.block.3.1.weight, gradient/features.10.block.0.0.weight, gradient/features.10.block.0.1.weight, gradient/features.10.block.0.1.bias, gradient/features.10.block.1.0.weight, gradient/features.10.block.1.1.weight, gradient/features.10.block.1.1.bias, gradient/features.10.block.2.fc1.bias, gradient/features.10.block.2.fc2.weight, gradient/features.10.block.2.fc2.bias, gradient/features.10.block.3.0.weight, gradient/features.10.block.3.1.weight, gradient/features.11.block.0.0.weight, gradient/features.11.block.0.1.weight, gradient/features.11.block.0.1.bias, gradient/features.11.block.1.0.weight, gradient/features.11.block.1.1.weight, gradient/features.11.block.1.1.bias, gradient/features.11.block.2.fc2.bias, gradient/features.11.block.3.0.weight, gradient/features.11.block.3.1.weight, gradient/features.12.0.weight, gradient/features.12.1.weight, gradient/features.12.1.bias, gradient/classifier.0.weight, gradient/classifier.0.bias, gradient/classifier.3.weight, gradient/classifier.3.bias"
+      ]
+    },
+    {
+      "round": 0,
+      "case": "embedding",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.722670793533325,
+      "status": "passed",
+      "training": 2.5637209764681756,
+      "inference": 0.12826602323912084,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "embedding",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.925384283065796,
+      "status": "passed",
+      "training": 6.925281981239095,
+      "inference": 0.5914020002819598,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 80,
+        "host_read_calls": 20,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 7.732102632522583,
+      "status": "passed",
+      "training": 92.76755098835565,
+      "inference": 11.907287989743054,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 80,
+        "host_read_calls": 20,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 4.02330756187439,
+      "status": "passed",
+      "training": 16.140260006068274,
+      "inference": 1.2540649913717061,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "pool_classifier",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7730681896209717,
+      "status": "passed",
+      "training": 1.5869589988142252,
+      "inference": 0.20189298084005713,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "pool_classifier",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.67456579208374,
+      "status": "passed",
+      "training": 3.452311997534707,
+      "inference": 0.2322790096513927,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bilinear_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.474161386489868,
+      "status": "passed",
+      "training": 2.9533409979194403,
+      "inference": 0.1883779768832028,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bilinear_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.822507619857788,
+      "status": "passed",
+      "training": 1.500708982348442,
+      "inference": 0.12256600894033909,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bicubic_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.622338056564331,
+      "status": "passed",
+      "training": 1.5331400209106505,
+      "inference": 0.12436002725735307,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "bicubic_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.62458348274231,
+      "status": "passed",
+      "training": 2.9882149829063565,
+      "inference": 0.19140299991704524,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "reduction_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.5741798877716064,
+      "status": "passed",
+      "training": 3.6866040027234703,
+      "inference": 0.2894040080718696,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "reduction_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.722655773162842,
+      "status": "passed",
+      "training": 1.9838919979520142,
+      "inference": 0.18934899708256125,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.673107147216797,
+      "status": "passed",
+      "training": 1.914494001539424,
+      "inference": 0.1565289858262986,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.674847841262817,
+      "status": "passed",
+      "training": 3.7680249952245504,
+      "inference": 0.3489849914330989,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "volume_autoencoder",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.523268699645996,
+      "status": "passed",
+      "training": 4.386024986160919,
+      "inference": 0.44608302414417267,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "volume_autoencoder",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.6215996742248535,
+      "status": "passed",
+      "training": 1.3629450113512576,
+      "inference": 0.1690420031081885,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spatial_transformer",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.522279977798462,
+      "status": "passed",
+      "training": 1.3858979800716043,
+      "inference": 0.11250798706896603,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spatial_transformer",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.424184560775757,
+      "status": "passed",
+      "training": 2.6985500007867813,
+      "inference": 0.20981801208108664,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "recurrent_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 6.979065656661987,
+      "status": "passed",
+      "training": 16.330993006704375,
+      "inference": 1.6464480140712112,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "recurrent_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.672542095184326,
+      "status": "passed",
+      "training": 6.206516001839191,
+      "inference": 0.27943600434809923,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "retrieval_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.8735499382019043,
+      "status": "passed",
+      "training": 1.9669500179588795,
+      "inference": 0.2082450082525611,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "retrieval_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.27388858795166,
+      "status": "passed",
+      "training": 3.61694602179341,
+      "inference": 0.6716299976687878,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 80,
+        "host_read_calls": 20,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spectral_filter",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.524000406265259,
+      "status": "passed",
+      "training": 2.8888620145153254,
+      "inference": 0.25638300576247275,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "spectral_filter",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.572141170501709,
+      "status": "passed",
+      "training": 1.4442149840760976,
+      "inference": 0.12022102600894868,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "solve_regressor",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.82336163520813,
+      "status": "passed",
+      "training": 1.230149995535612,
+      "inference": 0.23816898465156555,
+      "audit": null,
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "solve_regressor",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.2737648487091064,
+      "status": "passed",
+      "training": 3.3028860052581877,
+      "inference": 0.4374779819045216,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 60,
+        "host_read_calls": 15,
+        "host_read_max_bytes": 4
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "causal_attention_block",
+      "backend": "vulkan",
+      "returncode": 0,
+      "seconds": 4.925441741943359,
+      "status": "passed",
+      "training": 3.8190789928194135,
+      "inference": 0.3469609946478158,
+      "audit": {
+        "cpu_fallback_calls": 0,
+        "host_read_bytes": 0,
+        "host_read_calls": 0,
+        "host_read_max_bytes": 0
+      },
+      "error": []
+    },
+    {
+      "round": 0,
+      "case": "causal_attention_block",
+      "backend": "cuda",
+      "returncode": 0,
+      "seconds": 3.7224040031433105
+    }
+  ]
+}
