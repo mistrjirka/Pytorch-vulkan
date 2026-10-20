@@ -1,0 +1,9 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+#define CONV_TM 32
+#define CONV_TN 32
+#define CONV_RM 2
+#define CONV_RN 2
+#define CONV_FIXED_3X3 1
+#define CONV_HOIST_SPATIAL 1
+#include "conv2d_tiled_body.glsl"

@@ -165,7 +165,8 @@ struct ConvTile { const char* name; uint32_t m, n, k, rm=1, rn=1; bool fixed3x3=
 // multiple outputs per invocation without requiring larger workgroups.
 static constexpr ConvTile kTiles[]={{"base",8,16,16},{"wide",8,32,16},
     {"tall",16,16,16},{"register",32,32,16,2,2},
-    {"register3",32,32,16,2,2,true}};
+    {"register3",32,32,16,2,2,true},
+    {"register3_hoist",32,32,16,2,2,true}};
 static constexpr int kTileCount=sizeof(kTiles)/sizeof(kTiles[0]);
 struct ConvCandidate {
   ConvKind kind=ConvKind::Direct;
@@ -317,7 +318,7 @@ static ConvControls controls(ConvPhase phase) {
   const char* tile=std::getenv("TORCH_VULKAN_CONV_TILE");
   if(tile && *tile && std::strcmp(tile,"auto")) {
     for(int i=0;i<kTileCount;++i) if(!std::strcmp(tile,kTiles[i].name)) c.tile=i;
-    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall/register/register3");
+    TORCH_CHECK(c.tile>=0,"TORCH_VULKAN_CONV_TILE must be auto/base/wide/tall/register/register3/register3_hoist");
   }
   const char* tune=std::getenv("TORCH_VULKAN_CONV_AUTOTUNE");
   TORCH_CHECK(!tune || !*tune || !std::strcmp(tune,"0") || !std::strcmp(tune,"1"),
@@ -343,7 +344,12 @@ static ConvCandidate heuristic(const ConvParams& p,ConvPhase phase,const ConvCon
       p.sh==1 && p.sw==1 && p.dh==1 && p.dw==1 && p.groups==1 &&
       p.cin>=32 && p.cout>=32 &&
       (positions>=2048 || (p.cin>=64 && p.cout>=64 && positions>=1024));
-  const int auto_tile = dense_3x3 && has({ConvKind::Tiled,4}) ? 4 : 0;
+  // For dense 3x3 forward the coordinate-hoisted variant reuses each lane's
+  // image address across the K loop. Other phases retain their verified
+  // register3 choice, and unsupported devices fall back to the base tile.
+  const int auto_tile = dense_3x3 && phase==ConvPhase::Forward &&
+      has({ConvKind::Tiled,5}) ? 5 :
+      (dense_3x3 && has({ConvKind::Tiled,4}) ? 4 : 0);
   const ConvCandidate tiled{ConvKind::Tiled,ctl.tile<0 ? auto_tile : ctl.tile};
   bool strict=false;
   if(ctl.algorithm=="direct") { preferred={ConvKind::Direct,0}; strict=true; }

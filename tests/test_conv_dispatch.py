@@ -386,7 +386,10 @@ def test_default_large_dense_conv_dispatch_and_gradients(
     _check_case(xshape, cout, kernel, (1, 1), padding, (1, 1), groups)
     after = torch_vulkan.conv_dispatch_stats()
     for phase in ("forward", "dinput", "dweight"):
-        key = f"selected_{phase}_tiled_{expected}"
+        # The new forward-only address-hoisted kernel is default for dense
+        # 3x3 shapes; gradient heuristics remain unchanged.
+        tile = "register3_hoist" if expected == "register3" and phase == "forward" else expected
+        key = f"selected_{phase}_tiled_{tile}"
         assert after.get(key, 0) == before.get(key, 0) + 1, (phase, before, after)
 
 
@@ -409,3 +412,26 @@ def test_fixed_3x3_rejects_incompatible_filters(monkeypatch):
     w = torch.zeros((32, 32, 3, 5), device="vulkan")
     with pytest.raises(RuntimeError, match="incompatible|exceeds"):
         F.conv2d(x, w)
+
+
+@pytest.mark.parametrize(
+    "xshape,cout,stride,padding,dilation,groups",
+    [
+        ((1, 64, 64, 64), 64, (1, 1), (1, 1), (1, 1), 1),
+        ((2, 32, 31, 35), 64, (2, 1), (2, 1), (2, 1), 2),
+        ((1, 9, 13, 15), 17, (1, 2), (0, 2), (1, 2), 1),
+    ],
+)
+def test_forced_3x3_spatial_hoist_preserves_general_convolution(
+    xshape, cout, stride, padding, dilation, groups, monkeypatch
+):
+    """Hoisting is valid for any 3x3 stride/dilation/groups, not just U-Net."""
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "tiled")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_BACKWARD_ALGO", "optimized")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_TILE", "register3_hoist")
+    before = torch_vulkan.conv_dispatch_stats()
+    _check_case(xshape, cout, (3, 3), stride, padding, dilation, groups)
+    after = torch_vulkan.conv_dispatch_stats()
+    for phase in ("forward", "dinput", "dweight"):
+        key = f"selected_{phase}_tiled_register3_hoist"
+        assert after.get(key, 0) > before.get(key, 0), (phase, before, after)

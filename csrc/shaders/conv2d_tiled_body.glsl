@@ -32,6 +32,19 @@ void main() {
   uint m0=(gl_WorkGroupID.y%tiles)*TM;
   uint n0=gl_WorkGroupID.x*TN;
   uint size_n=p.n*p.oh*p.ow, total=ci*KERNEL_H*KERNEL_W;
+#ifdef CONV_HOIST_SPATIAL
+  // Cooperative input loads have one spatial column per lane: THREADS
+  // is divisible by TN. Hoist image-coordinate divisions from the K loop.
+  uint lane_spatial=n0+tid%TN;
+  uint lane_batch=0u;
+  int lane_base_y=0, lane_base_x=0;
+  if(lane_spatial<size_n) {
+    uint outpos=lane_spatial%(p.oh*p.ow);
+    lane_batch=lane_spatial/(p.oh*p.ow);
+    lane_base_y=int((outpos/p.ow)*p.sh)-int(p.ph);
+    lane_base_x=int((outpos%p.ow)*p.sw)-int(p.pw);
+  }
+#endif
 #if CONV_RM == 2
   vec4 acc=vec4(0.0);
 #else
@@ -48,10 +61,19 @@ void main() {
       uint k=k0+i/TN, pos=n0+i%TN;
       float v=0.0;
       if(pos<size_n && k<total) {
+#ifdef CONV_HOIST_SPATIAL
+        uint batch=lane_batch;
+#else
         uint batch=pos/(p.oh*p.ow), outpos=pos%(p.oh*p.ow);
+#endif
         uint inch=group*ci+k/(KERNEL_H*KERNEL_W), rem=k%(KERNEL_H*KERNEL_W);
+#ifdef CONV_HOIST_SPATIAL
+        int iy=lane_base_y+int((rem/KERNEL_W)*p.dh);
+        int ix=lane_base_x+int((rem%KERNEL_W)*p.dw);
+#else
         int iy=int((outpos/p.ow)*p.sh)-int(p.ph)+int((rem/KERNEL_W)*p.dh);
         int ix=int((outpos%p.ow)*p.sw)-int(p.pw)+int((rem%KERNEL_W)*p.dw);
+#endif
         if(iy>=0 && iy<int(p.h) && ix>=0 && ix<int(p.w))
           v=x[((batch*p.cin+inch)*p.h+uint(iy))*p.w+uint(ix)];
       }
