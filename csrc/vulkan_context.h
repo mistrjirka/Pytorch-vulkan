@@ -9,6 +9,7 @@
 #include <sstream>
 #include <map>
 #include <deque>
+#include <list>
 
 namespace torch_vulkan {
 // Opt-in host-only profiling. Do not infer GPU time from these CPU clocks.
@@ -127,6 +128,7 @@ public:
     uint64_t seq_creates = 0;
     uint64_t algo_evictions = 0;
     uint64_t bound_algorithms = 0;
+    uint64_t bound_cached_buffer_bytes = 0;
     uint64_t pipeline_hits = 0;
     uint64_t pipeline_misses = 0;
     uint64_t pipeline_evictions = 0;
@@ -161,12 +163,25 @@ private:
   std::string shader_dir_;
   std::unordered_map<std::string, std::vector<uint32_t>> shader_cache_;
 
-  // Algorithm cache: key -> cached algorithm
-  std::unordered_map<std::string, std::shared_ptr<kp::Algorithm>> algo_cache_;
-  // Avoid retaining every historical tensor descriptor set indefinitely.
-  // In-flight OpAlgoDispatch objects own their algorithms independently.
-  std::deque<std::string> algo_cache_fifo_;
-  static constexpr size_t kMaxBoundAlgorithms = 512;
+  // Pipeline state is independent of these mutable bindings (Kompute
+  // shared pipeline cache). Only retain bounded Algorithm/descriptor pairs
+  // for buffer tuples that actually recur.
+  struct CachedAlgorithm {
+    std::shared_ptr<kp::Algorithm> algorithm;
+    std::list<std::string>::iterator lru;
+    std::vector<VkBuffer> buffers;
+  };
+  struct CachedBuffer {
+    uint64_t bytes=0;
+    size_t references=0;
+  };
+  std::unordered_map<std::string,CachedAlgorithm> algo_cache_;
+  std::list<std::string> algo_cache_lru_;
+  std::unordered_map<VkBuffer,CachedBuffer> bound_buffer_refs_;
+  uint64_t bound_buffer_bytes_=0;
+  static constexpr size_t kMaxBoundAlgorithms = 4096;
+  static constexpr uint64_t kMaxBoundCacheBufferBytes = uint64_t{512}*1024*1024;
+  void evict_bound_algorithm_locked();
 
   // Sequence pool: reusable sequences
   std::vector<std::shared_ptr<kp::Sequence>> seq_pool_;

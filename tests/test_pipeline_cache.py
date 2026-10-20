@@ -32,8 +32,10 @@ def test_pipeline_cache_independent_of_tensor_address(allocations):
     assert after["pipeline_hits"] - before["pipeline_hits"] >= allocations - 1
     assert after["pipeline_entries"] <= 256
     max_bound_algorithms = int(
-        os.environ.get("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_CAP", "512"))
+        os.environ.get("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_CAP", "4096"))
     assert after["bound_algorithms"] <= max_bound_algorithms
+    assert after["bound_cached_buffer_bytes"] <= int(
+        os.environ.get("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_MB", "512")) * 1024 * 1024
     if allocations == 600 and max_bound_algorithms <= 512:
         assert after["algo_evictions"] > before["algo_evictions"]
     for index in [0, allocations // 2, allocations - 1]:

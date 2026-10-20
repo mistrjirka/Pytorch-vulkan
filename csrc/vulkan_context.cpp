@@ -537,9 +537,12 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
 
   auto it = algo_cache_.find(key);
   if (it != algo_cache_.end()) {
-    // Cache hit: reuse existing algorithm.
-    // Update mutable state: push constants and workgroup.
-    auto& algo = it->second;
+    // LRU instead of FIFO: frequently reused buffer tuples survive transient
+    // intermediate allocations. Cached descriptors cannot be rewritten while
+    // an earlier command using them is in flight; their binding is immutable.
+    auto& entry = it->second;
+    algo_cache_lru_.splice(algo_cache_lru_.begin(),algo_cache_lru_,entry.lru);
+    auto& algo = entry.algorithm;
     if (!push_constants.empty()) {
       algo->setPushConstants(
           const_cast<void*>(static_cast<const void*>(push_constants.data())),
@@ -578,8 +581,9 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
       tensors, spirv, workgroup,
       std::vector<float>{}, push_constants);
 
-  // Diagnostic A/B of descriptor-binding cache pressure. Default is
-  // untouched; bounded override measures whether cache misses dominate.
+  // A cached Algorithm retains its tensors and descriptor set. Budget
+  // distinct underlying VkBuffers, not duplicated bytes for each Algorithm.
+  // These are cache residency limits, NOT limits on a live tensor or dispatch.
   static const size_t bound_algo_capacity=[] {
     auto* value=std::getenv("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_CAP");
     if(!value || !*value) return kMaxBoundAlgorithms;
@@ -590,19 +594,74 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
                 "invalid bounded Vulkan algorithm cache capacity");
     return static_cast<size_t>(count);
   }();
-  if (algo_cache_.size() >= bound_algo_capacity) {
-    algo_cache_.erase(algo_cache_fifo_.front());
-    algo_cache_fifo_.pop_front();
-    ++stats_.algo_evictions;
+  static const uint64_t memory_budget=[] {
+    auto* value=std::getenv("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_MB");
+    if(!value || !*value) return kMaxBoundCacheBufferBytes;
+    errno=0;char* end=nullptr;
+    auto count=std::strtoull(value,&end,10);
+    TORCH_CHECK(errno==0 && end!=value && *end=='\0' &&
+                count<=16384,
+                "invalid bounded Vulkan algorithm cache memory budget");
+    return static_cast<uint64_t>(count)*1024*1024;
+  }();
+  std::vector<VkBuffer> unique;
+  uint64_t bytes_to_add=0;
+  std::unordered_map<VkBuffer,uint64_t> sizes;
+  for(const auto& t:tensors) {
+    auto desc=t->constructDescriptorBufferInfo();
+    const auto buffer=static_cast<VkBuffer>(desc.buffer);
+    if(sizes.emplace(buffer,static_cast<uint64_t>(t->size())*sizeof(float)).second) {
+      unique.push_back(buffer);
+      if(!bound_buffer_refs_.count(buffer)) bytes_to_add+=sizes[buffer];
+    }
   }
-  algo_cache_[key] = algo;
-  algo_cache_fifo_.push_back(key);
+  // Oversized bindings are still dispatched on the GPU, just not retained
+  // indefinitely in the descriptor cache.
+  if(memory_budget && bytes_to_add<=memory_budget) {
+    while(!algo_cache_.empty() &&
+          (algo_cache_.size()>=bound_algo_capacity ||
+           bound_buffer_bytes_+bytes_to_add>memory_budget)) {
+      evict_bound_algorithm_locked();
+      bytes_to_add=0;
+      for(auto buffer:unique) if(!bound_buffer_refs_.count(buffer))
+        bytes_to_add+=sizes[buffer];
+    }
+    if(bound_buffer_bytes_+bytes_to_add<=memory_budget) {
+      algo_cache_lru_.push_front(key);
+      for(auto buffer:unique) {
+        auto& entry=bound_buffer_refs_[buffer];
+        if(!entry.references) {
+          entry.bytes=sizes[buffer];
+          bound_buffer_bytes_+=entry.bytes;
+        }
+        ++entry.references;
+      }
+      algo_cache_.emplace(key,CachedAlgorithm{algo,algo_cache_lru_.begin(),std::move(unique)});
+    }
+  }
   stats_.algo_misses++;
   if(profile) {
     g_algo_miss_ns.fetch_add(elapsed_ns(hot_start),std::memory_order_relaxed);
     g_algo_miss_count.fetch_add(1,std::memory_order_relaxed);
   }
   return algo;
+}
+
+void VulkanContext::evict_bound_algorithm_locked() {
+  TORCH_CHECK(!algo_cache_lru_.empty(),"Empty Vulkan bound algorithm cache");
+  auto it=algo_cache_.find(algo_cache_lru_.back());
+  TORCH_INTERNAL_ASSERT(it!=algo_cache_.end());
+  for(auto buffer:it->second.buffers) {
+    auto bound=bound_buffer_refs_.find(buffer);
+    TORCH_INTERNAL_ASSERT(bound!=bound_buffer_refs_.end() && bound->second.references);
+    if(!--bound->second.references) {
+      bound_buffer_bytes_-=bound->second.bytes;
+      bound_buffer_refs_.erase(bound);
+    }
+  }
+  algo_cache_.erase(it);
+  algo_cache_lru_.pop_back();
+  ++stats_.algo_evictions;
 }
 
 std::shared_ptr<kp::Sequence> VulkanContext::acquire_sequence() {
@@ -630,6 +689,7 @@ VulkanContext::CacheStats VulkanContext::cache_stats() const {
   std::lock_guard<std::mutex> lock(mutex_);
   auto result = stats_;
   result.bound_algorithms = algo_cache_.size();
+  result.bound_cached_buffer_bytes = bound_buffer_bytes_;
 #ifdef TORCH_VULKAN_PATCHED_KOMPUTE
   const auto p = kp::Algorithm::sharedPipelineCacheStats();
   result.pipeline_hits = p.hits;
@@ -643,7 +703,9 @@ VulkanContext::CacheStats VulkanContext::cache_stats() const {
 void VulkanContext::clear_algorithm_cache() {
   std::lock_guard<std::mutex> lock(mutex_);
   algo_cache_.clear();
-  algo_cache_fifo_.clear();
+  algo_cache_lru_.clear();
+  bound_buffer_refs_.clear();
+  bound_buffer_bytes_=0;
 }
 
 } // namespace torch_vulkan

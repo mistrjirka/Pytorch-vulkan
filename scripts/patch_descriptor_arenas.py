@@ -28,20 +28,35 @@ def patch_descriptor_arenas(source: Path) -> None:
     file=source/"src/Algorithm.cpp"
     old=file.read_text()
     s=old
+    s=replace_once(s, '#include "kompute/Algorithm.hpp"',
+                   '#include "kompute/Algorithm.hpp"\n#include <cstdlib>\n#include <cstring>\n#include <algorithm>',
+                   "descriptor arena reuse headers")
     anchor="// The bundle owns immutable pipeline handles; Algorithm instances keep the"
     snippet=r"""// Reuse descriptor-set layouts and per-layout pools independently of shader
 // pipelines. Every Algorithm has a private descriptor SET, while the shared
 // pool is owned by the arena until its last in-flight user has completed.
 struct SharedDescriptorArena {
+    static constexpr uint32_t kPoolSize = 128;
+    static constexpr size_t kMaxIdleSets = 256; // per binding-count arena
     struct Pool {
         vk::DescriptorPool handle;
-        uint32_t live=0;
+        uint32_t live=0;      // assigned to Algorithms
+        uint32_t allocated=0; // including reusable, unassigned sets
+        std::vector<vk::DescriptorSet> idle;
     };
     std::shared_ptr<vk::Device> device;
     vk::DescriptorSetLayout layout;
     uint32_t bindings;
     std::vector<std::shared_ptr<Pool>> pools;
+    size_t idle_count=0;
     std::mutex mutex;
+    static bool reuse_enabled() {
+        static const bool enabled=[]() {
+            const char* flag=std::getenv("TORCH_VULKAN_DESCRIPTOR_SET_REUSE");
+            return !(flag && std::strcmp(flag,"0")==0);
+        }();
+        return enabled;
+    }
 
     SharedDescriptorArena(std::shared_ptr<vk::Device> dev, uint32_t n)
         : device(std::move(dev)), bindings(n) {
@@ -58,39 +73,67 @@ struct SharedDescriptorArena {
             if(layout) device->destroy(layout);
         }
     }
+    // Each descriptor set is private to its Algorithm. Rebind only a set
+    // whose previous Algorithm has been destroyed: OpAlgoDispatch retains
+    // that Algorithm until the owning Sequence is GPU-complete.
     std::pair<vk::DescriptorPool,vk::DescriptorSet> acquire() {
         std::lock_guard<std::mutex> guard(mutex);
+        if(reuse_enabled()) for (auto& p:pools) {
+            if(p->idle.empty()) continue;
+            auto set=p->idle.back();
+            p->idle.pop_back();
+            --idle_count;
+            ++p->live;
+            return {p->handle,set};
+        }
         for (auto& p:pools) {
-            if(p->live >= 128) continue;
+            if(p->allocated >= kPoolSize) continue;
             vk::DescriptorSetAllocateInfo alloc(p->handle,1,&layout);
             try {
                 auto sets=device->allocateDescriptorSets(alloc);
+                ++p->allocated;
                 ++p->live;
                 return {p->handle,sets.front()};
             } catch (const vk::SystemError&) {
-                // A fragmented pool may require an additional pool.
+                // A fragmented pool may require a new pool. Other pools
+                // remain valid and do not drop live in-flight descriptors.
             }
         }
         vk::DescriptorPoolSize size(vk::DescriptorType::eStorageBuffer,
-                                    bindings*128);
+                                    std::max(1u,bindings)*kPoolSize);
         vk::DescriptorPoolCreateInfo create(
-          vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,128,1,&size);
+          vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,kPoolSize,1,&size);
         auto p=std::make_shared<Pool>();
         p->handle=device->createDescriptorPool(create);
         pools.push_back(p);
         vk::DescriptorSetAllocateInfo alloc(p->handle,1,&layout);
         auto sets=device->allocateDescriptorSets(alloc);
+        ++p->allocated;
         ++p->live;
         return {p->handle,sets.front()};
     }
     void release(vk::DescriptorPool pool, vk::DescriptorSet set) {
         std::lock_guard<std::mutex> guard(mutex);
-        device->freeDescriptorSets(pool,std::vector<vk::DescriptorSet>{set});
         for (auto& p:pools) {
-            if (p->handle==pool) {
-                --p->live;
-                return;
+            if (p->handle!=pool) continue;
+            if (!p->live) throw std::runtime_error("Descriptor arena double release");
+            --p->live;
+            if(reuse_enabled() && idle_count<kMaxIdleSets) {
+                p->idle.push_back(set);
+                ++idle_count;
+            } else {
+                device->freeDescriptorSets(pool,std::vector<vk::DescriptorSet>{set});
+                --p->allocated;
             }
+            if(!p->allocated) {
+                // A non-live, empty pool no longer retains descriptor memory.
+                // In-flight Algorithms always count as live, so its handle
+                // cannot be destroyed while recorded GPU work may use it.
+                auto handle=p->handle;
+                pools.erase(std::remove(pools.begin(),pools.end(),p),pools.end());
+                device->destroy(handle);
+            }
+            return;
         }
         throw std::runtime_error("Unknown descriptor pool in Kompute cache");
     }
