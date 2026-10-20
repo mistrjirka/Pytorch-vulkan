@@ -22,6 +22,7 @@ parser.add_argument('--backend',choices=['vulkan','cuda'],required=True)
 parser.add_argument('--optimizer',choices=['adam','adamw','native_adamw'],required=True)
 parser.add_argument('--foreach',action='store_true',help='Use standard torch.optim foreach implementation')
 parser.add_argument('--fused',action='store_true',help='Request native PyTorch fused=True implementation')
+parser.add_argument('--amsgrad',action='store_true',help='Retain max second moment; match broad model benchmark optimizer')
 parser.add_argument('--warmup',type=int,default=12)
 parser.add_argument('--repeats',type=int,default=100)
 parser.add_argument('--profile-count',type=int,default=5)
@@ -62,9 +63,9 @@ grad_cpu=[torch.randn(p.shape,generator=grad_gen,dtype=torch.float32)*0.001 for 
 grads=[g.to(device) for g in grad_cpu]
 for p,g in zip(params,grads):p.grad=g
 if args.optimizer=='adam':
- opt=torch.optim.Adam(params,lr=1e-4,weight_decay=1e-5,foreach=(None if args.fused else args.foreach),fused=(True if args.fused else None))
+ opt=torch.optim.Adam(params,lr=1e-4,weight_decay=1e-5,foreach=(None if args.fused else args.foreach),fused=(True if args.fused else None),amsgrad=args.amsgrad)
 elif args.optimizer=='adamw':
- opt=torch.optim.AdamW(params,lr=1e-4,weight_decay=1e-5,foreach=(None if args.fused else args.foreach),fused=(True if args.fused else None))
+ opt=torch.optim.AdamW(params,lr=1e-4,weight_decay=1e-5,foreach=(None if args.fused else args.foreach),fused=(True if args.fused else None),amsgrad=args.amsgrad)
 else:
  assert args.backend=='vulkan'
  from torch_vulkan.optim import AdamW as NativeAdamW
@@ -92,7 +93,7 @@ def pct(p):
  lo=int(t);hi=min(lo+1,len(ordered)-1)
  return ordered[lo]*(hi-t)+ordered[hi]*(t-lo)
 r=dict(device=devname,backend=args.backend,optimizer=args.optimizer,foreach=args.foreach,fused=args.fused,
-    parameter_count=len(params),parameter_numel=sum(p.numel() for p in params),
+    amsgrad=args.amsgrad,parameter_count=len(params),parameter_numel=sum(p.numel() for p in params),
     tensor_shapes=[list(p.shape) for p in params],params_sha256=digest,
     grad_sha256=hashlib.sha256(b''.join(x.numpy().tobytes() for x in grad_cpu)).hexdigest(),
     torch=torch.__version__,warmup=args.warmup,repeats=args.repeats,
