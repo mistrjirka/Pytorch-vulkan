@@ -150,26 +150,61 @@ The [AMD portability and FP32 input-gradient optimization](docs/amd-convolution-
 
 [Native fallback removal and current network profile](docs/native-fallback-removal-6d145b4.md): general activation, mutation, loss and strided-allocation kernels remove the measured FP32 tensor CPU fallbacks. Includes matched before/after/CUDA timings, full-gradient comparisons and cross-device correctness results. The [earlier profile](docs/network-profile-795d34e.md) records the original bottlenecks.
 
-### Performance investigation and experimental optimizations
+### Optimized execution (enabled by default)
 
-The [18 October 2026 investigation](docs/performance-investigation-2026-10-18.md)
-profiles CPU fallbacks and Vulkan GPU activity, documents the optimizer,
-allocation and submission fixes, and explains why the remaining CUDA gap
-motivated the now-implemented shared pipeline cache and experimental GPU residency.
+**No environment variables are required to enable the fast Vulkan path.**
+GPU-resident tensors stay on the GPU between native operations, and
+command submissions are deferred and batched until the program actually
+needs synchronization. Direct-output and other optimized native kernels
+are selected automatically on compatible tensor layouts and devices.
+GPU buffer lifetime, aliasing and required host reads remain synchronized.
 
-The opt-in `torch_vulkan.optim.AdamW` fuses optimizer state updates
-on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
-`torch.optim.AdamW`. The opt-in native optimizer now also supports FP32 AMSGrad
-(amsgrad=True), preserving the maximum second-moment state.
-See [the AMSGrad benchmark report](docs/fused-amsgrad-optimizer-2026-10-20.md).
-The native optimizer also supports **horizontal multi-tensor fusion**,
-batching chunks from several independent parameter tensors into a
-single Vulkan dispatch with no extra packing or loss of per-tensor
-steps. See [the chunk scheduler and A/B report](docs/vulkan-general-multitensor-adamw-2026-10-20.md).
-Set TORCH_VULKAN_ADAMW_DISABLE_MULTITENSOR=1 to retain the previous
-single-tensor dispatch path when profiling unusual workloads.
-Deferred command submission and mapped host memory are
-additional *experimental* environment-configured modes, disabled by default.
+The effective runtime mode is visible directly in Python:
+
+    import torch_vulkan
+    print(torch_vulkan.performance_options())
+    # {'gpu_resident': True, 'deferred_submissions': True,
+    #  'adamw_multitensor_requested': True}
+
+Our separate, opt-in native optimizer also enables horizontal
+multi-tensor grouping without extra configuration:
+
+    from torch_vulkan.optim import AdamW
+    optimizer = AdamW(model.parameters(), lr=1e-4, amsgrad=True)
+
+The optimizer is explicit rather than replacing torch.optim.AdamW
+globally: native fused AdamW does not support every standard optimizer
+option and must not silently change a user's training semantics.
+
+**Default performance policy:**
+
+| Feature | Default | Reason |
+|---|---|---|
+| GPU residency | Enabled | Eliminate redundant host copies between GPU operations |
+| Deferred GPU command submission | Enabled | Reduce submissions and CPU synchronization |
+| Optimized native operator fast paths | Enabled where numerically supported | Keep the generic correctness fallback |
+| Native AdamW tensor-list grouping | Enabled for the explicit Vulkan AdamW optimizer | Reduce repeated GPU dispatches |
+| Multi-tensor width | Automatically 8, 4, or single | Respect GPU descriptor and push-constant limits |
+| Convolution selection | Automatic optimized geometry heuristic | Select compatible algorithms without benchmark warmup |
+| Convolution benchmark autotuning | Disabled | Extra first-use timing and warmup overhead |
+| Host-visible memory for all buffers | Disabled | Device-local memory is usually faster for discrete GPUs |
+| GPU/host instrumentation | Disabled | Timers distort regular performance measurements |
+
+**Diagnostic opt-outs, only for troubleshooting (process-start):**
+
+- TORCH_VULKAN_GPU_RESIDENT=0 selects the older eager nonresident path.
+- TORCH_VULKAN_DEFER_SUBMISSIONS=0 retains GPU residency but submits eagerly.
+- TORCH_VULKAN_ADAMW_DISABLE_MULTITENSOR=1 selects per-parameter dispatches.
+- TORCH_VULKAN_ADAMW_MULTITENSOR_WIDTH=4 limits horizontal grouping to four.
+- TORCH_VULKAN_CONV_AUTOTUNE=1 opts into the convolution tuner, which
+  explicitly benchmarks multiple candidate kernels during first use.
+
+These are diagnostic overrides; they are **not prerequisites for speed**.
+The device-supported paths are active without setting any variables.
+
+Further details: [fused AMSGrad](docs/fused-amsgrad-optimizer-2026-10-20.md),
+[multi-tensor scheduling](docs/vulkan-general-multitensor-adamw-2026-10-20.md),
+and [CUDA/ROCm performance gap](docs/cuda-rocm-gap-reuse-audit-2026-10-20.md).
 
 ### Earlier optimized MLP measurement (experimental)
 
@@ -179,11 +214,9 @@ complete forward + loss + backward + AdamW training step, against native CUDA
 0.172 ms and 2.218 ms respectively. This requires GPU residency and the
 opt-in fused AdamW implementation, and is still substantially slower than CUDA.
 
-Set `TORCH_VULKAN_GPU_RESIDENT=1` before importing the backend, then use
-`from torch_vulkan.optim import AdamW` rather than
-`torch.optim.AdamW` to use the fused optimizer. The experimental residency
-mode requires more validation for arbitrary PyTorch workloads and is not
-enabled by default.
+GPU residency and deferred submission are already on by default.
+Use the explicit native optimizer only when its supported optimizer
+semantics match the task; the standard PyTorch optimizer remains unchanged.
 
 Full methodology, GPU kernel timestamps, fallback profiling, results
 on both NVIDIA GPUs, and outstanding bottlenecks are documented in the

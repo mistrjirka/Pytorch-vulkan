@@ -133,7 +133,7 @@ def test_tensor_add_inplace_autograd_accumulation_and_version():
 
 
 def test_tensor_add_inplace_queued_rhs_lifetime():
-    if os.environ.get("TORCH_VULKAN_GPU_RESIDENT") != "1" or os.environ.get("TORCH_VULKAN_DEFER_SUBMISSIONS") != "1":
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         return
     torch.manual_seed(17)
     cpu = torch.randn(17, 19)

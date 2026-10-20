@@ -61,7 +61,7 @@ def test_broadcast_and_noncontiguous_destination(name,variant):
 
 @pytest.mark.parametrize("name",OPS)
 def test_one_dispatch_for_contiguous_destination(name):
-    if os.environ.get("TORCH_VULKAN_GPU_RESIDENT")!="1" or os.environ.get("TORCH_VULKAN_DEFER_SUBMISSIONS")!="1":pytest.skip("deferred dispatch counter")
+    if not all(vk.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):pytest.skip("deferred dispatch counter")
     a,b,c=[torch.randn(17,23).to("vulkan") for _ in range(3)]
     vk.synchronize();before=vk.queue_stats()
     apply(name,a,b,c,"out");vk.synchronize();after=vk.queue_stats()

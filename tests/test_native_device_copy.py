@@ -22,7 +22,7 @@ def test_native_device_copy(dtype, layout):
 
 
 def test_native_device_copy_deferred_no_wait_and_lifetime():
-    if os.getenv('TORCH_VULKAN_GPU_RESIDENT') != '1' or os.getenv('TORCH_VULKAN_DEFER_SUBMISSIONS') != '1':
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         pytest.skip('requires resident/deferred execution')
     x = torch.arange(123, dtype=torch.float32).to('vulkan')
     out = torch.empty_like(x)

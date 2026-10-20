@@ -69,6 +69,23 @@ def synchronize(device=None) -> None:
     _C._synchronize()
 
 
+def performance_options() -> dict:
+    """Inspect performance settings; no environment setup required.
+
+    GPU residency and deferred command submission are enabled by default.
+    Native optimized operations and grouped AdamW run when supported by the
+    device and the operator's semantics. The native fused optimizer remains
+    an explicit Python class, not a monkeypatch of standard PyTorch AdamW.
+
+    Process-start diagnostic overrides are documented in README.md.
+    """
+    state = dict(_C._execution_mode())
+    state["adamw_multitensor_requested"] = (
+        os.environ.get("TORCH_VULKAN_ADAMW_DISABLE_MULTITENSOR") != "1"
+    )
+    return state
+
+
 def gpu_timing_stats() -> dict:
     """Read opt-in kernel GPU timestamps (TORCH_VULKAN_PROFILE_TIMESTAMPS=1)."""
     return _C._gpu_timing_stats()

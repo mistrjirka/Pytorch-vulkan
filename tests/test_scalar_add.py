@@ -80,7 +80,7 @@ def test_scalar_add_autograd():
 
 def test_scalar_add_counter_does_not_flush_unrelated_work():
     import os
-    if os.environ.get('TORCH_VULKAN_GPU_RESIDENT')!='1' or os.environ.get('TORCH_VULKAN_DEFER_SUBMISSIONS')!='1':
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         return
     x=torch.randn(32,32);v=x.to('vulkan');counter=torch.tensor(0,dtype=torch.int64).to('vulkan')
     torch_vulkan.synchronize();before=torch_vulkan.queue_stats()['submissions']

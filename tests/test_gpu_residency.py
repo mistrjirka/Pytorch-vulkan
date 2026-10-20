@@ -1,7 +1,7 @@
 """Host/device coherence and aliasing under eager or deferred Vulkan execution.
 
-Run with optional TORCH_VULKAN_GPU_RESIDENT=1 and
-TORCH_VULKAN_DEFER_SUBMISSIONS=1 to exercise the additional code paths.
+GPU residency and deferred submission are enabled by default; override only
+for explicit legacy-mode regression tests.
 """
 import torch
 import torch_vulkan
@@ -53,9 +53,7 @@ def test_vulkan_output_view_after_gpu_write():
 
 def test_deferred_graph_reduces_submissions():
     import os
-    if os.environ.get('TORCH_VULKAN_DEFER_SUBMISSIONS')!='1':
-        return
-    if os.environ.get('TORCH_VULKAN_GPU_RESIDENT')!='1':
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         return
     x=torch.zeros(4096,device='vulkan')
     add=torch.full((4096,),0.01,device='vulkan')

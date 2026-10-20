@@ -83,9 +83,14 @@ VulkanContext::VulkanContext() {
 }
 
 bool VulkanContext::gpu_resident_enabled() const {
+  // Device residence is the normal path; synchronize at actual host reads.
+  // Legacy behavior can still be selected explicitly when diagnosing issues.
   static const bool enabled=[](){
     const auto* flag=std::getenv("TORCH_VULKAN_GPU_RESIDENT");
-    return flag && std::strcmp(flag,"1")==0;
+    TORCH_CHECK(!flag || !*flag || !std::strcmp(flag,"0") ||
+                !std::strcmp(flag,"1"),
+                "TORCH_VULKAN_GPU_RESIDENT must be 0 or 1");
+    return !flag || !*flag || std::strcmp(flag,"0")!=0;
   }();
   return enabled;
 }
@@ -363,9 +368,21 @@ VulkanContext::~VulkanContext() {
 }
 
 bool VulkanContext::deferred_enabled() const {
-  static const bool enabled = []() {
+  // Queue independent native operators by default; CPU access and explicit
+  // synchronize calls remain host completion boundaries.
+  static const bool enabled = [this]() {
     const char* flag = std::getenv("TORCH_VULKAN_DEFER_SUBMISSIONS");
-    return flag && std::strcmp(flag, "1") == 0;
+    TORCH_CHECK(!flag || !*flag || !std::strcmp(flag,"0") ||
+                !std::strcmp(flag,"1"),
+                "TORCH_VULKAN_DEFER_SUBMISSIONS must be 0 or 1");
+    const bool requested=!flag || !*flag || std::strcmp(flag,"0")!=0;
+    const bool resident=gpu_resident_enabled();
+    TORCH_CHECK(!flag || std::strcmp(flag,"1")!=0 || resident,
+                "Deferred Vulkan submission requires GPU residency; "
+                "TORCH_VULKAN_GPU_RESIDENT=0 conflicts with "
+                "TORCH_VULKAN_DEFER_SUBMISSIONS=1");
+    // Disabling residency alone selects the entire legacy eager path.
+    return resident && requested;
   }();
   return enabled;
 }

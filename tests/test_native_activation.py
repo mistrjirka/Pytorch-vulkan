@@ -151,8 +151,7 @@ def test_leaky_out_exact_alias():
 
 
 def test_leaky_queued_chain_stays_on_gpu():
-    if (os.environ.get("TORCH_VULKAN_GPU_RESIDENT") != "1" or
-            os.environ.get("TORCH_VULKAN_DEFER_SUBMISSIONS") != "1"):
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         pytest.skip("requires resident deferred mode")
     x = torch.linspace(-3., 3., 257)
     v = x.to("vulkan")

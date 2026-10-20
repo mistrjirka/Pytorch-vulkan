@@ -257,6 +257,13 @@ PYBIND11_MODULE(_C, m) {
   m.def("_current_stream", [](){return pybind11::reinterpret_steal<pybind11::object>(THPStream_Wrap(c10::Stream(c10::Stream::UNSAFE,c10::Device(c10::DeviceType::PrivateUse1,0),current_stream_id)));});
   m.def("_default_stream", [](){return pybind11::reinterpret_steal<pybind11::object>(THPStream_Wrap(c10::Stream(c10::Stream::DEFAULT,c10::Device(c10::DeviceType::PrivateUse1,0))));});
   m.def("_set_stream_id", [](int64_t id){TORCH_CHECK(id>=0&&id<next_stream_id.load(),"Unknown Vulkan stream");current_stream_id=id;});
+  m.def("_execution_mode", []() {
+    py::dict options;
+    const auto& context=VulkanContext::instance();
+    options["gpu_resident"]=context.gpu_resident_enabled();
+    options["deferred_submissions"]=context.deferred_enabled();
+    return options;
+  }, "Active Vulkan runtime execution mode (optimizations enabled by default)");
   m.def("_queue_stats", &queue_stats);
   m.def("_gpu_timing_stats", &gpu_timing_stats);
   m.def("_runtime_hotpath_stats", &runtime_hotpath_stats);

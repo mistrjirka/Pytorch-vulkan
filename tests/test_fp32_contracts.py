@@ -177,7 +177,7 @@ def test_zero_preserves_aliases_and_version(layout):
 
 
 def test_zero_deferred_does_not_submit():
-    if os.getenv('TORCH_VULKAN_GPU_RESIDENT') != '1' or os.getenv('TORCH_VULKAN_DEFER_SUBMISSIONS') != '1':
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         pytest.skip('requires resident/deferred execution')
     x = torch.ones(128, device='vulkan')
     torch_vulkan.synchronize()

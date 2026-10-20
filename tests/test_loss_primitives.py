@@ -174,7 +174,7 @@ def test_binary_broadcast_autograd(op):
 
 
 def test_primitive_chain_does_not_flush_deferred_work():
-    if os.environ.get("TORCH_VULKAN_GPU_RESIDENT") != "1" or os.environ.get("TORCH_VULKAN_DEFER_SUBMISSIONS") != "1":
+    if not all(torch_vulkan.performance_options()[k] for k in ("gpu_resident", "deferred_submissions")):
         return
     a = torch.randn(7, 13)
     b = a.to("vulkan")
