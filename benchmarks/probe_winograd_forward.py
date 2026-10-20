@@ -1,4 +1,4 @@
-"""General FP32 3x3 forward benchmark for native Vulkan and tuned cuDNN CUDA.
+"""General FP32 3x3 forward benchmark for native Vulkan, tuned cuDNN CUDA and ROCm MIOpen.
 
 Use identical seeded shapes, a CPU FP64 oracle and synchronized timings.
 On Vulkan, TORCH_VULKAN_CONV_ALGO=winograd forces the optional algorithm.
@@ -39,7 +39,7 @@ CASES = (
 
 def main():
   p=argparse.ArgumentParser()
-  p.add_argument("--backend",choices=["vulkan","cuda"],default="vulkan")
+  p.add_argument("--backend",choices=["vulkan","cuda","rocm"],default="vulkan")
   p.add_argument("--cuda-autotune",action="store_true",help="allow cuDNN to benchmark convolution algorithms during warmup")
   p.add_argument("--cases",default=",".join(c[0] for c in CASES))
   p.add_argument("--warmup",type=int,default=4)
@@ -51,12 +51,16 @@ def main():
     device="vulkan"
     sync=torch_vulkan.synchronize
   else:
-    assert torch.cuda.is_available(), "CUDA is unavailable in this environment"
+    assert torch.cuda.is_available(), "CUDA/HIP backend is unavailable in this environment"
     torch.backends.cuda.matmul.allow_tf32=False
     torch.backends.cudnn.allow_tf32=False
     torch.backends.cudnn.benchmark=args.cuda_autotune
-    device="cuda"
+    device="cuda"  # ROCm PyTorch intentionally exposes the CUDA device API
     sync=torch.cuda.synchronize
+  if args.backend=="rocm":
+    assert torch.version.hip, "--backend rocm requires ROCm PyTorch"
+  if args.backend=="cuda":
+    assert torch.version.cuda and not torch.version.hip, "--backend cuda requires NVIDIA CUDA PyTorch"
   selected=set(args.cases.split(","))
   results=[]
   for name,shape,cout,groups in CASES:
