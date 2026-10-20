@@ -89,6 +89,11 @@ def device(index: int = 0) -> torch.device:
     return torch.device("vulkan", index)
 
 
+def runtime_hotpath_stats() -> dict:
+    """Cumulative opt-in host timers (TORCH_VULKAN_PROFILE_HOST_HOTPATH=1)."""
+    return _C._runtime_hotpath_stats()
+
+
 def cache_stats() -> dict:
     """Return algorithm cache hit/miss statistics (Phase 4).
 

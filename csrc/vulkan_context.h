@@ -11,6 +11,11 @@
 #include <deque>
 
 namespace torch_vulkan {
+// Opt-in host-only profiling. Do not infer GPU time from these CPU clocks.
+bool host_hotpath_profile_enabled();
+void record_allocator_hotpath(uint64_t nanos,size_t bytes,bool fresh);
+std::map<std::string,uint64_t> runtime_hotpath_stats();
+
 
 // Singleton managing the Vulkan instance, device, and shader cache.
 // Wraps Kompute to hide Vulkan boilerplate.

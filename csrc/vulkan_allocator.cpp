@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <cstdio>
+#include <chrono>
 
 namespace torch_vulkan {
 
@@ -16,6 +17,8 @@ VulkanAllocator& VulkanAllocator::instance() {
 }
 
 c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
+  const bool profile=host_hotpath_profile_enabled();
+  const auto hot_start=profile?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
   if (nbytes == 0) {
     return c10::DataPtr(nullptr, c10::Device(c10::DeviceType::PrivateUse1, 0));
   }
@@ -43,6 +46,7 @@ c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
     }
   }
 
+  const bool freshly_allocated=!tensor;
   if (!tensor) {
     // Experimental zero-copy path: choose host-visible Vulkan storage to
     // remove staging-buffer transfers. Unlike device-local memory, the GPU
@@ -76,6 +80,10 @@ c10::DataPtr VulkanAllocator::allocate(size_t nbytes) {
     residency_[ptr] = Residency::HostDirty;
   }
 
+  if(profile) {
+    record_allocator_hotpath(static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::steady_clock::now()-hot_start).count()),nbytes,freshly_allocated);
+  }
   return c10::DataPtr(
       ptr,
       ptr,

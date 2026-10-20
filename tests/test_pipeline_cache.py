@@ -26,11 +26,15 @@ def test_pipeline_cache_independent_of_tensor_address(allocations):
 
     if after["pipeline_misses"] == 0 and after["pipeline_hits"] == 0:
         pytest.skip("External unpatched Kompute does not expose pipeline reuse metrics")
-    assert after["pipeline_misses"] - before["pipeline_misses"] <= 1
+    # This test uses two shader families: torch.full() materialization
+    # and relu. On a fresh cache both may compile exactly once.
+    assert after["pipeline_misses"] - before["pipeline_misses"] <= 2
     assert after["pipeline_hits"] - before["pipeline_hits"] >= allocations - 1
     assert after["pipeline_entries"] <= 256
-    assert after["bound_algorithms"] <= 512
-    if allocations == 600:
+    max_bound_algorithms = int(
+        os.environ.get("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_CAP", "512"))
+    assert after["bound_algorithms"] <= max_bound_algorithms
+    if allocations == 600 and max_bound_algorithms <= 512:
         assert after["algo_evictions"] > before["algo_evictions"]
     for index in [0, allocations // 2, allocations - 1]:
         expected = torch.full((32,), float(index) / 10)

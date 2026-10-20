@@ -13,6 +13,7 @@ import os
 import statistics
 import sys
 import time
+import resource
 from pathlib import Path
 import torch
 
@@ -74,11 +75,17 @@ def step():
 
 for _ in range(args.warmup):step()
 sync()
-times=[]
+host_before=(torch_vulkan.runtime_hotpath_stats() if args.backend=='vulkan' else {})
+times=[];enqueue_ms=[];sync_ms=[]
 for _ in range(args.repeats):
  start=time.perf_counter()
- step();sync()
- times.append((time.perf_counter()-start)*1000)
+ step()
+ after_enqueue=time.perf_counter()
+ sync()
+ end=time.perf_counter()
+ enqueue_ms.append((after_enqueue-start)*1000)
+ sync_ms.append((end-after_enqueue)*1000)
+ times.append((end-start)*1000)
 ordered=sorted(times)
 def pct(p):
  t=(len(ordered)-1)*p
@@ -89,8 +96,13 @@ r=dict(device=devname,backend=args.backend,optimizer=args.optimizer,foreach=args
     tensor_shapes=[list(p.shape) for p in params],params_sha256=digest,
     grad_sha256=hashlib.sha256(b''.join(x.numpy().tobytes() for x in grad_cpu)).hexdigest(),
     torch=torch.__version__,warmup=args.warmup,repeats=args.repeats,
+    host_enqueue_median_ms=statistics.median(enqueue_ms),sync_median_ms=statistics.median(sync_ms),
+    host_enqueue_ms=enqueue_ms,sync_ms=sync_ms,
+    max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
     median_ms=statistics.median(times),p10_ms=pct(.1),p90_ms=pct(.9),ms=times)
 if args.backend=='vulkan':
+ host_after=torch_vulkan.runtime_hotpath_stats()
+ r['native_host_hotpath_deltas']={k:host_after.get(k,0)-host_before.get(k,0) for k in host_after}
  r['execution_stats']=torch_vulkan.execution_stats()
  r['cache_stats']=torch_vulkan.cache_stats()
  # Profiling may be off; separate diagnostic with GPU timestamps enabled

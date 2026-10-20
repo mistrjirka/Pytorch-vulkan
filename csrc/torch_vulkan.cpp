@@ -258,6 +258,7 @@ PYBIND11_MODULE(_C, m) {
   m.def("_set_stream_id", [](int64_t id){TORCH_CHECK(id>=0&&id<next_stream_id.load(),"Unknown Vulkan stream");current_stream_id=id;});
   m.def("_queue_stats", &queue_stats);
   m.def("_gpu_timing_stats", &gpu_timing_stats);
+  m.def("_runtime_hotpath_stats", &runtime_hotpath_stats);
   m.def("_cache_stats", &cache_stats,
         "Return algorithm cache hit/miss statistics (Phase 4)");
   m.def("_clear_algorithm_cache", &clear_algorithm_cache,

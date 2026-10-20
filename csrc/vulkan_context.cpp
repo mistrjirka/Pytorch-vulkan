@@ -8,12 +8,53 @@
 #include <cstring>
 #include <algorithm>
 #include <chrono>
+#include <atomic>
 #include <c10/util/Exception.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 namespace torch_vulkan {
+namespace {
+using HotClock=std::chrono::steady_clock;
+std::atomic<uint64_t> g_algo_hit_ns{0},g_algo_miss_ns{0},g_algo_hit_count{0},g_algo_miss_count{0};
+std::atomic<uint64_t> g_enqueue_ns{0},g_enqueue_count{0};
+std::atomic<uint64_t> g_alloc_ns{0},g_alloc_fresh_ns{0},g_alloc_reused_ns{0},g_alloc_calls{0},g_alloc_fresh_calls{0},g_alloc_reused_calls{0};
+std::atomic<uint64_t> g_alloc_fresh_bytes{0};
+uint64_t elapsed_ns(HotClock::time_point begin) {
+  return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+    HotClock::now()-begin).count());
+}
+}
+bool host_hotpath_profile_enabled(){
+  static bool enabled=[](){auto* v=std::getenv("TORCH_VULKAN_PROFILE_HOST_HOTPATH");
+                              return v&&std::strcmp(v,"1")==0;}();
+  return enabled;
+}
+void record_allocator_hotpath(uint64_t nanos,size_t bytes,bool fresh){
+  if(!host_hotpath_profile_enabled())return;
+  g_alloc_ns.fetch_add(nanos,std::memory_order_relaxed);
+  g_alloc_calls.fetch_add(1,std::memory_order_relaxed);
+  if(fresh) {
+    g_alloc_fresh_ns.fetch_add(nanos,std::memory_order_relaxed);
+    g_alloc_fresh_calls.fetch_add(1,std::memory_order_relaxed);
+    g_alloc_fresh_bytes.fetch_add(bytes,std::memory_order_relaxed);
+  } else {
+    g_alloc_reused_ns.fetch_add(nanos,std::memory_order_relaxed);
+    g_alloc_reused_calls.fetch_add(1,std::memory_order_relaxed);
+  }
+}
+std::map<std::string,uint64_t> runtime_hotpath_stats(){
+ return {{"algo_hit_ns",g_algo_hit_ns.load()},{"algo_miss_ns",g_algo_miss_ns.load()},
+  {"algo_hit_count",g_algo_hit_count.load()},{"algo_miss_count",g_algo_miss_count.load()},
+  {"enqueue_ns",g_enqueue_ns.load()},{"enqueue_count",g_enqueue_count.load()},
+  {"allocator_ns",g_alloc_ns.load()},{"allocator_calls",g_alloc_calls.load()},
+  {"allocator_fresh_ns",g_alloc_fresh_ns.load()},{"allocator_fresh_calls",g_alloc_fresh_calls.load()},
+  {"allocator_fresh_bytes",g_alloc_fresh_bytes.load()},
+  {"allocator_reused_ns",g_alloc_reused_ns.load()},
+  {"allocator_reused_calls",g_alloc_reused_calls.load()}};
+}
+
 
 VulkanContext& VulkanContext::instance() {
   static VulkanContext ctx;
@@ -127,6 +168,8 @@ void VulkanContext::enqueue_resident_compute(
     const std::shared_ptr<kp::Algorithm>& algo,
     const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
     const std::vector<std::shared_ptr<kp::Tensor>>& outputs) {
+  const bool profile=host_hotpath_profile_enabled();
+  const auto hot_start=profile?HotClock::now():HotClock::time_point{};
   TORCH_CHECK(gpu_resident_enabled() && deferred_enabled(),
               "enqueue_resident_compute requires GPU residence and deferral");
   auto& alloc=VulkanAllocator::instance();
@@ -156,6 +199,10 @@ void VulkanContext::enqueue_resident_compute(
   for (const auto& t:upload)alloc.mark_clean(t);
   for (const auto& t:outputs)alloc.mark_gpu_dirty(t);
   ++queue_stats_.recorded_ops;
+  if(profile) {
+    g_enqueue_ns.fetch_add(elapsed_ns(hot_start),std::memory_order_relaxed);
+    g_enqueue_count.fetch_add(1,std::memory_order_relaxed);
+  }
 }
 
 void VulkanContext::run_compute_pair(
@@ -482,6 +529,8 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
     const kp::Workgroup& workgroup,
     const std::vector<uint32_t>& push_constants) {
 
+  const bool profile=host_hotpath_profile_enabled();
+  const auto hot_start=profile?HotClock::now():HotClock::time_point{};
   std::string key = make_cache_key(shader_name, tensors);
 
   std::lock_guard<std::mutex> lock(mutex_);
@@ -499,6 +548,10 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
     }
     algo->setWorkgroup(workgroup, tensors.size() ? tensors[0]->size() : 1);
     stats_.algo_hits++;
+    if(profile) {
+      g_algo_hit_ns.fetch_add(elapsed_ns(hot_start),std::memory_order_relaxed);
+      g_algo_hit_count.fetch_add(1,std::memory_order_relaxed);
+    }
     return algo;
   }
 
@@ -525,7 +578,19 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
       tensors, spirv, workgroup,
       std::vector<float>{}, push_constants);
 
-  if (algo_cache_.size() >= kMaxBoundAlgorithms) {
+  // Diagnostic A/B of descriptor-binding cache pressure. Default is
+  // untouched; bounded override measures whether cache misses dominate.
+  static const size_t bound_algo_capacity=[] {
+    auto* value=std::getenv("TORCH_VULKAN_BOUND_ALGORITHM_CACHE_CAP");
+    if(!value || !*value) return kMaxBoundAlgorithms;
+    errno=0;char* end=nullptr;
+    auto count=std::strtoull(value,&end,10);
+    TORCH_CHECK(errno==0 && end!=value && *end=='\0' &&
+                count>=128 && count<=16384,
+                "invalid bounded Vulkan algorithm cache capacity");
+    return static_cast<size_t>(count);
+  }();
+  if (algo_cache_.size() >= bound_algo_capacity) {
     algo_cache_.erase(algo_cache_fifo_.front());
     algo_cache_fifo_.pop_front();
     ++stats_.algo_evictions;
@@ -533,6 +598,10 @@ std::shared_ptr<kp::Algorithm> VulkanContext::get_or_create_algorithm(
   algo_cache_[key] = algo;
   algo_cache_fifo_.push_back(key);
   stats_.algo_misses++;
+  if(profile) {
+    g_algo_miss_ns.fetch_add(elapsed_ns(hot_start),std::memory_order_relaxed);
+    g_algo_miss_count.fetch_add(1,std::memory_order_relaxed);
+  }
   return algo;
 }
 
