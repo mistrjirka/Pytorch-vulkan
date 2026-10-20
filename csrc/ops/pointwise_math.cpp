@@ -17,6 +17,42 @@ template<int Op>at::Tensor math_unary(const at::Tensor& raw){
  auto x=raw.to(at::kFloat);TORCH_CHECK(can_pack_view(x),"pointwise math exceeds Vulkan indexing limits");auto out=at::empty(x.sizes(),x.options());if(!x.numel())return out;
  run("pointwise_math",{base(packed(x))},{write_base(out)},{u32(x.numel()),Op,bits(1),0},(x.numel()+127)/128);return out;
 }
+
+// Reuse existing pointwise_math SPIR-V to write straight into out where the
+// source and destination have exact flat FP32 mappings. This removes the
+// intermediate tensor+copy used by the generic boxed NativeOut adapter.
+// All other input/output dtypes, views, casts and alias cases still take
+// that same materialize-then-copy implementation.
+template<int Op>at::Tensor& math_unary_out(const at::Tensor& raw,at::Tensor& out) {
+  TORCH_CHECK(raw.device()==out.device(),"out tensor must be on the same device as the input");
+  at::assert_no_internal_overlap(out);
+  at::assert_no_partial_overlap(out,raw);
+  const bool alias=out.storage().is_alias_of(raw.storage());
+  if(alias && out.sizes()!=raw.sizes())
+    TORCH_CHECK(false,"output with shape ",out.sizes(),
+                " does not match the broadcast shape ",raw.sizes());
+  at::native::resize_output(out,raw.sizes());
+  const bool alias_same=!alias ||
+      (raw.sizes()==out.sizes() && raw.strides()==out.strides() &&
+       raw.storage_offset()==out.storage_offset());
+  if(direct_unary_out_enabled() && raw.scalar_type()==at::kFloat &&
+     out.scalar_type()==at::kFloat && raw.is_contiguous() && out.is_contiguous() &&
+     raw.storage_offset()==0 && out.storage_offset()==0 &&
+     !raw.is_neg() && !raw.is_conj() && !out.is_neg() && !out.is_conj() &&
+     alias_same && can_pack_view(raw) && can_pack_view(out)) {
+    if(out.numel()){
+      auto dst=write_base(out);
+      run("pointwise_math",{base(raw)},{dst},
+          {u32(raw.numel()),Op,bits(1),0},(raw.numel()+127)/128);
+    }
+    return out;
+  }
+  auto value=math_unary<Op>(raw);
+  TORCH_CHECK(c10::canCast(value.scalar_type(),out.scalar_type()),
+              "result type cannot be cast to the desired output type");
+  out.copy_(value);
+  return out;
+}
 template<int Op>at::Tensor& math_unary_inplace(at::Tensor& x){at::assert_no_internal_overlap(x);auto value=math_unary<Op>(x);TORCH_CHECK(c10::canCast(value.scalar_type(),x.scalar_type()),"result type cannot be cast to the desired output type");x.copy_(value);return x;}
 at::Tensor round_decimals(const at::Tensor& x,int64_t decimals){if(!decimals)return math_unary<7>(x);TORCH_CHECK(x.scalar_type()==at::kFloat,"round decimals requires FP32");auto out=at::empty(x.sizes(),x.options());if(out.numel()){float factor=std::pow(10.,std::abs(double(decimals)));run("pointwise_math",{base(packed(x))},{write_base(out)},{u32(x.numel()),25,bits(factor),uint32_t(decimals<0)},(x.numel()+127)/128);}return out;}
 at::Tensor& round_decimals_inplace(at::Tensor& x,int64_t decimals){x.copy_(round_decimals(x,decimals));return x;}
@@ -105,7 +141,7 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  m.impl("hypot",&binary_math<4>);m.impl("hypot_",&binary_math_inplace<4>);m.impl("copysign.Tensor",&binary_math<5>);m.impl("copysign.Scalar",&binary_math_scalar<5>);m.impl("copysign_.Tensor",&binary_math_inplace<5>);m.impl("copysign_.Scalar",&binary_math_scalar_inplace<5>);
  m.impl("logaddexp",&binary_math<6>);m.impl("logaddexp2",&binary_math<7>);m.impl("xlogy.Tensor",&binary_math<8>);m.impl("xlogy.Scalar_Other",&binary_math_scalar<8>);m.impl("xlogy_.Tensor",&binary_math_inplace<8>);m.impl("xlogy_.Scalar_Other",&binary_math_scalar_inplace<8>);m.impl("nextafter",&binary_math<9>);m.impl("nextafter_",&binary_math_inplace<9>);
  m.impl("lgamma",&lgamma_native);m.impl("lgamma_",&lgamma_inplace);m.impl("digamma",&digamma_native);m.impl("digamma_",&digamma_inplace);m.impl("polygamma",&polygamma_native);m.impl("polygamma_",&polygamma_inplace);
-#define MATH(name,op) m.impl(name,&math_unary<op>);m.impl(name "_",&math_unary_inplace<op>);
+#define MATH(name,op) m.impl(name,&math_unary<op>);m.impl(name "_",&math_unary_inplace<op>);m.impl(name ".out",&math_unary_out<op>);
  MATH("reciprocal",0) MATH("log",1) MATH("log1p",2) MATH("expm1",3)
  MATH("floor",4) MATH("ceil",5) MATH("trunc",6) MATH("round",7) MATH("sign",8)
  MATH("log10",9) MATH("log2",10) MATH("exp2",11) MATH("sinh",12) MATH("cosh",13)

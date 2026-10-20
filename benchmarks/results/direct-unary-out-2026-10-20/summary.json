@@ -1,0 +1,253 @@
+{
+  "date": "2026-10-20",
+  "baseline_commit": "31bc999",
+  "change": "General direct-output fast paths for 8 diffusion unary, 23 mathematical unary, mm.out and bmm.out. Existing shaders and generic fallbacks remain.",
+  "method": "Same physical GPU, PyTorch FP32, preallocated outputs, 12 warmups + 75 synchronized iterations, two independent processes per configuration, numerical spot checks against PyTorch CPU.",
+  "groups": [
+    {
+      "gpu": "v100",
+      "workload": "diffusion",
+      "gpu_device": "Tesla V100-SXM2-32GB",
+      "legacy_process_medians_ms": [
+        4.785471013747156,
+        4.746958991745487
+      ],
+      "direct_process_medians_ms": [
+        2.095225005177781,
+        2.0854070025961846
+      ],
+      "cuda_process_medians_ms": [],
+      "legacy_median_ms": 4.766215002746321,
+      "direct_median_ms": 2.090316003886983,
+      "cuda_median_ms": null,
+      "legacy_to_direct_speedup": 2.280140894431011,
+      "direct_to_cuda_ratio": null,
+      "direct_dispatches_per_iteration": 200.0,
+      "legacy_dispatches_per_iteration": 400.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "v100",
+      "workload": "math",
+      "gpu_device": "Tesla V100-SXM2-32GB",
+      "legacy_process_medians_ms": [
+        5.502510990481824,
+        5.350339022697881
+      ],
+      "direct_process_medians_ms": [
+        2.155122987460345,
+        2.1683880186174065
+      ],
+      "cuda_process_medians_ms": [],
+      "legacy_median_ms": 5.426425006589852,
+      "direct_median_ms": 2.1617555030388758,
+      "cuda_median_ms": null,
+      "legacy_to_direct_speedup": 2.510193682385305,
+      "direct_to_cuda_ratio": null,
+      "direct_dispatches_per_iteration": 230.0,
+      "legacy_dispatches_per_iteration": 460.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "v100",
+      "workload": "bmm",
+      "gpu_device": "Tesla V100-SXM2-32GB",
+      "legacy_process_medians_ms": [
+        5.067855992820114,
+        3.14237701240927
+      ],
+      "direct_process_medians_ms": [
+        1.4958950050640851,
+        1.4829009887762368
+      ],
+      "cuda_process_medians_ms": [],
+      "legacy_median_ms": 4.105116502614692,
+      "direct_median_ms": 1.489397996920161,
+      "cuda_median_ms": null,
+      "legacy_to_direct_speedup": 2.7562253414489764,
+      "direct_to_cuda_ratio": null,
+      "direct_dispatches_per_iteration": 128.0,
+      "legacy_dispatches_per_iteration": 256.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "v100",
+      "workload": "mm",
+      "gpu_device": "Tesla V100-SXM2-32GB",
+      "legacy_process_medians_ms": [
+        3.5758379963226616,
+        3.1944130023475736
+      ],
+      "direct_process_medians_ms": [
+        1.482729974668473,
+        1.4923770213499665
+      ],
+      "cuda_process_medians_ms": [],
+      "legacy_median_ms": 3.3851254993351176,
+      "direct_median_ms": 1.4875534980092198,
+      "cuda_median_ms": null,
+      "legacy_to_direct_speedup": 2.275632778159174,
+      "direct_to_cuda_ratio": null,
+      "direct_dispatches_per_iteration": 128.0,
+      "legacy_dispatches_per_iteration": 256.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "rtx",
+      "workload": "diffusion",
+      "gpu_device": "NVIDIA GeForce RTX 2080 Ti",
+      "legacy_process_medians_ms": [
+        11.502825014758855,
+        9.810524992644787
+      ],
+      "direct_process_medians_ms": [
+        2.0014119800180197,
+        2.040594001300633
+      ],
+      "cuda_process_medians_ms": [
+        1.4276680012699217,
+        1.4658389845862985
+      ],
+      "legacy_median_ms": 10.656675003701821,
+      "direct_median_ms": 2.0210029906593263,
+      "cuda_median_ms": 1.44675349292811,
+      "legacy_to_direct_speedup": 5.272963500279244,
+      "direct_to_cuda_ratio": 1.3969228348424323,
+      "direct_dispatches_per_iteration": 200.0,
+      "legacy_dispatches_per_iteration": 400.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "rtx",
+      "workload": "math",
+      "gpu_device": "NVIDIA GeForce RTX 2080 Ti",
+      "legacy_process_medians_ms": [
+        13.894253002945334,
+        13.038139994023368
+      ],
+      "direct_process_medians_ms": [
+        2.173346991185099,
+        2.2227689914871007
+      ],
+      "cuda_process_medians_ms": [
+        1.590839005075395,
+        1.596138987224549
+      ],
+      "legacy_median_ms": 13.46619649848435,
+      "direct_median_ms": 2.1980579913361,
+      "cuda_median_ms": 1.593488996149972,
+      "legacy_to_direct_speedup": 6.126406378522734,
+      "direct_to_cuda_ratio": 1.3793995419151475,
+      "direct_dispatches_per_iteration": 230.0,
+      "legacy_dispatches_per_iteration": 460.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "rtx",
+      "workload": "bmm",
+      "gpu_device": "NVIDIA GeForce RTX 2080 Ti",
+      "legacy_process_medians_ms": [
+        4.829565994441509,
+        7.771292002871633
+      ],
+      "direct_process_medians_ms": [
+        1.4065599825698882,
+        1.410126016708091
+      ],
+      "cuda_process_medians_ms": [
+        1.3128959981258959,
+        1.318175985943526
+      ],
+      "legacy_median_ms": 6.300428998656571,
+      "direct_median_ms": 1.4083429996389896,
+      "cuda_median_ms": 1.315535992034711,
+      "legacy_to_direct_speedup": 4.47364668995522,
+      "direct_to_cuda_ratio": 1.0705469163642845,
+      "direct_dispatches_per_iteration": 128.0,
+      "legacy_dispatches_per_iteration": 256.0,
+      "timed_steps_per_process": 75
+    },
+    {
+      "gpu": "rtx",
+      "workload": "mm",
+      "gpu_device": "NVIDIA GeForce RTX 2080 Ti",
+      "legacy_process_medians_ms": [
+        8.012855018023401,
+        6.6770380071830004
+      ],
+      "direct_process_medians_ms": [
+        1.4935200160834938,
+        1.4880289963912219
+      ],
+      "cuda_process_medians_ms": [
+        1.2762580008711666,
+        1.257163006812334
+      ],
+      "legacy_median_ms": 7.344946512603201,
+      "direct_median_ms": 1.4907745062373579,
+      "cuda_median_ms": 1.2667105038417503,
+      "legacy_to_direct_speedup": 4.926933269835347,
+      "direct_to_cuda_ratio": 1.1768865117294391,
+      "direct_dispatches_per_iteration": 128.0,
+      "legacy_dispatches_per_iteration": 256.0,
+      "timed_steps_per_process": 75
+    }
+  ],
+  "out_dispatch_audit": [
+    {
+      "name": "unary.exp",
+      "shader_dispatches": 1,
+      "fallback": 0
+    },
+    {
+      "name": "math.log",
+      "shader_dispatches": 1,
+      "fallback": 0
+    },
+    {
+      "name": "mm",
+      "shader_dispatches": 2,
+      "fallback": 0
+    },
+    {
+      "name": "bmm",
+      "shader_dispatches": 1,
+      "fallback": 0
+    },
+    {
+      "name": "addmm",
+      "shader_dispatches": 3,
+      "fallback": 0
+    },
+    {
+      "name": "softmax.out",
+      "shader_dispatches": 2,
+      "fallback": 0
+    },
+    {
+      "name": "sum.out",
+      "shader_dispatches": 2,
+      "fallback": 0
+    },
+    {
+      "name": "cat.out",
+      "shader_dispatches": 3,
+      "fallback": 0
+    }
+  ],
+  "tests": {
+    "focused": "168 passed on RTX 2080 Ti, V100 and Lavapipe",
+    "full_rtx": "3876 passed",
+    "full_v100": "3876 passed",
+    "full_lvp": "3875 passed, 1 skipped",
+    "autograd": "Out-variant requires_grad rejection agrees with CPU for exp/log/mm/bmm"
+  },
+  "caveats": [
+    "Only users of explicit out= calls or internal paths invoking them gain the measured benefit; functional operator speed is unaffected.",
+    "RTX 2080 Ti legacy reference timings had substantially higher variation than optimized samples.",
+    "These isolate small/medium GPU operations; full-model CUDA and ROCm performance is not claimed.",
+    "Non-FP32 tensors, incompatible strides, aliases and cast-sensitive cases take the previous functional+copy route.",
+    "Negative roots and other NaN-domain inputs were explicitly compared with equal_nan=True.",
+    "No RTX 3090 used; no new ROCm measurements due AMD host not connected."
+  ]
+}

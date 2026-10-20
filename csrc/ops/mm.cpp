@@ -126,6 +126,7 @@ static at::Tensor elementwise_binary(
       : mgr.tensor(std::vector<float>(other_c.data_ptr<float>(), other_c.data_ptr<float>() + n));
 
   auto output = at::empty(self.sizes(), self.options().device(c10::Device(c10::DeviceType::PrivateUse1, 0)));
+  output.mutable_data_ptr(); // Preserve PyTorch output copy-on-write semantics.
   auto tensor_c = get_kp_tensor(output);
 
   uint32_t wg = (n + 255) / 256;
@@ -240,7 +241,8 @@ static at::Tensor mm_raw(const at::Tensor& self, const at::Tensor& mat2) {
 
 // aten::mm — general matmul via matmul_tiled.spv
 // Phase 4: Algorithm cache — the same weight matrix gets the same pipeline.
-at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
+at::Tensor mm_impl(const at::Tensor& self, const at::Tensor& mat2,
+                   at::Tensor* destination=nullptr) {
   TORCH_CHECK(self.dim() == 2 && mat2.dim() == 2, "mm: inputs must be 2D");
   TORCH_CHECK(self.size(1) == mat2.size(0), "mm: dimension mismatch");
   TORCH_CHECK(self.scalar_type() == mat2.scalar_type(), "mm: expected both matrices to have the same dtype");
@@ -261,7 +263,7 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
               K <= UINT32_MAX && N <= UINT32_MAX,
               "mm: unsupported matrix dimensions");
 
-  auto output = at::empty({M, N}, self.options());
+  auto output = destination?*destination:at::empty({M, N}, self.options());
   if (!M || !N) return output;
   if (!K) return output.fill_(0);
   TORCH_CHECK(self.numel() <= UINT32_MAX && mat2.numel() <= UINT32_MAX &&
@@ -338,6 +340,46 @@ at::Tensor mm(const at::Tensor& self, const at::Tensor& mat2) {
       {tensor_a,tensor_b},{tensor_c});
 
   return output;
+}
+
+
+at::Tensor mm(const at::Tensor& self,const at::Tensor& mat2) {
+  return mm_impl(self,mat2);
+}
+// Direct mm.out dispatch shares the exact functional GEMM kernel and input
+// stride handling. Ineligible destinations use functional output+copy.
+// No model-specific tensor sizes, vendor features or kernel variants.
+at::Tensor& mm_out(const at::Tensor& self,const at::Tensor& mat2,at::Tensor& out) {
+  TORCH_CHECK(out.device()==self.device() && self.device()==mat2.device(),
+              "out tensor must be on the same device as the inputs");
+  at::assert_no_internal_overlap(out);
+  at::assert_no_partial_overlap(out,self);
+  at::assert_no_partial_overlap(out,mat2);
+  const bool aliases=out.storage().is_alias_of(self.storage()) ||
+                     out.storage().is_alias_of(mat2.storage());
+  const auto* disable=std::getenv("TORCH_VULKAN_DISABLE_DIRECT_MM_OUT");
+  const bool direct_enabled=!disable || std::strcmp(disable,"1")!=0;
+  const bool shape_ok=self.dim()==2 && mat2.dim()==2 &&
+                      self.size(1)==mat2.size(0) &&
+                      out.sizes()==at::IntArrayRef({self.size(0),mat2.size(1)});
+  if(direct_enabled && shape_ok && !aliases &&
+     self.scalar_type()==at::kFloat && mat2.scalar_type()==at::kFloat &&
+     out.scalar_type()==at::kFloat && out.is_contiguous() &&
+     out.storage_offset()==0 && !out.is_neg() && !out.is_conj() &&
+     native::can_pack_view(out)) {
+    auto value=mm_impl(self,mat2,&out);
+    if(value.is_same(out))return out;
+    TORCH_CHECK(c10::canCast(value.scalar_type(),out.scalar_type()),
+                "result type cannot be cast to the desired output type");
+    out.copy_(value);
+    return out;
+  }
+  auto value=mm_impl(self,mat2);
+  TORCH_CHECK(c10::canCast(value.scalar_type(),out.scalar_type()),
+              "result type cannot be cast to the desired output type");
+  at::native::resize_output(out,value.sizes());
+  out.copy_(value);
+  return out;
 }
 
 // Expand broadcast dimensions using PyTorch's standard NumPy-style rules.
@@ -1048,6 +1090,7 @@ TORCH_LIBRARY_IMPL(aten, PrivateUse1, m) {
   m.impl("resize_",&resize_native);
   m.impl("_local_scalar_dense", &local_scalar_dense);
   m.impl("mm", &mm);
+  m.impl("mm.out", &mm_out);
   m.impl("add.Tensor", &add_tensor);
   m.impl("mul.Tensor", &mul_tensor);
   m.impl("relu", &relu);

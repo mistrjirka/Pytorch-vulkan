@@ -49,10 +49,10 @@ TORCH_LIBRARY_IMPL(aten,PrivateUse1,m){
  auto add=[&](const char* out,const char* name,const char* overload=""){
   m.impl(out,torch::CppFunction::makeFromBoxedFunctor(std::make_unique<NativeOut>(std::string("aten::")+name,overload)));
  };
- for(auto name:{"abs","sgn","exp","sqrt","rsqrt","sin","cos","tanh","sigmoid","neg","silu","gelu","mm","bmm","addmm","clamp"})add((std::string(name)+".out").c_str(),name);
+ for(auto name:{"abs","sgn","sigmoid","gelu","addmm","clamp"})add((std::string(name)+".out").c_str(),name);
  add("bitwise_and.Tensor_out","bitwise_and","Tensor");add("bitwise_or.Tensor_out","bitwise_or","Tensor");add("bitwise_xor.Tensor_out","bitwise_xor","Tensor");add("bitwise_not.out","bitwise_not");
  add("bitwise_and.Scalar_out","bitwise_and","Scalar");add("bitwise_or.Scalar_out","bitwise_or","Scalar");add("bitwise_xor.Scalar_out","bitwise_xor","Scalar");
- for(auto name:{"reciprocal","log","log1p","expm1","floor","ceil","trunc","round","sign","log10","log2","exp2","sinh","cosh","tan","asin","acos","atan","asinh","acosh","atanh","erf","erfc"})add((std::string(name)+".out").c_str(),name);
+ // The 23 standard FP32 pointwise unary .out adapters are registered directly in pointwise_math.cpp.
  add("round.decimals_out","round","decimals");
  add("lu_unpack.out","lu_unpack");add("linalg_lu.out","linalg_lu");
  add("linalg_solve_triangular.out","linalg_solve_triangular");

@@ -10,6 +10,15 @@
 
 namespace torch_vulkan::ops::native {
 // Startup-only A/B control: retain the exact existing ATen CPU fallback.
+// Shared opt-in comparison switch for single-pass direct-output unary paths.
+// The fallback remains the previous ATen functional-result plus copy route.
+inline bool direct_unary_out_enabled() {
+  static const bool enabled=[] {
+    const char* value=std::getenv("TORCH_VULKAN_DISABLE_DIRECT_UNARY_OUT");
+    return !value || std::strcmp(value,"1")!=0;
+  }();
+  return enabled;
+}
 inline bool batch_norm_resize_enabled() {
   const char* flag=std::getenv("TORCH_VULKAN_DISABLE_BN_RESIZE");
   return !flag || std::strcmp(flag,"1")!=0;
