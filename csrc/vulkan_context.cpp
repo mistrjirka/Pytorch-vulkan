@@ -210,6 +210,52 @@ void VulkanContext::enqueue_resident_compute(
   }
 }
 
+void VulkanContext::run_compute_chain(
+    const std::vector<std::shared_ptr<kp::Algorithm>>& algorithms,
+    const std::vector<std::shared_ptr<kp::Tensor>>& original_inputs,
+    const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& stage_writes) {
+  TORCH_CHECK(!algorithms.empty() && algorithms.size()==stage_writes.size(),
+              "Vulkan compute chain must have one write set per dispatch");
+  for(const auto& outputs:stage_writes)
+    TORCH_CHECK(!outputs.empty(),"Vulkan compute chain requires stage writes");
+  // The caller uses the ordinary deferred path if every binding is eHost.
+  // A single device-local command buffer avoids separate CPU/GPU fences.
+  synchronize();
+  auto& alloc=VulkanAllocator::instance();
+  std::vector<std::shared_ptr<kp::Tensor>> uploads,dependencies;
+  if(gpu_resident_enabled()) {
+    for(const auto& input:original_inputs) {
+      if(alloc.needs_upload(input)) uploads.push_back(input);
+      else if(alloc.gpu_dirty(input)) dependencies.push_back(input);
+    }
+  } else {
+    uploads=original_inputs;
+  }
+  auto seq=mgr_->sequence();
+  if(!uploads.empty())seq->record<kp::OpTensorSyncDevice>(uploads);
+  if(!dependencies.empty())seq->record<kp::OpMemoryBarrier>(
+      dependencies,vk::AccessFlagBits::eShaderWrite,vk::AccessFlagBits::eShaderRead,
+      vk::PipelineStageFlagBits::eComputeShader,vk::PipelineStageFlagBits::eComputeShader);
+  for(size_t i=0;i<algorithms.size();++i) {
+    seq->record<kp::OpAlgoDispatch>(algorithms[i]);
+    // The following stage may consume intermediate writes; the final barrier
+    // also makes the result visible to later dependent shader submissions.
+    seq->record<kp::OpMemoryBarrier>(
+        stage_writes[i],vk::AccessFlagBits::eShaderWrite,
+        vk::AccessFlagBits::eShaderRead,
+        vk::PipelineStageFlagBits::eComputeShader,
+        vk::PipelineStageFlagBits::eComputeShader);
+  }
+  if(!gpu_resident_enabled())
+    seq->record<kp::OpTensorSyncLocal>(stage_writes.back());
+  seq->eval();
+  if(gpu_resident_enabled()) {
+    for(const auto& t:uploads)alloc.mark_clean(t);
+    for(const auto& outputs:stage_writes)
+      for(const auto& t:outputs)alloc.mark_gpu_dirty(t);
+  }
+}
+
 void VulkanContext::run_compute_pair(
     const std::shared_ptr<kp::Algorithm>& first,
     const std::shared_ptr<kp::Algorithm>& second,

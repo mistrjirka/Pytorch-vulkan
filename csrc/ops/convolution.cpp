@@ -159,7 +159,7 @@ static ConvParams convolution_params(const at::Tensor& input,
 // A candidate is a reusable implementation, not a model or an exact tensor size.
 // Shapes stay runtime constants; only the finite tile menu changes GPU code.
 enum class ConvPhase { Forward, Input, Weight, Bias };
-enum class ConvKind { Direct, Depthwise, Tiled, Reduce };
+enum class ConvKind { Direct, Depthwise, Tiled, Reduce, Winograd };
 struct ConvTile { const char* name; uint32_t m, n, k, rm=1, rn=1; bool fixed3x3=false; };
 // Output tiles and workgroup sizes are distinct: register blocking computes
 // multiple outputs per invocation without requiring larger workgroups.
@@ -178,6 +178,7 @@ static const char* phase_name(ConvPhase phase) {
 }
 static std::string candidate_name(ConvCandidate c) {
   switch(c.kind) {
+    case ConvKind::Winograd: return "winograd_f2";
     case ConvKind::Tiled: return std::string("tiled_")+kTiles[c.tile].name;
     case ConvKind::Depthwise: return "depthwise";
     case ConvKind::Reduce: return "reduce";
@@ -248,8 +249,93 @@ static kp::Workgroup linear_grid(uint64_t groups,const vk::PhysicalDeviceLimits&
   const uint64_t gx=std::min<uint64_t>(groups,limits.maxComputeWorkGroupCount[0]);
   return kp::Workgroup({static_cast<uint32_t>(gx),static_cast<uint32_t>(div_up(groups,gx)),1});
 }
+// An experimental *generic* F(2x2,3x3) algorithm: transform each input tile
+// and filter once, then reuse the transformed matrices for all relevant
+// output channels/tiles. The three stages are ordinary GPU Vulkan work.
+// A reusable algorithm candidate, guarded by GPU capabilities, workspace
+// requirements and conservative shape-dependent dispatch.
+static bool winograd_forward_eligible(const ConvParams& p,uint64_t budget) {
+  if(p.kh!=3 || p.kw!=3 || p.sh!=1 || p.sw!=1 || p.dh!=1 || p.dw!=1)
+    return false;
+  const uint64_t ci=p.cin/p.groups,co=p.cout/p.groups;
+  const uint64_t tiles=uint64_t(p.n)*div_up(p.oh,2)*div_up(p.ow,2);
+  const auto& l=conv_device_properties().limits;
+  // Each of 16 transformed coefficients has an FP32 copy. Check *before*
+  // multiplying to avoid 32-bit shader wrap or host-side workspace overflow.
+  if(tiles==0 || uint64_t(p.cout)>UINT32_MAX/(16ull*ci) ||
+     tiles>UINT32_MAX/(16ull*p.cin)) return false;
+  const uint64_t wc=16ull*p.cout*ci,xc=16ull*p.cin*tiles;
+  if(wc>budget/sizeof(float) || xc>(budget/sizeof(float))-wc ||
+     wc*sizeof(float)>l.maxStorageBufferRange ||
+     xc*sizeof(float)>l.maxStorageBufferRange ||
+     l.maxComputeSharedMemorySize<8192 || l.maxPushConstantsSize<64 ||
+     l.maxComputeWorkGroupInvocations<64 ||
+     l.maxComputeWorkGroupSize[0]<64 || l.maxComputeWorkGroupSize[1]<8 ||
+     l.maxPerStageDescriptorStorageBuffers<4 ||
+     l.maxDescriptorSetStorageBuffers<4) return false;
+  const uint64_t max_x=l.maxComputeWorkGroupCount[0],max_y=l.maxComputeWorkGroupCount[1];
+  const auto fits_1d=[&](uint64_t elements) {
+    const uint64_t count=div_up(elements,64);
+    return count!=0 && count<=max_x*max_y;
+  };
+  return fits_1d(uint64_t(p.cout)*ci) &&
+         fits_1d(uint64_t(p.cin)*tiles) &&
+         div_up(tiles,8)<=max_x && div_up(co,8)*p.groups<=max_y;
+}
+static void winograd_forward(const ConvParams& p,
+                             const std::vector<TensorBuffer>& inputs,
+                             const at::Tensor& result) {
+  auto& ctx=VulkanContext::instance();
+  const uint64_t ci=p.cin/p.groups;
+  const uint64_t tiles=uint64_t(p.n)*div_up(p.oh,2)*div_up(p.ow,2);
+  auto transformed_weight=at::empty({static_cast<int64_t>(16ull*p.cout*ci)},result.options());
+  auto transformed_input=at::empty({static_cast<int64_t>(16ull*p.cin*tiles)},result.options());
+  const auto wb=buffer(transformed_weight),xb=buffer(transformed_input);
+  const auto ib=inputs[0],kb=inputs[1],bias=inputs[2],ob=buffer(result);
+  const auto& l=conv_device_properties().limits;
+  auto grid1d=[&](uint64_t elements) {
+    const uint64_t total=div_up(elements,64);
+    const uint64_t gx=std::min<uint64_t>(total,l.maxComputeWorkGroupCount[0]);
+    return kp::Workgroup({static_cast<uint32_t>(gx),
+                          static_cast<uint32_t>(div_up(total,gx)),1});
+  };
+  const auto push=p.as_push_constants();
+  auto transform_weights=ctx.get_or_create_algorithm(
+      "conv2d_winograd_weights",{kb,wb},grid1d(uint64_t(p.cout)*ci),push);
+  auto transform_input=ctx.get_or_create_algorithm(
+      "conv2d_winograd_input",{ib,xb},grid1d(uint64_t(p.cin)*tiles),push);
+  auto multiply=ctx.get_or_create_algorithm(
+      "conv2d_winograd_gemm_output",{wb,xb,bias,ob},
+      kp::Workgroup({static_cast<uint32_t>(div_up(tiles,8)),
+          static_cast<uint32_t>(div_up(p.cout/p.groups,8)*p.groups),1}),push);
+  if(ctx.can_enqueue({ib,kb,bias,wb,xb,ob})) {
+    ctx.enqueue_compute(transform_weights,{kb,wb},{wb});
+    ctx.enqueue_compute(transform_input,{ib,xb},{xb});
+    ctx.enqueue_compute(multiply,{wb,xb,bias,ob},{ob});
+  } else {
+    // A same-process diagnostic override makes the submission cost measurable.
+    // The optimized single command buffer remains the production default.
+    const char* legacy=std::getenv("TORCH_VULKAN_CONV_WINOGRAD_LEGACY_SUBMISSIONS");
+    if(legacy && std::strcmp(legacy,"1")==0) {
+      ctx.run_compute(transform_weights,"conv2d_winograd_weights",{kb},{wb});
+      ctx.run_compute(transform_input,"conv2d_winograd_input",{ib},{xb});
+      ctx.run_compute(multiply,"conv2d_winograd_gemm_output",{wb,xb,bias},{ob});
+    } else {
+      // GPU-local scratch must *not* be uploaded between dependent stages.
+      // A single submission and explicit barriers avoid redundant fences.
+      ctx.run_compute_chain({transform_weights,transform_input,multiply},
+                            {kb,ib,bias},{{wb},{xb},{ob}});
+    }
+  }
+}
+
 static kp::Workgroup candidate_grid(const ConvParams& p,ConvPhase phase,ConvCandidate c,
                                     const vk::PhysicalDeviceLimits& limits,uint64_t budget) {
+  if(c.kind==ConvKind::Winograd) {
+    const uint64_t tiles=uint64_t(p.n)*div_up(p.oh,2)*div_up(p.ow,2);
+    return kp::Workgroup({static_cast<uint32_t>(div_up(tiles,8)),
+      static_cast<uint32_t>(div_up(p.cout/p.groups,8)*p.groups),1});
+  }
   if(c.kind==ConvKind::Tiled) {
     const auto t=kTiles[c.tile];
     const uint64_t rows=phase==ConvPhase::Weight ? uint64_t(p.cin/p.groups)*p.kh*p.kw :
@@ -265,6 +351,8 @@ static kp::Workgroup candidate_grid(const ConvParams& p,ConvPhase phase,ConvCand
 // storage/indexing limits and workgroup requirements before being selected.
 static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint64_t budget) {
   const auto& limits=conv_device_properties().limits;
+  if(c.kind==ConvKind::Winograd)
+    return phase==ConvPhase::Forward && winograd_forward_eligible(p,budget);
   if(c.kind==ConvKind::Depthwise && (phase!=ConvPhase::Forward || p.groups!=p.cin)) return false;
   if(c.kind==ConvKind::Reduce && phase!=ConvPhase::Weight && phase!=ConvPhase::Bias) return false;
   if(c.kind==ConvKind::Tiled && phase==ConvPhase::Bias) return false;
@@ -294,7 +382,7 @@ static bool applicable(const ConvParams& p,ConvPhase phase,ConvCandidate c,uint6
 }
 static std::vector<ConvCandidate> candidates(const ConvParams& p,ConvPhase phase,uint64_t budget) {
   std::vector<ConvCandidate> result;
-  for(const auto kind:{ConvKind::Direct,ConvKind::Depthwise,ConvKind::Reduce}) {
+  for(const auto kind:{ConvKind::Direct,ConvKind::Depthwise,ConvKind::Reduce,ConvKind::Winograd}) {
     const ConvCandidate c{kind,0};
     if(applicable(p,phase,c,budget)) result.push_back(c);
   }
@@ -313,8 +401,8 @@ static ConvControls controls(ConvPhase phase) {
   const char* value=std::getenv(name);
   c.algorithm=value && *value ? value : "auto";
   TORCH_CHECK(c.algorithm=="auto" || c.algorithm=="direct" ||
-      (phase==ConvPhase::Forward ? c.algorithm=="tiled" || c.algorithm=="depthwise" : c.algorithm=="optimized"),
-      name," has an invalid algorithm (forward: auto/direct/tiled/depthwise; backward: auto/direct/optimized)");
+      (phase==ConvPhase::Forward ? c.algorithm=="tiled" || c.algorithm=="depthwise" || c.algorithm=="winograd" : c.algorithm=="optimized"),
+      name," has an invalid algorithm (forward: auto/direct/tiled/depthwise/winograd; backward: auto/direct/optimized)");
   const char* tile=std::getenv("TORCH_VULKAN_CONV_TILE");
   if(tile && *tile && std::strcmp(tile,"auto")) {
     for(int i=0;i<kTileCount;++i) if(!std::strcmp(tile,kTiles[i].name)) c.tile=i;
@@ -352,13 +440,21 @@ static ConvCandidate heuristic(const ConvParams& p,ConvPhase phase,const ConvCon
       (dense_3x3 && has({ConvKind::Tiled,4}) ? 4 : 0);
   const ConvCandidate tiled{ConvKind::Tiled,ctl.tile<0 ? auto_tile : ctl.tile};
   bool strict=false;
-  if(ctl.algorithm=="direct") { preferred={ConvKind::Direct,0}; strict=true; }
+  if(ctl.algorithm=="winograd") { preferred={ConvKind::Winograd,0}; strict=true; }
+  else if(ctl.algorithm=="direct") { preferred={ConvKind::Direct,0}; strict=true; }
   else if(ctl.algorithm=="depthwise") { preferred={ConvKind::Depthwise,0}; strict=true; }
   else if(ctl.algorithm=="tiled" || (ctl.algorithm=="optimized" && phase==ConvPhase::Input) ||
           (ctl.algorithm=="optimized" && phase==ConvPhase::Weight && ctl.tile>=0)) {
     preferred=tiled; strict=true;
   } else if(phase==ConvPhase::Forward) {
-    if(p.groups==p.cin && p.cin>=8 && has({ConvKind::Depthwise,0})) preferred={ConvKind::Depthwise,0};
+    // Transform reuse wins on sufficiently large grouped 3x3 operations with
+    // at least 16 channels per group. Small and dense cases keep their faster
+    // existing kernels, and capability/workspace guards are mandatory.
+    const uint64_t positions=uint64_t(p.n)*p.oh*p.ow;
+    if(ctl.tile<0 && p.groups>=4 && p.cin/p.groups>=16 &&
+       p.cout/p.groups>=16 && positions>=2048 &&
+       has({ConvKind::Winograd,0})) preferred={ConvKind::Winograd,0};
+    else if(p.groups==p.cin && p.cin>=8 && has({ConvKind::Depthwise,0})) preferred={ConvKind::Depthwise,0};
     else if(p.cout/p.groups>=8 && cols>=16 && rows>=32) preferred=tiled;
   } else if(phase==ConvPhase::Input) {
     if(p.cin/p.groups>=2 && p.cout/p.groups>=8 && uint64_t(p.n)*p.h*p.w>=32) preferred=tiled;
@@ -392,6 +488,10 @@ static void execute_candidate(const ConvParams& p,ConvPhase phase,ConvCandidate 
     uint64_t budget) {
   auto& ctx=VulkanContext::instance();
   const auto& limits=conv_device_properties().limits;
+  if(c.kind==ConvKind::Winograd) {
+    winograd_forward(p,inputs,result);
+    return;
+  }
   const auto out=buffer(result);
   const auto name=shader_name(phase,c);
   std::vector<TensorBuffer> bindings(inputs);

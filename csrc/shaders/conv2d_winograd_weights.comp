@@ -1,0 +1,29 @@
+#version 450
+// Reusable Winograd F(2x2,3x3) weight transform; weights are one per (oc,ic),
+// transformed once for all spatial tiles and packed as [16,cout,cin/groups].
+layout(local_size_x=64) in;
+layout(set=0,binding=0) readonly buffer Weights {float w[];};
+layout(set=0,binding=1) writeonly buffer Transformed {float transformed[];};
+layout(push_constant) uniform Params {
+  uint n,cin,cout,h,w,kh,kw,oh,ow,sh,sw,ph,pw,dh,dw,groups;
+} p;
+void main(){
+  uint ci=p.cin/p.groups;
+  uint idx=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*64u+gl_LocalInvocationID.x;
+  if(idx>=p.cout*ci)return;
+  float g[3][3];
+  for(uint r=0u;r<3u;++r)for(uint c=0u;c<3u;++c)g[r][c]=w[idx*9u+r*3u+c];
+  float z[4][3];
+  for(uint c=0u;c<3u;++c){
+    z[0][c]=g[0][c];
+    z[1][c]=0.5*(g[0][c]+g[1][c]+g[2][c]);
+    z[2][c]=0.5*(g[0][c]-g[1][c]+g[2][c]);
+    z[3][c]=g[2][c];
+  }
+  for(uint r=0u;r<4u;++r){
+    transformed[(r*4u+0u)*(p.cout*ci)+idx]=z[r][0];
+    transformed[(r*4u+1u)*(p.cout*ci)+idx]=0.5*(z[r][0]+z[r][1]+z[r][2]);
+    transformed[(r*4u+2u)*(p.cout*ci)+idx]=0.5*(z[r][0]-z[r][1]+z[r][2]);
+    transformed[(r*4u+3u)*(p.cout*ci)+idx]=z[r][2];
+  }
+}

@@ -1,0 +1,38 @@
+#version 450
+// Reusable Winograd F(2x2,3x3) input tile transform. [16,cin,tiles]
+// supports arbitrary odd spatial sizes, batch count, groups and padding.
+layout(local_size_x=64) in;
+layout(set=0,binding=0) readonly buffer Input {float x[];};
+layout(set=0,binding=1) writeonly buffer Transformed {float transformed[];};
+layout(push_constant) uniform Params{
+  uint n,cin,cout,h,w,kh,kw,oh,ow,sh,sw,ph,pw,dh,dw,groups;
+}p;
+void main(){
+  uint tile_w=(p.ow+1u)/2u,tile_h=(p.oh+1u)/2u;
+  uint per_image=tile_w*tile_h,tiles=p.n*per_image;
+  uint idx=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*64u+gl_LocalInvocationID.x;
+  if(idx>=p.cin*tiles)return;
+  uint channel=idx/tiles,tile=idx%tiles;
+  uint batch=tile/per_image,pos=tile%per_image;
+  int y0=int((pos/tile_w)*2u)-int(p.ph),x0=int((pos%tile_w)*2u)-int(p.pw);
+  float d[4][4];
+  for(uint r=0u;r<4u;++r)for(uint c=0u;c<4u;++c){
+    int iy=y0+int(r),ix=x0+int(c);
+    d[r][c]=(iy>=0 && iy<int(p.h) && ix>=0 && ix<int(p.w))?
+      x[((batch*p.cin+channel)*p.h+uint(iy))*p.w+uint(ix)]:0.0;
+  }
+  float z[4][4];
+  for(uint c=0u;c<4u;++c){
+    z[0][c]=d[0][c]-d[2][c];
+    z[1][c]=d[1][c]+d[2][c];
+    z[2][c]=d[2][c]-d[1][c];
+    z[3][c]=d[1][c]-d[3][c];
+  }
+  uint stride=p.cin*tiles;
+  for(uint r=0u;r<4u;++r){
+    transformed[(r*4u+0u)*stride+channel*tiles+tile]=z[r][0]-z[r][2];
+    transformed[(r*4u+1u)*stride+channel*tiles+tile]=z[r][1]+z[r][2];
+    transformed[(r*4u+2u)*stride+channel*tiles+tile]=z[r][2]-z[r][1];
+    transformed[(r*4u+3u)*stride+channel*tiles+tile]=z[r][1]-z[r][3];
+  }
+}

@@ -435,3 +435,66 @@ def test_forced_3x3_spatial_hoist_preserves_general_convolution(
     for phase in ("forward", "dinput", "dweight"):
         key = f"selected_{phase}_tiled_register3_hoist"
         assert after.get(key, 0) > before.get(key, 0), (phase, before, after)
+
+
+@pytest.mark.parametrize(
+    "xshape,cout,groups,padding,expect_winograd",
+    [
+        ((2,64,64,64),64,4,(1,1),True),
+        ((1,64,128,128),64,4,(1,1),True),
+        ((2,64,35,37),64,4,(0,2),True),
+        ((1,32,16,17),32,4,(1,1),False),
+        ((1,32,32,32),32,8,(1,1),False),
+        ((1,32,64,64),32,2,(1,1),False),
+    ],
+)
+def test_default_winograd_guarded_grouped_forward_and_gradients(
+    xshape,cout,groups,padding,expect_winograd,monkeypatch
+):
+    """Winograd is shape-gated, not selected by network or exact tensor sizes."""
+    for key in ("TORCH_VULKAN_CONV_ALGO","TORCH_VULKAN_CONV_BACKWARD_ALGO",
+                "TORCH_VULKAN_CONV_TILE","TORCH_VULKAN_CONV_AUTOTUNE"):
+        monkeypatch.delenv(key,raising=False)
+    before=torch_vulkan.conv_dispatch_stats().get("selected_forward_winograd_f2",0)
+    _check_case(xshape,cout,(3,3),(1,1),padding,(1,1),groups)
+    after=torch_vulkan.conv_dispatch_stats().get("selected_forward_winograd_f2",0)
+    assert after-before==int(expect_winograd)
+
+
+def test_forced_winograd_rejects_non_3x3(monkeypatch):
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO","winograd")
+    x=torch.zeros((1,32,9,13),device="vulkan")
+    w=torch.zeros((32,32,3,5),device="vulkan")
+    with pytest.raises(RuntimeError,match="incompatible|exceeds"):
+        F.conv2d(x,w)
+
+
+def test_winograd_workspace_budget_retains_general_fallback(monkeypatch):
+    """Extra transform memory is optional; zero-budget must still be correct."""
+    for key in ("TORCH_VULKAN_CONV_ALGO","TORCH_VULKAN_CONV_TILE"):
+        monkeypatch.delenv(key,raising=False)
+    monkeypatch.setenv("TORCH_VULKAN_CONV_WORKSPACE_MB","0")
+    before=torch_vulkan.conv_dispatch_stats().get("selected_forward_winograd_f2",0)
+    x=torch.randn((1,64,37,41),generator=torch.Generator().manual_seed(32))
+    w=torch.randn((64,16,3,3),generator=torch.Generator().manual_seed(33))
+    expected=F.conv2d(x.double(),w.double(),None,padding=1,groups=4)
+    out=F.conv2d(x.to("vulkan"),w.to("vulkan"),None,padding=1,groups=4)
+    torch.testing.assert_close(out.cpu().double(),expected,rtol=5e-4,atol=5e-5)
+    after=torch_vulkan.conv_dispatch_stats().get("selected_forward_winograd_f2",0)
+    assert after==before
+
+
+def test_forced_winograd_no_bias_and_evolving_weights(monkeypatch):
+    """Recompute transformed filters when user mutates weights in place."""
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO","winograd")
+    g=torch.Generator().manual_seed(119)
+    x=torch.randn((1,64,31,35),generator=g)
+    weights=torch.randn((64,16,3,3),generator=g)*0.07
+    xv=x.to("vulkan")
+    wv=weights.to("vulkan")
+    for _ in range(2):
+        result=F.conv2d(xv,wv,None,padding=1,groups=4)
+        expected=F.conv2d(x.double(),weights.double(),None,padding=1,groups=4)
+        torch.testing.assert_close(result.cpu().double(),expected,rtol=5e-4,atol=5e-5)
+        weights.mul_(0.75)
+        wv.mul_(0.75)

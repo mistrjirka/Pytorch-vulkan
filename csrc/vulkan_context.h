@@ -49,6 +49,14 @@ public:
       const std::vector<std::shared_ptr<kp::Tensor>>& inputs,
       const std::vector<std::shared_ptr<kp::Tensor>>& outputs);
 
+  // Several dependent kernels in a single Vulkan submission. Input staging
+  // happens once; each stage's writes become visible to subsequent stages.
+  // Unlike run_compute_batch, this preserves shader write/read dependencies.
+  void run_compute_chain(
+      const std::vector<std::shared_ptr<kp::Algorithm>>& algorithms,
+      const std::vector<std::shared_ptr<kp::Tensor>>& original_inputs,
+      const std::vector<std::vector<std::shared_ptr<kp::Tensor>>>& stage_writes);
+
   // Two dependent kernels with a GPU-only intermediate and one fence.
   // Unlike run_compute_batch (independent updates), this inserts a RAW barrier.
   void run_compute_pair(
