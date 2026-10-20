@@ -1,0 +1,304 @@
+{
+  "device": "Tesla V100-SXM2-32GB",
+  "backend": "vulkan",
+  "optimizer": "adam",
+  "foreach": false,
+  "parameter_count": 50,
+  "parameter_numel": 2420547,
+  "tensor_shapes": [
+    [
+      64,
+      3,
+      7,
+      7
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      128,
+      64,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      256,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      256,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      64,
+      195,
+      3,
+      3
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      3,
+      64,
+      7,
+      7
+    ],
+    [
+      3
+    ]
+  ],
+  "params_sha256": "48d17cdea0f610614766f21b10688d24611e9f255cfad30ca5131802fca36003",
+  "grad_sha256": "e4e7ebda69aa11487ec8295e5b51a1208c6456637f6373e4189346c2c31d4d70",
+  "torch": "2.14.1+cpu",
+  "warmup": 3,
+  "repeats": 3,
+  "median_ms": 33.69120598654263,
+  "p10_ms": 33.3810307958629,
+  "p90_ms": 35.882313194451854,
+  "ms": [
+    33.69120598654263,
+    36.43008999642916,
+    33.303486998192966
+  ],
+  "execution_stats": {
+    "cpu_fallback_calls": 0,
+    "host_read_bytes": 0,
+    "host_read_calls": 0,
+    "host_read_max_bytes": 0
+  },
+  "cache_stats": {
+    "algo_hits": 700,
+    "algo_misses": 1800,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 1288,
+    "bound_algorithms": 512,
+    "pipeline_hits": 1794,
+    "pipeline_misses": 6,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 6
+  },
+  "gpu_timings": {
+    "add": {
+      "samples": 150.0,
+      "upload_ms": 0.17916800000001265,
+      "shader_ms": 0.9478399999999889,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.528200000000027,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "diffusion_unary": {
+      "samples": 150.0,
+      "upload_ms": 0.1863680000000032,
+      "shader_ms": 1.2585280000000054,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.660256000000011,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "iteration_fp32": {
+      "samples": 150.0,
+      "upload_ms": 0.5051520000000003,
+      "shader_ms": 1.6235839999999921,
+      "download_ms": 0.0,
+      "host_eval_ms": 7.366329999999987,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "loss_mutate": {
+      "samples": 150.0,
+      "upload_ms": 0.18227200000001176,
+      "shader_ms": 1.3328320000000096,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.681199000000014,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "optimizer_pointwise": {
+      "samples": 450.0,
+      "upload_ms": 0.5601279999999744,
+      "shader_ms": 3.1288320000000516,
+      "download_ms": 0.0,
+      "host_eval_ms": 21.847950000000026,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "scalar_add_float": {
+      "samples": 150.0,
+      "upload_ms": 0.1904320000000032,
+      "shader_ms": 1.2461440000000032,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.633156999999992,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    }
+  }
+}

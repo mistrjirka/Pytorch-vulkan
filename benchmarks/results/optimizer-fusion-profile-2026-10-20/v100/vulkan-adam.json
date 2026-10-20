@@ -1,0 +1,530 @@
+{
+  "status": "passed",
+  "hostname": "133ec28cb175",
+  "gpu": "Tesla V100-SXM2-32GB",
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "hip": null,
+  "cuda": null,
+  "mode": "train",
+  "shape": [
+    1,
+    3,
+    128,
+    128
+  ],
+  "optimizer": "adam",
+  "parameter_tensors": 50,
+  "warmup": 8,
+  "steps": 40,
+  "profiling_steps": 2,
+  "checkpoint": "none",
+  "loss": "MSE (training microbenchmark)",
+  "model_sha256": "e519acb2ce37e69917f8cc871e1d49bca83d256185f9539fa64a87fef50c8de9",
+  "input_sha256": "bfef9f43537384a7d2ce5959b4b57bac9a1c4edd426e9c68555117bde929daf4",
+  "data": "fixed seeded synthetic FP32 inputs (not actual video frame)",
+  "cudnn_tf32": false,
+  "times_ms": [
+    66.73940698965453,
+    66.26934302039444,
+    65.6439010053873,
+    66.27637599012814,
+    67.68921099137515,
+    67.02720100292936,
+    67.11278000148013,
+    66.5064940112643,
+    66.60386500880122,
+    66.89916297909804,
+    67.74763998691924,
+    66.67203101096675,
+    67.46057598502375,
+    67.48235601116903,
+    67.2882949875202,
+    67.387620016234,
+    58.56538898660801,
+    67.6212529942859,
+    67.44444501237012,
+    67.6821369852405,
+    66.8292430054862,
+    67.34826700994745,
+    67.7530879911501,
+    67.85662198672071,
+    67.72640900453553,
+    67.13435900746845,
+    67.33760700444691,
+    68.34262399934232,
+    69.18274401687086,
+    68.36417299928144,
+    66.88613697770052,
+    96.97829600190744,
+    66.28220400307328,
+    66.18337100371718,
+    66.24436398851685,
+    66.44216200220399,
+    65.91346999630332,
+    66.3035640027374,
+    66.50367600377649,
+    66.27079399186186
+  ],
+  "phase_wall_ms": [
+    {
+      "forward": 15.260491985827684,
+      "loss": 0.40881900349631906,
+      "backward": 27.529076003702357,
+      "adam": 22.33031700598076
+    },
+    {
+      "forward": 15.673549001803622,
+      "loss": 0.4509179852902889,
+      "backward": 27.67107999534346,
+      "adam": 22.325157973682508
+    }
+  ],
+  "device_stage_ms": [],
+  "cuda_kernels": [],
+  "vulkan_shaders": [],
+  "execution": {
+    "cpu_fallback_calls": 0,
+    "host_read_bytes": 0,
+    "host_read_calls": 0,
+    "host_read_max_bytes": 0
+  },
+  "cache": {
+    "algo_hits": 170,
+    "algo_misses": 29498,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 28986,
+    "bound_algorithms": 512,
+    "pipeline_hits": 29463,
+    "pipeline_misses": 35,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 35
+  },
+  "operators": [
+    {
+      "name": "NIS_backward",
+      "calls": 2,
+      "self_cpu_ms": 15.251505000000002,
+      "device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.step#Adam.step",
+      "calls": 2,
+      "self_cpu_ms": 7.883253000000011,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::div",
+      "calls": 102,
+      "self_cpu_ms": 5.717850999999953,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::add",
+      "calls": 150,
+      "self_cpu_ms": 4.9116959999999805,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::add_",
+      "calls": 242,
+      "self_cpu_ms": 4.333877999999857,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "calls": 34,
+      "self_cpu_ms": 3.7935500000000046,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::lerp_",
+      "calls": 100,
+      "self_cpu_ms": 3.489125000000029,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::addcdiv_",
+      "calls": 100,
+      "self_cpu_ms": 3.467762000000035,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mul_",
+      "calls": 100,
+      "self_cpu_ms": 3.363725999999908,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_forward",
+      "calls": 2,
+      "self_cpu_ms": 3.3536830000000353,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::addcmul_",
+      "calls": 100,
+      "self_cpu_ms": 3.2809969999999704,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::sqrt",
+      "calls": 100,
+      "self_cpu_ms": 2.6617539999999753,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::empty",
+      "calls": 1324,
+      "self_cpu_ms": 2.341937000000011,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::copy_",
+      "calls": 244,
+      "self_cpu_ms": 2.2020590000000606,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_to_copy",
+      "calls": 432,
+      "self_cpu_ms": 1.8466000000000096,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm_backward",
+      "calls": 32,
+      "self_cpu_ms": 1.627394000000002,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm",
+      "calls": 32,
+      "self_cpu_ms": 1.5975349999999784,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "calls": 34,
+      "self_cpu_ms": 1.4618160000000042,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::leaky_relu_backward",
+      "calls": 32,
+      "self_cpu_ms": 1.1387719999999937,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::leaky_relu",
+      "calls": 32,
+      "self_cpu_ms": 0.999387999999989,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::expand",
+      "calls": 310,
+      "self_cpu_ms": 0.7961010000001237,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::to",
+      "calls": 564,
+      "self_cpu_ms": 0.7122429999998641,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "calls": 324,
+      "self_cpu_ms": 0.5837859999999228,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::result_type",
+      "calls": 900,
+      "self_cpu_ms": 0.5396000000001,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::item",
+      "calls": 338,
+      "self_cpu_ms": 0.5136330000000371,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::empty_strided",
+      "calls": 214,
+      "self_cpu_ms": 0.44444300000008435,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: ConvolutionBackward0",
+      "calls": 34,
+      "self_cpu_ms": 0.38897099999999957,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "calls": 34,
+      "self_cpu_ms": 0.3837429999999903,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: NativeBatchNormBackward0",
+      "calls": 32,
+      "self_cpu_ms": 0.37550400000000084,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: torch::autograd::AccumulateGrad",
+      "calls": 100,
+      "self_cpu_ms": 0.35330000000002654,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "calls": 34,
+      "self_cpu_ms": 0.3442909999999847,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::cat",
+      "calls": 6,
+      "self_cpu_ms": 0.32366000000000167,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::reflection_pad2d",
+      "calls": 4,
+      "self_cpu_ms": 0.29546900000001164,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: LeakyReluBackward0",
+      "calls": 32,
+      "self_cpu_ms": 0.28637099999997556,
+      "device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "calls": 34,
+      "self_cpu_ms": 0.28598500000003335,
+      "device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "calls": 100,
+      "self_cpu_ms": 0.27666299999995864,
+      "device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.zero_grad#Adam.zero_grad",
+      "calls": 2,
+      "self_cpu_ms": 0.24979299999999996,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mul",
+      "calls": 8,
+      "self_cpu_ms": 0.23318199999998615,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NativeBatchNormBackward0",
+      "calls": 32,
+      "self_cpu_ms": 0.2326820000000207,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "calls": 34,
+      "self_cpu_ms": 0.21090199999999584,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_batch_norm_impl_index",
+      "calls": 32,
+      "self_cpu_ms": 0.21031600000003278,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_local_scalar_dense",
+      "calls": 338,
+      "self_cpu_ms": 0.2032330000000303,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d",
+      "calls": 4,
+      "self_cpu_ms": 0.1504489999999987,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d_backward",
+      "calls": 4,
+      "self_cpu_ms": 0.14817700000000877,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "calls": 34,
+      "self_cpu_ms": 0.1352349999999984,
+      "device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "calls": 100,
+      "self_cpu_ms": 0.1320569999999898,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::pow",
+      "calls": 4,
+      "self_cpu_ms": 0.12332799999999952,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "calls": 100,
+      "self_cpu_ms": 0.12148800000003758,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::batch_norm",
+      "calls": 32,
+      "self_cpu_ms": 0.12068900000000327,
+      "device_ms": 0.0
+    },
+    {
+      "name": "LeakyReluBackward0",
+      "calls": 32,
+      "self_cpu_ms": 0.1154610000000157,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::reflection_pad2d_backward",
+      "calls": 2,
+      "self_cpu_ms": 0.11222899999999754,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::sub",
+      "calls": 2,
+      "self_cpu_ms": 0.10923500000000058,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::fill_",
+      "calls": 2,
+      "self_cpu_ms": 0.09619800000000214,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mean",
+      "calls": 2,
+      "self_cpu_ms": 0.09389399999999841,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_loss",
+      "calls": 2,
+      "self_cpu_ms": 0.09292200000000411,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: CloneBackward0",
+      "calls": 12,
+      "self_cpu_ms": 0.0927599999999984,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::clone",
+      "calls": 12,
+      "self_cpu_ms": 0.09264399999999659,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::slice",
+      "calls": 14,
+      "self_cpu_ms": 0.07717300000000432,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_adam",
+      "calls": 2,
+      "self_cpu_ms": 0.07693199999999342,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::tanh",
+      "calls": 2,
+      "self_cpu_ms": 0.07205299999999988,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::scalar_tensor",
+      "calls": 32,
+      "self_cpu_ms": 0.06893499999998277,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::tanh_backward",
+      "calls": 2,
+      "self_cpu_ms": 0.06825799999999253,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: AddBackward0",
+      "calls": 12,
+      "self_cpu_ms": 0.0633259999999882,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::narrow",
+      "calls": 14,
+      "self_cpu_ms": 0.052004999999991926,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: CatBackward0",
+      "calls": 6,
+      "self_cpu_ms": 0.03798100000000341,
+      "device_ms": 0.0
+    },
+    {
+      "name": "CatBackward0",
+      "calls": 6,
+      "self_cpu_ms": 0.032331000000003766,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: MeanBackward0",
+      "calls": 2,
+      "self_cpu_ms": 0.026458999999998924,
+      "device_ms": 0.0
+    },
+    {
+      "name": "MeanBackward0",
+      "calls": 2,
+      "self_cpu_ms": 0.025728000000006433,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: PowBackward0",
+      "calls": 2,
+      "self_cpu_ms": 0.024614999999992507,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::pad",
+      "calls": 4,
+      "self_cpu_ms": 0.02253099999999722,
+      "device_ms": 0.0
+    }
+  ],
+  "median_ms": 67.06999050220475,
+  "p10_ms": 66.23826469003689,
+  "p90_ms": 67.90522218798287,
+  "mean_ms": 67.60006642434746
+}

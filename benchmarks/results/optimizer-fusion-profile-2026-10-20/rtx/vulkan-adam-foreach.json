@@ -1,0 +1,577 @@
+{
+  "status": "passed",
+  "hostname": "133ec28cb175",
+  "gpu": "NVIDIA GeForce RTX 2080 Ti",
+  "backend": "vulkan",
+  "torch": "2.14.1+cpu",
+  "hip": null,
+  "cuda": null,
+  "mode": "train",
+  "shape": [
+    1,
+    3,
+    128,
+    128
+  ],
+  "optimizer": "adam",
+  "parameter_tensors": 50,
+  "foreach": true,
+  "warmup": 12,
+  "steps": 80,
+  "profiling_steps": 3,
+  "checkpoint": "none",
+  "loss": "MSE (training microbenchmark)",
+  "model_sha256": "e519acb2ce37e69917f8cc871e1d49bca83d256185f9539fa64a87fef50c8de9",
+  "input_sha256": "bfef9f43537384a7d2ce5959b4b57bac9a1c4edd426e9c68555117bde929daf4",
+  "data": "fixed seeded synthetic FP32 inputs (not actual video frame)",
+  "cudnn_tf32": false,
+  "times_ms": [
+    62.07766599254683,
+    63.122443010797724,
+    61.14444698323496,
+    61.828985024476424,
+    60.56092499056831,
+    63.0291489942465,
+    63.9603850140702,
+    61.92229798762128,
+    61.31855899002403,
+    61.912439996376634,
+    61.51152600068599,
+    61.34548899717629,
+    61.289185017813,
+    61.35733099654317,
+    61.42348298453726,
+    61.4259879803285,
+    61.669789982261136,
+    62.304406019393355,
+    61.31831801030785,
+    60.73366498458199,
+    63.05358500685543,
+    53.862380009377375,
+    57.115238974802196,
+    56.4905520004686,
+    55.79241699888371,
+    56.428436015266925,
+    55.62774199643172,
+    56.52933300007135,
+    56.693678023293614,
+    56.11966401920654,
+    62.516979000065476,
+    62.724314018851146,
+    63.08622399228625,
+    63.83649501367472,
+    56.42352599534206,
+    53.799513989361,
+    52.623924013460055,
+    51.12352399737574,
+    51.35797898401506,
+    53.81296799168922,
+    52.73794601089321,
+    51.70841800281778,
+    60.53657899610698,
+    63.94711000029929,
+    62.81950999982655,
+    53.93000598996878,
+    64.32761499308981,
+    63.363747991388664,
+    63.27400199370459,
+    62.97705200267956,
+    62.740583991399035,
+    63.110918999882415,
+    62.89362697862089,
+    64.24106401391327,
+    64.02596499538049,
+    63.455828989390284,
+    62.66379100270569,
+    62.77526798658073,
+    61.74292400828563,
+    61.37626399868168,
+    60.995319014182314,
+    61.43581497599371,
+    61.75993601209484,
+    61.751770990667865,
+    62.117218010826036,
+    61.73523998586461,
+    62.333709007361904,
+    62.248119997093454,
+    62.15804300154559,
+    62.623044999781996,
+    62.983874027850106,
+    62.2180339996703,
+    61.944097018567845,
+    62.22710100701079,
+    62.60763600585051,
+    61.56448301044293,
+    61.29578498075716,
+    61.31331800133921,
+    60.766715003410354,
+    61.5894089860376
+  ],
+  "phase_wall_ms": [
+    {
+      "forward": 17.07746900501661,
+      "loss": 0.4193669883534312,
+      "backward": 31.609530007699504,
+      "adam": 14.673072990262881
+    },
+    {
+      "forward": 16.79478498408571,
+      "loss": 0.40995999006554484,
+      "backward": 30.06865398492664,
+      "adam": 14.62391100358218
+    },
+    {
+      "forward": 16.97226401302032,
+      "loss": 0.43519699829630554,
+      "backward": 30.14918399276212,
+      "adam": 14.779069024370983
+    }
+  ],
+  "device_stage_ms": [],
+  "cuda_kernels": [],
+  "vulkan_shaders": [],
+  "execution": {
+    "cpu_fallback_calls": 0,
+    "host_read_bytes": 0,
+    "host_read_calls": 0,
+    "host_read_max_bytes": 0
+  },
+  "cache": {
+    "algo_hits": 50,
+    "algo_misses": 56722,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 56210,
+    "bound_algorithms": 512,
+    "pipeline_hits": 56688,
+    "pipeline_misses": 34,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 34
+  },
+  "operators": [
+    {
+      "name": "NIS_backward",
+      "calls": 3,
+      "self_cpu_ms": 22.04948200000001,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::add",
+      "calls": 225,
+      "self_cpu_ms": 6.153882999999968,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward_overrideable",
+      "calls": 51,
+      "self_cpu_ms": 5.618631000000021,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_forward",
+      "calls": 3,
+      "self_cpu_ms": 5.47608400000001,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::addcdiv_",
+      "calls": 150,
+      "self_cpu_ms": 4.491318000000087,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::lerp_",
+      "calls": 150,
+      "self_cpu_ms": 4.481252999999938,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::addcmul_",
+      "calls": 150,
+      "self_cpu_ms": 4.456891999999967,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::add_",
+      "calls": 363,
+      "self_cpu_ms": 4.334321999999966,
+      "device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.step#Adam.step",
+      "calls": 3,
+      "self_cpu_ms": 4.090896000000015,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::div_",
+      "calls": 150,
+      "self_cpu_ms": 3.9787169999999135,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mul_",
+      "calls": 150,
+      "self_cpu_ms": 3.9329520000001175,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::sqrt",
+      "calls": 150,
+      "self_cpu_ms": 3.4271679999999907,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm",
+      "calls": 48,
+      "self_cpu_ms": 2.7368770000000415,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::copy_",
+      "calls": 66,
+      "self_cpu_ms": 2.632783000000001,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_overrideable",
+      "calls": 51,
+      "self_cpu_ms": 2.3756250000000034,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::empty",
+      "calls": 1239,
+      "self_cpu_ms": 2.311967000000014,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::native_batch_norm_backward",
+      "calls": 48,
+      "self_cpu_ms": 2.262126000000064,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::leaky_relu",
+      "calls": 48,
+      "self_cpu_ms": 1.7672229999999518,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::leaky_relu_backward",
+      "calls": 48,
+      "self_cpu_ms": 1.6621089999999712,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::item",
+      "calls": 357,
+      "self_cpu_ms": 0.6445860000000717,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution",
+      "calls": 51,
+      "self_cpu_ms": 0.6116129999999824,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: ConvolutionBackward0",
+      "calls": 51,
+      "self_cpu_ms": 0.5262349999999988,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: torch::autograd::AccumulateGrad",
+      "calls": 150,
+      "self_cpu_ms": 0.5196120000000519,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_add_",
+      "calls": 6,
+      "self_cpu_ms": 0.5114659999999749,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::convolution_backward",
+      "calls": 51,
+      "self_cpu_ms": 0.5083550000000069,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: NativeBatchNormBackward0",
+      "calls": 48,
+      "self_cpu_ms": 0.5056669999999959,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::cat",
+      "calls": 9,
+      "self_cpu_ms": 0.46259100000002584,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::result_type",
+      "calls": 1350,
+      "self_cpu_ms": 0.4542790000001141,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::reflection_pad2d",
+      "calls": 6,
+      "self_cpu_ms": 0.45056500000000016,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::expand",
+      "calls": 165,
+      "self_cpu_ms": 0.4332240000000235,
+      "device_ms": 0.0
+    },
+    {
+      "name": "torch::autograd::AccumulateGrad",
+      "calls": 150,
+      "self_cpu_ms": 0.42292999999989295,
+      "device_ms": 0.0
+    },
+    {
+      "name": "Optimizer.zero_grad#Adam.zero_grad",
+      "calls": 3,
+      "self_cpu_ms": 0.4075159999999977,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_batch_norm_impl_index",
+      "calls": 48,
+      "self_cpu_ms": 0.36845199999999045,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: LeakyReluBackward0",
+      "calls": 48,
+      "self_cpu_ms": 0.3625940000001392,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::as_strided",
+      "calls": 186,
+      "self_cpu_ms": 0.3495700000000304,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_convolution",
+      "calls": 51,
+      "self_cpu_ms": 0.3420600000000372,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mul",
+      "calls": 12,
+      "self_cpu_ms": 0.3419119999999457,
+      "device_ms": 0.0
+    },
+    {
+      "name": "ConvolutionBackward0",
+      "calls": 51,
+      "self_cpu_ms": 0.3161809999999532,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_addcdiv_",
+      "calls": 3,
+      "self_cpu_ms": 0.2885309999999081,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NativeBatchNormBackward0",
+      "calls": 48,
+      "self_cpu_ms": 0.2867089999999662,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_addcmul_",
+      "calls": 3,
+      "self_cpu_ms": 0.2751860000000161,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_lerp_",
+      "calls": 3,
+      "self_cpu_ms": 0.2705840000000644,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_mul_",
+      "calls": 3,
+      "self_cpu_ms": 0.2619899999999834,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_div_",
+      "calls": 3,
+      "self_cpu_ms": 0.25143199999997157,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::div",
+      "calls": 3,
+      "self_cpu_ms": 0.24896099999999932,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_add",
+      "calls": 3,
+      "self_cpu_ms": 0.24753800000000412,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_to_copy",
+      "calls": 48,
+      "self_cpu_ms": 0.23988399999999127,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d",
+      "calls": 6,
+      "self_cpu_ms": 0.2396720000000305,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::conv2d",
+      "calls": 51,
+      "self_cpu_ms": 0.23147099999996862,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_local_scalar_dense",
+      "calls": 357,
+      "self_cpu_ms": 0.21407299999990767,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::upsample_nearest2d_backward",
+      "calls": 6,
+      "self_cpu_ms": 0.20952199999997173,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::_foreach_sqrt",
+      "calls": 3,
+      "self_cpu_ms": 0.20450500000002284,
+      "device_ms": 0.0
+    },
+    {
+      "name": "detach",
+      "calls": 150,
+      "self_cpu_ms": 0.19811400000004686,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::detach",
+      "calls": 150,
+      "self_cpu_ms": 0.1873069999999898,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::sub",
+      "calls": 3,
+      "self_cpu_ms": 0.18198800000001755,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::pow",
+      "calls": 6,
+      "self_cpu_ms": 0.18146400000000357,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::batch_norm",
+      "calls": 48,
+      "self_cpu_ms": 0.17899700000000188,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::clone",
+      "calls": 18,
+      "self_cpu_ms": 0.16503499999998075,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::reflection_pad2d_backward",
+      "calls": 3,
+      "self_cpu_ms": 0.16303199999999196,
+      "device_ms": 0.0
+    },
+    {
+      "name": "LeakyReluBackward0",
+      "calls": 48,
+      "self_cpu_ms": 0.1606559999999554,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_loss",
+      "calls": 3,
+      "self_cpu_ms": 0.14719100000000981,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: CloneBackward0",
+      "calls": 18,
+      "self_cpu_ms": 0.1446579999999467,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::to",
+      "calls": 99,
+      "self_cpu_ms": 0.13693700000004025,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::slice",
+      "calls": 21,
+      "self_cpu_ms": 0.1367549999999901,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::mean",
+      "calls": 3,
+      "self_cpu_ms": 0.1363319999999985,
+      "device_ms": 0.0
+    },
+    {
+      "name": "NIS_adam",
+      "calls": 3,
+      "self_cpu_ms": 0.124700000000008,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::scalar_tensor",
+      "calls": 48,
+      "self_cpu_ms": 0.1135299999999595,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::tanh_backward",
+      "calls": 3,
+      "self_cpu_ms": 0.10675800000000527,
+      "device_ms": 0.0
+    },
+    {
+      "name": "autograd::engine::evaluate_function: AddBackward0",
+      "calls": 18,
+      "self_cpu_ms": 0.10626599999997961,
+      "device_ms": 0.0
+    },
+    {
+      "name": "aten::tanh",
+      "calls": 3,
+      "self_cpu_ms": 0.1046150000000016,
+      "device_ms": 0.0
+    }
+  ],
+  "median_ms": 61.73908199707512,
+  "p10_ms": 53.92324339190964,
+  "p90_ms": 63.282976593472995,
+  "mean_ms": 60.507397999754176
+}

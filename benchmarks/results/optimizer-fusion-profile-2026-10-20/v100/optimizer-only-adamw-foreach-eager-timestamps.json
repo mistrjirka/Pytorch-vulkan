@@ -1,0 +1,285 @@
+{
+  "device": "Tesla V100-SXM2-32GB",
+  "backend": "vulkan",
+  "optimizer": "adamw",
+  "foreach": true,
+  "fused": false,
+  "parameter_count": 50,
+  "parameter_numel": 2420547,
+  "tensor_shapes": [
+    [
+      64,
+      3,
+      7,
+      7
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      128,
+      64,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      128,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      256,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128,
+      256,
+      3,
+      3
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      64,
+      195,
+      3,
+      3
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      3,
+      64,
+      7,
+      7
+    ],
+    [
+      3
+    ]
+  ],
+  "params_sha256": "48d17cdea0f610614766f21b10688d24611e9f255cfad30ca5131802fca36003",
+  "grad_sha256": "e4e7ebda69aa11487ec8295e5b51a1208c6456637f6373e4189346c2c31d4d70",
+  "torch": "2.14.1+cpu",
+  "warmup": 3,
+  "repeats": 3,
+  "median_ms": 25.61895301914774,
+  "p10_ms": 25.02748979604803,
+  "p90_ms": 27.06080660573207,
+  "ms": [
+    25.61895301914774,
+    27.42127000237815,
+    24.879623990273103
+  ],
+  "execution_stats": {
+    "cpu_fallback_calls": 0,
+    "host_read_bytes": 0,
+    "host_read_calls": 0,
+    "host_read_max_bytes": 0
+  },
+  "cache_stats": {
+    "algo_hits": 2050,
+    "algo_misses": 450,
+    "seq_reuses": 0,
+    "seq_creates": 0,
+    "algo_evictions": 0,
+    "bound_algorithms": 450,
+    "pipeline_hits": 446,
+    "pipeline_misses": 4,
+    "pipeline_evictions": 0,
+    "pipeline_entries": 4
+  },
+  "gpu_timings": {
+    "diffusion_unary": {
+      "samples": 150.0,
+      "upload_ms": 0.1792000000000032,
+      "shader_ms": 1.3125440000000106,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.65536199999999,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "loss_mutate": {
+      "samples": 450.0,
+      "upload_ms": 0.5314240000000701,
+      "shader_ms": 4.1207999999999405,
+      "download_ms": 0.0,
+      "host_eval_ms": 20.16235299999999,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "optimizer_pointwise": {
+      "samples": 450.0,
+      "upload_ms": 0.545824000000035,
+      "shader_ms": 3.4133760000000644,
+      "download_ms": 0.0,
+      "host_eval_ms": 21.91982000000001,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    },
+    "scalar_add_float": {
+      "samples": 150.0,
+      "upload_ms": 0.18636800000000325,
+      "shader_ms": 1.2699840000000058,
+      "download_ms": 0.0,
+      "host_eval_ms": 6.581933000000003,
+      "pair_first_ms": 0.0,
+      "pair_barrier_ms": 0.0,
+      "pair_second_ms": 0.0
+    }
+  }
+}
