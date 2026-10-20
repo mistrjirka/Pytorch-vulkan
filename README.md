@@ -159,7 +159,10 @@ motivated the now-implemented shared pipeline cache and experimental GPU residen
 
 The opt-in `torch_vulkan.optim.AdamW` fuses optimizer state updates
 on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
-`torch.optim.AdamW`. Deferred command submission and mapped host memory are
+`torch.optim.AdamW`. The opt-in native optimizer now also supports FP32 AMSGrad
+(amsgrad=True), preserving the maximum second-moment state.
+See [the AMSGrad benchmark report](docs/fused-amsgrad-optimizer-2026-10-20.md).
+Deferred command submission and mapped host memory are
 additional *experimental* environment-configured modes, disabled by default.
 
 ### Earlier optimized MLP measurement (experimental)

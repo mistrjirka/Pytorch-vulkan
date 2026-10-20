@@ -35,6 +35,10 @@ def main():
     p.add_argument("--scale", choices=CONFIG["mlp"], default="medium")
     p.add_argument("--warmup", type=int, default=8)
     p.add_argument("--repeats", type=int, default=25)
+    p.add_argument("--optimizer-implementation",
+                   choices=["standard", "vulkan_fused_amsgrad", "cuda_fused_amsgrad"],
+                   default="standard",
+                   help="Explicitly select an optimizer; default retains historical benchmark")
     p.add_argument("--threads", type=int, default=4)
     p.add_argument("--skip-parity", action="store_true")
     p.add_argument("--zoo", type=Path, default=Path("/workspace/pytorch-XDNA2-vulkan-zoo-reference"))
@@ -138,7 +142,18 @@ def main():
             model.get_submodule(name).p = probability
         row["training_dropout"] = dropout
         del cpu
-        opt = torch.optim.AdamW(model.parameters(), lr=1e-4, foreach=False, amsgrad=True)
+        if a.optimizer_implementation == "standard":
+            opt = torch.optim.AdamW(model.parameters(),lr=1e-4,foreach=False,amsgrad=True)
+        elif a.optimizer_implementation == "cuda_fused_amsgrad":
+            assert a.backend == "cuda", "CUDA fused AMSGrad requires CUDA device"
+            opt = torch.optim.AdamW(model.parameters(),lr=1e-4,
+                                    foreach=False,amsgrad=True,fused=True)
+        else:
+            assert a.backend == "vulkan", "Vulkan fused AMSGrad requires Vulkan device"
+            from torch_vulkan.optim import AdamW as VulkanAdamW
+            opt = VulkanAdamW(model.parameters(),lr=1e-4,
+                              amsgrad=True,batched=True)
+        row["optimizer"] = repr(opt.__class__.__name__) + " implementation=" + a.optimizer_implementation + " AMSGrad=True"
         holder = {}
         def zero():
             opt.zero_grad(set_to_none=True)

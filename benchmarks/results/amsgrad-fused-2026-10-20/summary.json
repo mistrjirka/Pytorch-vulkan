@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-20",
+  "operation": "opt-in FP32 native Vulkan fused AdamW with AMSGrad max moment state",
+  "optimizer_only": {
+    "rtx": {
+      "native_adamw": {
+        "run_medians_ms": [
+          0.9790780022740364,
+          0.9803709981497377,
+          0.9861710132099688
+        ],
+        "median_of_run_medians_ms": 0.9803709981497377,
+        "p10_per_run_ms": [
+          0.9628298052120954,
+          0.9581392048858106,
+          0.9771507990080863
+        ],
+        "p90_per_run_ms": [
+          0.9880346129648387,
+          0.9876925847493112,
+          1.0208391875494272
+        ]
+      },
+      "adamw": {
+        "run_medians_ms": [
+          9.089007013244554,
+          9.129521989962086,
+          8.98305099690333
+        ],
+        "median_of_run_medians_ms": 9.089007013244554,
+        "p10_per_run_ms": [
+          8.969169406918809,
+          9.078089013928548,
+          8.824327803449705
+        ],
+        "p90_per_run_ms": [
+          9.931449202122167,
+          9.209561598254368,
+          11.717708595097069
+        ]
+      },
+      "speedup_vs_standard": 9.270987238910894
+    },
+    "v100": {
+      "native_adamw": {
+        "run_medians_ms": [
+          0.9722549875732511,
+          0.958980992436409
+        ],
+        "median_of_run_medians_ms": 0.9656179900048301,
+        "p10_per_run_ms": [
+          0.9637999988626689,
+          0.9436190011911094
+        ],
+        "p90_per_run_ms": [
+          0.9804830013308674,
+          0.9720749978441745
+        ]
+      },
+      "adamw": {
+        "run_medians_ms": [
+          9.14533098693937,
+          8.896209998056293
+        ],
+        "median_of_run_medians_ms": 9.020770492497832,
+        "p10_per_run_ms": [
+          9.071975795086473,
+          8.842419396387413
+        ],
+        "p90_per_run_ms": [
+          13.320978009141982,
+          8.942771202418953
+        ]
+      },
+      "speedup_vs_standard": 9.341966063052231
+    }
+  },
+  "full_networks": {
+    "mlp": {
+      "vulkan_standard_ms": 5.3589762464980595,
+      "vulkan_fused_amsgrad_ms": 3.954062740376685,
+      "cuda_standard_ms": 2.3663890024181455,
+      "cuda_fused_amsgrad_ms": 1.5368925087386742,
+      "vulkan_speedup": 1.3553088553135946,
+      "vulkan_fused_to_cuda_fused_ratio": 2.5727646649938967,
+      "rounds": 2,
+      "warmup": 8,
+      "repeats": 20,
+      "parity_checks_passed": true
+    },
+    "unet": {
+      "vulkan_standard_ms": 23.397634002321865,
+      "vulkan_fused_amsgrad_ms": 18.124478505342267,
+      "cuda_standard_ms": 9.871898000710644,
+      "cuda_fused_amsgrad_ms": 6.172753244754858,
+      "vulkan_speedup": 1.290941088066358,
+      "vulkan_fused_to_cuda_fused_ratio": 2.936206549442599,
+      "rounds": 2,
+      "warmup": 8,
+      "repeats": 20,
+      "parity_checks_passed": true
+    },
+    "transformer": {
+      "vulkan_standard_ms": 65.44229799328605,
+      "vulkan_fused_amsgrad_ms": 49.95875975146191,
+      "cuda_standard_ms": 15.953301262925379,
+      "cuda_fused_amsgrad_ms": 11.43474299897207,
+      "vulkan_speedup": 1.309926393666549,
+      "vulkan_fused_to_cuda_fused_ratio": 4.36903214667378,
+      "rounds": 2,
+      "warmup": 8,
+      "repeats": 20,
+      "parity_checks_passed": true
+    }
+  },
+  "validation": {
+    "batched_and_single": "CPU reference parameters, all moment states and multi-step updates",
+    "checkpoint": "roundtrip and standard AdamW import",
+    "nan": "torch.maximum NaN propagation",
+    "device_list": [
+      "RTX 2080 Ti",
+      "Tesla V100",
+      "Lavapipe"
+    ],
+    "optimizer_only_warmup": 12,
+    "optimizer_only_timed_iterations": 75,
+    "full_network_warmup": 8,
+    "full_network_timed_iterations": 20,
+    "full_network_rounds": 2,
+    "full_rtx": "3889 passed, 14 warnings",
+    "full_v100": "3889 passed, 14 warnings",
+    "full_lvp": "3888 passed, 1 skipped, 14 warnings"
+  },
+  "raw_benchmark_runs": 34,
+  "full_network_optimizer": "AdamW(amsgrad=True, lr=1e-4, standard foreach=False or named fused equivalent)",
+  "full_network_parity": "CPU forward/loss and parameter/input-gradient checked before GPU timing; optimizer-step states separately checked against standard PyTorch",
+  "workload_note": "Optimizer-only static precomputed gradients; full model dynamic gradients, forward/backward and warmed optimizer state. No RTX 3090."
+}

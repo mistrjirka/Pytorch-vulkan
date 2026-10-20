@@ -69,7 +69,7 @@ elif args.optimizer=='adamw':
 else:
  assert args.backend=='vulkan'
  from torch_vulkan.optim import AdamW as NativeAdamW
- opt=NativeAdamW(params,lr=1e-4,weight_decay=1e-5)
+ opt=NativeAdamW(params,lr=1e-4,weight_decay=1e-5,amsgrad=args.amsgrad)
 
 def step():
  opt.step()

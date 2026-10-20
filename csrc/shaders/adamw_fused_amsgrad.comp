@@ -1,0 +1,38 @@
+#version 450
+// Fused, bias-corrected AdamW AMSGrad with decoupled weight decay.
+// One shader invocation handles one parameter element and updates the
+// weights and both moments without intermediate host/device round trips.
+layout(local_size_x = 256) in;
+layout(set = 0, binding = 0) buffer Parameter { float param[]; };
+layout(set = 0, binding = 1) readonly buffer Grad { float grad[]; };
+layout(set = 0, binding = 2) buffer Moment1 { float moment1[]; };
+layout(set = 0, binding = 3) buffer Moment2 { float moment2[]; };
+layout(set = 0, binding = 4) buffer MaximumMoment2 { float max_moment2[]; };
+layout(push_constant) uniform Args {
+    uint count;
+    float lr;
+    float beta1;
+    float beta2;
+    float eps;
+    float weight_decay;
+    float bias_correction1;
+    float bias_correction2;
+} args;
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= args.count) return;
+    float g = grad[index];
+    float m = args.beta1 * moment1[index] + (1.0 - args.beta1) * g;
+    float v = args.beta2 * moment2[index] + (1.0 - args.beta2) * g * g;
+    moment1[index] = m;
+    moment2[index] = v;
+    // PyTorch's AMSGrad uses torch.maximum: propagate NaNs rather than
+    // relying on the driver's implementation-dependent GLSL max NaN rule.
+    float maxv = (isnan(max_moment2[index]) || isnan(v)) ?
+                 uintBitsToFloat(0x7fc00000u) : max(max_moment2[index], v);
+    max_moment2[index] = maxv;
+    float decayed_p = param[index] * (1.0 - args.lr * args.weight_decay);
+    float denominator = sqrt(maxv / args.bias_correction2) + args.eps;
+    param[index] = decayed_p - (args.lr / args.bias_correction1) * m / denominator;
+}

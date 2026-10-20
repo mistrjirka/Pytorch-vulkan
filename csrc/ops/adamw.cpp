@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <optional>
 
 namespace torch_vulkan::ops {
 
@@ -72,14 +73,16 @@ static void fused_adamw_step_(
 // Batch independent parameter updates into a single Vulkan command buffer.
 // Upload all parameters/moments, dispatch all shaders, then download results.
 // This removes one host-side VkFence wait per parameter tensor.
-static void fused_adamw_step_batch_(
+static void fused_adamw_step_batch_impl(
     at::TensorList params, at::TensorList grads,
     at::TensorList moments1, at::TensorList moments2,
+    std::optional<at::TensorList> max_moments,
     double lr, double beta1, double beta2, double eps,
     double weight_decay, at::IntArrayRef steps) {
   const auto count = params.size();
   TORCH_CHECK(grads.size() == count && moments1.size() == count &&
-              moments2.size() == count && steps.size() == count,
+              moments2.size() == count && steps.size() == count &&
+              (!max_moments || max_moments->size() == count),
               "fused AdamW batch: all parameter/gradient/moment/step lists must match");
   TORCH_CHECK(lr >= 0 && beta1 >= 0 && beta1 < 1 && beta2 >= 0 && beta2 < 1 &&
               eps >= 0 && weight_decay >= 0,
@@ -105,7 +108,8 @@ static void fused_adamw_step_batch_(
     const auto& p = params[i];
     TORCH_CHECK(p.sizes() == grads[i].sizes() &&
                 p.sizes() == moments1[i].sizes() &&
-                p.sizes() == moments2[i].sizes(),
+                p.sizes() == moments2[i].sizes() &&
+                (!max_moments || p.sizes() == (*max_moments)[i].sizes()),
                 "fused AdamW batch: incompatible tensor shapes at ", i);
     TORCH_CHECK(steps[i] >= 1, "fused AdamW batch: step must be positive");
     TORCH_CHECK(p.numel() <= 65535ll * 256,
@@ -113,6 +117,9 @@ static void fused_adamw_step_batch_(
     if (!p.numel()) continue;
     auto pbuf=buffer(p), gbuf=buffer(grads[i]);
     auto mbuf=buffer(moments1[i]), vbuf=buffer(moments2[i]);
+    // Validate every AMSGrad maximum buffer even when the parameter is empty.
+    auto maximum=max_moments ? buffer((*max_moments)[i]) :
+                             std::shared_ptr<kp::TensorT<float>>{};
     std::vector<uint32_t> constants;
     constants.reserve(8);
     constants.push_back(static_cast<uint32_t>(p.numel()));
@@ -125,14 +132,37 @@ static void fused_adamw_step_batch_(
       std::memcpy(&bits,&value,sizeof(value));
       constants.push_back(bits);
     }
-    inputs.push_back({pbuf,gbuf,mbuf,vbuf});
-    outputs.push_back({pbuf,mbuf,vbuf});
+    std::vector<std::shared_ptr<kp::Tensor>> bindings={pbuf,gbuf,mbuf,vbuf};
+    std::vector<std::shared_ptr<kp::Tensor>> writes={pbuf,mbuf,vbuf};
+    if(maximum){bindings.push_back(maximum);writes.push_back(maximum);}
+    inputs.push_back(bindings);
+    outputs.push_back(writes);
     algorithms.push_back(ctx.get_or_create_algorithm(
-      "adamw_fused", {pbuf,gbuf,mbuf,vbuf},
+      max_moments ? "adamw_fused_amsgrad" : "adamw_fused", bindings,
       kp::Workgroup({static_cast<uint32_t>((p.numel()+255)/256),1,1}),constants));
   }
   if (algorithms.empty()) return;
   ctx.run_compute_batch(algorithms,inputs,outputs);
+}
+
+// Keep the existing ABI for ordinary AdamW and add a distinct AMSGrad op.
+// This prevents silently changing the semantics of existing model training.
+static void fused_adamw_step_batch_(
+    at::TensorList params, at::TensorList grads,
+    at::TensorList moments1, at::TensorList moments2,
+    double lr, double beta1, double beta2, double eps,
+    double weight_decay, at::IntArrayRef steps) {
+  fused_adamw_step_batch_impl(params,grads,moments1,moments2,std::nullopt,
+                             lr,beta1,beta2,eps,weight_decay,steps);
+}
+static void fused_adamw_amsgrad_step_batch_(
+    at::TensorList params, at::TensorList grads,
+    at::TensorList moments1, at::TensorList moments2,
+    at::TensorList max_moments,
+    double lr, double beta1, double beta2, double eps,
+    double weight_decay, at::IntArrayRef steps) {
+  fused_adamw_step_batch_impl(params,grads,moments1,moments2,max_moments,
+                             lr,beta1,beta2,eps,weight_decay,steps);
 }
 
 TORCH_LIBRARY(torch_vulkan, m) {
@@ -143,11 +173,16 @@ TORCH_LIBRARY(torch_vulkan, m) {
         "Tensor(b!)[] exp_avgs, Tensor(c!)[] exp_avg_sqs, "
         "float lr, float beta1, float beta2, float eps, "
         "float weight_decay, int[] steps) -> ()");
+  m.def("adamw_amsgrad_step_batch_(Tensor(a!)[] params, Tensor[] grads, "
+        "Tensor(b!)[] exp_avgs, Tensor(c!)[] exp_avg_sqs, "
+        "Tensor(d!)[] max_exp_avg_sqs, float lr, float beta1, "
+        "float beta2, float eps, float weight_decay, int[] steps) -> ()");
 }
 
 TORCH_LIBRARY_IMPL(torch_vulkan, PrivateUse1, m) {
   m.impl("adamw_step_", &fused_adamw_step_);
   m.impl("adamw_step_batch_", &fused_adamw_step_batch_);
+  m.impl("adamw_amsgrad_step_batch_", &fused_adamw_amsgrad_step_batch_);
 }
 
 } // namespace torch_vulkan::ops
