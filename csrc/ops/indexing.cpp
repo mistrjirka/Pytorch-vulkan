@@ -31,7 +31,9 @@ at::Tensor indexed(const at::Tensor& input,int64_t raw,const at::Tensor& index,c
  if(!idx.numel()){if(mode)out.copy_(input);return out;}
  idx=packed(idx,idx.scalar_type());validate_index(idx,x.size(d));if(!out.numel())return out;
  if(input.scalar_type()!=at::kFloat){
-  if(mode>=4){
+  if(mode>=4 || ((mode==1 || mode==2) && (input.scalar_type()==at::kInt || input.scalar_type()==at::kLong))){
+   // Integer scatter/add: output-centric GPU kernel handles duplicate indices
+   // without serializing an entire tensor in a single shader invocation.
    if(input.element_size()<4)return indexed(input.to(at::kInt),raw,index,source.to(at::kInt),mode,value).to(input.scalar_type());
    auto xc=packed(x,x.scalar_type());src=packed(src,src.scalar_type());
    std::vector<uint32_t> p={u32(out.numel()),mode,u32(d),u32(x.dim()),idx.scalar_type()==at::kLong?2u:1u,uint32_t(value!=0)};p.resize(22,1);p.push_back(u32(input.element_size()/4));
