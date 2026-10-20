@@ -12,11 +12,14 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("directory",type=Path)
     p.add_argument("--allow-incomplete",action="store_true")
+    p.add_argument("--prefix",default=None,help="Run prefix (default reads wall and reference)")
+    p.add_argument("--expected-rounds",type=int,default=3,help="Expected independent benchmark runs per backend/case")
     p.add_argument("--pack",action="store_true")
     p.add_argument("--allow-rejected",action="store_true",help="Retain parity-rejected cases as N/A; never calculate their speed ratio")
     a=p.parse_args();base=a.directory
     groups=collections.defaultdict(lambda:collections.defaultdict(list));raw=[]
-    for prefix in ["wall","reference"]:
+    prefixes=[a.prefix] if a.prefix else ["wall","reference"]
+    for prefix in prefixes:
         for f in sorted(base.glob(prefix+"-r*-*.json")):
             row=json.loads(f.read_text());raw.append(dict(file=f.name,record=row))
             group=("feature" if row["case"] not in ZOO_CASES else row["scale"],row["case"])
@@ -25,14 +28,18 @@ def main():
     for (scale,name),apis in sorted(groups.items()):
         entry=dict(case=name,scale=scale,backends={})
         allrows=[r for rows in apis.values() for r in rows]
-        for key in ["input_sha256","weights_sha256","torch_git","optimizer","dtype","shape","harness_sha256","threads","warmup","repeats","tf32","device"]:
+        for key in ["input_sha256","weights_sha256","torch_git","optimizer","dtype","shape","harness_sha256","threads","warmup","repeats","tf32"]:
             values=[json.dumps(r[key],sort_keys=True) for r in allrows]
             assert len(set(values))==1,(scale,name,key,values)
             result["provenance"][key]=allrows[0][key] if key not in ["input_sha256","weights_sha256","shape"] else result["provenance"].get(key,"case-specific; validated across APIs and rounds")
         entry["shape"]=allrows[0]["shape"];entry["parameters"]=allrows[0]["parameters"]
+        entry["device_names"]={api:sorted(set(r["device"] for r in rows))
+                               for api,rows in apis.items()}
+        entry["source_commits"]={api:sorted(set(r["source_commit"] for r in rows))
+                                 for api,rows in apis.items()}
         for api in ["cuda","vulkan"]:
             rows=apis.get(api,[])
-            if not a.allow_incomplete:assert len(rows)==3,(scale,name,api,len(rows))
+            if not a.allow_incomplete:assert len(rows)==a.expected_rounds,(scale,name,api,len(rows),a.expected_rounds)
             good=[r for r in rows if r["status"]=="passed"]
             result["failures"] += [dict(case=name,scale=scale,backend=api,error=r.get("error")) for r in rows if r["status"]!="passed"]
             d=dict(runs=len(rows),passed_runs=len(good))
@@ -86,7 +93,7 @@ def main():
         result["diagnostics"][f.name]=r
     (base/"summary.json").write_text(json.dumps(result,indent=2)+"\n")
     if a.pack:
-        for prefix in ["wall","reference","smoke"]:
+        for prefix in (prefixes if a.prefix else ["wall","reference","smoke"]):
             records=[dict(file=f.name,record=json.loads(f.read_text())) for f in sorted(base.glob(prefix+"-r*-*.json"))]
             data="".join(json.dumps(r,separators=(",",":"))+"\n" for r in records).encode()
             (base/(prefix+"-raw.jsonl.gz")).write_bytes(gzip.compress(data,mtime=0))

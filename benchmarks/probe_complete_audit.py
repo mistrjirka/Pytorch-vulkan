@@ -2,11 +2,15 @@
 
 Non-FP32 matrix/add cases and AMP remain explicitly outside this milestone.
 """
-import argparse,copy,json,os,sys,traceback,hashlib
+import argparse,copy,json,os,sys,traceback,hashlib,time,statistics
 from pathlib import Path
 import torch
 from torch.nn import functional as F
-p=argparse.ArgumentParser();p.add_argument('--backend',required=True);p.add_argument('--out',required=True);p.add_argument('--case');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--backend',required=True);p.add_argument('--out',required=True);p.add_argument('--case')
+p.add_argument('--skip-special',action='store_true')
+p.add_argument('--perf-warmup',type=int,default=0)
+p.add_argument('--perf-repeats',type=int,default=0)
+a=p.parse_args()
 torch.set_num_threads(4);torch.manual_seed(123)
 torch.backends.cuda.matmul.allow_tf32=False;torch.backends.cudnn.allow_tf32=False
 if a.backend=='vulkan':
@@ -48,7 +52,7 @@ add('mse_loss',lambda x,y:F.mse_loss(x,y),[(3,5),(3,5)])
 add('cross_entropy',lambda x:F.cross_entropy(x,torch.tensor([0,2,1],device=x.device)),[(3,5)])
 add('sdpa',lambda q,k,v:F.scaled_dot_product_attention(q,k,v,dropout_p=0),[(2,2,7,8)]*3)
 add('sdpa_causal',lambda q,k,v:F.scaled_dot_product_attention(q,k,v,dropout_p=0,is_causal=True),[(2,2,7,8)]*3)
-results={'backend':a.backend,'torch':torch.__version__,'torch_git':torch.version.git_version,'device':device,'cases':{},'special':{}}
+results={'backend':a.backend,'timed_performance':bool(a.perf_repeats),'perf_repeats':a.perf_repeats,'perf_warmup':a.perf_warmup,'torch':torch.__version__,'torch_git':torch.version.git_version,'device':device,'cases':{},'special':{}}
 if a.backend=='vulkan':results['extension_sha256']=hashlib.sha256(Path(vk._C.__file__).read_bytes()).hexdigest()
 regkey='PrivateUse1' if a.backend=='vulkan' else 'CUDA';results['direct_registrations']=sorted(torch._C._dispatch_get_registrations_for_dispatch_key(regkey))
 def save():Path(a.out).write_text(json.dumps(results,indent=2)+'\n')
@@ -77,10 +81,40 @@ for name,(fn,xs,bwd) in cases.items():
     if y.grad is None:assert x.grad is None;continue
     torch.testing.assert_close(x.grad.cpu(),y.grad,rtol=tol,atol=tol);errs.append(float((x.grad.cpu()-y.grad).abs().max()))
    d['gradient_max_abs']=max(errs,default=0)
+  if a.perf_repeats:
+   # The caller has already established reference forward+gradient parity.
+   # Record full synchronized forward+backward latency with resident inputs,
+   # no compilation, source uploads or CPU reference work in the timed loop.
+   def performance_step():
+    if bwd:
+     for t in inputs:t.grad=None
+    result=fn(*inputs)
+    if bwd:result.backward(g)
+   for _ in range(a.perf_warmup):performance_step()
+   sync()
+   if a.backend=='vulkan':
+    vk.reset_execution_stats()
+   samples=[]
+   for _ in range(a.perf_repeats):
+    sync()
+    start=time.perf_counter()
+    performance_step()
+    sync()
+    samples.append((time.perf_counter()-start)*1000)
+   sorted_samples=sorted(samples)
+   d['performance_ms']={'median':statistics.median(samples),
+      'p10':sorted_samples[int(.1*(len(samples)-1))],
+      'p90':sorted_samples[int(.9*(len(samples)-1))],
+      'samples':samples,'warmup':a.perf_warmup,
+      'repeats':a.perf_repeats,'includes_backward':bwd,
+      'synchronized_device':device}
+   if a.backend=='vulkan':
+    d['performance_execution']=vk.execution_stats()
+    assert d['performance_execution']['cpu_fallback_calls']==0,d['performance_execution']
   d['status']='ok'
  except Exception as e:d.update(status='error',error_type=type(e).__name__,error=str(e)[:1600])
  results['cases'][name]=d;save();print('PV_CASE_END',name,d['status'],file=sys.stderr,flush=True)
-if not a.case:
+if not a.case and not a.skip_special:
  def special(name,fn):
   print('PV_SPECIAL_BEGIN',name,file=sys.stderr,flush=True)
   try:r=fn();sync();results['special'][name]={'status':'ok','result':r}

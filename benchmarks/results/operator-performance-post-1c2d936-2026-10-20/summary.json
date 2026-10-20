@@ -1,0 +1,1471 @@
+{
+  "metadata": {
+    "source_commit": "1c2d9360376619d90740a1ff533eec98f07d4fcd",
+    "suite": "PyTorch 39-case operator audit with optional matched latency",
+    "comparison": "Same RTX 2080 Ti, CUDA 13.0 and Vulkan, FP32 plus dtype coverage",
+    "timings": "Includes forward+backward for differentiable cases; forward only for others; GPU synchronized after each sample",
+    "process_runs": 6,
+    "warmup": 5,
+    "steps": 25,
+    "torch_git": "5c4886908584029761b579af026dcfb627c84070"
+  },
+  "cases": [
+    {
+      "case": "add_bf16",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.1790490059647709,
+          "run_medians_ms": [
+            0.17925899010151625,
+            0.17535200458951294,
+            0.1790490059647709
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "add_complex64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.18279600772075355,
+          "run_medians_ms": [
+            0.18152297707274556,
+            0.183427007868886,
+            0.18279600772075355
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.29504200210794806,
+          "run_medians_ms": [
+            0.40112598799169064,
+            0.22998201893642545,
+            0.29504200210794806
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.6140505790403583
+    },
+    {
+      "case": "add_fp16",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.1769350201357156,
+          "run_medians_ms": [
+            0.17596298130229115,
+            0.18591099069453776,
+            0.1769350201357156
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "add_fp32",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.181223003892228,
+          "run_medians_ms": [
+            0.19064999651163816,
+            0.181223003892228,
+            0.1782870094757527
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.34276899532414973,
+          "run_medians_ms": [
+            0.34276899532414973,
+            0.3758499806281179,
+            0.22434201673604548
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.8914210004376262
+    },
+    {
+      "case": "add_fp64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.17793700681068003,
+          "run_medians_ms": [
+            0.17615401884540915,
+            0.17793700681068003,
+            0.1798309967853129
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "add: float32 inputs required"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "add_int64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.01703097950667143,
+          "run_medians_ms": [
+            0.016350008081644773,
+            0.017291982658207417,
+            0.01703097950667143
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.10149701847694814,
+          "run_medians_ms": [
+            0.10575400665402412,
+            0.10149701847694814,
+            0.10136599303223193
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 5.959552616289005
+    },
+    {
+      "case": "avg_pool3d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.19719198462553322,
+          "run_medians_ms": [
+            0.20359401241876185,
+            0.12321598478592932,
+            0.19719198462553322
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.23993998183868825,
+          "run_medians_ms": [
+            0.23993998183868825,
+            0.2881889813579619,
+            0.2098150143865496
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.2167836451077527
+    },
+    {
+      "case": "conv1d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.3500920138321817,
+          "run_medians_ms": [
+            0.3500920138321817,
+            0.35169601324014366,
+            0.26662900927476585
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2787710109259933,
+          "run_medians_ms": [
+            0.2644549822434783,
+            0.28472201665863395,
+            0.2787710109259933
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 0.7962792634842095
+    },
+    {
+      "case": "conv2d_10x10",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.24001998826861382,
+          "run_medians_ms": [
+            0.24001998826861382,
+            0.25003901100717485,
+            0.2392290043644607
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.3940839960705489,
+          "run_medians_ms": [
+            0.38189999759197235,
+            0.3940839960705489,
+            0.40295999497175217
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.6418799072247152
+    },
+    {
+      "case": "conv2d_11x11",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2526429889257997,
+          "run_medians_ms": [
+            0.25648099835962057,
+            0.18014098168350756,
+            0.2526429889257997
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.38397498428821564,
+          "run_medians_ms": [
+            0.38397498428821564,
+            0.41842798236757517,
+            0.3546210064087063
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.5198323370097067
+    },
+    {
+      "case": "conv3d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2533649967517704,
+          "run_medians_ms": [
+            0.25526899844408035,
+            0.18557001021690667,
+            0.2533649967517704
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.5622119933832437,
+          "run_medians_ms": [
+            0.6045699992682785,
+            0.5622119933832437,
+            0.44087000424042344
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.2189805245041816
+    },
+    {
+      "case": "conv_transpose2d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.23338801111094654,
+          "run_medians_ms": [
+            0.23338801111094654,
+            0.20421500084921718,
+            0.2363439998589456
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.4234169900882989,
+          "run_medians_ms": [
+            0.4234169900882989,
+            0.4529919824562967,
+            0.379336008336395
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.814219111225116
+    },
+    {
+      "case": "cross_entropy",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2586350019555539,
+          "run_medians_ms": [
+            0.3586479870136827,
+            0.24299600045196712,
+            0.2586350019555539
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.9248080023098737,
+          "run_medians_ms": [
+            0.9248080023098737,
+            1.0329060023650527,
+            0.903008010936901
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.575726391700072
+    },
+    {
+      "case": "cumsum",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.17947997548617423,
+          "run_medians_ms": [
+            0.18056199769489467,
+            0.1769749796949327,
+            0.17947997548617423
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.34155702451243997,
+          "run_medians_ms": [
+            0.35495200427249074,
+            0.34155702451243997,
+            0.33904198789969087
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.903036946529731
+    },
+    {
+      "case": "embedding",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.21740898955613375,
+          "run_medians_ms": [
+            0.21769999875687063,
+            0.21364199346862733,
+            0.21740898955613375
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.7959209906402975,
+          "run_medians_ms": [
+            0.8116299868561327,
+            0.7959209906402975,
+            0.7873350114095956
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.660938732410581
+    },
+    {
+      "case": "embedding_bag",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.475212000310421,
+          "run_medians_ms": [
+            0.475212000310421,
+            0.4955600015819073,
+            0.4731779918074608
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.6053010001778603,
+          "run_medians_ms": [
+            0.6146180094219744,
+            0.6053010001778603,
+            0.5078219983261079
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.273749399809899
+    },
+    {
+      "case": "fft",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.031046976801007986,
+          "run_medians_ms": [
+            0.044562009861692786,
+            0.031046976801007986,
+            0.03015599213540554
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.11497098603285849,
+          "run_medians_ms": [
+            0.11497098603285849,
+            0.11403899407014251,
+            0.1211320050060749
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.703129833534252
+    },
+    {
+      "case": "gather",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.22128599812276661,
+          "run_medians_ms": [
+            0.22151600569486618,
+            0.21851100609637797,
+            0.22128599812276661
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.7688210171181709,
+          "run_medians_ms": [
+            0.8589169883634895,
+            0.7688210171181709,
+            0.7526020053774118
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.4743319669581574
+    },
+    {
+      "case": "grid_sample",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.24985801428556442,
+          "run_medians_ms": [
+            0.2440280222799629,
+            0.24985801428556442,
+            0.28717698296532035
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.4076480108778924,
+          "run_medians_ms": [
+            0.4076480108778924,
+            0.47378899762406945,
+            0.3003409947268665
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.6315186528777448
+    },
+    {
+      "case": "index_select",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2161670126952231,
+          "run_medians_ms": [
+            0.21637699683196843,
+            0.2134020032826811,
+            0.2161670126952231
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.7337169954553246,
+          "run_medians_ms": [
+            0.9385029843542725,
+            0.7337169954553246,
+            0.6295460043475032
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.394213512539041
+    },
+    {
+      "case": "linalg_solve",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.7319230062421411,
+          "run_medians_ms": [
+            0.8674820128362626,
+            0.5212170071899891,
+            0.7319230062421411
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 1.1758180044125766,
+          "run_medians_ms": [
+            1.1758180044125766,
+            1.5187080134637654,
+            1.1647580249700695
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.6064777229089888
+    },
+    {
+      "case": "max_pool3d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2076009986922145,
+          "run_medians_ms": [
+            0.21705799736082554,
+            0.13511799625121057,
+            0.2076009986922145
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2392290043644607,
+          "run_medians_ms": [
+            0.2392290043644607,
+            0.2969450142700225,
+            0.21745901904068887
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.1523499687934418
+    },
+    {
+      "case": "mm_bf16",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.22503299987874925,
+          "run_medians_ms": [
+            0.22718700347468257,
+            0.22503299987874925,
+            0.2198939910158515
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "mm_complex64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.23997999960556626,
+          "run_medians_ms": [
+            0.23997999960556626,
+            0.2355519973207265,
+            0.24327699793502688
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.8559720008634031,
+          "run_medians_ms": [
+            1.0987769928760827,
+            0.8349419804289937,
+            0.8559720008634031
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.5668472467300942
+    },
+    {
+      "case": "mm_fp16",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.23094398784451187,
+          "run_medians_ms": [
+            0.22553402232006192,
+            0.2344599924981594,
+            0.23094398784451187
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "mm_fp32",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.26052797329612076,
+          "run_medians_ms": [
+            0.27043602312915027,
+            0.2295419981237501,
+            0.26052797329612076
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.32875299802981317,
+          "run_medians_ms": [
+            0.32875299802981317,
+            0.3692879981826991,
+            0.23246699129231274
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.2618721662419974
+    },
+    {
+      "case": "mm_fp64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.223480979911983,
+          "run_medians_ms": [
+            0.2218069857917726,
+            0.223480979911983,
+            0.2244320057798177
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 0,
+          "failures": [
+            {
+              "file": "ops-r0-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r1-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            },
+            {
+              "file": "ops-r2-vulkan.json",
+              "status": "error",
+              "error_type": "RuntimeError",
+              "error": "mm: only float32 for now"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "mse_loss",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.23865801631473005,
+          "run_medians_ms": [
+            0.3524170024320483,
+            0.21063699387013912,
+            0.23865801631473005
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.6262389943003654,
+          "run_medians_ms": [
+            0.6426099862437695,
+            0.6262389943003654,
+            0.5509920010808855
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.6240015062997646
+    },
+    {
+      "case": "reflection_pad2d",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.19046998932026327,
+          "run_medians_ms": [
+            0.20126000163145363,
+            0.16293898806907237,
+            0.19046998932026327
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.3467659989837557,
+          "run_medians_ms": [
+            0.3467659989837557,
+            0.37624099059030414,
+            0.2579529827926308
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.8205807656170472
+    },
+    {
+      "case": "resize_bilinear_aa",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.19923600484617054,
+          "run_medians_ms": [
+            0.2091839851345867,
+            0.14413500321097672,
+            0.19923600484617054
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.26169000193476677,
+          "run_medians_ms": [
+            0.26169000193476677,
+            0.3363469731993973,
+            0.24620199110358953
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.3134674234048045
+    },
+    {
+      "case": "resize_trilinear",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.19747199257835746,
+          "run_medians_ms": [
+            0.20681897876784205,
+            0.14155000098980963,
+            0.19747199257835746
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2990789944306016,
+          "run_medians_ms": [
+            0.2990789944306016,
+            0.3593589935917407,
+            0.28436200227588415
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 1.5145387987713053
+    },
+    {
+      "case": "scatter_add",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.25268399622291327,
+          "run_medians_ms": [
+            0.26448501739650965,
+            0.2498889807611704,
+            0.25268399622291327
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.760126014938578,
+          "run_medians_ms": [
+            0.8692260016687214,
+            0.760126014938578,
+            0.6595310114789754
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.008207984284088
+    },
+    {
+      "case": "sdpa",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.42149401269853115,
+          "run_medians_ms": [
+            0.42149401269853115,
+            0.43284401181153953,
+            0.4150420136284083
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.8561009890399873,
+          "run_medians_ms": [
+            0.8561009890399873,
+            0.9616049937903881,
+            0.6089879898354411
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.0311106759476174
+    },
+    {
+      "case": "sdpa_causal",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.41689598583616316,
+          "run_medians_ms": [
+            0.46976300654932857,
+            0.41134501225315034,
+            0.41689598583616316
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.851071992656216,
+          "run_medians_ms": [
+            0.851071992656216,
+            0.9564349893480539,
+            0.8456420036964118
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.0414492381096725
+    },
+    {
+      "case": "sort",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.22992200683802366,
+          "run_medians_ms": [
+            0.22992200683802366,
+            0.2289910044055432,
+            0.23207601043395698
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.6247769924812019,
+          "run_medians_ms": [
+            0.6404650048352778,
+            0.6247769924812019,
+            0.6072749965824187
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.7173431594190425
+    },
+    {
+      "case": "sparse_roundtrip",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.12750399764627218,
+          "run_medians_ms": [
+            0.18386798910796642,
+            0.12677200720645487,
+            0.12750399764627218
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.2588449860922992,
+          "run_medians_ms": [
+            0.2588449860922992,
+            0.3394029918126762,
+            0.25803400785662234
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.0300931019464943
+    },
+    {
+      "case": "sum_int64",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.020256993593648076,
+          "run_medians_ms": [
+            0.01937500201165676,
+            0.020256993593648076,
+            0.020428007701411843
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.08474598871544003,
+          "run_medians_ms": [
+            0.10142600513063371,
+            0.08013698970898986,
+            0.08474598871544003
+          ],
+          "includes_backward": false,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 4.183542257821199
+    },
+    {
+      "case": "topk",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.19319402053952217,
+          "run_medians_ms": [
+            0.19878498278558254,
+            0.18839602125808597,
+            0.19319402053952217
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.6777939852327108,
+          "run_medians_ms": [
+            0.6992930138949305,
+            0.6777939852327108,
+            0.6753299967385828
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 3.508359023430815
+    },
+    {
+      "case": "variance",
+      "backends": {
+        "cuda": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.22518399055115879,
+          "run_medians_ms": [
+            0.26953397900797427,
+            0.20727099035866559,
+            0.22518399055115879
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        },
+        "vulkan": {
+          "runs": 3,
+          "passed": 3,
+          "failures": [],
+          "median_ms": 0.5407429998740554,
+          "run_medians_ms": [
+            0.5583140009548515,
+            0.5385180120356381,
+            0.5407429998740554
+          ],
+          "includes_backward": true,
+          "samples_per_run": 25
+        }
+      },
+      "vulkan_over_cuda": 2.401338561194055
+    }
+  ],
+  "paired_ok": 33,
+  "blocked": [
+    {
+      "case": "add_bf16",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        }
+      ]
+    },
+    {
+      "case": "add_fp16",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        }
+      ]
+    },
+    {
+      "case": "add_fp64",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "add: float32 inputs required"
+        }
+      ]
+    },
+    {
+      "case": "mm_bf16",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        }
+      ]
+    },
+    {
+      "case": "mm_fp16",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        }
+      ]
+    },
+    {
+      "case": "mm_fp64",
+      "cuda": [],
+      "vulkan": [
+        {
+          "file": "ops-r0-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r1-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        },
+        {
+          "file": "ops-r2-vulkan.json",
+          "status": "error",
+          "error_type": "RuntimeError",
+          "error": "mm: only float32 for now"
+        }
+      ]
+    }
+  ],
+  "failing": [],
+  "cpu_fallback_calls": 0
+}

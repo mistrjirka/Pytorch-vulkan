@@ -1,0 +1,269 @@
+{
+  "networks": [
+    {
+      "case": "transformer",
+      "scale": "reference",
+      "backends": {
+        "cuda": {
+          "runs": 2,
+          "passed_runs": 2,
+          "parity_comparisons_per_run": [
+            54,
+            54
+          ],
+          "training_ms": {
+            "median_of_run_medians": 16.307105754094664,
+            "run_medians": [
+              16.180761507712305,
+              16.433450000477023
+            ],
+            "samples_summary": {
+              "median": 16.255738999461755,
+              "min": 11.971738014835864,
+              "max": 19.892502983566374,
+              "p95": 17.822052992414683
+            }
+          },
+          "inference_ms": {
+            "median_of_run_medians": 2.8463194976211525,
+            "run_medians": [
+              2.8464615024859086,
+              2.8461774927563965
+            ],
+            "samples_summary": {
+              "median": 2.8461774927563965,
+              "min": 2.3969269823282957,
+              "max": 2.949460002128035,
+              "p95": 2.9161889979150146
+            }
+          }
+        },
+        "vulkan": {
+          "runs": 2,
+          "passed_runs": 2,
+          "parity_comparisons_per_run": [
+            54,
+            54
+          ],
+          "training_ms": {
+            "median_of_run_medians": 150.6945099972654,
+            "run_medians": [
+              149.65266549552325,
+              151.73635449900758
+            ],
+            "samples_summary": {
+              "median": 151.33164649887476,
+              "min": 146.72267300193198,
+              "max": 152.79006701894104,
+              "p95": 152.5312450248748
+            }
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "host_read_calls_per_step": 4.0,
+            "host_read_bytes_per_step": 16.0,
+            "host_read_max_bytes": 4
+          },
+          "inference_ms": {
+            "median_of_run_medians": 23.017636260192376,
+            "run_medians": [
+              22.880117510794662,
+              23.15515500959009
+            ],
+            "samples_summary": {
+              "median": 23.033053003018722,
+              "min": 22.531199996592477,
+              "max": 24.241357983555645,
+              "p95": 23.400634992867708
+            }
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "host_read_calls_per_step": 1.0,
+            "host_read_bytes_per_step": 4.0,
+            "host_read_max_bytes": 4
+          },
+          "training_queue_delta_per_step": {
+            "submissions": 5.0,
+            "recorded_ops": 718.0
+          },
+          "training_cache_delta_per_step": {
+            "algo_hits": 1.0,
+            "algo_misses": 717.0,
+            "seq_reuses": 0.0,
+            "seq_creates": 0.0,
+            "algo_evictions": 717.0,
+            "bound_cached_buffer_bytes": 0.0,
+            "pipeline_hits": 717.0,
+            "pipeline_misses": 0.0,
+            "pipeline_evictions": 0.0
+          }
+        }
+      },
+      "shape": [
+        16,
+        128
+      ],
+      "parameters": 5293056,
+      "device_names": {
+        "cuda": [
+          "NVIDIA GeForce RTX 2080 Ti"
+        ],
+        "vulkan": [
+          "NVIDIA GeForce RTX 2080 Ti"
+        ]
+      },
+      "source_commits": {
+        "cuda": [
+          "1c2d9360376619d90740a1ff533eec98f07d4fcd"
+        ],
+        "vulkan": [
+          "1c2d9360376619d90740a1ff533eec98f07d4fcd"
+        ]
+      },
+      "training_vulkan_over_cuda": 9.241033465391398,
+      "inference_vulkan_over_cuda": 8.086806937671494
+    },
+    {
+      "case": "unet",
+      "scale": "reference",
+      "backends": {
+        "cuda": {
+          "runs": 2,
+          "passed_runs": 2,
+          "parity_comparisons_per_run": [
+            45,
+            45
+          ],
+          "training_ms": {
+            "median_of_run_medians": 10.386958500021137,
+            "run_medians": [
+              10.669280993170105,
+              10.10463600687217
+            ],
+            "samples_summary": {
+              "median": 10.129036512807943,
+              "min": 9.972919011488557,
+              "max": 11.455920001026243,
+              "p95": 11.445049982285127
+            }
+          },
+          "inference_ms": {
+            "median_of_run_medians": 2.2540442514582537,
+            "run_medians": [
+              2.2733779915142804,
+              2.234710511402227
+            ],
+            "samples_summary": {
+              "median": 2.272466488648206,
+              "min": 2.16670599183999,
+              "max": 2.322674001334235,
+              "p95": 2.3208310012705624
+            }
+          }
+        },
+        "vulkan": {
+          "runs": 2,
+          "passed_runs": 2,
+          "parity_comparisons_per_run": [
+            45,
+            45
+          ],
+          "training_ms": {
+            "median_of_run_medians": 53.34240600495832,
+            "run_medians": [
+              54.04471550718881,
+              52.64009650272783
+            ],
+            "samples_summary": {
+              "median": 53.158060007262975,
+              "min": 45.39848098647781,
+              "max": 55.259646993363276,
+              "p95": 54.467896989081055
+            }
+          },
+          "training_audit": {
+            "cpu_fallback_calls": 0,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "inference_ms": {
+            "median_of_run_medians": 9.240136263542809,
+            "run_medians": [
+              9.193990510539152,
+              9.286282016546465
+            ],
+            "samples_summary": {
+              "median": 9.241250998456962,
+              "min": 8.93086800351739,
+              "max": 10.226965008769184,
+              "p95": 9.64368399581872
+            }
+          },
+          "inference_audit": {
+            "cpu_fallback_calls": 0,
+            "host_read_calls_per_step": 0.0,
+            "host_read_bytes_per_step": 0.0,
+            "host_read_max_bytes": 0
+          },
+          "training_queue_delta_per_step": {
+            "submissions": 1.0,
+            "recorded_ops": 521.0
+          },
+          "training_cache_delta_per_step": {
+            "algo_hits": 0.0,
+            "algo_misses": 521.0,
+            "seq_reuses": 0.0,
+            "seq_creates": 0.0,
+            "algo_evictions": 521.0,
+            "bound_cached_buffer_bytes": 0.0,
+            "pipeline_hits": 521.0,
+            "pipeline_misses": 0.0,
+            "pipeline_evictions": 0.0
+          }
+        }
+      },
+      "shape": [
+        8,
+        3,
+        96,
+        96
+      ],
+      "parameters": 472833,
+      "device_names": {
+        "cuda": [
+          "NVIDIA GeForce RTX 2080 Ti"
+        ],
+        "vulkan": [
+          "NVIDIA GeForce RTX 2080 Ti"
+        ]
+      },
+      "source_commits": {
+        "cuda": [
+          "1c2d9360376619d90740a1ff533eec98f07d4fcd"
+        ],
+        "vulkan": [
+          "1c2d9360376619d90740a1ff533eec98f07d4fcd"
+        ]
+      },
+      "training_vulkan_over_cuda": 5.135517389893275,
+      "inference_vulkan_over_cuda": 4.09935885578329
+    }
+  ],
+  "failures": [],
+  "provenance": {
+    "input_sha256": "case-specific; validated across APIs and rounds",
+    "weights_sha256": "case-specific; validated across APIs and rounds",
+    "torch_git": "5c4886908584029761b579af026dcfb627c84070",
+    "optimizer": "torch.optim.AdamW(lr=1e-4,foreach=False,amsgrad=True)",
+    "dtype": "float32",
+    "shape": "case-specific; validated across APIs and rounds",
+    "harness_sha256": "c9b09ef91be264d252ed3d82bbb18992720daa9c3c007604643c1fc0e771f12f",
+    "threads": 4,
+    "warmup": 8,
+    "repeats": 20,
+    "tf32": false
+  },
+  "diagnostics": {}
+}

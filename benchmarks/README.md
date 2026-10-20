@@ -42,3 +42,40 @@ Known unsupported models: LSTM (missing fused LSTM cell),
 convolutional autoencoder (missing transposed convolution). The reduced
 ResNet18 probe can show substantial gradient sensitivity at tiny spatial
 sizes; it is excluded from the validated four-model summary.
+
+## Reproducible cross-operator and full-network performance suites (2026-10-20)
+
+See [the latest broad CUDA/Vulkan performance coverage report](../docs/performance-suite-coverage-2026-10-20.md).
+The suite measures two distinct levels: 18 complete training/inference networks and
+39 operator cases (33 currently have paired CUDA/Vulkan correctness and timings).
+Full network timing includes zero-grad, forward, loss, backward, AdamW, and
+synchronization; operator timing includes backward when that case requests it.
+These are **performance measurements**, not replacements for the existing correctness tests.
+
+Run each backend **on the same physical RTX 2080 Ti**, with matching models,
+FP32/TF32 settings, independent warmup, numerical CPU-reference parity and
+explicit GPU synchronization. Vulkan's PrivateUse1 device should not be timed
+using an unsynchronized CPU timer. The harness isolates API backends in fresh
+processes and alternates CUDA/Vulkan order. Never let CUDA select a different
+GPU by accident: the runner defaults to the RTX 2080 Ti UUID, not the RTX 3090.
+
+```bash
+.venv/bin/python benchmarks/run_network_matrix.py --rounds 3 \
+  --warmup 8 --repeats 20 --scale medium --prefix my-baseline \
+  --out benchmarks/results/my-baseline
+.venv/bin/python benchmarks/summarize_network_matrix.py \
+  benchmarks/results/my-baseline --prefix my-baseline --expected-rounds 3 --pack
+
+.venv/bin/python benchmarks/run_operator_performance.py --rounds 3 \
+  --warmup 5 --repeats 25 --out benchmarks/results/my-operator-baseline
+.venv/bin/python benchmarks/summarize_operator_performance.py \
+  benchmarks/results/my-operator-baseline --expected-rounds 3 --pack
+```
+
+The operator suite preserves unsupported/error cases, and the network suite
+requires CPU-reference output/gradient parity **before** accepting any latency.
+No single model score establishes universal speed: consult its input shape,
+full latency distribution, numerical execution audit, and CUDA/Vulkan ratio.
+Official [TorchBench](https://github.com/pytorch/benchmark) offers broader
+third-party models; its unmodified model drivers have **not** been verified
+against this Vulkan PrivateUse1 backend.

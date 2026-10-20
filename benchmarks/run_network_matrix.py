@@ -5,6 +5,8 @@ from pathlib import Path
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--rounds",type=int,default=3)
+    p.add_argument("--start-round",type=int,default=0,
+                   help="Resume from this round without rerunning already completed rounds")
     p.add_argument("--warmup",type=int,default=8)
     p.add_argument("--repeats",type=int,default=25)
     p.add_argument("--prefix",default="wall")
@@ -23,8 +25,11 @@ def main():
     base.update(PYTHONPATH=str(root),CUDA_VISIBLE_DEVICES=a.cuda_device,TORCH_VULKAN_PHYSICAL_DEVICE_INDEX=a.vulkan_device,TORCH_VULKAN_GPU_RESIDENT="1",TORCH_VULKAN_DEFER_SUBMISSIONS="1",TORCH_VULKAN_FORBID_CPU_FALLBACK="1",OMP_NUM_THREADS="4",MKL_NUM_THREADS="4")
     # Diagnostic controls must never leak into primary wall timings.
     base.pop("TORCH_VULKAN_PROFILE_TIMESTAMPS",None)
-    log=[]
-    for round_id in range(a.rounds):
+    index=out/(a.prefix+"-index.json")
+    log=json.loads(index.read_text()) if a.start_round and index.exists() else []
+    if log and any(r["round"]>=a.start_round for r in log):
+        raise ValueError("Existing index already contains the requested start round; refusing duplicate runs")
+    for round_id in range(a.start_round,a.rounds):
         for i,name in enumerate(a.cases or zoo+features):
             for backend in (["cuda","vulkan"] if (i+round_id)%2==0 else ["vulkan","cuda"]):
                 stem=f"{a.prefix}-r{round_id}-{name}-{backend}"
