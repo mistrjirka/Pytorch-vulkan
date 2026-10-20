@@ -304,8 +304,13 @@ static void winograd_forward(const ConvParams& p,
       "conv2d_winograd_weights",{kb,wb},grid1d(uint64_t(p.cout)*ci),push);
   auto transform_input=ctx.get_or_create_algorithm(
       "conv2d_winograd_input",{ib,xb},grid1d(uint64_t(p.cin)*tiles),push);
+  const char* k16_flag=std::getenv("TORCH_VULKAN_CONV_WINOGRAD_GEMM_K16");
+  const bool k16=k16_flag && std::strcmp(k16_flag,"1")==0 &&
+      l.maxComputeSharedMemorySize>=16384;
+  const char* gemm_shader=k16 ? "conv2d_winograd_gemm_output_k16"
+                              : "conv2d_winograd_gemm_output";
   auto multiply=ctx.get_or_create_algorithm(
-      "conv2d_winograd_gemm_output",{wb,xb,bias,ob},
+      gemm_shader,{wb,xb,bias,ob},
       kp::Workgroup({static_cast<uint32_t>(div_up(tiles,8)),
           static_cast<uint32_t>(div_up(p.cout/p.groups,8)*p.groups),1}),push);
   if(ctx.can_enqueue({ib,kb,bias,wb,xb,ob})) {
@@ -319,7 +324,7 @@ static void winograd_forward(const ConvParams& p,
     if(legacy && std::strcmp(legacy,"1")==0) {
       ctx.run_compute(transform_weights,"conv2d_winograd_weights",{kb},{wb});
       ctx.run_compute(transform_input,"conv2d_winograd_input",{ib},{xb});
-      ctx.run_compute(multiply,"conv2d_winograd_gemm_output",{wb,xb,bias},{ob});
+      ctx.run_compute(multiply,gemm_shader,{wb,xb,bias},{ob});
     } else {
       // GPU-local scratch must *not* be uploaded between dependent stages.
       // A single submission and explicit barriers avoid redundant fences.

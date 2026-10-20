@@ -1,7 +1,8 @@
-"""General 3x3 convolution forward performance comparison, strict numerical oracle.
+"""General FP32 3x3 forward benchmark for native Vulkan and tuned cuDNN CUDA.
 
-Select the optional Winograd path with TORCH_VULKAN_CONV_ALGO=winograd;
-compare with the default in fresh processes using the same shapes/seeds.
+Use identical seeded shapes, a CPU FP64 oracle and synchronized timings.
+On Vulkan, TORCH_VULKAN_CONV_ALGO=winograd forces the optional algorithm.
+On CUDA, --cuda-autotune enables actual cuDNN algorithm benchmarking.
 """
 import argparse
 import json
@@ -10,7 +11,6 @@ import time
 from pathlib import Path
 import torch
 import torch.nn.functional as F
-import torch_vulkan
 
 CASES = (
   ("large32", (2,32,64,64),64,1),
@@ -39,11 +39,24 @@ CASES = (
 
 def main():
   p=argparse.ArgumentParser()
+  p.add_argument("--backend",choices=["vulkan","cuda"],default="vulkan")
+  p.add_argument("--cuda-autotune",action="store_true",help="allow cuDNN to benchmark convolution algorithms during warmup")
   p.add_argument("--cases",default=",".join(c[0] for c in CASES))
   p.add_argument("--warmup",type=int,default=4)
   p.add_argument("--repeats",type=int,default=14)
   p.add_argument("--out",type=Path,required=True)
   args=p.parse_args()
+  if args.backend=="vulkan":
+    import torch_vulkan
+    device="vulkan"
+    sync=torch_vulkan.synchronize
+  else:
+    assert torch.cuda.is_available(), "CUDA is unavailable in this environment"
+    torch.backends.cuda.matmul.allow_tf32=False
+    torch.backends.cudnn.allow_tf32=False
+    torch.backends.cudnn.benchmark=args.cuda_autotune
+    device="cuda"
+    sync=torch.cuda.synchronize
   selected=set(args.cases.split(","))
   results=[]
   for name,shape,cout,groups in CASES:
@@ -53,22 +66,22 @@ def main():
     w=torch.randn((cout,shape[1]//groups,3,3),generator=gen)/((shape[1]//groups*9)**0.5)
     bias=torch.randn(cout,generator=gen)
     expect=F.conv2d(x.double(),w.double(),bias.double(),padding=1,groups=groups).float()
-    xv,wv,bv=[t.to("vulkan") for t in (x,w,bias)]
+    xv,wv,bv=[t.to(device) for t in (x,w,bias)]
     def fn():return F.conv2d(xv,wv,bv,padding=1,groups=groups)
     got=fn()
-    torch_vulkan.synchronize()
+    sync()
     torch.testing.assert_close(got.cpu(),expect,atol=3e-4,rtol=1e-3)
-    before=torch_vulkan.execution_stats().get("cpu_fallback_calls",0)
+    before=torch_vulkan.execution_stats().get("cpu_fallback_calls",0) if args.backend=="vulkan" else 0
     for _ in range(args.warmup):fn()
-    torch_vulkan.synchronize()
+    sync()
     samples=[]
     for _ in range(args.repeats):
       t0=time.perf_counter()
       v=fn()
-      torch_vulkan.synchronize()
+      sync()
       samples.append((time.perf_counter()-t0)*1000)
-    assert before==torch_vulkan.execution_stats().get("cpu_fallback_calls",0)
-    d=dict(name=name,shape=shape,cout=cout,groups=groups,median_ms=statistics.median(samples),samples=samples)
+    assert args.backend!="vulkan" or before==torch_vulkan.execution_stats().get("cpu_fallback_calls",0)
+    d=dict(name=name,shape=shape,cout=cout,groups=groups,backend=args.backend,median_ms=statistics.median(samples),samples=samples)
     print(f"{name:16s} {d['median_ms']:.4f} ms",flush=True)
     results.append(d)
   args.out.parent.mkdir(parents=True,exist_ok=True)

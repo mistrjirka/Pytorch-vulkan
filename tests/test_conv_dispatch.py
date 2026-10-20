@@ -498,3 +498,13 @@ def test_forced_winograd_no_bias_and_evolving_weights(monkeypatch):
         torch.testing.assert_close(result.cpu().double(),expected,rtol=5e-4,atol=5e-5)
         weights.mul_(0.75)
         wv.mul_(0.75)
+
+
+def test_optin_winograd_k16_partial_channels(monkeypatch):
+    """K16 shared reduction correctly masks channels past the last full tile."""
+    monkeypatch.setenv("TORCH_VULKAN_CONV_ALGO", "winograd")
+    monkeypatch.setenv("TORCH_VULKAN_CONV_WINOGRAD_GEMM_K16", "1")
+    monkeypatch.delenv("TORCH_VULKAN_CONV_TILE", raising=False)
+    before = torch_vulkan.execution_stats()["cpu_fallback_calls"]
+    _check_case((1, 68, 19, 23), 76, (3, 3), (1, 1), (1, 1), (1, 1), 4)
+    assert torch_vulkan.execution_stats()["cpu_fallback_calls"] == before

@@ -1,0 +1,66 @@
+#version 450
+// Winograd-domain 8x8x16 tiled matrix product, fused inverse transform.
+// Transformed weight and input buffers are reused for all channel/tile blocks.
+layout(local_size_x=8,local_size_y=8,local_size_z=1) in;
+layout(set=0,binding=0) readonly buffer Weights {float tw[];};
+layout(set=0,binding=1) readonly buffer Input {float ti[];};
+layout(set=0,binding=2) readonly buffer Bias {float bias[];};
+layout(set=0,binding=3) writeonly buffer Output {float y[];};
+layout(push_constant) uniform Params{
+  uint n,cin,cout,h,w,kh,kw,oh,ow,sh,sw,ph,pw,dh,dw,groups;
+}p;
+shared float wshared[16*128];
+shared float xshared[16*128];
+void main(){
+  uint lx=gl_LocalInvocationID.x,ly=gl_LocalInvocationID.y;
+  uint tid=ly*8u+lx;
+  uint ci=p.cin/p.groups,co=p.cout/p.groups;
+  uint channels_per_block=(co+7u)/8u;
+  uint group=gl_WorkGroupID.y/channels_per_block;
+  uint mbase=(gl_WorkGroupID.y%channels_per_block)*8u;
+  uint m=mbase+ly;
+  uint tile_w=(p.ow+1u)/2u, tile_h=(p.oh+1u)/2u;
+  uint tiles_per_image=tile_w*tile_h,tiles=p.n*tiles_per_image;
+  uint tile=gl_WorkGroupID.x*8u+lx;
+  float accum[16];
+  for(uint t=0u;t<16u;++t)accum[t]=0.0;
+  for(uint kbase=0u;kbase<ci;kbase+=16u){
+    for(uint load=tid;load<128u;load+=64u){
+      uint woc=mbase+load/16u,wic=kbase+load%16u;
+      uint xic=kbase+load/8u,xtile=gl_WorkGroupID.x*8u+load%8u;
+      for(uint t=0u;t<16u;++t){
+        uint to=t*128u+load;
+        wshared[to]=(woc<co && wic<ci)?
+          tw[t*(p.cout*ci)+(group*co+woc)*ci+wic]:0.0;
+        xshared[to]=(xic<ci && xtile<tiles)?
+          ti[t*(p.cin*tiles)+(group*ci+xic)*tiles+xtile]:0.0;
+      }
+    }
+    barrier();
+    for(uint k=0u;k<16u;++k){
+      uint wi=ly*16u+k,xi=k*8u+lx;
+      for(uint t=0u;t<16u;++t)
+        accum[t]+=wshared[t*128u+wi]*xshared[t*128u+xi];
+    }
+    barrier();
+  }
+  if(m>=co || tile>=tiles)return;
+  float r0[4],r1[4];
+  for(uint c=0u;c<4u;++c){
+    r0[c]=accum[c]+accum[4u+c]+accum[8u+c];
+    r1[c]=accum[4u+c]-accum[8u+c]-accum[12u+c];
+  }
+  uint oc=group*co+m;
+  float b=bias[oc];
+  float v00=r0[0]+r0[1]+r0[2]+b;
+  float v01=r0[1]-r0[2]-r0[3]+b;
+  float v10=r1[0]+r1[1]+r1[2]+b;
+  float v11=r1[1]-r1[2]-r1[3]+b;
+  uint batch=tile/tiles_per_image,pos=tile%tiles_per_image;
+  uint oy=(pos/tile_w)*2u, ox=(pos%tile_w)*2u;
+  uint off=(batch*p.cout+oc)*p.oh*p.ow;
+  if(oy<p.oh && ox<p.ow)y[off+oy*p.ow+ox]=v00;
+  if(oy<p.oh && ox+1u<p.ow)y[off+oy*p.ow+ox+1u]=v01;
+  if(oy+1u<p.oh && ox<p.ow)y[off+(oy+1u)*p.ow+ox]=v10;
+  if(oy+1u<p.oh && ox+1u<p.ow)y[off+(oy+1u)*p.ow+ox+1u]=v11;
+}
