@@ -1,0 +1,231 @@
+{
+  "date": "2026-10-20",
+  "baseline": "9d5c413",
+  "description": "General chunk-mapped horizontal optimizer fusion with 1-,4-,8-tensor A/B controls",
+  "parameters": 2420547,
+  "tensors": 50,
+  "dtype": "float32",
+  "amsgrad": true,
+  "optimizer_only": {
+    "rtx": {
+      "per_tensor": {
+        "run_medians_ms": [
+          0.9912459936458617,
+          0.9716390050016344,
+          0.9716000058688223
+        ],
+        "median_of_run_medians_ms": 0.9716390050016344,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal4": {
+        "run_medians_ms": [
+          0.7710069767199457,
+          0.7558689976576716,
+          0.7474329904653132
+        ],
+        "median_of_run_medians_ms": 0.7558689976576716,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal8": {
+        "run_medians_ms": [
+          0.7394179992843419,
+          0.7424330106005073,
+          0.7476329919882119
+        ],
+        "median_of_run_medians_ms": 0.7424330106005073,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "speedup_vs_per_tensor_8": 1.3087227953613443,
+      "speedup_vs_per_tensor_4": 1.2854595280565848,
+      "per_tensor_final": {
+        "run_medians_ms": [
+          0.9658549970481545,
+          0.9903699974529445,
+          0.9852310176938772
+        ],
+        "median_of_run_medians_ms": 0.9852310176938772,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal8_final": {
+        "run_medians_ms": [
+          0.7414099818561226,
+          0.7397870067507029,
+          0.743684999179095
+        ],
+        "median_of_run_medians_ms": 0.7414099818561226,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "final_speedup_vs_single": 1.3288612802694506
+    },
+    "v100": {
+      "per_tensor": {
+        "run_medians_ms": [
+          0.9639750060159713,
+          0.978262018179521,
+          0.9587749955244362
+        ],
+        "median_of_run_medians_ms": 0.9639750060159713,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal4": {
+        "run_medians_ms": [
+          0.7422140042763203,
+          0.7415220024995506,
+          0.7418430177494884
+        ],
+        "median_of_run_medians_ms": 0.7418430177494884,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal8": {
+        "run_medians_ms": [
+          0.7091629959177226,
+          0.694174988893792,
+          0.7036320166662335
+        ],
+        "median_of_run_medians_ms": 0.7036320166662335,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "speedup_vs_per_tensor_8": 1.3699987822942272,
+      "speedup_vs_per_tensor_4": 1.2994326062950077,
+      "per_tensor_final": {
+        "run_medians_ms": [
+          0.9775770013220608,
+          0.9773159981705248,
+          0.9632600122131407
+        ],
+        "median_of_run_medians_ms": 0.9773159981705248,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "horizontal8_final": {
+        "run_medians_ms": [
+          0.7045120000839233,
+          0.7090999861247838,
+          0.70194699219428
+        ],
+        "median_of_run_medians_ms": 0.7045120000839233,
+        "warmup": 15,
+        "repeats": 85
+      },
+      "final_speedup_vs_single": 1.3872240615548128
+    }
+  },
+  "full_network": {
+    "baseline_commit": "9d5c413",
+    "optimizer": "torch_vulkan.optim.AdamW AMSGrad True, batched True",
+    "GPU": "NVIDIA GeForce RTX 2080 Ti",
+    "rounds": 2,
+    "warmup": 8,
+    "repeats": 20,
+    "cases": {
+      "mlp": {
+        "per_tensor": {
+          "process_medians_ms": [
+            3.3318569912808016,
+            3.495278986520134
+          ],
+          "median_ms": 3.4135679889004678,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "multitensor": {
+          "process_medians_ms": [
+            3.8226294855121523,
+            3.6244020011508837
+          ],
+          "median_ms": 3.723515743331518,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "speedup": 0.9167593812417367
+      },
+      "unet": {
+        "per_tensor": {
+          "process_medians_ms": [
+            19.61390199721791,
+            15.40247151569929
+          ],
+          "median_ms": 17.5081867564586,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "multitensor": {
+          "process_medians_ms": [
+            19.952332499087788,
+            13.975884503452107
+          ],
+          "median_ms": 16.964108501269948,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "speedup": 1.0320723163936332
+      },
+      "transformer": {
+        "per_tensor": {
+          "process_medians_ms": [
+            47.99466997792479,
+            50.2462714939611
+          ],
+          "median_ms": 49.120470735942945,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "multitensor": {
+          "process_medians_ms": [
+            49.12061050708871,
+            50.74573599267751
+          ],
+          "median_ms": 49.93317324988311,
+          "recorded_ops_per_step": [
+            null,
+            null
+          ]
+        },
+        "speedup": 0.9837241965401814
+      }
+    },
+    "all_rounds_passed_parity": true,
+    "cpu_fallback_calls": 0,
+    "config": "Only horizontal fusion flag changed; other shader math and optimizer configuration unchanged"
+  },
+  "limits": {
+    "max_group_tensors": 8,
+    "max_chunks_per_dispatch": 65535,
+    "preferred_gpu": "RTX 2080 Ti, Tesla V100",
+    "vulkan_minimum": "Vulkan 1.1 plus feature/capability checks"
+  },
+  "notes": [
+    "Only RTX 2080 Ti and Tesla V100 used for hardware tests. Lavapipe used for correctness.",
+    "Optimizer-only 15 warmups and 85 synchronized samples per process.",
+    "The benchmark reuses the same precomputed gradients and optimizer update across groups.",
+    "Full-network step results include forward+loss+backward+optimizer, with independent parity before timing; noisy per-model A/B, do not claim universal speedup.",
+    "No RTX 3090 or physical AMD measurements in this experiment."
+  ],
+  "archived_processes": 48,
+  "tests": {
+    "RTX_2080_Ti": "3904 passed, 14 warnings",
+    "Tesla_V100": "3904 passed, 14 warnings",
+    "Lavapipe": "3903 passed, 1 skipped, 14 warnings",
+    "control_modes": "width 4 and per-tensor disable flag: 26 focused tests each",
+    "shader_validation": "four glslangValidator and spirv-val Vulkan 1.1 checks"
+  },
+  "experiment_note": "Final A/B uses grouped tail shader width 4 when <=4 tensors remain; earlier 8-wide A/B did not use narrow tail optimization. Final A/B recorded separately."
+}

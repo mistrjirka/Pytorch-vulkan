@@ -162,6 +162,12 @@ on Vulkan rather than repeatedly falling back to CPU. It does **not** alter
 `torch.optim.AdamW`. The opt-in native optimizer now also supports FP32 AMSGrad
 (amsgrad=True), preserving the maximum second-moment state.
 See [the AMSGrad benchmark report](docs/fused-amsgrad-optimizer-2026-10-20.md).
+The native optimizer also supports **horizontal multi-tensor fusion**,
+batching chunks from several independent parameter tensors into a
+single Vulkan dispatch with no extra packing or loss of per-tensor
+steps. See [the chunk scheduler and A/B report](docs/vulkan-general-multitensor-adamw-2026-10-20.md).
+Set TORCH_VULKAN_ADAMW_DISABLE_MULTITENSOR=1 to retain the previous
+single-tensor dispatch path when profiling unusual workloads.
 Deferred command submission and mapped host memory are
 additional *experimental* environment-configured modes, disabled by default.
 
