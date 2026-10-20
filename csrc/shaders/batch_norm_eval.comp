@@ -1,0 +1,28 @@
+#version 450
+// BatchNorm inference has no channel reduction. One invocation per element
+// avoids the severe occupancy limit of one workgroup per channel on large
+// activation maps. Training retains its centered two-pass reduction kernel.
+layout(local_size_x=128,local_size_y=1,local_size_z=1) in;
+layout(set=0,binding=0) readonly buffer Input { float x[]; };
+layout(set=0,binding=1) readonly buffer Weight { float w[]; };
+layout(set=0,binding=2) readonly buffer Bias { float b[]; };
+layout(set=0,binding=3) readonly buffer RunningMean { float rm[]; };
+layout(set=0,binding=4) readonly buffer RunningVar { float rv[]; };
+layout(set=0,binding=5) writeonly buffer Output { float y[]; };
+layout(set=0,binding=6) writeonly buffer SaveMean { float sm[]; };
+layout(set=0,binding=7) writeonly buffer SaveInv { float si[]; };
+layout(push_constant) uniform Params {
+  uint n,c,s,training,flags,rmoff,rmstride,rvoff,rvstride;
+  float eps,momentum;
+} p;
+void main() {
+  uint i=(gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x)*128u+
+      gl_LocalInvocationID.x;
+  if(i>=p.n*p.c*p.s)return;
+  uint c=(i/p.s)%p.c;
+  float mean=rm[p.rmoff+c*p.rmstride];
+  float inv=inversesqrt(rv[p.rvoff+c*p.rvstride]+p.eps);
+  float gamma=(p.flags&1u)!=0u?w[c]:1.0;
+  float beta=(p.flags&2u)!=0u?b[c]:0.0;
+  y[i]=((x[i]-mean)*inv)*gamma+beta;
+}

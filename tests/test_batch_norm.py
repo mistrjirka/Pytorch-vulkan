@@ -257,3 +257,30 @@ def test_batch_norm_pair_finite_opposite_large_gradients():
             gg, xx, ww, None, None, mean, inv, True, 1e-5, [True]*3))
     for actual, expected in zip(results[1], results[0]):
         torch.testing.assert_close(actual.cpu().double(), expected, rtol=3e-6, atol=0)
+
+@pytest.mark.parametrize('shape', [
+    (1, 16, 4, 4), (2, 32, 16, 17), (4, 64, 96, 96),
+    (1, 128, 81, 123), (1, 256, 1, 1),
+])
+def test_eval_elementwise_and_legacy_match_cpu(shape, monkeypatch):
+    """Evaluation dispatch can change occupancy without changing BN semantics."""
+    gen=torch.Generator().manual_seed(709)
+    x=torch.randn(shape, generator=gen)*0.6+0.25
+    c=shape[1]
+    weight=torch.randn(c, generator=gen)*0.3+1
+    bias=torch.randn(c, generator=gen)*0.2
+    mean=torch.randn(c, generator=gen)
+    var=torch.rand(c, generator=gen)+0.7
+    tensors=(x,weight,bias,mean,var)
+    def evaluate(inputs):
+        return torch.ops.aten.native_batch_norm(*inputs,False,.1,1e-5)[0]
+    reference=evaluate(tensors)
+    device_inputs=tuple(t.to('vulkan') for t in tensors)
+    before=torch_vulkan.execution_stats()['cpu_fallback_calls']
+    monkeypatch.delenv('TORCH_VULKAN_BN_EVAL_LEGACY',raising=False)
+    parallel=evaluate(device_inputs)
+    monkeypatch.setenv('TORCH_VULKAN_BN_EVAL_LEGACY','1')
+    legacy=evaluate(device_inputs)
+    torch.testing.assert_close(parallel.cpu(),reference,rtol=3e-4,atol=3e-5)
+    torch.testing.assert_close(legacy.cpu(),reference,rtol=3e-4,atol=3e-5)
+    assert torch_vulkan.execution_stats()['cpu_fallback_calls']==before

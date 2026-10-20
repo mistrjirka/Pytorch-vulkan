@@ -59,11 +59,26 @@ std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm(
       bindings.size()<=l.maxDescriptorSetStorageBuffers,"Vulkan BatchNorm exceeds device capabilities");
   for(const auto& buffer:bindings)TORCH_CHECK(buffer->constructDescriptorBufferInfo().range<=l.maxStorageBufferRange,
       "Vulkan BatchNorm exceeds storage buffer range");
-  auto algo=ctx.get_or_create_algorithm("batch_norm_forward",bindings,grid(c),p);
+  // In evaluation statistics are fixed: normalize each element independently.
+  // Training still requires the stable per-channel reduction kernel.
+  // The historical one-workgroup/channel eval implementation remains
+  // available only for controlled performance comparisons.
+  // Diagnostic override is read per call to support controlled same-process
+  // A/B benchmarking without changing the fast production default.
+  const char* legacy_flag=std::getenv("TORCH_VULKAN_BN_EVAL_LEGACY");
+  const bool legacy_eval=legacy_flag && std::strcmp(legacy_flag,"1")==0;
+  // Tiny tensors are launch-bound; their existing per-channel path remains
+  // competitive. Switch automatically only when elementwise parallelism has
+  // enough work to amortize the extra workgroups.
+  const bool elementwise_eval=!training && !legacy_eval && input.numel()>=32768;
+  const char* shader=elementwise_eval ? "batch_norm_eval" : "batch_norm_forward";
+  const uint64_t workgroups=elementwise_eval ?
+      (uint64_t(input.numel())+127u)/128u : uint64_t(c);
+  auto algo=ctx.get_or_create_algorithm(shader,bindings,grid(workgroups),p);
   if(training && present(running_mean))outputs.push_back(rmb);
   if(training && present(running_var))outputs.push_back(rvb);
   if(ctx.can_enqueue(bindings))ctx.enqueue_compute(algo,bindings,outputs);
-  else ctx.run_compute(algo,"batch_norm_forward",inputs,outputs);
+  else ctx.run_compute(algo,shader,inputs,outputs);
   return {y,mean,inv};
 }
 std::tuple<at::Tensor,at::Tensor,at::Tensor> batch_norm_backward(
